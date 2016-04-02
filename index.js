@@ -29,7 +29,7 @@ app.post("/login", function(req, res){
         bcrypt.compare(user.password, dbUser.password, function(error, result){
             if (result){
                 var token = LoginController.generateTokenForUser(dbUser);
-                res.json({user:dbUser, token});
+                res.json({user:dbUser, token });
             }
             else{
                 res.status("400");
@@ -47,4 +47,6 @@ app.get("/user", function(req, res){
     !req.user && res.status(400) && res.send({error:"Not Logged In"});
 });
 
-app.listen(3354);
+var port = process.env.PORT || 3354;
+
+app.listen(port);
