@@ -18,12 +18,29 @@ module.exports = function(modelName, schemaJson){
     Model.prototype.oldSave = Model.prototype.save;
     Model.prototype.save = function(callback){
 
+        var doOldSave = ()=>{
+            this.oldSave(callback);
+        };
+
         if (this._id) {
-            Model.findOneAndUpdate({_id:this._id},  this, {new:true}, callback);
+            console.log("has ID ");
+            Model.findById(this._id, (result)=>{
+                console.log("in result");
+
+                if (result){
+                    console.log("result existrs and its " + result);
+
+                    Model.findOneAndUpdate({_id:this._id},  this, {new:true}, callback);
+                }
+                else{
+                    console.log("doing old savesave");
+                    doOldSave();
+                }
+            })
         }
 
         else {
-            this.oldSave(callback);
+            doOldSave();
         }
 
     };

@@ -2,10 +2,7 @@
  * Created by bvfergus on 3/5/16.
  */
 
-
-
 module.exports = function MountModelToRouter(router, Model, name){
-
 
     router.get("/", function(req, res){
         console.log("test");
@@ -27,14 +24,22 @@ module.exports = function MountModelToRouter(router, Model, name){
 
         if (!req.body[name]) {
             //send error
+            console.log("inside");
             return;
         }
 
 
         var instanceData = req.body[name];
-
-        var model = Model(instanceData);
+        console.log("instance data " + JSON.stringify(instanceData));
+        var model = new Model(instanceData);
+        console.log("model " + model);
         model.save((error, result)=>{
+
+            console.log("error " + error);
+            if (error){
+                console.log(error);
+            }
+            console.log(result);
             res.json(result);
         })
 
