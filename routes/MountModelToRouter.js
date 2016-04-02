@@ -17,9 +17,9 @@ module.exports = function MountModelToRouter(router, Model, name){
 
     router.get("/:id", function (req, res){
 
-        Model.find({"_id":req.params.id}, function(error, result){
+        Modal.find({"_id":req.params.id}, function(error, result){
             error && console.log(error);
-            result && res.json(result);
+            result && res.json({ "result" : result } );
         })
     });
 
