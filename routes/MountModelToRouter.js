@@ -19,7 +19,8 @@ module.exports = function MountModelToRouter(router, Model, name){
 
         Model.find({"_id":req.params.id}, function(error, result){
             error && console.log(error);
-            result && res.json({ "result" : result } );
+            // find returns an array, and we should only be getting one item back
+            result && res.json( result.pop() );
         })
     });
 
