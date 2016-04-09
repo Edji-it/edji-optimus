@@ -17,12 +17,13 @@ module.exports = function(modelName, schemaJson){
 
     Model.prototype.oldSave = Model.prototype.save;
     Model.prototype.save = function(callback){
-
+        console.log("inside save");
+        console.log("ID: " + this._id);
+        console.log(this);
         if (this._id) {
             Model.findOneAndUpdate({_id:this._id},  this, {new:true}, callback);
-        }
-
-        else {
+        } else {
+          console.log("Old save?");
             this.oldSave(callback);
         }
 
