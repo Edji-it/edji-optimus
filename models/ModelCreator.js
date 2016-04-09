@@ -21,7 +21,7 @@ module.exports = function(modelName, schemaJson){
         console.log("ID: " + this._id);
         console.log(this);
         if (this._id) {
-            Model.findOneAndUpdate({_id:this._id},  { $set: this }, {new:true}, callback);
+            Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true}, callback);
         } else {
           console.log("Old save?");
             this.oldSave(callback);
