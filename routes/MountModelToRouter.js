@@ -8,7 +8,6 @@ module.exports = function MountModelToRouter(router, Model, name){
 
 
     router.get("/", function(req, res){
-        console.log("test");
         Model.find({}, function(error, results){
             error && console.log(error);
             results && res.json(results);
@@ -33,17 +32,10 @@ module.exports = function MountModelToRouter(router, Model, name){
             return;
         }
 
-        console.log( req.body[name] );
-
         var instanceData = req.body[name];
-
         var model = Model(instanceData);
 
-        console.log(model);
-
         model.save((error, result)=>{
-            console.log("model save");
-            console.log(result)
             console.log(error);
             res.json(result);
         })

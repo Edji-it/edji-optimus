@@ -18,12 +18,9 @@ model.schema.pre("save", function(next){
         next();
     }
 
-    console.log("new/edit password");
-
     bcrypt.hash(this.password, 10, (error, hash)=>{
        this.password = hash;
        console.log(error);
-       console.log(hash);
         next();
     });
 
