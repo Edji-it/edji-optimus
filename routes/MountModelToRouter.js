@@ -33,10 +33,12 @@ module.exports = function MountModelToRouter(router, Model, name){
             return;
         }
 
+        console.log( req.body[name] );
 
         var instanceData = req.body[name];
 
         var model = Model(instanceData);
+        
         model.save((error, result)=>{
             res.json(result);
         })
