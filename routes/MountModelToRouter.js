@@ -42,6 +42,8 @@ module.exports = function MountModelToRouter(router, Model, name){
         console.log(model);
 
         model.save((error, result)=>{
+            console.log("model save");
+            console.log(result)
             console.log(error);
             res.json(result);
         })
