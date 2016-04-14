@@ -12,6 +12,7 @@ console.log("test");
 //routers
 var users = require("./routes/users");
 var readings = require("./routes/readings");
+var comments = require("./routes/comments");
 
 var app = express();
 
@@ -40,7 +41,7 @@ app.use(function (req, res, next) {
 
 app.use("/users",users);
 app.use("/readings",readings);
-
+app.use("/comments", comments);
 app.post("/login", function(req, res){
 
     var user = req.body.user;
