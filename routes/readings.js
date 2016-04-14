@@ -17,8 +17,8 @@ router.post("/:id/comments", function(req, res){
 
     if (!comment.user_id){
         comment.user_id = req.user.user_id;
-
     }
+
     //comment.user_id = req.logged_in_user.user_id;
     Reading.findById({_id}, function(err, result){
         var currentComment = result.comments.id(comment._id);
@@ -36,6 +36,16 @@ router.post("/:id/comments", function(req, res){
             }
             //res.send(result);
         })
+    });
+
+});
+
+router.get("/:id/comments", function(req, res){
+
+    var _id = req.params.id;
+
+    Reading.findById({_id}, function(err, result){
+        res.send(result.comments);
     });
 
 });
