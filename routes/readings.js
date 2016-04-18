@@ -49,5 +49,22 @@ router.get("/:id/comments", function(req, res){
     });
 
 });
+router.delete("/:reading_id/comments/:comment_id", function(req, res){
+
+    Reading.findByIdAndUpdate(
+        {"_id":req.params.reading_id},
+        {$pull:{
+        comments:{
+            _id: req.params.comment_id
+        }
+    }}, function(error, result){
+        if (error){
+            console.log(error);
+        }
+        res.json({success:true});
+
+    })
+
+});
 
 module.exports = router;
