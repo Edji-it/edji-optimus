@@ -33,10 +33,10 @@ module.exports = function MountModelToRouter(router, Model, name, options){
 
     options.delete &&
     router.delete("/:id", function (req, res){
-        Model.find({"_id":req.params.id}, function(error, result){
+        Model.remove({"_id":req.params.id}, function(error){
             error && console.log(error);
             // delete the result we got back;
-            !error && result.remove() && res.json( {success:true} );
+            !error && res.json( {success:true} );
         })
     });
 
