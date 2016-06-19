@@ -20,6 +20,7 @@ model.schema.pre("save", function(next){
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
        this.password = hash;
+       console.log(error);
         next();
     });
 

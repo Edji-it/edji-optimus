@@ -14,14 +14,56 @@ router.post("/:id/comments", function(req, res){
 
     var _id = req.params.id;
     var comment = Comment(req.body.comment);
+
+    if (!comment.user_id){
+        comment.user_id = req.user.user_id;
+    }
+
     //comment.user_id = req.logged_in_user.user_id;
     Reading.findById({_id}, function(err, result){
+        var currentComment = result.comments.id(comment._id);
 
-        result.comments.push(comment);
+        if (currentComment){
+            Object.assign(currentComment, comment);
+        }
+        else{
+            result.comments.push(comment);
+        }
+
         result.save(function(error, result){
-            res.send(result);
+            if (!error){
+                res.send(result.comments.id(comment._id));
+            }
+            //res.send(result);
         })
     });
+
+});
+
+router.get("/:id/comments", function(req, res){
+
+    var _id = req.params.id;
+
+    Reading.findById({_id}, function(err, result){
+        res.send(result.comments);
+    });
+
+});
+router.delete("/:reading_id/comments/:comment_id", function(req, res){
+
+    Reading.findByIdAndUpdate(
+        {"_id":req.params.reading_id},
+        {$pull:{
+        comments:{
+            _id: req.params.comment_id
+        }
+    }}, function(error, result){
+        if (error){
+            console.log(error);
+        }
+        res.json({success:true});
+
+    })
 
 });
 
