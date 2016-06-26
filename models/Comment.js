@@ -4,9 +4,17 @@
 
 var ModelCreator = require("./ModelCreator");
 
-module.exports = ModelCreator("Comment",{
+var Model =  ModelCreator("Comment",{
     start:Number,
     end:Number,
     data:String,
-    user_id:String
+    user_id:String,
+    user:Object
+    //TODO:need a better way to include this field. dont think it should be a part of the scheema. Or maybe it should include itself on load/initialization
 });
+
+
+module.exports = Model;
+
+
+
