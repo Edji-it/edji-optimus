@@ -6,7 +6,6 @@ var express = require("express");
 var mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 var User = require("./models/User");
-var bcrypt = require("bcrypt");
 var LoginController = require("./LoginController");
 
 console.log("test");
@@ -47,22 +46,37 @@ app.post("/login", function(req, res){
 
     var user = req.body.user;
 
-    User.findOne({username:user.username}, function(err, dbUser){
 
-        bcrypt.compare(user.password, dbUser.password, function(error, result){
-            if (result){
-                var token = LoginController.generateTokenForUser(dbUser);
-                res.json({user:dbUser, token });
-            }
-            else{
-                res.status("400");
-                res.json({error:"Wrong Credentials"});
-            }
-        })
+    LoginController.login(user)
+        .then(function(result){
+            res.json(result);
+        }).fail(function(err){
+            res.status("400");
+            res.json({error:err});
+        });
 
-    });
 });
+app.post("/register", function(req, res){
 
+
+    if (!req.body["user"]) {
+        //send error
+        return;
+    }
+
+    var userData = req.body.user;
+
+    var model = User(userData);
+
+    model.save((error, result)=>{
+        console.log(error);
+        //res.json(result);
+        LoginController.login(result).then(function(result){
+            res.json(result);
+        })
+    })
+
+});
 app.get("/user", function(req, res){
 
     req.user && res.send(req.user);
