@@ -69,11 +69,13 @@ app.post("/register", function(req, res){
     var model = User(userData);
 
     model.save((error, result)=>{
-        console.log(error);
+        if (error){
+            console.log(error);
+            res.status(400) && res.send({error});
+            return;
+        }
         //res.json(result);
-        LoginController.login(result).then(function(result){
-            res.json(result);
-        })
+        res.json(LoginController.generateLoginObjectForUser(result));
     })
 
 });
