@@ -8,5 +8,5 @@ module.exports = ModelCreator("Session", {
     reading_id:{type:String, required:true},
     comments:[Comment.schema],
     students_ids:[],
-    label:{type:String, required:true``}
+    label:{type:String, required:true}
 });
