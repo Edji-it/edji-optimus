@@ -11,13 +11,13 @@ var secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
 var LoginController = {
 
     login:function(user){
-        var me = this;
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username}, function (err, dbUser) {
 
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
-                        resolve(me.generateLoginObjectForUser(dbUser));
+                        var token = LoginController.generateTokenForUser(dbUser);
+                        resolve({user: dbUser, token});
                     }
                     else {
                         //res.status("400");
@@ -29,12 +29,6 @@ var LoginController = {
         })
     }
     ,
-    generateLoginObjectForUser(user){
-        return {
-            user:user,
-            token: this.generateTokenForUser(user)
-        };
-    },
      generateTokenForUser: function(user){
         var id = user.id;
 
