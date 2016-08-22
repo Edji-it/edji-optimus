@@ -5,10 +5,10 @@ var ModelCreator = require("./ModelCreator");
 var bcrypt = require("bcrypt");
 
 var model = ModelCreator("User", {
-    username:{type:String, unique:true},
-    fullname:String,
-    password:String,
-    email:{type:String, unique:true},
+    username:{type:String, unique:true, required:true},
+    fullname:{type:String, required:true},
+    password:{type:String, required:true},
+    email:{type:String, unique:true, unique:true},
     isTeacher:Boolean
 });
 
