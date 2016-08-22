@@ -9,10 +9,13 @@ mongoose.connection.once("open", function(){
     console.log("connected!");
 });
 
-module.exports = function(modelName, schemaJson){
+module.exports = function(modelName, schemaJson, schemaDecorator){
 
     var Schema = new mongoose.Schema(schemaJson);
 
+    if (typeof schemaDecorator === "function"){
+        shemaDecorator(Schema);
+    }
     var Model = mongoose.model(modelName, Schema);
 
     Model.prototype.oldSave = Model.prototype.save;
