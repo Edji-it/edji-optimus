@@ -13,6 +13,7 @@ console.log("test");
 var users = require("./routes/users");
 var readings = require("./routes/readings");
 var comments = require("./routes/comments");
+var sessions = require("./routes/sessions");
 
 var app = express();
 
@@ -41,6 +42,7 @@ app.use(function (req, res, next) {
 
 app.use("/users",users);
 app.use("/readings",readings);
+app.use("/sessions",sessions);
 //app.use("/comments", comments);
 app.post("/login", function(req, res){
 
@@ -69,13 +71,14 @@ app.post("/register", function(req, res){
     var model = User(userData);
 
     model.save((error, result)=>{
-        if (error){
-            console.log(error);
-            res.status(400) && res.send({error});
-            return;
-        }
+        // console.log(error);
         //res.json(result);
-        res.json(LoginController.generateLoginObjectForUser(result));
+        if (error){
+            res.json(error);
+        }
+        LoginController.login(result).then(function(result){
+            res.json(result);
+        })
     })
 
 });
