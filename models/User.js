@@ -8,7 +8,7 @@ var model = ModelCreator("User", {
     username:{type:String, unique:true, required:true},
     fullname:{type:String, required:true},
     password:{type:String, required:true},
-    email:{type:String, unique:true, unique:true},
+    email:{type:String, unique:true, required:true},
     isTeacher:Boolean
 });
 
