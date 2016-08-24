@@ -76,9 +76,8 @@ app.post("/register", function(req, res){
         if (error){
             res.json(error);
         }
-        LoginController.login(result).then(function(result){
-            res.json(result);
-        })
+
+        res.json( LoginController.generateLoginObjectForUser(result));
     })
 
 });

@@ -13,18 +13,15 @@ var LoginController = {
     login:function(user){
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username}, function (err, dbUser) {
-                if(!dbUser) {
-                    reject("User does not exist");
-                }
-                if (err) {
-                    reject(err);
-                }
+                var me = this;
+
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
-                        var token = LoginController.generateTokenForUser(dbUser);
-                        resolve({user: dbUser, token});
+                        resolve(me.generateLoginObjectForUser(dbUser));
+
                     }
                     else {
+                        //res.status("400");
                         reject("Wrong Credentials");
                     }
                 })
@@ -33,7 +30,14 @@ var LoginController = {
         })
     }
     ,
-     generateTokenForUser: function(user){
+    generateLoginObjectForUser(user){
+        return {
+            user:user,
+            token: this.generateTokenForUser(user)
+        };
+    },
+
+    generateTokenForUser: function(user){
         var id = user.id;
 
         return jwt.sign({id}, secret);
