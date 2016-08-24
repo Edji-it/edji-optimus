@@ -17,20 +17,24 @@ router.get("/:id", function(req, res){
         // find returns an array, and we should only be getting one item back
         var result = _result.pop();
         if (result){
-            var promises = result.comments.map(function(comment){
-                return Q.Promise(function(resolve, reject){
-                    User.findOne({_id:comment.user_id}, function(err, user){
-                        if (user){
-                            comment.user = user;
-                            resolve();
-                        }
-                    });
-                })
-            });
+            //var promises = result.comments.map(function(comment){
+            //    return Q.Promise(function(resolve, reject){
+            //        User.findOne({_id:comment.user_id}, function(err, user){
+            //            if (user){
+            //                comment.user = user;
+            //                resolve();
+            //            }
+            //        });
+            //    })
+            //});
 
-            Q.all(promises).then(function(){
-                res.json(result);
-            })
+            //Q.all(promises).then(function(){
+            //})
+            //delete(result.comments);
+            result.comments = [];
+            res.json(result);
+
+
         }
 
     })
@@ -60,18 +64,20 @@ router.post("/:id/comments", function(req, res){
                 res.send(result.comments.id(comment._id));
             }
             //res.send(result);
-        })
+        });
     });
 
 });
 
 router.get("/:id/comments", function(req, res){
 
-    var _id = req.params.id;
+    //var _id = req.params.id;
+    //
+    //Reading.findById({_id}, function(err, result){
+    //    res.send(result.comments);
+    //});
 
-    Reading.findById({_id}, function(err, result){
-        res.send(result.comments);
-    });
+    res.send([]);
 
 });
 router.delete("/:reading_id/comments/:comment_id", function(req, res){

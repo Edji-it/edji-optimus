@@ -28,7 +28,7 @@ router.get("/:id", function(req, res){
                             resolve();
                         }
                     });
-                })
+                });
             });
 
             Q.all(promises).then(function(){
