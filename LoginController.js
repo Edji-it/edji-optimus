@@ -13,7 +13,9 @@ var LoginController = {
     login:function(user){
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username}, function (err, dbUser) {
-
+                if (err) {
+                    reject(err);
+                }
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
                         var token = LoginController.generateTokenForUser(dbUser);
