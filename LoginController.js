@@ -13,6 +13,9 @@ var LoginController = {
     login:function(user){
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username}, function (err, dbUser) {
+                if(!dbUser) {
+                    reject("User does not exist");
+                }
                 if (err) {
                     reject(err);
                 }
@@ -22,7 +25,6 @@ var LoginController = {
                         resolve({user: dbUser, token});
                     }
                     else {
-                        //res.status("400");
                         reject("Wrong Credentials");
                     }
                 })
