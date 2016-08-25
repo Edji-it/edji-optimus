@@ -27,7 +27,6 @@ router.get("/:id", function(req, res){
                             comment.user = user;
                         }
                         resolve();
-
                     });
                 });
             });
