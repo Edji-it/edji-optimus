@@ -8,11 +8,13 @@
     delete: Delete
     list: Get List
      */
-var o = {create:true, read:true, "delete":true, list:true};
+var options = {create:true, read:true, "delete":true, list:true};
 
-module.exports = function MountModelToRouter(router, Model, name, options){
+module.exports = function MountModelToRouter(router, Model, name, _options){
 
-    options = options || o;
+    if (_options){
+        options = Object.assign(options, _options);
+    }
 
     options.list &&
     router.get("/", function(req, res){
