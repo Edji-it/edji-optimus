@@ -11,9 +11,19 @@ var secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
 var LoginController = {
 
     login:function(user){
+        var me = this;
+
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username}, function (err, dbUser) {
-                var me = this;
+
+                if(!dbUser) {
+                    reject("User does not exist");
+                    return;
+                }
+                if (err) {
+                    reject(err);
+                    return;
+                }
 
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
