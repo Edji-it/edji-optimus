@@ -25,8 +25,9 @@ router.get("/:id", function(req, res){
                     User.findOne({_id:comment.user_id}, function(err, user){
                         if (user){
                             comment.user = user;
-                            resolve();
                         }
+                        resolve();
+
                     });
                 });
             });
@@ -34,6 +35,9 @@ router.get("/:id", function(req, res){
             Q.all(promises).then(function(){
                 res.json(result);
             })
+        }
+        else{
+            res.json({error:"No Result"});
         }
 
     })
@@ -43,7 +47,7 @@ router.post("/:id/comments", function(req, res){
     var _id = req.params.id;
     var comment = Comment(req.body.comment);
 
-    if (!comment.user_id){
+    if (!comment.user_id) {
         comment.user_id = req.user.user_id;
     }
 

@@ -6,6 +6,9 @@ var Comment = require("./Comment");
 
 module.exports = ModelCreator("Session", {
     reading_id:{type:String, required:true},
+    teacher_id:{type:String
+                        //,required:true
+                },
     comments:[Comment.schema],
     students_ids:[],
     label:{type:String, required:true}
