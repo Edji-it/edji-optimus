@@ -9,36 +9,9 @@ var MountModelToRouter = require("./MountModelToRouter");
 var Q = require("q");
 var router = express.Router();
 
-MountModelToRouter(router, Reading, "reading", {read:false});
-
-router.get("/:id", function(req, res){
-    Reading.find({"_id":req.params.id}, function(error, _result){
-        error && console.log(error);
-        // find returns an array, and we should only be getting one item back
-        var result = _result.pop();
-        if (result){
-            //var promises = result.comments.map(function(comment){
-            //    return Q.Promise(function(resolve, reject){
-            //        User.findOne({_id:comment.user_id}, function(err, user){
-            //            if (user){
-            //                comment.user = user;
-            //                resolve();
-            //            }
-            //        });
-            //    })
-            //});
-
-            //Q.all(promises).then(function(){
-            //})
-            //delete(result.comments);
-            result.comments = [];
-            res.json(result);
+MountModelToRouter(router, Reading, "reading");
 
 
-        }
-
-    })
-});
 router.post("/:id/comments", function(req, res){
 
     var _id = req.params.id;
