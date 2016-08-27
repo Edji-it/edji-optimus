@@ -13,7 +13,7 @@ var Model = ModelCreator("Session", {
     comments:[Comment.schema],
     students_ids:[],
     label:{type:String, required:true},
-    code:{type:String}
+    code:{type:String, unique:true}
 });
 
 var salt = "SALT ME BABY";
