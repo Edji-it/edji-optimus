@@ -48,9 +48,13 @@ var LoginController = {
     },
 
     generateTokenForUser: function(user){
-        var id = user.id;
-
-        return jwt.sign({id}, secret);
+        var id;
+        if (user.id) {
+            id = user.id;
+            return jwt.sign({id}, secret);
+        } else {
+            return null;
+        }
     },
 
      decodeToken:function(token){
