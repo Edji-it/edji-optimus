@@ -31,7 +31,8 @@ app.use(LoginController.middleware);
 // Access allowed for development
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
-    // res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    var oneof = false;
     if(req.headers.origin) {
         res.header('Access-Control-Allow-Origin', req.headers.origin);
         res.header('Access-Control-Allow-Credentials', true);
