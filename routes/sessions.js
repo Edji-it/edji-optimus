@@ -5,6 +5,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var express = require( "express");
+var mongoose = require( "mongoose");
 var Session = require("./../models/Session");
 var Comment = require("./../models/Comment");
 var User = require("./../models/User");
@@ -15,7 +16,17 @@ var router = express.Router();
 MountModelToRouter(router, Session, "session", {read:false});
 
 router.get("/:id", function(req, res){
-    Session.find({"_id":req.params.id}, function(error, _result){
+    var id = req.params.id;
+
+    var findParams = {};
+
+    if (mongoose.Types.ObjectId.isValid(id)){
+        findParams._id = id;
+    }
+    else{
+        findParams.code = id;
+    }
+    Session.find(findParams, function(error, _result){
         error && console.log(error);
         // find returns an array, and we should only be getting one item back
         var result = _result.pop();
