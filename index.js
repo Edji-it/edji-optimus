@@ -20,11 +20,13 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-var userCount;
-io.on('connection', function() {
+var userCount = 0;
+io.on('connection', function(socket) {
     console.log('Socket user connected');
-    io.emit('');
+    socket.emit('liveCount', ++userCount);
 });
+
+io.emit('test', {});
 
 app.use(bodyParser());
 app.use(LoginController.middleware);
