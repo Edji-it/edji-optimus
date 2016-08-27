@@ -16,8 +16,10 @@ var comments = require("./routes/comments");
 var sessions = require("./routes/sessions");
 
 var app = express();
+
+var allowedOrigins = "edjit.it* localhost*";
 var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+var io = require('socket.io')(server, { origins : allowedOrigins });
 
 io.on('connection', function() {
     console.log('user connected');
