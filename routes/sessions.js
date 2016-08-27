@@ -91,6 +91,32 @@ router.get("/:id/comments", function(req, res){
     });
 
 });
+
+router.get("/add/:code", function(req, res){
+
+    var code = req.params.code;
+
+    Session.find({code:code}, function(err, results){
+
+        if (error){
+            res.json({error:err});
+            return;
+        }
+
+        if (!result && result.length){
+            res.json({error:"No Session Found"});
+            return;
+        }
+
+        var session = results.pop();
+
+        session.student_ids.push(req.user._id);
+        session.save(function(error, result){
+            res.json({success:true});
+        });
+    });
+
+});
 router.delete("/:reading_id/comments/:comment_id", function(req, res){
 
     Session.findByIdAndUpdate(
