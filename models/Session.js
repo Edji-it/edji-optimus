@@ -30,5 +30,6 @@ Model.schema.pre("save", function(next){
             next();
         });
     }
+    next();
 });
 module.exports  = Model;
