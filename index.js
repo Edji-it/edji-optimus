@@ -20,9 +20,10 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
+var userCount;
 io.on('connection', function() {
     console.log('Socket user connected');
-    io.emit('test', {});
+    io.emit('');
 });
 
 app.use(bodyParser());
