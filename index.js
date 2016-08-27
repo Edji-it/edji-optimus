@@ -21,7 +21,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
 io.on('connection', function() {
-    console.log('user connected');
+    console.log('Socket user connected');
     io.emit('test', {});
 });
 
@@ -31,7 +31,7 @@ app.use(LoginController.middleware);
 // Access allowed for development
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
     var oneof = false;
     if(req.headers.origin) {
         res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -111,4 +111,6 @@ app.get("/user", function(req, res){
 
 var port = process.env.PORT || 3354;
 
-app.listen(port);
+server.listen(port);
+
+console.log("Connected at " + port);
