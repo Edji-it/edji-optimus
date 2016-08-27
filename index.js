@@ -17,12 +17,12 @@ var sessions = require("./routes/sessions");
 
 var app = express();
 
-var allowedOrigins = "edjit.it* localhost*";
 var server = require('http').createServer(app);
-var io = require('socket.io')(server, { origins : allowedOrigins });
+var io = require('socket.io')(server);
 
 io.on('connection', function() {
     console.log('user connected');
+    io.emit('test', {});
 });
 
 app.use(bodyParser());
@@ -30,15 +30,27 @@ app.use(LoginController.middleware);
 
 // Access allowed for development
 app.use(function (req, res, next) {
-
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    if(req.headers.origin) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Credentials', true);
+        oneof = true;
+    }
+    if(req.headers['access-control-request-method']) {
+        res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
+        oneof = true;
+    }
+    if(req.headers['access-control-request-headers']) {
+        res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+        oneof = true;
+    }
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    // res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
