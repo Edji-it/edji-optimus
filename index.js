@@ -16,6 +16,12 @@ var comments = require("./routes/comments");
 var sessions = require("./routes/sessions");
 
 var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+
+io.on('connection', function() {
+    console.log('user connected');
+});
 
 app.use(bodyParser());
 app.use(LoginController.middleware);
@@ -78,7 +84,7 @@ app.post("/register", function(req, res){
         }
 
         res.json( LoginController.generateLoginObjectForUser(result));
-    })
+    });
 
 });
 app.get("/user", function(req, res){
