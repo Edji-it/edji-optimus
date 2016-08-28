@@ -70,7 +70,7 @@ app.use("/sessions",sessions);
 //app.use("/comments", comments);
 app.post("/login", function(req, res){
 
-    var user = req.body.user;
+    var user = req.body.user.toLowerCase();
 
 
     LoginController.login(user)
@@ -90,7 +90,7 @@ app.post("/register", function(req, res){
         return;
     }
 
-    var userData = req.body.user.toLowerCase();
+    var userData = req.body.user;
 
     var model = User(userData);
 
