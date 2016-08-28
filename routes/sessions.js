@@ -5,6 +5,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var express = require( "express");
+var mongoose = require( "mongoose");
 var Session = require("./../models/Session");
 var Comment = require("./../models/Comment");
 var User = require("./../models/User");
@@ -12,10 +13,38 @@ var MountModelToRouter = require("./MountModelToRouter");
 var Q = require("q");
 var router = express.Router();
 
-MountModelToRouter(router, Session, "session", {read:false});
+MountModelToRouter(router, Session, "session", {read:false, list:false});
 
+router.get("/",function(req, res){
+
+    var callback = (error, results)=>{
+        if (error){
+            res.json({error: error});
+            return;
+        }
+
+        res.json(resuts);
+    };
+
+    if (req.user.isTeacher){
+        Session.find({teacher_id:user._id}, callback);
+    }
+    else{
+        Session.find({student_ids:user._id}, callback);
+    }
+});
 router.get("/:id", function(req, res){
-    Session.find({"_id":req.params.id}, function(error, _result){
+    var id = req.params.id;
+
+    var findParams = {};
+
+    if (mongoose.Types.ObjectId.isValid(id)){
+        findParams._id = id;
+    }
+    else{
+        findParams.code = id;
+    }
+    Session.find(findParams, function(error, _result){
         error && console.log(error);
         // find returns an array, and we should only be getting one item back
         var result = _result.pop();
@@ -77,6 +106,33 @@ router.get("/:id/comments", function(req, res){
 
     Session.findById({_id}, function(err, result){
         res.send(result.comments);
+    });
+
+});
+
+router.get("/add/:code", function(req, res){
+
+    var code = req.params.code;
+
+    Session.find({code:code}, function(err, results){
+
+        if (err){
+            res.json({error:err});
+            return;
+        }
+
+        if (!results && results.length){
+            res.json({error:"No Session Found"});
+            return;
+        }
+
+        var session = results.pop();
+
+        session.students_ids.push(req.user._id.toString());
+        session.save(function(error, result){
+            res.json({success:true});
+            return;
+        });
     });
 
 });
