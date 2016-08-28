@@ -69,9 +69,8 @@ app.use("/readings",readings);
 app.use("/sessions",sessions);
 //app.use("/comments", comments);
 app.post("/login", function(req, res){
-
-    var user = req.body.user.toLowerCase();
-
+    var user = req.body.user;
+    user.username = req.body.user.username.toLowerCase();
 
     LoginController.login(user)
         .then(function(result){
@@ -91,6 +90,7 @@ app.post("/register", function(req, res){
     }
 
     var userData = req.body.user;
+    userData.username = req.body.user.username.toLowerCase();
 
     var model = User(userData);
 

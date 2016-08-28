@@ -19,17 +19,15 @@ var Model = ModelCreator("Session", {
 var salt = "SALT ME BABY";
 
 Model.schema.pre("save", function(next){
-
     if (!this.code){
         Model.find({}, (error, results)=>{
-
             var length = (results && results.length && results.length > 0 && results.length - 1) || 0;
-
             var hashids = new Hashids(salt, 6);
             this.code = hashids.encode(length);
             next();
         });
+    } else {
+        next();
     }
-    next();
 });
 module.exports  = Model;
