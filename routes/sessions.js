@@ -23,14 +23,15 @@ router.get("/",function(req, res){
             return;
         }
 
-        res.json(resuts);
+        res.json(results);
     };
 
+    var user = req.user;
     if (req.user.isTeacher){
         Session.find({teacher_id:user._id}, callback);
     }
     else{
-        Session.find({student_ids:user._id}, callback);
+        Session.find({students_ids:user._id}, callback);
     }
 });
 router.get("/:id", function(req, res){
@@ -128,7 +129,7 @@ router.get("/add/:code", function(req, res){
 
         var session = results.pop();
 
-        session.students_ids.push(req.user._id.toString());
+        session.students_ids.push(req.user._id);
         session.save(function(error, result){
             res.json({success:true});
             return;
