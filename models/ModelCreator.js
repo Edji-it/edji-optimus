@@ -6,7 +6,7 @@ var mongoose = require("mongoose");
 mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji', {user:"edjiuser", password:"edjiuser1"});
 mongoose.connection.on("error", console.error.bind(console, "connection error:"));
 mongoose.connection.once("open", function(){
-    console.log("connected!");
+    console.log("Connected to Mongo!");
 });
 
 module.exports = function(modelName, schemaJson, schemaDecorator){

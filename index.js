@@ -70,7 +70,7 @@ app.use("/sessions",sessions);
 //app.use("/comments", comments);
 app.post("/login", function(req, res){
 
-    var user = req.body.user;
+    var user = req.body.user.toLowerCase();
 
 
     LoginController.login(user)
