@@ -4,14 +4,14 @@
 var ModelCreator = require("./ModelCreator");
 var Comment = require("./Comment");
 var Hashids = require("hashids");
-
+var mongoose = require("mongoose");
 var Model = ModelCreator("Session", {
     reading_id:{type:String, required:true},
     teacher_id:{type:String
                         //,required:true
                 },
     comments:[Comment.schema],
-    students_ids:[],
+    students_ids:[String],
     label:{type:String, required:true},
     code:{type:String, unique:true}
 });
@@ -30,5 +30,6 @@ Model.schema.pre("save", function(next){
             next();
         });
     }
+    next();
 });
 module.exports  = Model;

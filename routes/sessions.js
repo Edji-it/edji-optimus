@@ -13,8 +13,27 @@ var MountModelToRouter = require("./MountModelToRouter");
 var Q = require("q");
 var router = express.Router();
 
-MountModelToRouter(router, Session, "session", {read:false});
+MountModelToRouter(router, Session, "session", {read:false, list:false});
 
+router.get("/",function(req, res){
+
+    var callback = (error, results)=>{
+        if (error){
+            res.json({error: error});
+            return;
+        }
+
+        res.json(results);
+    };
+
+    var user = req.user;
+    if (req.user.isTeacher){
+        Session.find({teacher_id:user._id}, callback);
+    }
+    else{
+        Session.find({students_ids:user._id}, callback);
+    }
+});
 router.get("/:id", function(req, res){
     var id = req.params.id;
 
@@ -98,21 +117,22 @@ router.get("/add/:code", function(req, res){
 
     Session.find({code:code}, function(err, results){
 
-        if (error){
+        if (err){
             res.json({error:err});
             return;
         }
 
-        if (!result && result.length){
+        if (!results && results.length){
             res.json({error:"No Session Found"});
             return;
         }
 
         var session = results.pop();
 
-        session.student_ids.push(req.user._id);
+        session.students_ids.push(req.user._id);
         session.save(function(error, result){
             res.json({success:true});
+            return;
         });
     });
 

@@ -3,6 +3,7 @@
  */
 var express = require( "express");
 var Reading = require("./../models/Reading");
+var Session = require("./../models/Session");
 var Comment = require("./../models/Comment");
 var User = require("./../models/User");
 var MountModelToRouter = require("./MountModelToRouter");
@@ -42,17 +43,18 @@ router.post("/:id/comments", function(req, res){
 
 });
 
-router.get("/:id/comments", function(req, res){
+router.get("/:id/sessions", function(req, res){
 
-    //var _id = req.params.id;
-    //
-    //Reading.findById({_id}, function(err, result){
-    //    res.send(result.comments);
-    //});
+    Session.find({"reading_id":req.params.id}, function(error, result){
+        error && console.log(error);
+        // find returns an array, and we should only be getting one item back
+        result && res.json( result );
+    });
 
-    res.send([]);
+    // res.send([]);
 
 });
+
 router.delete("/:reading_id/comments/:comment_id", function(req, res){
 
     Reading.findByIdAndUpdate(
