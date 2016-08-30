@@ -57,13 +57,13 @@ router.get("/:id/sessions", function(req, res){
 
 
 router.post("/:id/sessions", function(req, res){
-    
+
     var session = Session(req.body.session);
     session["reading_id"] = req.params.id;
 
     if (!session.teacher_id) {
         session.teacher_id = req.user.user_id;
-    } 
+    }
 
     session.save(function(error, result){
         if (!error){
@@ -91,7 +91,7 @@ router.delete("/:reading_id/comments/:comment_id", function(req, res){
         }
         res.json({success:true});
 
-    })
+    });
 
 });
 

@@ -63,13 +63,13 @@ router.get("/:id", function(req, res){
 
             Q.all(promises).then(function(){
                 res.json(result);
-            })
+            });
         }
         else{
             res.json({error:"No Result"});
         }
 
-    })
+    });
 });
 
 router.post("/:id/comments", function(req, res){
@@ -97,7 +97,7 @@ router.post("/:id/comments", function(req, res){
                 res.send(result.comments.id(comment._id));
             }
             //res.send(result);
-        })
+        });
     });
 
 });
@@ -158,7 +158,7 @@ router.delete("/:reading_id/comments/:comment_id", function(req, res){
             }
             res.json({success:true});
 
-        })
+        });
 
 });
 
