@@ -34,10 +34,10 @@ var LoginController = {
                         //res.status("400");
                         reject("Wrong Credentials");
                     }
-                })
+                });
 
             });
-        })
+        });
     }
     ,
     generateLoginObjectForUser(user){
@@ -80,10 +80,10 @@ var LoginController = {
                 }
 
                 next();
-            })
+            });
         }
          else{
-            next()
+            next();
         }
     }
 };

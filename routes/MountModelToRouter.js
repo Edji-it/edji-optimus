@@ -21,7 +21,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
         Model.find({}, function(error, results){
             error && console.log(error);
             results && res.json(results);
-        })
+        });
     });
 
     options.read &&
@@ -30,7 +30,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
             error && console.log(error);
             // find returns an array, and we should only be getting one item back
             result && res.json( result.pop() );
-        })
+        });
     });
 
     options.delete &&
@@ -39,7 +39,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
             error && console.log(error);
             // delete the result we got back;
             !error && res.json( {success:true} );
-        })
+        });
     });
 
     options.create &&
@@ -58,7 +58,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
         model.save((error, result)=>{
             console.log(error);
             res.json(result);
-        })
+        });
 
     });
 };
