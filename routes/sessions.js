@@ -130,11 +130,17 @@ router.get("/add/:code", function(req, res){
 
         var session = results.pop();
 
-        session.students_ids.push(req.user._id);
-        session.save(function(error, result){
-            res.json({success:true});
+        if (session) {
+            session.students_ids.push(req.user._id);
+            session.save(function(error, result){
+                res.json({success:true});
+                return;
+            });
+        } else {
+            res.json({success:false});
             return;
-        });
+        }
+       
     });
 
 });
