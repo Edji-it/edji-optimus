@@ -16,7 +16,7 @@ var Model = ModelCreator("Session", {
     code:{type:String, unique:true}
 });
 
-var salt = "SALT ME BABY";
+var salt = "SALT ME BBZ";
 
 Model.schema.pre("save", function(next){
     if (!this.code){

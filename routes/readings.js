@@ -65,26 +65,14 @@ router.post("/:id/sessions", function(req, res){
         session.teacher_id = req.user.user_id;
     } 
 
-    // Session.findById({_id}, function(err, result){
-    //     var currentComment = result.comments.id(comment._id);
-
-    //     if (currentComment){
-    //         Object.assign(currentComment, comment);
-    //     }
-    //     else{
-    //         result.comments.push(comment);
-    //     }
-
-        session.save(function(error, result){
-            if (!error){
-                res.send(result);
-            }
-            if (error){
-                res.send(error);
-            }
-            //res.send(result);
-        });
-    // });
+    session.save(function(error, result){
+        if (!error){
+            res.send(result);
+        }
+        if (error){
+            res.send(error);
+        }
+    });
 
 });
 
