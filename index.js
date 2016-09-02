@@ -20,13 +20,31 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-var userCount = 0;
+var globalUsers = 0;
+var sessionObjs = {};
 io.on('connection', function(socket) {
-    console.log('Socket user connected');
-    socket.emit('liveCount', ++userCount);
+    var thisSessionId;
+
+    // socket.emit('test','this has been a test');
+    socket.on('newSession', function(sessionId) {
+        thisSessionId = sessionId.id;
+        socket.join(thisSessionId);
+
+        if (sessionObjs[thisSessionId] && sessionObjs[thisSessionId] > 0) {
+            sessionObjs[thisSessionId]++;
+        } else {
+            sessionObjs[thisSessionId] = 1;
+        }
+        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+    });
+
+    socket.on('disconnect', function() {
+        // this.id is the socket id
+        sessionObjs[thisSessionId]--;
+        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+    });
 });
 
-io.emit('test', {});
 
 app.use(bodyParser());
 app.use(LoginController.middleware);
