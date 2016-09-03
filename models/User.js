@@ -10,11 +10,15 @@ var validateEmail = function(email) {
     return re.test(email);
 };
 
+function toLower(str) {
+    return str.toLowerCase();
+}
+
 var model = ModelCreator("User", {
-    username:{type:String, unique:true, required:true},
+    username:{type:String, set:toLower, unique:true, required:true},
     fullname:{type:String, required:true},
     password:{type:String, required:true},
-    email:{type:String, unique:true, required:true, validate: [validateEmail, 'Invalid email']},
+    email:{type:String, set:toLower, unique:true, required:true, validate: [validateEmail, 'Invalid email']},
     isTeacher:Boolean
 });
 
@@ -25,8 +29,8 @@ model.schema.pre("save", function(next){
     }
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
-       this.password = hash;
-       console.log(error);
+        this.password = hash;
+        console.log(error);
         next();
     });
 

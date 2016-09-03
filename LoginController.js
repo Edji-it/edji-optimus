@@ -14,7 +14,7 @@ var LoginController = {
         var me = this;
 
         return Q.Promise(function(resolve, reject) {
-            User.findOne({username: user.username}, function (err, dbUser) {
+            User.findOne({username: user.username.toLowerCase()}, function (err, dbUser) {
 
                 if(!dbUser) {
                     reject("User does not exist");
