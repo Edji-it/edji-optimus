@@ -20,6 +20,7 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
+//wires socket.io for sessions
 var globalUsers = 0;
 var sessionObjs = {};
 io.on('connection', function(socket) {
@@ -116,7 +117,9 @@ app.post("/register", function(req, res){
         // console.log(error);
         //res.json(result);
         if (error){
+            console.log(error);
             res.json(error);
+            return;
         }
 
         res.json( LoginController.generateLoginObjectForUser(result));
