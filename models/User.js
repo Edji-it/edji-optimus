@@ -4,11 +4,17 @@
 var ModelCreator = require("./ModelCreator");
 var bcrypt = require("bcrypt");
 
+// tests email against regex
+var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+var validateEmail = function(email) {
+    return re.test(email);
+};
+
 var model = ModelCreator("User", {
     username:{type:String, unique:true, required:true},
     fullname:{type:String, required:true},
     password:{type:String, required:true},
-    email:{type:String, unique:true, required:true},
+    email:{type:String, unique:true, required:true, validate: [validateEmail, 'Invalid email']},
     isTeacher:Boolean
 });
 

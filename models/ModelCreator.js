@@ -14,7 +14,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     var Schema = new mongoose.Schema(schemaJson);
 
     if (typeof schemaDecorator === "function"){
-        shemaDecorator(Schema);
+        schemaDecorator(Schema);
     }
     var Model = mongoose.model(modelName, Schema);
 
