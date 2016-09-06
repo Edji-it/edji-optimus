@@ -13,7 +13,6 @@ var Model =  ModelCreator("Comment",{
     //TODO:need a better way to include this field. dont think it should be a part of the scheema. Or maybe it should include itself on load/initialization
 });
 
-
 module.exports = Model;
 
 
