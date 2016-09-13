@@ -6,5 +6,6 @@ var Comment = require("./Comment");
 
 module.exports = ModelCreator("Reading", {
     html:String,
+    title:String,
     comments:[Comment.schema]
 });
