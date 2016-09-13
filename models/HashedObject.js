@@ -8,7 +8,7 @@ var Model =  ModelCreator("HashedObject",{
     hash:{type:String},
     object:{type:Object}
 });
-var salt = "SALT THIS SHIT";
+var salt = "SALT THIS SHIT update";
 Model.schema.pre("save",(next)=>{
 
     if (!this.hash){
