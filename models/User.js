@@ -3,22 +3,27 @@
  */
 var ModelCreator = require("./ModelCreator");
 var bcrypt = require("bcrypt");
+var Filter = require("bad-words"),
+    filter = new Filter();
 
 // tests email against regex
-var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+var emailRe = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 var validateEmail = function(email) {
-    return re.test(email);
+    return emailRe.test(email);
 };
 
-function toLower(str) {
-    return str.toLowerCase();
+var nameRe = /(?:([^a-zA-Z0-9]))/g;
+var validateName = function(name) {
+    // if nameRe.test(name) === true, validation fails.
+    // if filter.clean(name) === name, validation should not fail
+    return !nameRe.test(name) && filter.clean(name) === name;
 }
 
 var model = ModelCreator("User", {
-    username:{type:String, set:toLower, unique:true, required:true},
-    fullname:{type:String, required:true},
+    username:{type:String, unique:true, required:true, validate: [validateName, "Invalid username"]},
+    fullname:{type:String, required:true, validate: [validateName, "Invalid name"]},
     password:{type:String, required:true},
-    email:{type:String, set:toLower, unique:true, required:true, validate: [validateEmail, 'Invalid email']},
+    email:{type:String, unique:true, required:true, validate: [validateEmail, "Invalid email"]},
     isTeacher:Boolean
 });
 
@@ -29,8 +34,8 @@ model.schema.pre("save", function(next){
     }
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
-        this.password = hash;
-        console.log(error);
+       this.password = hash;
+       console.log(error);
         next();
     });
 

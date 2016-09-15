@@ -7,5 +7,8 @@ var Comment = require("./Comment");
 module.exports = ModelCreator("Reading", {
     html:String,
     title:String,
+    owner_id:String,
+    teacher_ids:[String],
+    public:Boolean,
     comments:[Comment.schema]
 });
