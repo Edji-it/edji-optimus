@@ -19,11 +19,15 @@ var validateName = function(name) {
     return !nameRe.test(name) && filter.clean(name) === name;
 }
 
+function toLower(str) {
+    return str.toLowerCase();
+}
+
 var model = ModelCreator("User", {
-    username:{type:String, unique:true, required:true, validate: [validateName, "Invalid username"]},
+    username:{type:String, set:toLower, unique:true, required:true, validate: [validateName, "Invalid username"]},
     fullname:{type:String, required:true, validate: [validateName, "Invalid name"]},
     password:{type:String, required:true},
-    email:{type:String, unique:true, required:true, validate: [validateEmail, "Invalid email"]},
+    email:{type:String, set:toLower, unique:true, required:true, validate: [validateEmail, "Invalid email"]},
     isTeacher:Boolean
 });
 
