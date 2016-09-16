@@ -14,7 +14,7 @@ Model.schema.pre("save",(next)=>{
     if (!this.hash){
         Model.find({}, (error, results)=>{
 
-            var length = (results && results.length && results.length > 0 && result.length - 1) || 0;
+            var length = (results && results.length && results.length > 0 && results.length - 1) || 0;
 
             var hashids = new Hashids(salt);
             this.hash = hashids(length);
@@ -25,6 +25,3 @@ Model.schema.pre("save",(next)=>{
 });
 
 module.exports = Model;
-
-
-
