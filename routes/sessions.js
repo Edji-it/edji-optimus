@@ -116,7 +116,8 @@ router.get("/add/:code", function(req, res){
 
     var code = req.params.code;
 
-    Session.find({code:code}, function(err, results){
+    // all codes currently in database are lowercase
+    Session.find({code:code.toLowerCase()}, function(err, results){
 
         if (err){
             res.json({error:err});
@@ -140,7 +141,7 @@ router.get("/add/:code", function(req, res){
             res.json({success:false});
             return;
         }
-       
+
     });
 
 });

@@ -32,8 +32,6 @@ Model.schema.pre("save", function(next){
                 result.active = true;
                 result.save(function(err, result) {
                     if (!err) {
-                        console.log(this.code);
-                        console.log("We found the session code");
                         next();
                     } else {
                         console.error(err);
