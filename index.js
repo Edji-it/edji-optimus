@@ -27,8 +27,8 @@ io.on('connection', function(socket) {
     var thisSessionId;
 
     // socket.emit('test','this has been a test');
-    socket.on('newSession', function(sessionId) {
-        thisSessionId = sessionId.id;
+    socket.on('newSession', function(session) {
+        thisSessionId = session.id;
         socket.join(thisSessionId);
 
         if (sessionObjs[thisSessionId] && sessionObjs[thisSessionId] > 0) {
@@ -40,6 +40,12 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
+        // this.id is the socket id
+        sessionObjs[thisSessionId]--;
+        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+    });
+
+    socket.on('manualDisconnect', function() {
         // this.id is the socket id
         sessionObjs[thisSessionId]--;
         io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
