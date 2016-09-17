@@ -42,6 +42,12 @@ io.on('connection', function(socket) {
         io.to(thisSessionId).emit('liveUsers', sessionObjs[thisSessionId]);
     });
 
+    socket.on('manualDisconnect', function() {
+        // this.id is the socket id
+        sessionObjs[thisSessionId]--;
+        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+    });
+
     socket.on('deleteComment', function(comment) {
         io.to(thisSessionId).emit('deleteComment', comment);
     });
