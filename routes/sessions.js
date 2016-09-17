@@ -134,7 +134,7 @@ router.get("/add/:code", function(req, res){
         if (session) {
             session.students_ids.push(req.user._id);
             session.save(function(error, result){
-                res.json({success:true});
+                res.json({success:true, sessionId: result._id});
                 return;
             });
         } else {
