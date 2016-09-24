@@ -7,8 +7,8 @@ var mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 var User = require("./models/User");
 var LoginController = require("./LoginController");
+var util = require('util');
 
-console.log("test");
 //routers
 var users = require("./routes/users");
 var readings = require("./routes/readings");
@@ -21,12 +21,10 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
 //wires socket.io for sessions
-var globalUsers = 0;
 var sessionObjs = {};
 io.on('connection', function(socket) {
     var thisSessionId;
 
-    // socket.emit('test','this has been a test');
     socket.on('newSession', function(session) {
         thisSessionId = session.id;
         socket.join(thisSessionId);
@@ -40,9 +38,8 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
-        // this.id is the socket id
         sessionObjs[thisSessionId]--;
-        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+        io.to(thisSessionId).emit('liveUsers', sessionObjs[thisSessionId]);
     });
 
     socket.on('manualDisconnect', function() {
@@ -132,7 +129,7 @@ app.post("/register", function(req, res){
             return;
         }
 
-        res.json( LoginController.generateLoginObjectForUser(result));
+        res.json(LoginController.generateLoginObjectForUser(result));
     });
 
 });
