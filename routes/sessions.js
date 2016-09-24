@@ -27,7 +27,7 @@ router.get("/",function(req, res){
     };
 
     var user = req.user;
-    if (req.user.isTeacher){
+    if (req.user && req.user.isTeacher){
         Session.find({teacher_id:user._id}, callback);
     }
     else{
