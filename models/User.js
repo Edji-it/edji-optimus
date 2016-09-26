@@ -12,12 +12,12 @@ var validateEmail = function(email) {
     return emailRe.test(email);
 };
 
-var nameRe = /(?:([^a-zA-Z0-9]))/g;
+var nameRe = /(?:([^a-zA-Z0-9\s]))/g;
 var validateName = function(name) {
     // if nameRe.test(name) === true, validation fails.
     // if filter.clean(name) === name, validation should not fail
     return !nameRe.test(name) && filter.clean(name) === name;
-}
+};
 
 function toLower(str) {
     return str.toLowerCase();
