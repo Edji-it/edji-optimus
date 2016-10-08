@@ -2,6 +2,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var mongoose = require("mongoose");
+var timestamps = require("mongoose-timestamp");
 
 mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji', {user:"edjiuser", password:"edjiuser1"});
 mongoose.connection.on("error", console.error.bind(console, "connection error:"));
@@ -12,6 +13,8 @@ mongoose.connection.once("open", function(){
 module.exports = function(modelName, schemaJson, schemaDecorator){
 
     var Schema = new mongoose.Schema(schemaJson);
+
+    Schema.plugin(timestamps);
 
     if (typeof schemaDecorator === "function"){
         schemaDecorator(Schema);
