@@ -4,7 +4,7 @@
 var express = require( "express");
 var Reading = require("./../models/Reading");
 var Session = require("./../models/Session");
-var Comment = require("./../models/Comment");
+// var Comment = require("./../models/Comment");
 var User = require("./../models/User");
 var MountModelToRouter = require("./MountModelToRouter");
 var Q = require("q");
@@ -48,35 +48,35 @@ router.get("/", function(req, res){
 });
 
 
-router.post("/:id/comments", function(req, res){
-
-    var _id = req.params.id;
-    var comment = Comment(req.body.comment);
-
-    if (!comment.user_id){
-        comment.user_id = req.user.user_id;
-    }
-
-    //comment.user_id = req.logged_in_user.user_id;
-    Reading.findById({_id}, function(err, result){
-        var currentComment = result.comments.id(comment._id);
-
-        if (currentComment){
-            Object.assign(currentComment, comment);
-        }
-        else{
-            result.comments.push(comment);
-        }
-
-        result.save(function(error, result){
-            if (!error){
-                res.send(result.comments.id(comment._id));
-            }
-            //res.send(result);
-        });
-    });
-
-});
+// router.post("/:id/comments", function(req, res){
+//
+//     var _id = req.params.id;
+//     var comment = Comment(req.body.comment);
+//
+//     if (!comment.user_id){
+//         comment.user_id = req.user.user_id;
+//     }
+//
+//     //comment.user_id = req.logged_in_user.user_id;
+//     Reading.findById({_id}, function(err, result){
+//         var currentComment = result.comments.id(comment._id);
+//
+//         if (currentComment){
+//             Object.assign(currentComment, comment);
+//         }
+//         else{
+//             result.comments.push(comment);
+//         }
+//
+//         result.save(function(error, result){
+//             if (!error){
+//                 res.send(result.comments.id(comment._id));
+//             }
+//             //res.send(result);
+//         });
+//     });
+//
+// });
 
 router.get("/:id/sessions/:user_id", function(req, res){
 
@@ -112,22 +112,22 @@ router.post("/:id/sessions", function(req, res){
 });
 
 
-router.delete("/:reading_id/comments/:comment_id", function(req, res){
-
-    Reading.findByIdAndUpdate(
-        {"_id":req.params.reading_id},
-        {$pull:{
-        comments:{
-            _id: req.params.comment_id
-        }
-    }}, function(error, result){
-        if (error){
-            console.log(error);
-        }
-        res.json({success:true});
-
-    });
-
-});
+// router.delete("/:reading_id/comments/:comment_id", function(req, res){
+//
+//     Reading.findByIdAndUpdate(
+//         {"_id":req.params.reading_id},
+//         {$pull:{
+//         comments:{
+//             _id: req.params.comment_id
+//         }
+//     }}, function(error, result){
+//         if (error){
+//             console.log(error);
+//         }
+//         res.json({success:true});
+//
+//     });
+//
+// });
 
 module.exports = router;

@@ -11,9 +11,7 @@ var Model =  ModelCreator("Comment",{
     user_id:String,
     user:Object
     //TODO:need a better way to include this field. dont think it should be a part of the scheema. Or maybe it should include itself on load/initialization
+    // I'm not sure this ever gets stored...
 });
 
 module.exports = Model;
-
-
-
