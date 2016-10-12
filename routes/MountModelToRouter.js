@@ -44,9 +44,6 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
 
     options.create &&
     router.post("/", function(req, res) {
-
-        console.log("Post received!");
-
         if (!req.body[name]) {
             //send error
             return;

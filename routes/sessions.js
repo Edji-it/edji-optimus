@@ -72,6 +72,24 @@ router.get("/:id", function(req, res){
     });
 });
 
+router.post("/:id", function(req, res) {
+    var session = Session(req.body.session);
+    session["reading_id"] = req.params.id;
+
+    if (!session.teacher_id) {
+        session.teacher_id = req.user.user_id;
+    }
+
+    session.save(function(error, result) {
+        if (!error){
+            res.send(result);
+        }
+        if (error){
+            res.send(error);
+        }
+    });
+});
+
 router.post("/:id/comments", function(req, res){
 
     var _id = req.params.id;
