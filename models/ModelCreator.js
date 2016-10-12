@@ -24,7 +24,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     Model.prototype.oldSave = Model.prototype.save;
     Model.prototype.save = function(callback){
         if (this._id) {
-            Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true}, callback);
+            Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true,overwrite:true}, callback);
         } else {
             this.oldSave(callback);
         }
