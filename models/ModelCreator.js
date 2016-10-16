@@ -4,7 +4,15 @@
 var mongoose = require("mongoose");
 var timestamps = require("mongoose-timestamp");
 
-mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji', {user:"edjiuser", password:"edjiuser1"});
+// Set relevant db
+if (process.env.NODE_ENV == 'prod') {
+    // Prod db
+    mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji', {user:"edjiuser", password:"edjiuser1"});
+} else {
+    // Dev db
+    mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji-dev', {user:"edjiuser", password:"edjiuser1"});
+}
+
 mongoose.connection.on("error", console.error.bind(console, "connection error:"));
 mongoose.connection.once("open", function(){
     console.log("Connected to Mongo!");
