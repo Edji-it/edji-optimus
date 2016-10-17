@@ -96,7 +96,6 @@ app.use("/sessions",sessions);
 //app.use("/comments", comments);
 app.post("/login", function(req, res){
     var user = req.body.user;
-    user.username = req.body.user.username;
 
     LoginController.login(user)
         .then(function(result){
@@ -107,8 +106,7 @@ app.post("/login", function(req, res){
         });
 
 });
-app.post("/register", function(req, res){
-
+app.post("/users", function(req, res){
 
     if (!req.body["user"]) {
         //send error
@@ -116,7 +114,6 @@ app.post("/register", function(req, res){
     }
 
     var userData = req.body.user;
-    userData.username = req.body.user.username;
 
     var model = User(userData);
 
@@ -128,7 +125,6 @@ app.post("/register", function(req, res){
             res.json(error);
             return;
         }
-
         res.json(LoginController.generateLoginObjectForUser(result));
     });
 
