@@ -10,7 +10,7 @@ if (process.env.NODE_ENV == 'prod') {
     mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji', {user:"edjiuser", password:"edjiuser1"});
 } else {
     // Dev db
-    mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji-dev', {user:"edjiuser", password:"edjiuser1"});
+    mongoose.connect('mongodb://edjiuser:edjiuser1@ds059306.mlab.com:59306/edji-dev', {user:"edjiuser", password:"edjiuser1"});
 }
 
 mongoose.connection.on("error", console.error.bind(console, "connection error:"));
