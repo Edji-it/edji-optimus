@@ -25,8 +25,8 @@ router.post("/reset_password", function(req, res) {
         if (result) {
             console.log(result);
             user.password = newPassword;
-            user.save;
-            res.status(200).send();
+            user.save();
+            res.json(result);
         } else {
             console.log("error: " + error);
             res.status(400).send();
