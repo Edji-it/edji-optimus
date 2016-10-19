@@ -9,7 +9,8 @@ var Model =  ModelCreator("Comment",{
     end:Number,
     data:String,
     user_id:String,
-    user:Object
+    user:Object,
+    text:String
     //TODO:need a better way to include this field. dont think it should be a part of the scheema. Or maybe it should include itself on load/initialization
     // I'm not sure this ever gets stored...
 });
