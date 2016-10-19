@@ -51,6 +51,10 @@ io.on('connection', function(socket) {
     socket.on('deleteComment', function(comment) {
         io.to(thisSessionId).emit('deleteComment', comment);
     });
+
+    socket.on('addComment', function(comment) {
+        io.to(thisSessionId).emit('addComment', comment);
+    });
 });
 
 
