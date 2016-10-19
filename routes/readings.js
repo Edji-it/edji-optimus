@@ -59,4 +59,37 @@ router.get("/:id/sessions/:user_id", function(req, res){
 
 });
 
+//allows teachers to recommend reading to community library
+router.put("/:reading_id/recommend", function(req, res) {
+    var reading_id = req.params.reading_id;
+    var user = req.user;
+
+    //user must be teacher in order to recommend
+    if (!user.isTeacher) {
+        res.status(400).send();
+        return;
+    }
+
+    Reading.findById(reading_id, function(error, reading) {
+        error && console.log(error);
+
+        if (reading) {
+            console.log(reading);
+            if (!reading.promoter_ids) { //update older readings
+                console.log("We had to make it");
+                reading.promoter_ids = [];
+            } else if (reading.promoter_ids.indexOf(user._id) >= 0) {
+                res.status(304).send();
+                return;
+            }
+
+            reading.promoter_ids.push(user._id);
+            console.log(reading.promoter_ids);
+
+            reading.save();
+            res.status(204).send();
+        }
+    });
+});
+
 module.exports = router;
