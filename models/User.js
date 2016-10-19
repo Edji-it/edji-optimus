@@ -2,7 +2,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var ModelCreator = require("./ModelCreator");
-var bcrypt = require("bcrypt");
+var bcrypt = require("bcryptjs");
 var Filter = require("bad-words"),
     filter = new Filter();
 

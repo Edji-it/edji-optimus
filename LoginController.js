@@ -4,7 +4,7 @@
 
 var jwt = require("jsonwebtoken");
 var User = require("./models/User");
-var bcrypt = require("bcrypt");
+var bcrypt = require("bcryptjs");
 var Q = require("q");
 //TODO: need something more secret than this
 var secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";

@@ -110,29 +110,7 @@ app.post("/login", function(req, res){
         });
 
 });
-app.post("/users", function(req, res){
 
-    if (!req.body["user"]) {
-        //send error
-        return;
-    }
-
-    var userData = req.body.user;
-
-    var model = User(userData);
-
-    model.save((error, result)=>{
-        // console.log(error);
-        //res.json(result);
-        if (error){
-            console.log(error);
-            res.json(error);
-            return;
-        }
-        res.json(LoginController.generateLoginObjectForUser(result));
-    });
-
-});
 app.get("/user", function(req, res){
 
     req.user && res.send(req.user);

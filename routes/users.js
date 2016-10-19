@@ -3,12 +3,37 @@
  */
 var express = require( "express");
 var User = require("./../models/User");
-var bcrypt = require("bcrypt");
+var LoginController = require("./../LoginController");
+var bcrypt = require("bcryptjs");
 var MountModelToRouter = require("./MountModelToRouter");
 
 var router = express.Router();
 
-MountModelToRouter(router, User, "user");
+MountModelToRouter(router, User, "user", {create:false});
+
+router.post("/", function(req, res){
+
+    if (!req.body["user"]) {
+        //send error
+        return;
+    }
+
+    var userData = req.body.user;
+    console.log(userData);
+
+    var model = User(userData);
+    console.log("model id: " + model._id);
+
+    model.save((error, result)=>{
+        if (error){
+            console.log(error);
+            res.json(error);
+            return;
+        }
+        res.json(LoginController.generateLoginObjectForUser(result));
+    });
+
+});
 
 router.post("/reset_password", function(req, res) {
     var user = req.user;
