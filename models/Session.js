@@ -7,10 +7,8 @@ var SessionCode = require("./SessionCode");
 var Hashids = require("hashids");
 var mongoose = require("mongoose");
 var Model = ModelCreator("Session", {
-    reading_id:{type:String, required:true},
-    teacher_id:{type:String
-                        //,required:true
-                },
+    reading_id:{type:String, required:true, ref:"Reading"},
+    teacher_id:{type:String, ref:"User"},
     comments:[Comment.schema],
     students_ids:[String],
     label:{type:String, required:true},
