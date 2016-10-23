@@ -24,28 +24,43 @@ var io = require('socket.io')(server);
 var sessionObjs = {};
 io.on('connection', function(socket) {
     var thisSessionId;
+    var thisUserId;
 
     socket.on('newSession', function(session) {
         thisSessionId = session.id;
+        thisUserId = session.user;
         socket.join(thisSessionId);
 
-        if (sessionObjs[thisSessionId] && sessionObjs[thisSessionId] > 0) {
-            sessionObjs[thisSessionId]++;
-        } else {
-            sessionObjs[thisSessionId] = 1;
+        if (!sessionObjs[thisSessionId]) {
+            sessionObjs[thisSessionId] = [thisUserId];
+        } else if (sessionObjs[thisSessionId].indexOf(thisUserId) < 0) {
+            sessionObjs[thisSessionId].push(thisUserId);
         }
-        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId].length);
     });
 
     socket.on('disconnect', function() {
-        sessionObjs[thisSessionId]--;
-        io.to(thisSessionId).emit('liveUsers', sessionObjs[thisSessionId]);
+        var returnCount = 0;
+        if (sessionObjs[thisSessionId]) {
+            var i = sessionObjs[thisSessionId].indexOf(thisUserId);
+            if (i > -1) {
+                sessionObjs[thisSessionId].splice(i, 1);
+            }
+            returnCount = sessionObjs[thisSessionId].length;
+        }
+        io.to(thisSessionId).emit('liveUsers', returnCount);
     });
 
     socket.on('manualDisconnect', function() {
-        // this.id is the socket id
-        sessionObjs[thisSessionId]--;
-        io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId]);
+        var returnCount = 0;
+        if (sessionObjs[thisSessionId]) {
+            var i = sessionObjs[thisSessionId].indexOf(thisUserId);
+            if (i > -1) {
+                sessionObjs[thisSessionId].splice(i, 1);
+            }
+            returnCount = sessionObjs[thisSessionId].length;
+        }
+        io.to(thisSessionId).emit('liveUsers', returnCount);
     });
 
     socket.on('deleteComment', function(comment) {

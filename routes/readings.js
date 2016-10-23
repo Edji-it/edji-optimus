@@ -40,8 +40,8 @@ router.post("/", function(req, res) {
 
 router.get("/", function(req, res){
     Reading.find({ 'teacher_ids' : req.user._id }, function(error, results){
-        console.log("Added to readings!!!");
-        console.log(results);
+        // console.log("Added to readings!!!");
+        // console.log(results);
         error && console.log(error);
         results && res.json(results);
     });
@@ -74,7 +74,7 @@ router.put("/:reading_id/recommend", function(req, res) {
         error && console.log(error);
 
         if (reading) {
-            console.log(reading);
+            // console.log(reading);
             if (!reading.promoter_ids) { //update older readings
                 console.log("We had to make it");
                 reading.promoter_ids = [];
