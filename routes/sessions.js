@@ -142,14 +142,14 @@ router.get("/:id/comments", function(req, res){
 
 });
 
-router.get("/add/:code", function(req, res){
-
+router.get("/add/:code", function(req, res) {
+    var user = req.user;
     var code = req.params.code;
 
     // all codes currently in database are lowercase
-    Session.find({code:code.toLowerCase()}, function(err, results){
+    Session.find({code:code.toLowerCase()}, function(err, results) {
 
-        if (err){
+        if (err) {
             res.json({error:err});
             return;
         }
@@ -162,7 +162,9 @@ router.get("/add/:code", function(req, res){
         var session = results.pop();
 
         if (session) {
-            session.students_ids.push(req.user._id);
+            if (!user.type === "temp") {
+                session.students_ids.push(req.user._id);
+            }
             session.save(function(error, result){
                 res.json({success:true, sessionId: result._id});
                 return;
