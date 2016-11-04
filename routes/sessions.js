@@ -47,7 +47,6 @@ router.get("/:id", function(req, res){
         findParams.code = id;
     }
 
-    console.log("Get Session!");
     Session.findOne({_id: id}).populate('teacher_id', null, '<users User>', function(err,result1){
         //result1.id will be your result2 in the question instead of an id
         console.log("Populated Teacher id:");

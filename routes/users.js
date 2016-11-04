@@ -14,15 +14,13 @@ MountModelToRouter(router, User, "user", {create:false});
 router.post("/", function(req, res){
 
     if (!req.body["user"]) {
-        //send error
+        res.status(400).send();
         return;
     }
 
     var userData = req.body.user;
-    console.log(userData);
 
     var model = User(userData);
-    console.log("model id: " + model._id);
 
     model.save((error, result)=>{
         if (error){
