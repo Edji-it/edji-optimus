@@ -43,7 +43,7 @@ router.get("/:id", function(req, res){
     if (mongoose.Types.ObjectId.isValid(id)){
         findParams._id = id;
     }
-    else{
+    else {
         findParams.code = id;
     }
 
