@@ -4,6 +4,7 @@
 
 var jwt = require("jsonwebtoken");
 var User = require("./models/User");
+var TempUser = require("./models/TempUser");
 var bcrypt = require("bcryptjs");
 var Q = require("q");
 //TODO: need something more secret than this
@@ -49,7 +50,10 @@ var LoginController = {
 
     generateTokenForUser: function(user){
         var id;
-        if (user.id) {
+        if (user.type === "temp") {
+            id = user.id;
+            return jwt.sign({id: id, type: user.type}, secret);
+        } else if (user.id) {
             id = user.id;
             return jwt.sign({id}, secret);
         } else {
@@ -63,10 +67,11 @@ var LoginController = {
 
      decodeTokenToUser:function(token, callback){
         var obj = this.decodeToken(token);
-        if (obj){
+        if (obj.type === "temp"){
+            TempUser.findById(obj.id, callback);
+        } else if (obj) {
             User.findById(obj.id, callback);
-        }
-        else{
+        } else {
             callback("Token invalid");
         }
     },

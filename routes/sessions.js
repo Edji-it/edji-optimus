@@ -43,11 +43,10 @@ router.get("/:id", function(req, res){
     if (mongoose.Types.ObjectId.isValid(id)){
         findParams._id = id;
     }
-    else{
+    else {
         findParams.code = id;
     }
 
-    console.log("Get Session!");
     Session.findOne({_id: id}).populate('teacher_id', null, '<users User>', function(err,result1){
         //result1.id will be your result2 in the question instead of an id
         console.log("Populated Teacher id:");
@@ -143,14 +142,14 @@ router.get("/:id/comments", function(req, res){
 
 });
 
-router.get("/add/:code", function(req, res){
-
+router.get("/add/:code", function(req, res) {
+    var user = req.user;
     var code = req.params.code;
 
     // all codes currently in database are lowercase
-    Session.find({code:code.toLowerCase()}, function(err, results){
+    Session.find({code:code.toLowerCase()}, function(err, results) {
 
-        if (err){
+        if (err) {
             res.json({error:err});
             return;
         }
@@ -163,7 +162,9 @@ router.get("/add/:code", function(req, res){
         var session = results.pop();
 
         if (session) {
-            session.students_ids.push(req.user._id);
+            if (!user.type === "temp") {
+                session.students_ids.push(req.user._id);
+            }
             session.save(function(error, result){
                 res.json({success:true, sessionId: result._id});
                 return;
