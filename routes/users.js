@@ -33,6 +33,19 @@ router.post("/", function(req, res){
 
 });
 
+router.post("/login", function(req, res){
+    var user = req.body.user;
+
+    LoginController.login(user)
+        .then(function(result){
+            res.json(result);
+        }).fail(function(err){
+            res.status("400");
+            res.json({error:err});
+        });
+
+});
+
 router.post("/reset_password", function(req, res) {
     var user = req.user;
     var password = req.body.password;

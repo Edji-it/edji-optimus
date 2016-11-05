@@ -61,19 +61,6 @@ app.use("/users",users);
 app.use("/tempusers", tempusers);
 app.use("/readings",readings);
 app.use("/sessions",sessions);
-//app.use("/comments", comments);
-app.post("/login", function(req, res){
-    var user = req.body.user;
-
-    LoginController.login(user)
-        .then(function(result){
-            res.json(result);
-        }).fail(function(err){
-            res.status("400");
-            res.json({error:err});
-        });
-
-});
 
 app.get("/user", function(req, res){
 
@@ -81,22 +68,6 @@ app.get("/user", function(req, res){
 
     !req.user && res.status(400) && res.send({error:"Not Logged In"});
 });
-
-// app.post("/:id", function(req, res) {
-//     if (req.user.type === "temp") {
-
-//         //check if the temporary user exists
-
-
-//         res.status(203).send();
-//         return;
-//         //TODO check if session allows temporary users, return 401 if Not
-
-//     }
-
-//     //TODO write code for if the user exists
-
-// });
 
 var port = process.env.PORT || 3354;
 
