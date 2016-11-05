@@ -62,15 +62,8 @@ app.use("/tempusers", tempusers);
 app.use("/readings",readings);
 app.use("/sessions",sessions);
 
-app.get("/user", function(req, res){
-
-    req.user && res.send(req.user);
-
-    !req.user && res.status(400) && res.send({error:"Not Logged In"});
-});
-
 var port = process.env.PORT || 3354;
 
 server.listen(port);
 
-console.log("Connected at " + port);
+console.log("Server connected at " + port);
