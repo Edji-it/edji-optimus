@@ -24,6 +24,8 @@
     "mongoose-simple-random": "^0.3.3",
     "mongoose-timestamp": "^0.6.0",
     "node": "0.0.0",
+    "nodemailer": "^2.6.4",
+    "nodemailer-mandrill-transport": "^1.2.0",
     "q": "^1.4.1",
     "require": "^2.4.20",
     "restify": "^4.0.4",

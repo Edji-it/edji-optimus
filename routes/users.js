@@ -6,6 +6,8 @@ var User = require("./../models/User");
 var LoginController = require("./../LoginController");
 var bcrypt = require("bcryptjs");
 var MountModelToRouter = require("./MountModelToRouter");
+var nodemailer = require('nodemailer');
+var mandrillTransport = require('nodemailer-mandrill-transport');
 
 var router = express.Router();
 
@@ -68,6 +70,54 @@ router.post("/reset_password", function(req, res) {
             res.status(400).send();
         }
     });
+});
+
+router.post("/recover_password", function(req, res) {
+    var username = req.body.username;
+
+    if (username && username.length > 0) {
+        console.log(username);
+
+        User.findOne({"username":username})
+            .then(function(user) {
+                console.log(user.email);
+
+                var transport = nodemailer.createTransport(mandrillTransport({
+                    auth: {
+                        apiKey: 'wSJ57j95VAnZrzXQep81NQ' //prod key
+                        // apiKey: 'wMtMJaiBpAHZ8-PsPIxY2A' //test key
+                    }
+                }));
+                
+                transport.sendMail({
+                    from: 'recovery@edji.it',
+                    to: user.email,
+                    subject: 'Password Recovery - Edji',
+                    html: `
+                        <p>Hello ${user.fullname},</p>
+                        <p>A password reset was requested on your Edji account. To reset your passsword, please click the link: <a href="#"></a></p>
+                        <hr>
+                        <p>If you did not request a password reset, please ignore this email.</p>
+                        <hr>
+                        <p>Keep reading!</p>
+                        <p>The <strong>Edji</strong> Team</p>
+                    `
+                }, function(err, info) {
+                    if (err) {
+                        console.error(err);
+                    } else {
+                        console.log(info);
+                    }
+                });
+
+                res.status(204).send();
+            }).catch(function(err) {
+                console.log(err);
+                res.status(500).send();
+            });
+    }
+
+
 
 });
 
