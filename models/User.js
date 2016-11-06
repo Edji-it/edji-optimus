@@ -28,6 +28,8 @@ var model = ModelCreator("User", {
     fullname:{type:String, required:true, validate: [validateName, "Invalid name"]},
     password:{type:String, required:true},
     email:{type:String, set:toLower, unique:true, required:true, validate: [validateEmail, "Invalid email"]},
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     isTeacher:Boolean
 });
 
