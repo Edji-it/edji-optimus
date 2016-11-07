@@ -103,7 +103,7 @@ router.post("/recover_password", function(req, res) {
         Q(User.findOne({"username":username}).exec())
         .then(function(user) {
             return new Promise(function(resolve, reject) {
-                bcrypt.hash(String(user._id), 8, function(err, hash) {
+                bcrypt.hash(String(user._id) + Date.now().toString(), 8, function(err, hash) {
                     if (err) {
                         reject(err);
                     } else {
