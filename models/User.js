@@ -2,6 +2,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var ModelCreator = require("./ModelCreator");
+var mongoose = require("mongoose");
 var bcrypt = require("bcryptjs");
 var Filter = require("bad-words"),
     filter = new Filter();
@@ -31,6 +32,18 @@ var model = ModelCreator("User", {
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     isTeacher:Boolean
+}, function(schema) {
+    schema.methods.toPublicJSON = function() {
+        //makes copy of document
+        var user = {};
+        Object.assign(user, this._doc);
+
+        //sets properties which should not be passed to front end to null
+        delete user.password;
+        delete user.resetPasswordToken;
+        delete user.resetPasswordExpires;
+        return user;
+    };
 });
 
 model.schema.pre("save", function(next){
