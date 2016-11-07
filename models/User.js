@@ -33,12 +33,12 @@ var model = ModelCreator("User", {
     resetPasswordExpires: Date,
     isTeacher:Boolean
 }, function(schema) {
-    schema.methods.toPublicJSON = function() {
+    schema.methods.toPublic = function() {
         //makes copy of document
         var user = {};
         Object.assign(user, this._doc);
 
-        //sets properties which should not be passed to front end to null
+        //deletes properties which should not be passed to front end
         delete user.password;
         delete user.resetPasswordToken;
         delete user.resetPasswordExpires;

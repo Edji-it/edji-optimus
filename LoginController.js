@@ -43,7 +43,7 @@ var LoginController = {
     ,
     generateLoginObjectForUser(user){
         return {
-            user:user,
+            user:user.toPublic(),
             token: this.generateTokenForUser(user)
         };
     },

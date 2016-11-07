@@ -61,7 +61,7 @@ router.post("/reset_password", function(req, res) {
             if (result) {
                 user.oldPassword = newPassword;
                 user.save();
-                res.json(user.toPublicJSON());
+                res.json(user.toPublic());
             } else {
                 console.log("error: " + error);
                 res.status(500).send();
@@ -82,7 +82,7 @@ router.post("/reset_password", function(req, res) {
 
             user.password = newPassword;
             user.save();
-            res.json(user);
+            res.json(user.toPublic());
         }).catch(function(e) {
             console.log(e);
             res.status(500).send();
