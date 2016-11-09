@@ -2,19 +2,21 @@
  * Created by bvfergus on 3/5/16.
  */
 var mongoose = require("mongoose");
-var mockgoose = require("mockgoose");
 var timestamps = require("mongoose-timestamp");
-var config = require("config");
-var dbConfig = config.get("Database");
+// var config = require("config");
+// var dbConfig = config.get("Database");
+var db = require("./../db.js");
 
-//sets up database connection based on current NODE_ENV
-console.log(dbConfig.message);
-mongoose.connect(dbConfig.host, { user:dbConfig.user, password:dbConfig.password });
+mongoose = db.connect(mongoose);
 
-mongoose.connection.on("error", console.error.bind(console, "connection error:"));
-mongoose.connection.once("open", function(){
-    console.log("Connected to Mongo!");
-});
+// //sets up database connection based on current NODE_ENV
+// console.log(dbConfig.message);
+// mongoose.connect(dbConfig.host, { user:dbConfig.user, password:dbConfig.password });
+
+// mongoose.connection.on("error", console.error.bind(console, "connection error:"));
+// mongoose.connection.once("open", function(){
+//     console.log("Connected to Mongo!");
+// });
 
 module.exports = function(modelName, schemaJson, schemaDecorator){
 
