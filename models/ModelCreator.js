@@ -3,20 +3,17 @@
  */
 var mongoose = require("mongoose");
 var timestamps = require("mongoose-timestamp");
-// var config = require("config");
-// var dbConfig = config.get("Database");
-var db = require("./../db.js");
+var config = require("config");
+var dbConfig = config.get("Database");
 
-mongoose = db.connect(mongoose);
+//sets up database connection based on current NODE_ENV
+console.log(dbConfig.message);
+mongoose.connect(dbConfig.host, { user:dbConfig.user, password:dbConfig.password });
 
-// //sets up database connection based on current NODE_ENV
-// console.log(dbConfig.message);
-// mongoose.connect(dbConfig.host, { user:dbConfig.user, password:dbConfig.password });
-
-// mongoose.connection.on("error", console.error.bind(console, "connection error:"));
-// mongoose.connection.once("open", function(){
-//     console.log("Connected to Mongo!");
-// });
+mongoose.connection.on("error", console.error.bind(console, "connection error:"));
+mongoose.connection.once("open", function(){
+    console.log("Connected to Mongo!");
+});
 
 module.exports = function(modelName, schemaJson, schemaDecorator){
 
