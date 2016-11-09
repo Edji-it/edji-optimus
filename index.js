@@ -67,3 +67,5 @@ var port = process.env.PORT || 3354;
 server.listen(port);
 
 console.log("Server connected at " + port);
+
+module.exports = server;
