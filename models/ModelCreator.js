@@ -1,7 +1,6 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-// var mongoose = require("mongoose");
 var timestamps = require("mongoose-timestamp");
 var db = require("./../db");
 
