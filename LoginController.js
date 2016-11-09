@@ -80,7 +80,6 @@ var LoginController = {
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
                 if (user){
-                    console.log(user);
                     req.user = user;
                 }
 
