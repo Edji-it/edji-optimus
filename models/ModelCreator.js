@@ -2,20 +2,10 @@
  * Created by bvfergus on 3/5/16.
  */
 var mongoose = require("mongoose");
+var mockgoose = require("mockgoose");
 var timestamps = require("mongoose-timestamp");
 var config = require("config");
 var dbConfig = config.get("Database");
-
-// // Set relevant db
-// if (process.env.NODE_ENV == 'prod') {
-//     // Prod db
-//     console.log("Wiring up the production DB");
-//     mongoose.connect('mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji', {user:"edjiuser", password:"edjiuser1"});
-// } else {
-//     // Dev db
-//     console.log("Wiring up the Dev DB");
-//     mongoose.connect('mongodb://edjiuser:edjiuser1@ds059306.mlab.com:59306/edji-dev', {user:"edjiuser", password:"edjiuser1"});
-// }
 
 //sets up database connection based on current NODE_ENV
 console.log(dbConfig.message);
