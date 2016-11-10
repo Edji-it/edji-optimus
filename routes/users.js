@@ -29,7 +29,8 @@ router.post("/", function(req, res){
     model.save((error, result)=>{
         if (error){
             console.log(error);
-            res.json(error);
+            res.status(400).send(JSON.stringify(error));
+            // res.json(error);
             return;
         }
         res.json(LoginController.generateLoginObjectForUser(result));

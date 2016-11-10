@@ -4,7 +4,7 @@
   "description": "Node backend for Edji.",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha --timeout 10000"
+    "test": "NODE_ENV=test mocha --timeout 4000"
   },
   "repository": {
     "type": "git",
