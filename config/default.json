@@ -4,5 +4,8 @@
         "host":"mongodb://edjiuser:edjiuser1@ds059306.mlab.com:59306/edji-dev",
         "user":"edjiuser",
         "password":"edjiuser1"
+    },
+    "Mandrill": {
+        "apiKey": "wMtMJaiBpAHZ8-PsPIxY2A"
     }
 }

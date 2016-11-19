@@ -2,14 +2,17 @@
  * Created by bvfergus on 3/5/16.
  */
 var express = require( "express");
-var User = require("./../models/User");
-var LoginController = require("./../LoginController");
 var bcrypt = require("bcryptjs");
 var MountModelToRouter = require("./MountModelToRouter");
 var nodemailer = require('nodemailer');
 var mandrillTransport = require('nodemailer-mandrill-transport');
 var bcrypt = require("bcryptjs");
 var Q = require("q");
+var config = require("config");
+var mandrillConfig = config.get("Mandrill");
+
+var User = require("./../models/User");
+var LoginController = require("./../LoginController");
 
 var router = express.Router();
 
@@ -122,8 +125,7 @@ router.post("/recover_password", function(req, res) {
             //TODO automatically set prod/test keys
             var transport = nodemailer.createTransport(mandrillTransport({
                 auth: {
-                    // apiKey: 'wSJ57j95VAnZrzXQep81NQ' //prod key
-                    apiKey: 'wMtMJaiBpAHZ8-PsPIxY2A' //test key
+                    apiKey: mandrillConfig.apiKey
                 }
             }));
             
@@ -156,23 +158,23 @@ router.post("/recover_password", function(req, res) {
     }
 });
 
-router.get("/recover_password/:token", function(req, res) {
-    var token = decodeURI(req.params.token);
+// router.get("/recover_password/:token", function(req, res) {
+//     var token = decodeURI(req.params.token);
 
-    Q(User.findOne({
-        resetPasswordToken:token,
-        resetPasswordExpires: { $gt: Date.now() }
-    }).exec())
-    .then(function(user) {
-        if (!user) {
-            throw new Error("No user found");
-        }
+//     Q(User.findOne({
+//         resetPasswordToken:token,
+//         resetPasswordExpires: { $gt: Date.now() }
+//     }).exec())
+//     .then(function(user) {
+//         if (!user) {
+//             throw new Error("No user found");
+//         }
 
-        res.status(204).send();
-    }).catch(function(e) {
-        console.log(e);
-        res.status(500).send();
-    });
-});
+//         res.status(204).send();
+//     }).catch(function(e) {
+//         console.log(e);
+//         res.status(500).send();
+//     });
+// });
 
 module.exports = router;
