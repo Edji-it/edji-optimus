@@ -8,6 +8,7 @@ var nodemailer = require('nodemailer');
 var mandrillTransport = require('nodemailer-mandrill-transport');
 var bcrypt = require("bcryptjs");
 var Q = require("q");
+var queryString = require("querystring");
 var config = require("config");
 var mandrillConfig = config.get("Mandrill");
 
@@ -128,6 +129,10 @@ router.post("/recover_password", function(req, res) {
                     apiKey: mandrillConfig.apiKey
                 }
             }));
+
+            var query = queryString.stringify({
+                token: user.resetPasswordToken
+            });
             
             //TODO set link to Angular component URL
             transport.sendMail({
@@ -136,10 +141,10 @@ router.post("/recover_password", function(req, res) {
                 subject: 'Password Recovery - Edji',
                 html: `
                     <p>Hello ${user.fullname},</p>
-                    <p>You (or someone else) requested a password reset on your Edji account. Please click the link to <a href="http://${req.headers.host}/users/recover_password/${encodeURIComponent(user.resetPasswordToken)}">reset your password</a></p>
+                    <p>You (or someone else) requested a password reset on your Edji account. Please click the link to <a href="http://${mandrillConfig.host}/#/newPassword/?${query}">reset your password</a></p>
                     <hr>
                     <p>If you did not request a password reset, please ignore this email.</p>
-                    <hr>
+                    <br>
                     <p>Keep reading!</p>
                     <p>The <strong>Edji</strong> Team</p>
                 `
@@ -157,24 +162,5 @@ router.post("/recover_password", function(req, res) {
         });
     }
 });
-
-// router.get("/recover_password/:token", function(req, res) {
-//     var token = decodeURI(req.params.token);
-
-//     Q(User.findOne({
-//         resetPasswordToken:token,
-//         resetPasswordExpires: { $gt: Date.now() }
-//     }).exec())
-//     .then(function(user) {
-//         if (!user) {
-//             throw new Error("No user found");
-//         }
-
-//         res.status(204).send();
-//     }).catch(function(e) {
-//         console.log(e);
-//         res.status(500).send();
-//     });
-// });
 
 module.exports = router;

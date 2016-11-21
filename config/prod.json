@@ -6,6 +6,7 @@
         "password":"edjiuser1"
     },
     "Mandrill": {
+        "host": "edji.it",
         "apiKey": "wSJ57j95VAnZrzXQep81NQ"
     }
 }

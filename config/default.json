@@ -6,6 +6,7 @@
         "password":"edjiuser1"
     },
     "Mandrill": {
+        "host": "localhost:9000",
         "apiKey": "wMtMJaiBpAHZ8-PsPIxY2A"
     }
 }
