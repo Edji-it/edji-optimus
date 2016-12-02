@@ -162,7 +162,8 @@ router.get("/add/:code", function(req, res) {
         var session = results.pop();
 
         if (session) {
-            if (!user.type === "temp") {
+            console.log(user);
+            if (!user.type || !user.type === "temp") {
                 session.students_ids.push(req.user._id);
             }
             session.save(function(error, result){
