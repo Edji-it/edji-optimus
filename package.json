@@ -1,20 +1,17 @@
 {
   "name": "edji-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node backend for Edji.",
-  "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "NODE_ENV=test mocha --timeout 4000"
   },
   "repository": {
     "type": "git",
     "url": "bitbucket.org/codyjp/edji"
   },
-  "author": "Bernard and Cody",
+  "author": "Edji",
   "license": "ISC",
-  "engines" : {
-    "node" : "6.9.1"
-  },
   "dependencies": {
     "bad-words": "^1.4.2",
     "bcryptjs": "^2.3.0",
