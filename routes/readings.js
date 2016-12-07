@@ -39,12 +39,18 @@ router.post("/", function(req, res) {
 });
 
 router.get("/", function(req, res){
+    if (!req.user || !req.user.id) {
+        res.status(401).send();
+        return;
+    }
+
     Reading.find({ 'teacher_ids' : req.user._id }, function(error, results){
         // console.log("Added to readings!!!");
         // console.log(results);
         error && console.log(error);
         results && res.json(results);
     });
+    
 });
 
 router.get("/:id/sessions/:user_id", function(req, res){
