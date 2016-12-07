@@ -27,6 +27,11 @@ router.get("/",function(req, res){
     };
 
     var user = req.user;
+    if (!req.user) {
+        res.status(401).send();
+        return;
+    }
+    
     if (req.user && req.user.isTeacher){
         Session.find({teacher_id:user._id}, callback).populate('teacher_id','fullname email username').populate('reading_id','title');
     }
@@ -47,15 +52,15 @@ router.get("/:id", function(req, res){
         findParams.code = id;
     }
 
-    Session.findOne({_id: id}).populate('teacher_id', null, '<users User>', function(err,result1){
-        //result1.id will be your result2 in the question instead of an id
-        console.log("Populated Teacher id:");
-        console.log(result1);
+    // Session.findOne({_id: id}).populate('teacher_id', null, '<users User>', function(err,result1){
+    //     //result1.id will be your result2 in the question instead of an id
+    //     console.log("Populated Teacher id:");
+    //     console.log(result1);
 
-        result1.id.populate('id.id',null,'<Collection3 Model>',function(err,result){
-        //result1.id.id is now your result3 in the question
-        });
-    });
+    //     result1.id.populate('id.id',null,'<Collection3 Model>',function(err,result){
+    //     //result1.id.id is now your result3 in the question
+    //     });
+    // });
 
     Session.find(findParams, function(error, _result){
         error && console.log(error);
