@@ -40,11 +40,17 @@ router.get("/",function(req, res){
         Session.find({students_ids:user._id}, callback).populate('teacher_id','fullname email username').populate('reading_id','title');
     }
 });
+
 router.get("/:id", function(req, res){
     var id = req.params.id;
 
+    if (!req.user) {
+        res.status(401).send();
+    }
+
     var findParams = {};
 
+    //creates flexibility to use with either project code or with session id
     if (mongoose.Types.ObjectId.isValid(id)){
         findParams._id = id;
     }
@@ -52,21 +58,20 @@ router.get("/:id", function(req, res){
         findParams.code = id;
     }
 
-    // Session.findOne({_id: id}).populate('teacher_id', null, '<users User>', function(err,result1){
-    //     //result1.id will be your result2 in the question instead of an id
-    //     console.log("Populated Teacher id:");
-    //     console.log(result1);
-
-    //     result1.id.populate('id.id',null,'<Collection3 Model>',function(err,result){
-    //     //result1.id.id is now your result3 in the question
-    //     });
-    // });
-
     Session.find(findParams, function(error, _result){
         error && console.log(error);
+
         // find returns an array, and we should only be getting one item back
         var result = _result.pop();
+
         if (result){
+            //checks if user's id is either the teacher's id or is in students_ids
+            //this will need to change if we move to an array of teacher ids
+            if (result.teacher_id !== req.user._id && result.students_ids.indexOf(req.user._id) < 0) {
+                res.status(401).send();
+                return;
+            }
+
             var promises = result.comments.map(function(comment){
                 return Q.Promise(function(resolve, reject){
                     User.findOne({_id:comment.user_id}, function(err, user){
