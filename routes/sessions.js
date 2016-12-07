@@ -196,4 +196,20 @@ router.delete("/:session_id/comments/:comment_id", function(req, res){
 
 });
 
+router.get("/:session_code/validate", function(req, res) {
+    var session_code = req.params.session_code;
+
+    Q(Session.findOne({"code":session_code}).exec()).then(function(session) {
+        if (session) {
+            res.status(204).send();
+        } else {
+            res.status(404).send();
+        }
+    })
+    .catch(function(err) {
+        console.log(err);
+        res.status(500).send();
+    });
+});
+
 module.exports = router;
