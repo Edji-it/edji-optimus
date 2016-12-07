@@ -197,7 +197,7 @@ router.delete("/:session_id/comments/:comment_id", function(req, res){
 });
 
 router.get("/:session_code/validate", function(req, res) {
-    var session_code = req.params.session_code;
+    var session_code = req.params.session_code.toLowerCase();
 
     Q(Session.findOne({"code":session_code}).exec()).then(function(session) {
         if (session) {
