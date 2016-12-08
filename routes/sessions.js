@@ -67,7 +67,7 @@ router.get("/:id", function(req, res){
         if (result){
             //checks if user's id is either the teacher's id or is in students_ids
             //this will need to change if we move to an array of teacher ids
-            if (result.teacher_id !== req.user._id && result.students_ids.indexOf(req.user._id) < 0) {
+            if (result.teacher_id != req.user._id && result.students_ids.indexOf(req.user._id) < 0) {
                 res.status(401).send();
                 return;
             }
@@ -173,9 +173,9 @@ router.get("/add/:code", function(req, res) {
 
         if (session) {
             console.log(user);
-            if (!user.type || !user.type === "temp") {
+            // if (!user.type || !user.type === "temp") {
                 session.students_ids.push(req.user._id);
-            }
+            // }
             session.save(function(error, result){
                 res.json({success:true, sessionId: result._id});
                 return;

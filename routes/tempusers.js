@@ -14,24 +14,19 @@ router.post("/", function(req, res) {
         return;
     }
 
+    //create and save temp user
     var model = TempUser(userData);
-
     model.save((error, result) => {
         if (error) {
             console.log(error);
             res.status(500).send();
             return;
         }
+
+        //creates the proper schema for the temp user's login token
         result.type = "temp";
-
-        
-
         res.json(LoginController.generateLoginObjectForUser(result));
     });
-
-});
-
-router.get("/:id", function(req, res) {
 
 });
 
