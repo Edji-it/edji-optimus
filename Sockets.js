@@ -1,7 +1,19 @@
 
 module.exports = function(server) {
     var io = require('socket.io')(server);
-    
+    function getAllRoomMembers(room, _nsp) {
+        var roomMembers = [];
+        
+        // Make an array of sockets in room
+        if (io.nsps['/'].adapter.rooms[room]) {
+            for( var member in io.nsps['/'].adapter.rooms[room].sockets ) {
+                roomMembers.push(member);
+            }
+        }
+
+        return roomMembers;
+    }
+
     //wires socket.io for sessions
     var sessionObjs = {};
     io.on('connection', function(socket) {
@@ -11,47 +23,30 @@ module.exports = function(server) {
         socket.on('newSession', function(session) {
             thisSessionId = session.id;
             thisUserId = session.user;
-            socket.join(thisSessionId);
 
-            if (!sessionObjs[thisSessionId]) {
-                sessionObjs[thisSessionId] = [thisUserId];
-            } else if (sessionObjs[thisSessionId].indexOf(thisUserId) < 0) {
-                sessionObjs[thisSessionId].push(thisUserId);
-            }
-            io.to(thisSessionId).emit('liveUsers',sessionObjs[thisSessionId].length);
+            // Join rooms based on Session ID
+            socket.join(thisSessionId, function() {
+                io.to(thisSessionId).emit('liveUsers', getAllRoomMembers(thisSessionId).length);
+            });
+            
         });
 
         socket.on('disconnect', function() {
-            var returnCount = 0;
-            if (sessionObjs[thisSessionId]) {
-                var i = sessionObjs[thisSessionId].indexOf(thisUserId);
-                if (i > -1) {
-                    sessionObjs[thisSessionId].splice(i, 1);
-                }
-                returnCount = sessionObjs[thisSessionId].length;
-            }
-            io.to(thisSessionId).emit('liveUsers', returnCount);
+            io.to(thisSessionId).emit('liveUsers', getAllRoomMembers(thisSessionId).length);
         });
 
-        socket.on('manualDisconnect', function() {
-            var returnCount = 0;
-            if (sessionObjs[thisSessionId]) {
-                var i = sessionObjs[thisSessionId].indexOf(thisUserId);
-                if (i > -1) {
-                    sessionObjs[thisSessionId].splice(i, 1);
-                }
-                returnCount = sessionObjs[thisSessionId].length;
-            }
-            io.to(thisSessionId).emit('liveUsers', returnCount);
+        socket.on('manualDisconnect', function(session) {
+            socket.leave(session.id, function() {
+                io.to(thisSessionId).emit('liveUsers', getAllRoomMembers(thisSessionId).length);
+            });
         });
 
         socket.on('deleteComment', function(comment) {
-            io.to(thisSessionId).emit('deleteComment', comment);
+            socket.to(thisSessionId).emit('deleteComment', comment);
         });
 
         socket.on('addComment', function(comment) {
-            io.to(thisSessionId).emit('addComment', comment);
+            socket.to(thisSessionId).emit('addComment', comment);
         });
     });
 }
-
