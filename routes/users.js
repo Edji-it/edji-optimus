@@ -58,7 +58,7 @@ router.post("/login", function(req, res){
 router.post("/reset_password", function(req, res) {
     var user = req.user;
     var oldPassword = req.body.oldPassword;
-    var newPassword = req.body.rnewPassword;
+    var newPassword = req.body.newPassword;
     var token = req.body.token;
 
     if (oldPassword && newPassword) {
