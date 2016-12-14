@@ -57,9 +57,9 @@ router.post("/login", function(req, res){
 
 router.post("/reset_password", function(req, res) {
     var user = req.user;
-    var oldPassword = req.body.resetObject.oldPassword;
-    var newPassword = req.body.resetObject.newPassword;
-    var token = req.body.resetObject.token;
+    var oldPassword = req.body.oldPassword;
+    var newPassword = req.body.rnewPassword;
+    var token = req.body.token;
 
     if (oldPassword && newPassword) {
         bcrypt.compare(oldPassword, user.password, function(error, result) {
