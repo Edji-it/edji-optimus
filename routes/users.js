@@ -60,13 +60,22 @@ router.post("/reset_password", function(req, res) {
     var oldPassword = req.body.oldPassword;
     var newPassword = req.body.newPassword;
     var token = req.body.token;
+    console.log(req.body);
+    console.log(req.user);
 
     if (oldPassword && newPassword) {
         bcrypt.compare(oldPassword, user.password, function(error, result) {
+            Q(User.findById(user._id).exec())
+                .then((user) => {
+                    user.password = newPassword;
+                    user.save();
+                    res.json(user.toPublic());
+                })
+                .catch((error) => {
+                    console.log("Error: " + error);
+                });
             if (result) {
-                user.oldPassword = newPassword;
-                user.save();
-                res.json(user.toPublic());
+
             } else {
                 console.log("error: " + error);
                 res.status(500).send();
@@ -79,19 +88,19 @@ router.post("/reset_password", function(req, res) {
             resetPasswordToken:token,
             resetPasswordExpires: { $gte: Date.now() }
         })
-        .exec())
-        .then(function(user) {
-            if (!user) {
-                throw new Error("No user found");
-            }
+            .exec())
+            .then(function(user) {
+                if (!user) {
+                    throw new Error("No user found");
+                }
 
-            user.password = newPassword;
-            user.save();
-            res.json(user.toPublic());
-        }).catch(function(e) {
-            console.log(e);
-            res.status(500).send();
-        });
+                user.password = newPassword;
+                user.save();
+                res.json(user.toPublic());
+            }).catch(function(e) {
+                console.log(e);
+                res.status(500).send();
+            });
         return;
     } else {
         res.status(400).send();
