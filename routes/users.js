@@ -41,24 +41,6 @@ router.post("/", function(req, res){
             return;
         }
         res.json(LoginController.generateLoginObjectForUser(result));
-
-        // // if (result.isTeacher && config.util.getEnv("NODE_ENV") === "prod") {
-        // if (result.isTeacher) {
-        //     var endpoint = "http://bumblebee-prod-1.us-west-2.elasticbeanstalk.com/newuser";
-        //     console.log(JSON.stringify(result.toPublic()));
-        //     request({
-        //         url: endpoint,
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type' : 'Application/json'
-        //         },
-        //         body: JSON.stringify(result.toPublic())
-        //     }, (err, res, body) => {
-        //         console.log("post request made")
-        //         if (err) { console.log(err); }
-        //         else { console.log(body); }
-        //     });
-        // }
     });
 
 });
