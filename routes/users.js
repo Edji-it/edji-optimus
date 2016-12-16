@@ -2,6 +2,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var express = require( "express");
+var request = require("request");
 var bcrypt = require("bcryptjs");
 var MountModelToRouter = require("./MountModelToRouter");
 var nodemailer = require('nodemailer');
@@ -28,6 +29,8 @@ router.post("/", function(req, res){
 
     var userData = req.body.user;
 
+
+
     var model = User(userData);
 
     model.save((error, result)=>{
@@ -38,6 +41,22 @@ router.post("/", function(req, res){
             return;
         }
         res.json(LoginController.generateLoginObjectForUser(result));
+
+        if (result.isTeacher && config.util.getEnv("NODE_ENV") === "prod") {
+            var endpoint = "http://bumblebee-prod-1.us-west-2.elasticbeanstalk.com/newuser";
+            request({
+                url: endpoint,
+                method: 'POST',
+                headers: {
+                    'Content-Type' : 'Application/json'
+                },
+                body: JSON.stringify(result.toPublic())
+            }, (err, res, body) => {
+                console.log("post request made")
+                if (err) { console.log(err); }
+                else { console.log(body); }
+            });
+        }
     });
 
 });
@@ -57,11 +76,9 @@ router.post("/login", function(req, res){
 
 router.post("/reset_password", function(req, res) {
     var user = req.user;
-    var oldPassword = req.body.oldPassword;
-    var newPassword = req.body.newPassword;
-    var token = req.body.token;
-    console.log(req.body);
-    console.log(req.user);
+    var oldPassword = req.body.resetObject.oldPassword;
+    var newPassword = req.body.resetObject.newPassword;
+    var token = req.body.resetObject.token;
 
     if (oldPassword && newPassword) {
         bcrypt.compare(oldPassword, user.password, function(error, result) {

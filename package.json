@@ -22,6 +22,7 @@
     "forever": "^0.15.1",
     "hashids": "^1.1.0",
     "jsonwebtoken": "^5.7.0",
+    "mockgoose": "^6.0.8",
     "mongoose": "^4.4.10",
     "mongoose-simple-random": "^0.3.3",
     "mongoose-timestamp": "^0.6.0",
@@ -29,10 +30,10 @@
     "nodemailer-mandrill-transport": "^1.2.0",
     "q": "^1.4.1",
     "querystring": "^0.2.0",
+    "request": "^2.79.0",
     "require": "^2.4.20",
     "restify": "^4.0.4",
-    "socket.io": "^1.4.8",
-    "mockgoose": "^6.0.8"
+    "socket.io": "^1.4.8"
   },
   "devDependencies": {
     "chai": "^3.5.0",
