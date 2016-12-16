@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "Node backend for Edji.",
   "scripts": {
-    "start": "nodemon ./index.js localhost 8444",
+    "start": "nodemon ./index.js localhost 3354",
     "test": "NODE_ENV=test mocha --timeout 4000"
   },
   "repository": {
