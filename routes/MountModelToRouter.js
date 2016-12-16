@@ -26,11 +26,17 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
 
     options.read &&
     router.get("/:id", function (req, res){
-        Model.find({"_id":req.params.id}, function(error, result){
-            error && console.log(error);
-            // find returns an array, and we should only be getting one item back
-            result && res.json( result.pop() );
-        });
+        if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+            // Yes, it's a valid ObjectId, proceed with `findById` call.
+            Model.find({"_id":req.params.id}, function(error, result){
+                error && console.log(error);
+                // find returns an array, and we should only be getting one item back
+                result && res.json( result.pop() );
+            });
+        } else {
+            res.status(404).send();
+        }
+        
     });
 
     options.delete &&
