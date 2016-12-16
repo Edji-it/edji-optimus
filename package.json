@@ -3,15 +3,15 @@
   "version": "1.0.1",
   "description": "Node backend for Edji.",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon ./index.js localhost 8444",
     "test": "NODE_ENV=test mocha --timeout 4000"
   },
   "repository": {
     "type": "git",
-    "url": "bitbucket.org/codyjp/edji"
+    "url": "github.com/codiak/edji-server"
   },
   "author": "Edji",
-  "license": "ISC",
+  "license": "",
   "dependencies": {
     "bad-words": "^1.4.2",
     "bcryptjs": "^2.3.0",
@@ -38,6 +38,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
+    "nodemon": "^1.11.0",
     "randomstring": "^1.1.5",
     "sinon": "^1.17.6"
   }
