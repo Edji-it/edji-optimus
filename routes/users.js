@@ -70,17 +70,12 @@ router.post("/reset_password", function(req, res) {
                 .then((user) => {
                     user.password = newPassword;
                     user.save();
-                    res.json(user.toPublic());
+                    res.json(LoginController.generateLoginObjectForUser(user));
                 })
                 .catch((error) => {
                     console.log("Error: " + error);
+                    res.status(500).send();
                 });
-            if (result) {
-
-            } else {
-                console.log("error: " + error);
-                res.status(500).send();
-            }
         });
         return;
     } else if (token && newPassword) {
@@ -97,7 +92,7 @@ router.post("/reset_password", function(req, res) {
 
                 user.password = newPassword;
                 user.save();
-                res.json(user.toPublic());
+                res.json(LoginController.generateLoginObjectForUser(user));
             }).catch(function(e) {
                 console.log(e);
                 res.status(500).send();
