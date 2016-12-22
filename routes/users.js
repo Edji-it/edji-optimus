@@ -64,18 +64,32 @@ router.post("/reset_password", function(req, res) {
     var newPassword = req.body.resetObject.newPassword;
     var token = req.body.resetObject.token;
 
+    console.log("old password: " + oldPassword);
+    console.log("user's pass hash: " + user.password);
+
     if (oldPassword && newPassword) {
         bcrypt.compare(oldPassword, user.password, function(error, result) {
-            Q(User.findById(user._id).exec())
-                .then((user) => {
-                    user.password = newPassword;
-                    user.save();
-                    res.json(LoginController.generateLoginObjectForUser(user));
-                })
-                .catch((error) => {
-                    console.log("Error: " + error);
-                    res.status(500).send();
-                });
+            if (error) {
+                console.log("error!");
+                console.log(error);
+                res.status(500).send();
+            } else if (!result) {
+                res.status(400).send();
+            } else {
+                Q(User.findById(user._id).exec())
+                    .then((userRes) => {
+                        userRes.password = newPassword;
+                        userRes.save();
+                        console.log(userRes);
+                        res.json(LoginController.generateLoginObjectForUser(userRes));
+                    })
+                    .catch((error) => {
+                        console.log("Error: " + error);
+                        res.status(500).send();
+                    });
+            }
+
+            
         });
         return;
     } else if (token && newPassword) {
