@@ -21,7 +21,7 @@ var app = express();
 var server = require('http').createServer(app);
 require("./Sockets.js")(server);
 
-app.use(bodyParser());
+app.use(bodyParser.json({limit: '5mb'}));
 app.use(LoginController.middleware);
 
 // Access allowed for development
