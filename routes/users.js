@@ -138,6 +138,13 @@ router.post("/recover_password", function(req, res) {
                 });
             });
         }).then(function(user) {
+
+            //send back OK response even if the user is not found
+            if (!user) {
+                res.status(204).send();
+                return;
+            }
+
             user.save(function(err) {
                 if (err) { throw new Error(err); }
             });
