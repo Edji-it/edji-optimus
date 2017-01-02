@@ -46,6 +46,7 @@ router.get("/:id", function(req, res){
 
     if (!req.user) {
         res.status(401).send();
+        return;
     }
 
     var findParams = {};
