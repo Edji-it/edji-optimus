@@ -44,7 +44,7 @@ router.get("/", function(req, res){
         return;
     }
 
-    Reading.find({ 'teacher_ids' : req.user._id }, function(error, results){
+    Reading.find({ 'teacher_ids' : req.user._id }, 'title owner_id teacher_ids public promoter_ids source', function(error, results){
         // console.log("Added to readings!!!");
         // console.log(results);
         error && console.log(error);
