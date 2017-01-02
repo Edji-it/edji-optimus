@@ -52,10 +52,9 @@ router.get("/:id", function(req, res){
     var findParams = {};
 
     //creates flexibility to use with either project code or with session id
-    if (mongoose.Types.ObjectId.isValid(id)){
+    if (mongoose.Types.ObjectId.isValid(id) && !req.user.type === "temp"){
         findParams._id = id;
-    }
-    else {
+    } else {
         findParams.code = id;
     }
 
@@ -64,11 +63,16 @@ router.get("/:id", function(req, res){
 
         // find returns an array, and we should only be getting one item back
         var result = _result.pop();
+        console.log(result);
 
         if (result){
-            //checks if user's id is either the teacher's id or is in students_ids
+            //checks if user's id is either the teacher's id or is in students_ids or is a temp id
             //this will need to change if we move to an array of teacher ids
-            if (result.teacher_id != req.user._id && result.students_ids.indexOf(req.user._id) < 0) {
+            if (
+                result.teacher_id != req.user._id &&
+                result.students_ids.indexOf(req.user._id) < 0 &&
+                req.user.type !== "temp"
+            ) {
                 res.status(401).send();
                 return;
             }
