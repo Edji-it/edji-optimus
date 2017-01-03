@@ -122,28 +122,28 @@ router.post("/recover_password", function(req, res) {
     var username = req.body.username;
 
     if (username && username.length > 0) {
-        console.log(username);
 
         Q(User.findOne({"username":username}).exec())
         .then(function(user) {
-            return new Promise(function(resolve, reject) {
-                bcrypt.hash(String(user._id) + Date.now().toString(), 8, function(err, hash) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        user.resetPasswordToken = hash;
-                        user.resetPasswordExpires = Date.now() + 3600000;
-                        resolve(user);
-                    }
-                });
-            });
-        }).then(function(user) {
-
             //send back OK response even if the user is not found
             if (!user) {
-                res.status(204).send();
-                return;
+                var e = new Error("No user found");
+                e.status = 204;
+                throw e;
+            } else {
+                return new Promise(function(resolve, reject) {
+                    bcrypt.hash(String(user._id) + Date.now().toString(), 8, function(err, hash) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            user.resetPasswordToken = hash;
+                            user.resetPasswordExpires = Date.now() + 3600000;
+                            resolve(user);
+                        }
+                    });
+                });
             }
+        }).then(function(user) {
 
             user.save(function(err) {
                 if (err) { throw new Error(err); }
@@ -183,8 +183,17 @@ router.post("/recover_password", function(req, res) {
             });
             res.status(204).send();
         }).catch(function(e) {
-            console.log(e);
-            res.status(500).send();
+
+            // e.status will be 204 if no user is found so that we don't tell people the user exists
+            var status;
+            if (e.status && e.status === 204) {
+                status = e.status;
+            } else {
+                console.log(e);
+                status = 500;
+            }
+            // var status = e.status || 500;
+            res.status(status).send();
         });
     }
 });
