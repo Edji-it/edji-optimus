@@ -35,7 +35,7 @@ router.post("/", function(req, res){
 
     model.save((error, result)=>{
         if (error){
-            console.log(error);
+            console.error(error);
             res.status(400).send(JSON.stringify(error));
             // res.json(error);
             return;
@@ -64,27 +64,23 @@ router.post("/reset_password", function(req, res) {
     var newPassword = req.body.resetObject.newPassword;
     var token = req.body.resetObject.token;
 
-    console.log("old password: " + oldPassword);
-    console.log("user's pass hash: " + user.password);
-
     if (oldPassword && newPassword) {
         bcrypt.compare(oldPassword, user.password, function(error, result) {
             if (error) {
-                console.log("error!");
-                console.log(error);
                 res.status(500).send();
+                return;
             } else if (!result) {
                 res.status(400).send();
+                return;
             } else {
                 Q(User.findById(user._id).exec())
                     .then((userRes) => {
                         userRes.password = newPassword;
                         userRes.save();
-                        console.log(userRes);
                         res.json(LoginController.generateLoginObjectForUser(userRes));
                     })
                     .catch((error) => {
-                        console.log("Error: " + error);
+                        console.error(error);
                         res.status(500).send();
                     });
             }
@@ -108,7 +104,7 @@ router.post("/reset_password", function(req, res) {
                 user.save();
                 res.json(LoginController.generateLoginObjectForUser(user));
             }).catch(function(e) {
-                console.log(e);
+                console.error(e);
                 res.status(500).send();
             });
         return;
@@ -189,7 +185,7 @@ router.post("/recover_password", function(req, res) {
             if (e.status && e.status === 204) {
                 status = e.status;
             } else {
-                console.log(e);
+                console.error(e);
                 status = 500;
             }
             // var status = e.status || 500;
