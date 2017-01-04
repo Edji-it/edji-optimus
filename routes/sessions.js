@@ -52,7 +52,7 @@ router.get("/:id", function(req, res){
     var findParams = {};
 
     //creates flexibility to use with either project code or with session id
-    if (mongoose.Types.ObjectId.isValid(id) && req.user.type !== "temp"){
+    if (mongoose.Types.ObjectId.isValid(id)) {
         findParams._id = id;
     } else {
         findParams.code = id;
