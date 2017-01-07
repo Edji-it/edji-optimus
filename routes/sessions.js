@@ -127,21 +127,26 @@ router.post("/:id/comments", function(req, res){
 
     //comment.user_id = req.logged_in_user.user_id;
     Session.findById({_id}, function(err, result){
-        var currentComment = result.comments.id(comment._id);
+        if (result) {
+            var currentComment = result.comments.id(comment._id);
 
-        if (currentComment){
-            Object.assign(currentComment, comment);
-        }
-        else{
-            result.comments.push(comment);
-        }
-
-        result.save(function(error, result){
-            if (!error){
-                res.send(result.comments.id(comment._id));
+            if (currentComment){
+                Object.assign(currentComment, comment);
             }
-            //res.send(result);
-        });
+            else{
+                result.comments.push(comment);
+            }
+
+            result.save(function(error, result){
+                if (!error){
+                    res.send(result.comments.id(comment._id));
+                }
+                //res.send(result);
+            });
+        } else {
+            res.send(err);
+        }
+        
     });
 
 });
