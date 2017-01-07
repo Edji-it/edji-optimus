@@ -45,7 +45,7 @@ var model = ModelCreator("User", {
 });
 
 model.schema.pre("save", function(next){
-
+    
     if (this._id && !this.isModified("password")){
         next();
     }

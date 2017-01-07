@@ -1,3 +1,6 @@
+/**
+ * Temporary User Model
+ */
 var ModelCreator = require("./ModelCreator");
 var Filter = require("bad-words"),
     filter = new Filter();

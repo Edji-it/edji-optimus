@@ -1,5 +1,5 @@
 /**
- * Created by nard on 8/21/16.
+ * Project Model
  */
 var ModelCreator = require("./ModelCreator");
 var Comment = require("./Comment");

@@ -14,7 +14,7 @@
   "author": "Edji",
   "license": "",
   "engines": {
-    "node": "^7.1.0"
+    "node": "^6.9.1"
   },
   "dependencies": {
     "bad-words": "^1.4.2",
@@ -27,8 +27,8 @@
     "hashids": "^1.1.0",
     "jsonwebtoken": "^5.7.0",
     "mockgoose": "^6.0.8",
-    "mongodb": "^2.2.19",
-    "mongoose": "^2.9.5",
+    "mongodb": "2.2.19",
+    "mongoose": "4.7.0",
     "mongoose-simple-random": "^0.3.3",
     "mongoose-timestamp": "^0.6.0",
     "nodemailer": "^2.6.4",
