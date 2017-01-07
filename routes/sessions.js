@@ -18,6 +18,7 @@ MountModelToRouter(router, Session, "session", {read:false, list:false});
 router.get("/",function(req, res){
 
     var callback = (error, results)=>{
+        console.log(results);
         if (error){
             res.json({error: error});
             return;
@@ -33,11 +34,19 @@ router.get("/",function(req, res){
     }
     
     if (req.user && req.user.isTeacher){
-        Session.find({teacher_id:user._id}, callback).populate('teacher_id','fullname email username').populate('reading_id','title');
+        console.log("finding projects by teacher");
+        Session.find({teacher_id:user._id},
+            'reading_id teacher_id label code updatedAt createdAt',
+            { sort: { createdAt: -1 } },
+            callback)
+            .populate('teacher_id','fullname email username').populate('reading_id','title');
     }
     else{
-        console.log("Find and populate");
-        Session.find({students_ids:user._id}, callback).populate('teacher_id','fullname email username').populate('reading_id','title');
+        Session.find({students_ids:user._id},
+            'reading_id teacher_id label code updatedAt createdAt',
+            { sort: { createdAt: -1 } },
+            callback)
+            .populate('teacher_id','fullname email username').populate('reading_id','title');
     }
 });
 

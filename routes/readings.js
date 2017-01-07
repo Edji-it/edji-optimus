@@ -44,11 +44,14 @@ router.get("/", function(req, res){
         return;
     }
 
-    Reading.find({ 'teacher_ids' : req.user._id }, 'title owner_id teacher_ids public promoter_ids source createdAt updatedAt', function(error, results){
-        // console.log("Added to readings!!!");
-        // console.log(results);
-        error && console.log(error);
-        results && res.json(results);
+    Reading.find({ 'teacher_ids' : req.user._id },
+        'title owner_id teacher_ids public promoter_ids source createdAt updatedAt',
+        { sort: {createdAt: -1} },
+        function(error, results){
+            // console.log("Added to readings!!!");
+            // console.log(results);
+            error && console.log(error);
+            results && res.json(results);
     });
     
 });
