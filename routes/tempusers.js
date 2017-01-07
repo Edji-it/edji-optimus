@@ -18,9 +18,14 @@ router.post("/", function(req, res) {
     var model = TempUser(userData);
     model.save((error, result) => {
         if (error) {
-            console.log(error);
-            res.status(500).send();
-            return;
+            if (error.name === "ValidationError") {
+                res.status(406).send();
+                return;
+            } else {
+                console.log(error);
+                res.status(500).send();
+                return;
+            }            
         }
 
         //creates the proper schema for the temp user's login token
