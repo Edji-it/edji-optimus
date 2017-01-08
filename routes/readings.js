@@ -13,7 +13,6 @@ var router = express.Router();
 MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: true, create:false });
 
 router.post("/", function(req, res) {
-        console.log("New reading posted!");
 
         if (!req.body['reading']) {
             //send error
@@ -83,9 +82,7 @@ router.put("/:reading_id/recommend", function(req, res) {
         error && console.log(error);
 
         if (reading) {
-            // console.log(reading);
             if (!reading.promoter_ids) { //update older readings
-                console.log("We had to make it");
                 reading.promoter_ids = [];
             } else if (reading.promoter_ids.indexOf(user._id) >= 0) {
                 res.status(304).send();
@@ -93,7 +90,6 @@ router.put("/:reading_id/recommend", function(req, res) {
             }
 
             reading.promoter_ids.push(user._id);
-            console.log(reading.promoter_ids);
 
             reading.save();
             res.status(204).send();

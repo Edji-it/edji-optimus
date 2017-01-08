@@ -18,7 +18,6 @@ MountModelToRouter(router, Session, "session", {read:false, list:false});
 router.get("/",function(req, res){
 
     var callback = (error, results)=>{
-        console.log(results);
         if (error){
             res.json({error: error});
             return;
@@ -34,7 +33,6 @@ router.get("/",function(req, res){
     }
     
     if (req.user && req.user.isTeacher){
-        console.log("finding projects by teacher");
         Session.find({teacher_id:user._id},
             'reading_id teacher_id label code updatedAt createdAt',
             { sort: { createdAt: -1 } },
@@ -190,7 +188,6 @@ router.get("/add/:code", function(req, res) {
         var session = results.pop();
 
         if (session) {
-            console.log(user);
             // if (!user.type || !user.type === "temp") {
                 session.students_ids.push(req.user._id);
             // }
