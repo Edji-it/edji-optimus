@@ -23,7 +23,6 @@ module.exports = function(server) {
         socket.on('newSession', function(session) {
             thisSessionId = session.id;
             thisUserId = session.user;
-
             // Join rooms based on Session ID
             socket.join(thisSessionId, function() {
                 io.to(thisSessionId).emit('liveUsers', getAllRoomMembers(thisSessionId).length);
@@ -41,12 +40,20 @@ module.exports = function(server) {
             });
         });
 
+        // Deprecated
         socket.on('deleteComment', function(comment) {
-            socket.to(thisSessionId).emit('deleteComment', comment);
+            io.to(thisSessionId).emit('deleteComment', comment);
         });
 
+        // Deprecated
         socket.on('addComment', function(comment) {
-            socket.to(thisSessionId).emit('addComment', comment);
+            io.to(thisSessionId).emit('addComment', comment);
+        });
+
+        // Support ADD, DELETE, or UPDATE
+        // @param commentUpdate: any { comment: commentObj, action: 'ADD', projectId: PROJECTID }
+        socket.on('updateComment', function(commentUpdate) {
+            io.to(commentUpdate.projectId).emit('updateComment', commentUpdate);
         });
     });
 }
