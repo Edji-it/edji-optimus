@@ -270,13 +270,13 @@ broadway@~0.3.2, broadway@~0.3.6:
     utile "0.2.1"
     winston "0.8.0"
 
+bson@~0.4.21:
+  version "0.4.23"
+  resolved "https://registry.yarnpkg.com/bson/-/bson-0.4.23.tgz#e65a2e3c7507ffade4109bc7575a76e50f8da915"
+
 bson@~0.5.4, bson@~0.5.6:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/bson/-/bson-0.5.7.tgz#0d11fe0936c1fee029e11f7063f5d0ab2422ea3e"
-
-bson@~1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/bson/-/bson-1.0.3.tgz#a3b66f724b1673067efc32249e1151205d3ba854"
 
 buffer-crc32@~0.2.3:
   version "0.2.13"
@@ -805,6 +805,10 @@ engine.io@1.8.2:
     debug "2.3.3"
     engine.io-parser "1.3.2"
     ws "1.1.1"
+
+es6-promise@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.0.2.tgz#010d5858423a5f118979665f46486a95c6ee2bb6"
 
 es6-promise@3.2.1, es6-promise@^3.0.2:
   version "3.2.1"
@@ -1872,18 +1876,17 @@ moment@^2.10.6:
   version "2.17.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.17.1.tgz#fed9506063f36b10f066c8b59a144d7faebe1d82"
 
+mongodb-core@1.2.32:
+  version "1.2.32"
+  resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-1.2.32.tgz#ed6e5422fecae10c0e79710b105121b9a92ec3d4"
+  dependencies:
+    bson "~0.4.21"
+
 mongodb-core@2.0.13:
   version "2.0.13"
   resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-2.0.13.tgz#f9394b588dce0e579482e53d74dbc7d7a9d4519c"
   dependencies:
     bson "~0.5.6"
-    require_optional "~1.0.0"
-
-mongodb-core@2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-2.1.4.tgz#97f84cb126606c72585e66066ea3a05e9c20dc9b"
-  dependencies:
-    bson "~1.0.3"
     require_optional "~1.0.0"
 
 mongodb-download@^1.3.2:
@@ -1905,20 +1908,20 @@ mongodb-prebuilt@^5.0.6:
     spawn-sync "1.0.15"
     yargs "^3.26.0"
 
+mongodb@2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.1.4.tgz#652d8720ff7f5bc562c473ccb0c90d789379a4a3"
+  dependencies:
+    es6-promise "3.0.2"
+    mongodb-core "1.2.32"
+    readable-stream "1.0.31"
+
 mongodb@2.2.11:
   version "2.2.11"
   resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.2.11.tgz#a828b036fe6a437a35e723af5f81781c4976306c"
   dependencies:
     es6-promise "3.2.1"
     mongodb-core "2.0.13"
-    readable-stream "2.1.5"
-
-mongodb@2.2.19:
-  version "2.2.19"
-  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.2.19.tgz#9d84745f9369ff301df5a1790cf485375f1df7d7"
-  dependencies:
-    es6-promise "3.2.1"
-    mongodb-core "2.1.4"
     readable-stream "2.1.5"
 
 mongoose-simple-random@^0.3.3:
@@ -2464,6 +2467,15 @@ read@1.0.x:
   resolved "https://registry.yarnpkg.com/read/-/read-1.0.7.tgz#b3da19bd052431a97671d44a42634adf710b40c4"
   dependencies:
     mute-stream "~0.0.4"
+
+readable-stream@1.0.31:
+  version "1.0.31"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.0.31.tgz#8f2502e0bc9e3b0da1b94520aabb4e2603ecafae"
+  dependencies:
+    core-util-is "~1.0.0"
+    inherits "~2.0.1"
+    isarray "0.0.1"
+    string_decoder "~0.10.x"
 
 readable-stream@2.1.5, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.5, readable-stream@~2.1.4:
   version "2.1.5"
