@@ -120,21 +120,15 @@ async@0.2.9, async@0.2.x, async@~0.2.6, async@~0.2.9:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/async/-/async-0.2.9.tgz#df63060fbf3d33286a76aaf6d55a2986d9ff8619"
 
-async@2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/async/-/async-2.1.2.tgz#612a4ab45ef42a70cde806bad86ee6db047e8385"
-  dependencies:
-    lodash "^4.14.0"
+async@1.5.2, async@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
 async@2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/async/-/async-2.1.4.tgz#2d2160c7788032e4dd6cbe2502f1f9a2c8f6cde4"
   dependencies:
     lodash "^4.14.0"
-
-async@^1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
 asynckit@^0.4.0:
   version "0.4.0"
@@ -270,13 +264,9 @@ broadway@~0.3.2, broadway@~0.3.6:
     utile "0.2.1"
     winston "0.8.0"
 
-bson@~0.4.21:
-  version "0.4.23"
-  resolved "https://registry.yarnpkg.com/bson/-/bson-0.4.23.tgz#e65a2e3c7507ffade4109bc7575a76e50f8da915"
-
-bson@~0.5.4, bson@~0.5.6:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/bson/-/bson-0.5.7.tgz#0d11fe0936c1fee029e11f7063f5d0ab2422ea3e"
+bson@0.4.21, bson@~0.4.21:
+  version "0.4.21"
+  resolved "https://registry.yarnpkg.com/bson/-/bson-0.4.21.tgz#b8eae38c5aa94f7b8e64e8cfed0f42e58308ed95"
 
 buffer-crc32@~0.2.3:
   version "0.2.13"
@@ -810,7 +800,7 @@ es6-promise@3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.0.2.tgz#010d5858423a5f118979665f46486a95c6ee2bb6"
 
-es6-promise@3.2.1, es6-promise@^3.0.2:
+es6-promise@^3.0.2:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.2.1.tgz#ec56233868032909207170c39448e24449dd1fc4"
 
@@ -1271,9 +1261,9 @@ hoek@2.x.x:
   version "2.16.3"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-2.16.3.tgz#20bb7403d3cea398e91dc4710a8ff1b8274a25ed"
 
-hooks-fixed@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/hooks-fixed/-/hooks-fixed-1.2.0.tgz#0d2772d4d7d685ff9244724a9f0b5b2559aac96b"
+hooks-fixed@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/hooks-fixed/-/hooks-fixed-1.1.0.tgz#0e8c15336708e6611185fe390b44687dd5230dbb"
 
 hpack.js@^2.1.6:
   version "2.1.6"
@@ -1628,9 +1618,9 @@ jws@^3.0.0:
     jwa "^1.1.4"
     safe-buffer "^5.0.1"
 
-kareem@1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/kareem/-/kareem-1.1.3.tgz#0877610d8879c38da62d1dbafde4e17f2692f041"
+kareem@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/kareem/-/kareem-1.0.1.tgz#7805d215bb53214ec3af969a1d0b1f17e3e7b95c"
 
 keep-alive-agent@^0.0.1:
   version "0.0.1"
@@ -1876,17 +1866,11 @@ moment@^2.10.6:
   version "2.17.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.17.1.tgz#fed9506063f36b10f066c8b59a144d7faebe1d82"
 
-mongodb-core@1.2.32:
-  version "1.2.32"
-  resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-1.2.32.tgz#ed6e5422fecae10c0e79710b105121b9a92ec3d4"
+mongodb-core@1.3.9:
+  version "1.3.9"
+  resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-1.3.9.tgz#39db2f5211fe8fc8a7a618926b079081147d4e6e"
   dependencies:
     bson "~0.4.21"
-
-mongodb-core@2.0.13:
-  version "2.0.13"
-  resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-2.0.13.tgz#f9394b588dce0e579482e53d74dbc7d7a9d4519c"
-  dependencies:
-    bson "~0.5.6"
     require_optional "~1.0.0"
 
 mongodb-download@^1.3.2:
@@ -1908,21 +1892,13 @@ mongodb-prebuilt@^5.0.6:
     spawn-sync "1.0.15"
     yargs "^3.26.0"
 
-mongodb@2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.1.4.tgz#652d8720ff7f5bc562c473ccb0c90d789379a4a3"
+mongodb@2.1.10:
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.1.10.tgz#d24a7ab58516cbbeee7c256d4fb00a774f8e4d4f"
   dependencies:
     es6-promise "3.0.2"
-    mongodb-core "1.2.32"
+    mongodb-core "1.3.9"
     readable-stream "1.0.31"
-
-mongodb@2.2.11:
-  version "2.2.11"
-  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.2.11.tgz#a828b036fe6a437a35e723af5f81781c4976306c"
-  dependencies:
-    es6-promise "3.2.1"
-    mongodb-core "2.0.13"
-    readable-stream "2.1.5"
 
 mongoose-simple-random@^0.3.3:
   version "0.3.3"
@@ -1934,20 +1910,20 @@ mongoose-timestamp@^0.6.0:
   dependencies:
     defaults "^1.0.3"
 
-mongoose@4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-4.7.0.tgz#adb7c6b73dfb76f204a70ba6cd364f887dcc2012"
+mongoose@4.4.10:
+  version "4.4.10"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-4.4.10.tgz#6277f2f918040868f4aecfbc2833153efb92472f"
   dependencies:
-    async "2.1.2"
-    bson "~0.5.4"
-    hooks-fixed "1.2.0"
-    kareem "1.1.3"
-    mongodb "2.2.11"
+    async "1.5.2"
+    bson "0.4.21"
+    hooks-fixed "1.1.0"
+    kareem "1.0.1"
+    mongodb "2.1.10"
     mpath "0.2.1"
     mpromise "0.5.5"
-    mquery "2.0.0"
+    mquery "1.10.0"
     ms "0.7.1"
-    muri "1.1.1"
+    muri "1.1.0"
     regexp-clone "0.0.1"
     sliced "1.0.1"
 
@@ -1959,9 +1935,9 @@ mpromise@0.5.5:
   version "0.5.5"
   resolved "https://registry.yarnpkg.com/mpromise/-/mpromise-0.5.5.tgz#f5b24259d763acc2257b0a0c8c6d866fd51732e6"
 
-mquery@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/mquery/-/mquery-2.0.0.tgz#b5abc850b90dffc3e10ae49b4b6e7a479752df22"
+mquery@1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/mquery/-/mquery-1.10.0.tgz#8603f02b0b524d17ac0539a85996124ee17b7cb3"
   dependencies:
     bluebird "2.10.2"
     debug "2.2.0"
@@ -1976,9 +1952,9 @@ ms@0.7.2, ms@^0.7.1:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.2.tgz#ae25cf2512b3885a1d95d7f037868d8431124765"
 
-muri@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/muri/-/muri-1.1.1.tgz#64bd904eaf8ff89600c994441fad3c5195905ac2"
+muri@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/muri/-/muri-1.1.0.tgz#a3a6d74e68a880f433a249a74969cbb665cc0add"
 
 mute-stream@~0.0.4:
   version "0.0.7"
@@ -2477,18 +2453,6 @@ readable-stream@1.0.31:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-readable-stream@2.1.5, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.5, readable-stream@~2.1.4:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.1.5.tgz#66fa8b720e1438b364681f2ad1a63c618448c9d0"
-  dependencies:
-    buffer-shims "^1.0.0"
-    core-util-is "~1.0.0"
-    inherits "~2.0.1"
-    isarray "~1.0.0"
-    process-nextick-args "~1.0.6"
-    string_decoder "~0.10.x"
-    util-deprecate "~1.0.1"
-
 "readable-stream@>=1.0.33-1 <1.1.0-0":
   version "1.0.34"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.0.34.tgz#125820e34bc842d2f2aaafafe4c2916ee32c157c"
@@ -2501,6 +2465,18 @@ readable-stream@2.1.5, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-
 readable-stream@^2.0.0, "readable-stream@^2.0.0 || ^1.1.13", readable-stream@^2.0.4, readable-stream@^2.1.5, readable-stream@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.2.2.tgz#a9e6fec3c7dda85f8bb1b3ba7028604556fc825e"
+  dependencies:
+    buffer-shims "^1.0.0"
+    core-util-is "~1.0.0"
+    inherits "~2.0.1"
+    isarray "~1.0.0"
+    process-nextick-args "~1.0.6"
+    string_decoder "~0.10.x"
+    util-deprecate "~1.0.1"
+
+readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.5, readable-stream@~2.1.4:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.1.5.tgz#66fa8b720e1438b364681f2ad1a63c618448c9d0"
   dependencies:
     buffer-shims "^1.0.0"
     core-util-is "~1.0.0"
