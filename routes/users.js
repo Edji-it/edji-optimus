@@ -14,6 +14,7 @@ var config = require("config");
 var mandrillConfig = config.get("Mandrill");
 
 var User = require("./../models/User");
+var ArchivedUser = require("./../models/ArchivedUser");
 var LoginController = require("./../LoginController");
 
 var router = express.Router();
@@ -202,8 +203,37 @@ router.post("/recover_password", function(req, res) {
 });
 
 router.delete("/:id", function(req, res) {
-    // userId = 
-    res.status(400).send();
+    var user = req.user;
+
+    if (!user) {
+        res.status(400).send();
+        return;
+    }
+
+    Q(User.findById(user._id).exec())
+        .then((dbUser) => {
+            if (!dbUser) {
+                res.status(400).send();
+            }
+
+            if (dbUser.accountArchiveToken && dbUser.accountArchiveToken > Date.now()) {
+                // good to go, we can archive the account
+                var archiveUser = ArchivedUser({
+                    user_id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    fullname: user.fullname
+                });
+
+                archiveUser.save((err) => {
+                    if (err) {
+                        throw new Error(err);
+                    }
+
+                    
+                });
+            }
+        })
 });
 
 /** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
