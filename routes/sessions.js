@@ -81,7 +81,7 @@ router.get("/:id", function(req, res) {
     if (mongoose.Types.ObjectId.isValid(id)) {
         findParams._id = id;
     } else {
-        findParams.code = id;
+        findParams.code = id.toLowerCase();
     }
 
     // Only pull out arrays since we'll be populating the object after saving
