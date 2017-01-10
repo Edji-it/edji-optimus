@@ -84,8 +84,8 @@ router.get("/:id", function(req, res) {
         findParams.code = id;
     }
 
-    Q(Session.find(findParams, "students_ids")
-        // .populate('students_ids', 'fullname')
+    Q(Session.find(findParams)
+        .populate('students_ids')
         // .populate('temp_ids', 'fullname')
         .exec()
         )
