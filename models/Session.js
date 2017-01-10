@@ -6,6 +6,13 @@ var Comment = require("./Comment");
 var SessionCode = require("./SessionCode");
 var Hashids = require("hashids");
 var mongoose = require("mongoose");
+
+/** mongoose hook for validation against acceptable values for `types` */
+var typesEnum = {
+    values: ['emoji', 'text'],
+    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
+}
+
 var Model = ModelCreator("Session", {
     reading_id:{type:String, required:true, ref:"Reading"},
     teacher_id:{type:String, ref:"User"},
@@ -13,7 +20,8 @@ var Model = ModelCreator("Session", {
     students_ids:[{ type: String, ref: "User" }],
     temp_ids: [{ type: String, ref: "TempUser" }],
     label:{type:String, required:true},
-    code:{type:String, unique:true}
+    code:{type:String, unique:true},
+    types: [{ type: String, enum: typesEnum, default: "emoji" }]
 });
 
 var salt = "SALT ME BBZ FRESH SALT";
@@ -23,7 +31,7 @@ Model.schema.pre("save", function(next){
         // Model.find({}, (error, results)=>{
             // var length = (results && results.length && results.length > 0 && results.length - 1) || 0;
             // var hashids = new Hashids(salt, 6);
-    var this_session = this;
+        var this_session = this;
 
         SessionCode.findOne({active: false}, function(err, result) {
             if (!err) {
@@ -40,7 +48,6 @@ Model.schema.pre("save", function(next){
                 console.error(err);
             }
         });
-        // });
     } else {
         next();
     }
