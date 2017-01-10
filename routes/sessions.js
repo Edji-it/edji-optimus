@@ -93,6 +93,11 @@ router.get("/:id", function(req, res) {
             }
             var session = sessions.pop();
 
+            if (!session) {
+                res.status(404).send();
+                return;
+            }
+
             if (user.type && user.type === "temp") {
                 // some old readings don't have temp_ids
                 if (!session.temp_ids) {
