@@ -186,11 +186,11 @@ router.get("/add/:code", function(req, res) {
                 }
             }
             session.save(function(error, result){
-                res.json({success:true, sessionId: result._id});
+                res.status(204).send()
                 return;
             });
         } else {
-            res.json({success:false});
+            res.status(404).send();
             return;
         }
 
