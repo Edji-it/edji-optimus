@@ -10,8 +10,8 @@ var Model = ModelCreator("Session", {
     reading_id:{type:String, required:true, ref:"Reading"},
     teacher_id:{type:String, ref:"User"},
     comments:[Comment.schema],
-    students_ids:{type: String, ref: "User"},
-    temp_ids: { type: String, ref: "TempUser" },
+    students_ids:{ type: [String], ref: "User" },
+    temp_ids: { type: [String], ref: "TempUser" },
     label:{type:String, required:true},
     code:{type:String, unique:true}
 });
