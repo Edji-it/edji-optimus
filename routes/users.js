@@ -30,8 +30,6 @@ router.post("/", function(req, res){
 
     var userData = req.body.user;
 
-
-
     var model = User(userData);
 
     model.save((error, result)=>{

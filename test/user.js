@@ -4,33 +4,12 @@ var server = require("./../index");
 var should = chai.should();
 
 var User = require("./../models/User");
+var db = require("./db");
 
 chai.use(chaiHttp);
 
-var globalUser = {
-    username:"nennerB",
-    fullname:"nennerB nilkciH",
-    password:"nennerbPass",
-    email:"nennerb.nilkcih@gmail.com",
-    isTeacher: false
-};
-
-
 describe("Users", () => {
-    beforeEach((done) => {
-      User.remove({}, (err) => {
-        
-        User(globalUser).save((err) => {
-            if (err) {
-                console.error("Unable to save seed user for testing");
-                console.error(err);
-            }
-
-            done();
-        });
-        
-      });
-    });
+    beforeEach(db.seedDB);
     
     describe('POST /users', () => {
         it("it should register a user", (done) => {
@@ -67,45 +46,27 @@ describe("Users", () => {
                 done();
             });
         });
-        it("it should not allow a duplicate user", (done) => {
-            var user = {
-                user: {
-                    username:"nennerB",
-                    fullname:"nennerB nilkciH",
-                    password:"nennerbPass",
-                    email:"brennen.nilkcih@gmail.com",
-                    isTeacher: false
-                }
-            };
 
-            User(user).save((err) => {
-                chai.request(server)
-                .post("/users")
-                .send(user)
-                .end((err, res) => {
-                    //initial validation
-                    res.should.have.status(400);
-                    res.should.have.property("error");
-                    done();
-                });
+        it("it should not allow a duplicate user", (done) => {
+
+            chai.request(server)
+            .post("/users")
+            .send({ user: db.users.existingUser })
+            .end((err, res) => {
+                //initial validation
+                res.should.have.status(409);
+                res.should.have.property("error");
+                done();
             });
         });
     });
     
     describe("POST /users/login", () => {
         it("it should login an existing user", (done) => {
-            
-            var userLogin = {
-                user: {
-                    username: globalUser.username,
-                    password: globalUser.password
-                }
-            };
-            
 
             chai.request(server)
             .post("/users/login")
-            .send(userLogin)
+            .send(db.users.existingUserCredentials)
             .end((err, res) => {
                 //initial validation
                 res.should.have.status(200);
@@ -127,5 +88,9 @@ describe("Users", () => {
                 done();
             });
         });
+
+        // it("it should reject a user with an incorrect password", (done) => {
+
+        // });
     });
 });
