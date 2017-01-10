@@ -58,10 +58,10 @@ router.post("/:id", function(req, res) {
 
     session.save(function(error, result) {
         if (!error){
-            res.send(result);
+            res.status(200).send(result);
         }
         if (error){
-            res.send(error);
+            res.status(500).send(error);
         }
     });
 });
@@ -131,7 +131,8 @@ router.post("/:id/comments", function(req, res){
                 //res.send(result);
             });
         } else {
-            res.send(err);
+            console.log(err);
+            res.status(500).send();
         }
         
     });
@@ -143,7 +144,7 @@ router.get("/:id/comments", function(req, res){
     var _id = req.params.id;
 
     Session.findById({_id}, function(err, result){
-        res.send(result.comments);
+        res.status(200).send(result.comments);
     });
 
 });
@@ -156,7 +157,8 @@ router.get("/add/:code", function(req, res) {
     Session.find({code:code.toLowerCase()}, function(err, results) {
 
         if (err) {
-            res.json({error:err});
+            console.error(err);
+            res.status(500).send();
             return;
         }
 
@@ -168,7 +170,6 @@ router.get("/add/:code", function(req, res) {
         var session = results.pop();
 
         if (session) {
-            console.log(session);
             if (user.type && user.type === "temp") {
                 // some old readings don't have temp_ids
                 if (!session.temp_ids) {
