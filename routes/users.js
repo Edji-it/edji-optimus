@@ -203,9 +203,10 @@ router.post("/recover_password", function(req, res) {
 });
 
 router.delete("/:id", function(req, res) {
+    var id = req.params.id;
     var user = req.user;
 
-    if (!user) {
+    if (!user || id != user._id) {
         res.status(400).send();
         return;
     }
@@ -214,9 +215,11 @@ router.delete("/:id", function(req, res) {
         .then((dbUser) => {
             if (!dbUser) {
                 res.status(400).send();
+                return;
             }
 
             if (dbUser.accountArchiveToken && dbUser.accountArchiveToken > Date.now()) {
+
                 // good to go, we can archive the account
                 var archiveUser = ArchivedUser({
                     user_id: user._id,
@@ -229,11 +232,19 @@ router.delete("/:id", function(req, res) {
                     if (err) {
                         throw new Error(err);
                     }
-
-                    
+                    dbUser.remove((err, doc) => {
+                        if (err) { console.error(err); }
+                        res.status(204).send();
+                    });
                 });
+            } else {
+                res.status(400).send();
             }
         })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send();
+        });
 });
 
 /** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
