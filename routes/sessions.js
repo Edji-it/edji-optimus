@@ -48,62 +48,62 @@ router.get("/",function(req, res){
     }
 });
 
-router.get("/:id", function(req, res){
-    var id = req.params.id;
+// router.get("/:id", function(req, res){
+//     var id = req.params.id;
 
-    if (!req.user) {
-        res.status(401).send();
-        return;
-    }
+//     if (!req.user) {
+//         res.status(401).send();
+//         return;
+//     }
 
-    var findParams = {};
+//     var findParams = {};
 
-    //creates flexibility to use with either project code or with session id
-    if (mongoose.Types.ObjectId.isValid(id)) {
-        findParams._id = id;
-    } else {
-        findParams.code = id;
-    }
+//     //creates flexibility to use with either project code or with session id
+//     if (mongoose.Types.ObjectId.isValid(id)) {
+//         findParams._id = id;
+//     } else {
+//         findParams.code = id;
+//     }
 
-    Session.find(findParams, function(error, _result){
-        error && console.log(error);
+//     Session.find(findParams,function(error, _result){
+//         error && console.log(error);
 
-        // find returns an array, and we should only be getting one item back
-        var result = _result.pop();
+//         // find returns an array, and we should only be getting one item back
+//         var result = _result.pop();
 
-        if (result){
-            //checks if user's id is either the teacher's id or is in students_ids or is a temp id
-            //this will need to change if we move to an array of teacher ids
-            if (
-                result.teacher_id != req.user._id &&
-                result.students_ids.indexOf(req.user._id) < 0 &&
-                req.user.type !== "temp"
-            ) {
-                res.status(401).send();
-                return;
-            }
+//         if (result){
+//             //checks if user's id is either the teacher's id or is in students_ids or is a temp id
+//             //this will need to change if we move to an array of teacher ids
+//             if (
+//                 result.teacher_id != req.user._id &&
+//                 result.students_ids.indexOf(req.user._id) < 0 &&
+//                 req.user.type !== "temp"
+//             ) {
+//                 res.status(401).send();
+//                 return;
+//             }
 
-            var promises = result.comments.map(function(comment){
-                return Q.Promise(function(resolve, reject){
-                    User.findOne({_id:comment.user_id}, function(err, user){
-                        if (user){
-                            comment.user = user;
-                        }
-                        resolve();
-                    });
-                });
-            });
+//             // var promises = result.comments.map(function(comment){
+//             //     return Q.Promise(function(resolve, reject){
+//             //         User.findOne({_id:comment.user_id}, function(err, user){
+//             //             if (user){
+//             //                 comment.user = user;
+//             //             }
+//             //             resolve();
+//             //         });
+//             //     });
+//             // });
 
-            Q.all(promises).then(function(){
-                res.json(result);
-            });
-        }
-        else{
-            res.status(404).send();
-        }
+//             // Q.all(promises).then(function(){
+//                 res.json(result);
+//             // });
+//         }
+//         else{
+//             res.status(404).send();
+//         }
 
-    });
-});
+//     });
+// });
 
 router.post("/:id", function(req, res) {
     var session = Session(req.body.session);
@@ -121,6 +121,43 @@ router.post("/:id", function(req, res) {
             res.send(error);
         }
     });
+});
+
+router.get("/:id", function(req, res) {
+    var id = req.params.id;
+
+    if (!req.user) {
+        res.status(401).send();
+        return;
+    }
+
+    var findParams = {};
+
+    //creates flexibility to use with either project code or with session id
+    if (mongoose.Types.ObjectId.isValid(id)) {
+        findParams._id = id;
+    } else {
+        findParams.code = id;
+    }
+
+    Q(Session.find(findParams, "students_ids")
+        .populate('students_ids', 'fullname')
+        .exec()
+        )
+        .then((sessions) => {
+            var session = sessions.pop();
+
+            if (!session) {
+                res.status(404).send();
+                return;
+            }
+            
+            res.json(session);
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).send();
+        });
 });
 
 router.post("/:id/comments", function(req, res){
@@ -181,16 +218,22 @@ router.get("/add/:code", function(req, res) {
         }
 
         if (!results && results.length){
-            res.json({error:"No Session Found"});
+            res.status(404).send();
             return;
         }
 
         var session = results.pop();
 
         if (session) {
-            // if (!user.type || !user.type === "temp") {
+            if (user.type && user.type === "temp") {
+                // some old readings don't have temp_ids
+                if (!session.temp_ids) {
+                    session.temp_ids = [];
+                }
+                session.temp_ids.push(req.user._id);
+            } else {
                 session.students_ids.push(req.user._id);
-            // }
+            }
             session.save(function(error, result){
                 res.json({success:true, sessionId: result._id});
                 return;
@@ -203,6 +246,7 @@ router.get("/add/:code", function(req, res) {
     });
 
 });
+
 router.delete("/:session_id/comments/:comment_id", function(req, res){
 
     Session.findByIdAndUpdate(
