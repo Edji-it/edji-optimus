@@ -1,15 +1,21 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-var timestamps = require("mongoose-timestamp");
 var db = require("./../db");
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator){
 
+    schemaJson.createdAt = { type: Date, default: Date.now() };
+    schemaJson.updatedAt = { type: Date, default: Date.now() };
+
     var Schema = new db.Schema(schemaJson);
 
-    Schema.plugin(timestamps);
+    Schema.pre('save', function(next) {
+        var now = new Date();
+        this.updatedAt = now;
+        next();
+    });    
 
     if (typeof schemaDecorator === "function"){
         schemaDecorator(Schema);
@@ -19,7 +25,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     Model.prototype.oldSave = Model.prototype.save;
     Model.prototype.save = function(callback){
         if (this._id) {
-            Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true,overwrite:true}, callback);
+            Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true,setDefaultsOnInsert:true}, callback);
         } else {
             this.oldSave(callback);
         }

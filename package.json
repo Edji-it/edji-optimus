@@ -29,7 +29,6 @@
     "mockgoose": "^6.0.8",
     "mongoose": "4.7.6",
     "mongoose-simple-random": "^0.3.3",
-    "mongoose-timestamp": "^0.6.0",
     "nodemailer": "^2.6.4",
     "nodemailer-mandrill-transport": "^1.2.0",
     "q": "^1.4.1",
