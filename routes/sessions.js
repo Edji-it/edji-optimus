@@ -67,7 +67,6 @@ router.post("/:id", function(req, res) {
 });
 
 router.get("/:id", function(req, res) {
-    console.log("getting called!");
     var id = req.params.id;
 
     if (!req.user) {
@@ -85,8 +84,8 @@ router.get("/:id", function(req, res) {
     }
 
     Q(Session.find(findParams)
-        .populate('students_ids')
-        // .populate('temp_ids', 'fullname')
+        .populate('students_ids', 'fullname')
+        .populate('temp_ids', 'fullname')
         .exec()
         )
         .then((sessions) => {
