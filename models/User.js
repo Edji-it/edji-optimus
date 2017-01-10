@@ -29,6 +29,7 @@ var model = ModelCreator("User", {
     email:{type:String, set:toLower, unique:true, required:true, validate: [validateEmail, "Invalid email"]},
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+    accountArchiveToken: Date,
     isTeacher:Boolean
 }, function(schema) {
     schema.methods.toPublic = function() {

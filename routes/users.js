@@ -18,7 +18,7 @@ var LoginController = require("./../LoginController");
 
 var router = express.Router();
 
-MountModelToRouter(router, User, "user", {create:false});
+MountModelToRouter(router, User, "user", {create:false, delete: false});
 
 router.post("/", function(req, res){
 
@@ -199,6 +199,56 @@ router.post("/recover_password", function(req, res) {
             res.status(status).send();
         });
     }
+});
+
+router.delete("/:id", function(req, res) {
+    // userId = 
+    res.status(400).send();
+});
+
+/** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
+router.post("/verify", function(req, res) {
+    var submittedPassword = req.body.password; // should have password and username properties
+    var user = req.user;
+
+    if (!user) {
+        req.status(400).send();
+        return;
+    }
+
+    // construct a new user to make sure we're not messing with any mongo objects
+    var trialUser = {
+        username: user.username,
+        password: submittedPassword
+    }
+
+    // try to log that user in
+    LoginController.login(trialUser).then((userObject) => {
+
+        if (!userObject.user) {
+            // this should never happen anyway
+            res.status(400).send();
+            return;
+        }
+
+        Q(User.findById(userObject.user._id).exec())
+            .then((dbUser) => {
+                if (!dbUser) {
+                    res.status(400).send();
+                }
+
+                //by this point, we pretty much think the user is the real deal; set that user's token and send back the thumbs up
+                dbUser.accountArchiveToken = Date.now() + 300000;
+                dbUser.save((err) => {
+                    if (err) { throw new Error(err); }
+                    res.status(204).send();
+                });
+            });
+    })
+    .catch((error) => {
+        console.log(error);
+        res.status(500).send();
+    });
 });
 
 module.exports = router;

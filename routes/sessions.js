@@ -120,7 +120,6 @@ router.get("/:id", function(req, res) {
                             throw new Error(err);
                         }
 
-                        console.log("got all the way here!");
                         res.json(result);
                         return;
                     });
