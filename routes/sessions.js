@@ -169,14 +169,21 @@ router.get("/add/:code", function(req, res) {
         var session = results.pop();
 
         if (session) {
+            console.log(session);
             if (user.type && user.type === "temp") {
                 // some old readings don't have temp_ids
                 if (!session.temp_ids) {
                     session.temp_ids = [];
                 }
-                session.temp_ids.push(req.user._id);
+                // only add the user's id if it's not already in the project
+                if (session.temp_ids.indexOf(req.user._id) < 0) {
+                    session.temp_ids.push(req.user._id);
+                }
             } else {
-                session.students_ids.push(req.user._id);
+                // only add the user's id if it's not already in the project
+                if (session.students_ids.indexOf(req.user._id) < 0) {
+                    session.students_ids.push(req.user._id);
+                }
             }
             session.save(function(error, result){
                 res.json({success:true, sessionId: result._id});
