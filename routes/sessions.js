@@ -68,8 +68,9 @@ router.post("/:id", function(req, res) {
 
 router.get("/:id", function(req, res) {
     var id = req.params.id;
+    var user = req.user;
 
-    if (!req.user) {
+    if (!user) {
         res.status(401).send();
         return;
     }
@@ -83,19 +84,47 @@ router.get("/:id", function(req, res) {
         findParams.code = id;
     }
 
-    Q(Session.find(findParams)
-        .populate('students_ids', 'fullname')
-        .populate('temp_ids', 'fullname')
-        .exec()
-        )
+    // Only pull out arrays since we'll be populating the object after saving
+    Q(Session.find(findParams).exec())
         .then((sessions) => {
             if (!sessions) {
                 res.status(404).send();
                 return;
             }
             var session = sessions.pop();
-            
-            res.json(session);
+
+            if (user.type && user.type === "temp") {
+                // some old readings don't have temp_ids
+                if (!session.temp_ids) {
+                    session.temp_ids = [];
+                }
+                // only add the user's id if it's not already in the project
+                if (session.temp_ids.indexOf(req.user._id) < 0) {
+                    session.temp_ids.push(req.user._id);
+                }
+            } else {
+                // only add the user's id if it's not already in the project
+                if (session.students_ids.indexOf(req.user._id) < 0) {
+                    session.students_ids.push(req.user._id);
+                }
+            }
+
+            session.save((err) => {
+                if (err) {
+                    throw new Error(err);
+                }
+
+                session.populate('students_ids', 'fullname')
+                    .populate('temp_ids', 'fullname', (err, result) => {
+                        if (err) {
+                            throw new Error(err);
+                        }
+
+                        console.log("got all the way here!");
+                        res.json(result);
+                        return;
+                    });
+            });
         })
         .catch((error) => {
             console.error(error);
@@ -145,55 +174,6 @@ router.get("/:id/comments", function(req, res){
 
     Session.findById({_id}, function(err, result){
         res.status(200).send(result.comments);
-    });
-
-});
-
-router.get("/add/:code", function(req, res) {
-    var user = req.user;
-    var code = req.params.code;
-
-    // all codes currently in database are lowercase
-    Session.find({code:code.toLowerCase()}, function(err, results) {
-
-        if (err) {
-            console.error(err);
-            res.status(500).send();
-            return;
-        }
-
-        if (!results && results.length){
-            res.status(404).send();
-            return;
-        }
-
-        var session = results.pop();
-
-        if (session) {
-            if (user.type && user.type === "temp") {
-                // some old readings don't have temp_ids
-                if (!session.temp_ids) {
-                    session.temp_ids = [];
-                }
-                // only add the user's id if it's not already in the project
-                if (session.temp_ids.indexOf(req.user._id) < 0) {
-                    session.temp_ids.push(req.user._id);
-                }
-            } else {
-                // only add the user's id if it's not already in the project
-                if (session.students_ids.indexOf(req.user._id) < 0) {
-                    session.students_ids.push(req.user._id);
-                }
-            }
-            session.save(function(error, result){
-                res.status(204).send()
-                return;
-            });
-        } else {
-            res.status(404).send();
-            return;
-        }
-
     });
 
 });
