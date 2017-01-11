@@ -36,7 +36,8 @@ var users = {
       username: "Ydoc",
       password: "whatsups"
     }
-  }
+  },
+  existingUserToken: ""
 }
 
 var readings = {
