@@ -21,18 +21,22 @@ router.post("/", function(req, res) {
         if (!req.body.reading['owner_id']) {
             req.body.reading['owner_id'] = req.user._id;
         }
+
         // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
         // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
-        if (!req.body.reading['teacher_ids']) {
-            req.body.reading['teacher_ids'] = [];
-        }
+        if (!req.body.reading['teacher_ids']) { req.body.reading['teacher_ids'] = []; }
         req.body.reading['teacher_ids'].push(req.user._id);
 
         var instanceData = req.body.reading;
         var reading = Reading(instanceData);
 
         reading.save((error, result)=>{
-            console.log(error);
+            if (error) {
+                console.error(error);
+                res.status(500).send();
+                return;
+            }
+            
             res.json(result);
         });
 });

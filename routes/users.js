@@ -58,8 +58,7 @@ router.post("/login", function(req, res){
         .then(function(result){
             res.json(result);
         }).fail(function(err){
-            res.status(400);
-            res.json({error:err});
+            res.status(400).send();
         });
 
 });
