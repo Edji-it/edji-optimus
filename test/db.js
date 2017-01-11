@@ -40,10 +40,13 @@ var users = {
 }
 
 var readings = {
-  title: "Test Reading",
   newReading: {
-    words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}],
-    source: "http://www.source.com"
+    title: "Test Reading",
+    newReading: {
+      title: "Test Reading",
+      source: "http://www.source.com",
+      words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}]
+    }
   }
 }
 
@@ -83,23 +86,9 @@ var db = {
     Q.all(promises).done((results) => {
       done();
     });
-
-    // User(users.existingUser).save((err) => {
-    //   if (err) {
-    //       console.error("Unable to save seed user for testing");
-    //       console.error(err);
-    //   } else {
-    //     loginUser(users.existingUser).then((user) => {
-    //       console.log(user);
-    //       done();
-    //     })
-    //     .catch((err) => {
-    //       console.error(err);
-    //     });
-    //   }
-    // })
   },
-  users: users
+  users: users,
+  readings: readings
 }
 
 module.exports = db;
