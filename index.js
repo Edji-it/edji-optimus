@@ -50,7 +50,7 @@ app.use(function (req, res, next) {
         oneof = true;
     }
 
-    console.log(res.headers['Access-Control-Allow-Headers']);
+    // console.log(res.headers['Access-Control-Allow-Headers']);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
