@@ -36,8 +36,7 @@ var users = {
       username: "Ydoc",
       password: "whatsups"
     }
-  },
-  existingUserToken: ""
+  }
 }
 
 var readings = {
@@ -79,6 +78,7 @@ var db = {
         } else {
           loginUser(users.existingUser).then((token) => {
             users.existingUserToken = token;
+            console.log(token);
           });
         }
       })
@@ -89,6 +89,7 @@ var db = {
     });
   },
   users: users,
+  getToken: function() { return users.token; },
   readings: readings
 }
 

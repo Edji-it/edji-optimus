@@ -47,3 +47,4 @@ Note: Validation of this call without certain properties should be overlapped by
     *  `res` should have a:
         *  `status` = `409`
         *  `errors`: `any` should have a `username`
+4.  Pass without email --> receive `400`

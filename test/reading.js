@@ -15,7 +15,7 @@ describe("Readings", () => {
     it("it should create a new reading", (done) => {
       chai.request(server)
         .post("/readings")
-        .set('Authorization', db.users.existingUserToken)
+        .set('Authorization', db.getToken)
         .send({ reading: db.readings.newReading })
         .end((err, res) => {
           //initial validation
