@@ -13,9 +13,9 @@ var validateEmail = function(email) {
     return emailRe.test(email);
 };
 
-var nameRe = /(?:([^a-zA-Z0-9\s]))/g;
+// var nameRe = /(?:([^a-zA-Z0-9\s]))/g;
 var validateName = function(name) {
-    return !nameRe.test(name) && filter.clean(name) === name;
+    return filter.clean(name) === name;
 };
 
 function toLower(str) {
