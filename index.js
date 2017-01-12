@@ -48,7 +48,7 @@ app.use(function (req, res, next) {
     console.log(req.headers['access-control-request-headers']);
 
     if(req.headers['access-control-request-headers']) {
-        console.log(req.headers['access-control-request-headers']);
+        console.log("Regurgitate header!");
         res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
         oneof = true;
     }
