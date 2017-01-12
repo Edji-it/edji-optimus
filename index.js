@@ -40,7 +40,7 @@ app.use(function (req, res, next) {
     }
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type, accept, origin');
+    res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type');
 
     if (req.headers['Access-Control-Allow-Headers']) {
         console.log("Capitalized reference:");
@@ -51,9 +51,11 @@ app.use(function (req, res, next) {
         console.log("Not capitalized");
         console.log(req.headers['access-control-request-headers']);
 
-        res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+        res.header('access-control-allow-headers', req.headers['access-control-request-headers']);
         oneof = true;
     }
+    console.log("Returning:");
+    console.log(res.headers['access-control-allow-headers']);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
