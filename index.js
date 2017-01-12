@@ -38,16 +38,16 @@ app.use(function (req, res, next) {
         res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
         oneof = true;
     }
-    if(req.headers['access-control-request-headers']) {
-        res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
-        oneof = true;
-    }
+    // if(req.headers['access-control-request-headers']) {
+    //     res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+    //     oneof = true;
+    // }
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    // res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type, accept, origin, X-Requested-With');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
