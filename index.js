@@ -46,11 +46,11 @@ app.use(function (req, res, next) {
         console.log("Not capitalized");
         console.log(req.headers['access-control-request-headers']);
 
-        res.header('access-control-allow-headers', req.headers['access-control-request-headers']);
+        res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
         oneof = true;
     }
 
-    console.log(res.header['access-control-allow-headers']);
+    console.log(res.headers['Access-Control-Allow-Headers']);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
