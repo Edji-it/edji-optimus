@@ -23,7 +23,7 @@ MountModelToRouter(router, User, "user", {create:false, delete: false});
 
 router.post("/", function(req, res){
 
-    if (!req.body["user"]) {
+    if (!req.body.user || !req.body.user.username || !req.body.user.password) {
         res.status(400).send();
         return;
     }
@@ -35,18 +35,24 @@ router.post("/", function(req, res){
     model.save((error, result)=>{
         if (error){
             if (error.name === "ValidationError") {
-                res.status(406).send();
+                var errors = {};
+
+                for (var property in error.errors) {
+                    errors[property] = error.errors[property].kind;
+                }
+                
+                res.status(406).send(errors);
                 return;
             } else if (error.code === 11000) {
                 res.status(409).send();
                 return;
             } else {
                 console.error(error);
-                res.status(500).send(JSON.stringify(error));
+                res.status(500).send(error);
                 return;
             }
         }
-        res.json(LoginController.generateLoginObjectForUser(result));
+        res.status(201).json(LoginController.generateLoginObjectForUser(result));
     });
 
 });
@@ -54,11 +60,16 @@ router.post("/", function(req, res){
 router.post("/login", function(req, res){
     var user = req.body.user;
 
+    if (!user || !user.username || !user.password) {
+        res.status(400).send();
+        return;
+    }
+
     LoginController.login(user)
         .then(function(result){
             res.json(result);
         }).fail(function(err){
-            res.status(400).send();
+            res.status(404).send();
         });
 
 });
