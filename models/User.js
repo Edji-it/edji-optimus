@@ -23,10 +23,10 @@ function toLower(str) {
 }
 
 var model = ModelCreator("User", {
-    username:{type:String, set:toLower, unique:true, required:true, validate: [validateName, "Invalid username"]},
-    fullname:{type:String, required:true, validate: [validateName, "Invalid name"]},
+    username:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateName, message: "Invalid username", kind:"badWords"}},
+    fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
     password:{type:String, required:true},
-    email:{type:String, set:toLower, unique:true, required:true, validate: [validateEmail, "Invalid email"]},
+    email:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,

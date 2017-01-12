@@ -23,11 +23,6 @@ MountModelToRouter(router, User, "user", {create:false, delete: false});
 
 router.post("/", function(req, res){
 
-    if (!req.body.user || !req.body.user.username || !req.body.user.password) {
-        res.status(400).send();
-        return;
-    }
-
     var userData = req.body.user;
 
     var model = User(userData);
@@ -38,10 +33,14 @@ router.post("/", function(req, res){
                 var errors = {};
 
                 for (var property in error.errors) {
-                    errors[property] = error.errors[property].kind;
+                    if (error.errors[property].kind === "user defined") {
+                        errors[property] = error.errors[property].properties.kind;
+                    } else {
+                        errors[property] = error.errors[property].kind;
+                    }
                 }
-                
-                res.status(406).send(errors);
+
+                res.status(406).send({ validationErrors: errors });
                 return;
             } else if (error.code === 11000) {
                 res.status(409).send();
