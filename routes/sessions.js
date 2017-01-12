@@ -205,7 +205,7 @@ router.get("/:session_code/validate", function(req, res) {
 
     Q(Session.findOne({"code":session_code}).exec()).then(function(session) {
         if (session) {
-            res.status(204).send();
+            res.status(200).send({ '_id' : session._id });
         } else {
             res.status(404).send();
         }
