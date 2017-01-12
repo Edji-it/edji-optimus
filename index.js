@@ -54,8 +54,6 @@ app.use(function (req, res, next) {
         res.header('access-control-allow-headers', req.headers['access-control-request-headers']);
         oneof = true;
     }
-    console.log("Returning:");
-    console.log(res.headers['access-control-allow-headers']);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
