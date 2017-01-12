@@ -14,7 +14,7 @@ var typesEnum = {
 }
 
 var Model = ModelCreator("Session", {
-    reading_id:{type:String, required:true, ref:"Reading"},
+    reading_id:{type:String, ref:"Reading"},
     teacher_id:{type:String, ref:"User"},
     comments:[Comment.schema],
     students_ids:[{ type: String, ref: "User" }],
