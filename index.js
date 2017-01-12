@@ -39,14 +39,14 @@ app.use(function (req, res, next) {
         oneof = true;
     }
 
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type, accept, origin');
-
-    if(req.headers['access-control-request-headers']) {
-        console.log(req.headers['access-control-request-headers']);
+    if (req.headers['access-control-request-headers']) {
         res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
         oneof = true;
-    }
+    } 
+    // else {
+    //     // Request headers you wish to allow
+    //     res.header('Access-Control-Allow-Headers', 'authorization, content-type, accept, origin');
+    // }
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
