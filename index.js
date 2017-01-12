@@ -42,13 +42,15 @@ app.use(function (req, res, next) {
     // Request headers you wish to allow
     res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type, accept, origin');
 
-    console.log("Capitalized reference:");
-    console.log(req.headers['Access-Control-Allow-Headers']);
-    console.log("Not capitalized");
-    console.log(req.headers['access-control-request-headers']);
-
+    if (req.headers['Access-Control-Allow-Headers']) {
+        console.log("Capitalized reference:");
+        console.log(req.headers['Access-Control-Allow-Headers']);
+    }
+    
     if(req.headers['access-control-request-headers']) {
-        console.log("Regurgitate header!");
+        console.log("Not capitalized");
+        console.log(req.headers['access-control-request-headers']);
+
         res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
         oneof = true;
     }
