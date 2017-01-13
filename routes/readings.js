@@ -13,35 +13,41 @@ var router = express.Router();
 MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: true, create:false });
 
 router.post("/", function(req, res) {
+    var reading = req.body.reading;
+    var user = req.user;
 
-    if (!req.user) {
+    if (!user) {
+        console.log("no user");
         res.status(400).send();
-    }
-
-    if (!req.body['reading']) {
-        //send error
         return;
     }
-    if (!req.body.reading['owner_id']) {
-        req.body.reading['owner_id'] = req.user._id;
+
+    if (!reading) {
+        console.log("no reading");
+        res.status(400).send();
+        return;
+    }
+
+    // owner_id should be required on the model
+    if (!reading['owner_id']) {
+        reading['owner_id'] = req.user._id;
     }
 
     // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
     // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
-    if (!req.body.reading['teacher_ids']) { req.body.reading['teacher_ids'] = []; }
-    req.body.reading['teacher_ids'].push(req.user._id);
+    if (!reading['teacher_ids']) { reading['teacher_ids'] = []; }
+    if (reading.teacher_ids.indexOf(user._id) < 0) { reading.teacher_ids.push(user._id); }
 
-    var instanceData = req.body.reading;
-    var reading = Reading(instanceData);
+    var model = Reading(reading);
 
-    reading.save((error, result)=>{
+    model.save((error, result) => {
         if (error) {
             console.error(error);
             res.status(500).send();
             return;
+        } else {
+            res.status(201).send({ reading: result });
         }
-        
-        res.json(result);
     });
 });
 
