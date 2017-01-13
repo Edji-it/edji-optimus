@@ -52,6 +52,7 @@ router.post("/:id", function(req, res) {
     var project = Project(req.body.project);
     project["reading_id"] = req.params.id;
 
+    // if a specific id isn't passed, go ahead and set it as the creating user's id
     if (!project.teacher_id) {
         project.teacher_id = req.user.user_id;
     }
@@ -61,7 +62,7 @@ router.post("/:id", function(req, res) {
             console.error(error);
             res.status(500).send();
         } else {
-            res.status(200).send(result);
+            res.status(201).send({ project: result });
         }
     });
 });
