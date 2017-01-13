@@ -30,22 +30,17 @@ router.get("/",function(req, res){
 
     Project.find(findParams,
         'reading_id teacher_id label code updatedAt createdAt',
-        { sort: { createdAt: -1 } },
-        callback)
-        .populate('teacher_id','fullname email username').populate('reading_id','title');
-    
-    var callback = (error, results)=>{
-        if (error){
-            res.json({error: error});
-            return;
-        } else if (!results) {
-            res.status(404).send();
-            return;
-        } else {
-            res.json(results);
-            return;
-        }        
-    };
+        { sort: { createdAt: -1 } }, 
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send();
+                return;
+            }
+
+            res.status(200).send(result);
+        }
+    );
 });
 
 router.post("/:id", function(req, res) {
