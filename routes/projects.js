@@ -40,7 +40,9 @@ router.get("/",function(req, res){
 
             res.status(200).send(result);
         }
-    );
+    )
+    .populate('teacher_id','fullname email username')
+    .populate('reading_id','title');
 });
 
 router.post("/:id", function(req, res) {
