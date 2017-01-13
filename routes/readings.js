@@ -3,7 +3,7 @@
  */
 var express = require( "express");
 var Reading = require("./../models/Reading");
-var Session = require("./../models/Session");
+var Project = require("./../models/Project");
 // var Comment = require("./../models/Comment");
 var User = require("./../models/User");
 var MountModelToRouter = require("./MountModelToRouter");
@@ -63,9 +63,9 @@ router.get("/", function(req, res){
     
 });
 
-router.get("/:id/sessions/:user_id", function(req, res){
+router.get("/:id/projects/:user_id", function(req, res){
 
-    Session.find({ "reading_id":req.params.id, "teacher_id":req.params.user_id }, function(error, result){
+    Project.find({ "reading_id":req.params.id, "teacher_id":req.params.user_id }, function(error, result){
         error && console.log(error);
         // find returns an array, and we should only be getting one item back
         result && res.json( result );

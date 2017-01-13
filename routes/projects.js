@@ -3,7 +3,7 @@
  */
 var express = require( "express");
 var mongoose = require( "mongoose");
-var Session = require("./../models/Session");
+var Project = require("./../models/Project");
 var Comment = require("./../models/Comment");
 var User = require("./../models/User");
 var MountModelToRouter = require("./MountModelToRouter");
@@ -46,17 +46,6 @@ router.get("/",function(req, res){
             return;
         }        
     };
-    
-    // if (req.user && req.user.isTeacher){
-
-    // }
-    // else{
-    //     Session.find({students_ids:user._id},
-    //         'reading_id teacher_id label code updatedAt createdAt',
-    //         { sort: { createdAt: -1 } },
-    //         callback)
-    //         .populate('teacher_id','fullname email username').populate('reading_id','title');
-    // }
 });
 
 router.post("/:id", function(req, res) {
@@ -88,7 +77,7 @@ router.get("/:id", function(req, res) {
 
     var findParams = {};
 
-    //creates flexibility to use with either project code or with session id
+    //creates flexibility to use with either project code or with project id
     if (mongoose.Types.ObjectId.isValid(id)) {
         findParams._id = id;
     } else {
@@ -96,7 +85,7 @@ router.get("/:id", function(req, res) {
     }
 
     // Only pull out arrays since we'll be populating the object after saving
-    Q(Session.find(findParams).exec())
+    Q(Project.find(findParams).exec())
         .then((projects) => {
             if (!projects) {
                 res.status(404).send();

@@ -1,6 +1,6 @@
 /**
  * Comment Model
- * - Attached to Project/Session objects
+ * - Attached to Project objects
  */
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;

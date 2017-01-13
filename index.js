@@ -14,7 +14,6 @@ var users = require("./routes/users");
 var tempusers = require("./routes/tempusers");
 var readings = require("./routes/readings");
 var comments = require("./routes/comments");
-// var sessions = require("./routes/sessions");
 var projects = require("./routes/projects");
 
 var app = express();
@@ -63,7 +62,6 @@ app.use(function (req, res, next) {
 app.use("/users",users);
 app.use("/tempusers", tempusers);
 app.use("/readings",readings);
-// app.use("/sessions",sessions);
 app.use("/projects", projects);
 
 var port = process.env.PORT || 3354;

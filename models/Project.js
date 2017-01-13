@@ -26,11 +26,11 @@ var Model = ModelCreator("Project", {
 
 Model.schema.pre("save", function(next){
     if (!this.code){
-        var this_session = this;
+        var this_project = this;
 
         SessionCode.findOne({active: false}, function(err, result) {
             if (!err) {
-                this_session.code = result.code;
+                this_project.code = result.code;
                 result.active = true;
                 result.save(function(err, result) {
                     if (!err) {
