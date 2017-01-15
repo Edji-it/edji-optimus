@@ -34,6 +34,12 @@ var users = {
       username: "Ydoc",
       password: "whatsups"
     }
+  },
+  badUser: {
+    username: "shit",
+    fullname: "shit",
+    email: "wrong@wrong",
+    password: "whatever"
   }
 }
 

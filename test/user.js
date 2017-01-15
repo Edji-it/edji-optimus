@@ -23,19 +23,10 @@ describe("Users", () => {
                     //initial validation
                     res.should.have.status(201)
                     res.body.should.be.a("object")
-                    
-                    //user validation
-                    res.body.should.have.property("user")
-                    res.body.user.should.have.property("_id")
-                    res.body.user.should.have.property("username")
-                    res.body.user.should.have.property("fullname")
-                    res.body.user.should.have.property("email")
-                    res.body.user.should.have.property("isTeacher")
-                    res.body.user.should.have.property("createdAt")
-                    res.body.user.should.have.property("updatedAt")
-                    
-                    //token validation
                     res.body.should.have.property("token")
+                    
+                    //other validation done in login tests
+                    
                     done()
                 })
         })
@@ -49,6 +40,70 @@ describe("Users", () => {
                     //initial validation
                     res.should.have.status(409)
                     res.should.have.property("error")
+                    done()
+                })
+        })
+
+        it("it should catch profane names, usernames and invalid emails", (done) => {
+            chai.request(server)
+                .post("/users")
+                .send({ user: data.users.badUser })
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(406)
+                    res.should.have.property("error")
+                    res.error.should.have.property("text")
+
+                    // error response validation
+                    var text = JSON.parse(res.error.text)
+                    text.should.have.property("validationErrors")
+                    text.validationErrors.should.be.a("object")
+
+                    text.validationErrors.should.have.property("email")
+                    text.validationErrors.email.should.be.a("string")
+                    text.validationErrors.email.should.equal("emailRegex")
+
+                    text.validationErrors.should.have.property("fullname")
+                    text.validationErrors.fullname.should.be.a("string")
+                    text.validationErrors.fullname.should.be.equal("badWords")
+
+                    text.validationErrors.should.have.property("username")
+                    text.validationErrors.username.should.be.a("string")
+                    text.validationErrors.username.should.be.equal("badWords")
+                    done()
+                })
+        })
+
+        it("it should return 'required' errors for all missing fields that are required", (done) => {
+            chai.request(server)
+                .post("/users")
+                .send({ user: { isTeacher: true } })
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(406)
+                    res.should.have.property("error")
+                    res.error.should.have.property("text")
+
+                    // error response validation
+                    var text = JSON.parse(res.error.text)
+                    text.should.have.property("validationErrors")
+                    text.validationErrors.should.be.a("object")
+
+                    text.validationErrors.should.have.property("email")
+                    text.validationErrors.email.should.be.a("string")
+                    text.validationErrors.email.should.equal("required")
+
+                    text.validationErrors.should.have.property("fullname")
+                    text.validationErrors.fullname.should.be.a("string")
+                    text.validationErrors.fullname.should.be.equal("required")
+
+                    text.validationErrors.should.have.property("username")
+                    text.validationErrors.username.should.be.a("string")
+                    text.validationErrors.username.should.be.equal("required")
+
+                    text.validationErrors.should.have.property("password")
+                    text.validationErrors.password.should.be.a("string")
+                    text.validationErrors.password.should.be.equal("required")
                     done()
                 })
         })

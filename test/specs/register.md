@@ -36,7 +36,7 @@ Note: Validation of this call without certain properties should be overlapped by
     *  `res` should have a:
         *  `user`: `any`
         *  `token`: `string`
-2.  Pass invalid email, profane username and proface fullname
+2.  Pass invalid email, profane username and profane fullname
     *  `res` should have a:
         *  `status` = `406`
         *  `errors`: `any` should have a:
