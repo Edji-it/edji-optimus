@@ -23,26 +23,6 @@ var users = {
       password: "nennerbPass"
     }
   },
-  newUser: {
-    username:"nennerB",
-    fullname:"nennerB nilkciH",
-    password:"nennerbPass",
-    email:"nennerb.nilkcih@gmail.com",
-    isTeacher: false
-  },
-  existingUser: {
-    username: "Ydoc",
-    fullname: "Ydoc Repmup",
-    password: "whatsup",
-    email:"cody@cody.cod",
-    isTeacher: true
-  },
-  existingUserCredentials: {
-    user: {
-      username: "Ydoc",
-      password: "whatsup"
-    }
-  },
   incorrectCredentials: {
     user: {
       username: "Ydoc",

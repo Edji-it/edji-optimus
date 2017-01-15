@@ -5,29 +5,20 @@ var should = chai.should()
 var Q = require("q")
 
 var User = require("./../models/User")
-var db = require("./db")
+var data = require("./data")
 
-var testDB = require("./testdb")
+// var testDB = require("./testdb")
 
 chai.use(chaiHttp)
 
 describe("Users", () => {
-    // beforeEach((done) => {
-    //     var promises = [
-    //         testDB.seedDB
-    //     ]
-
-    //     Q.all(promises).done((result) => {
-    //         done()
-    //     })
-    // })
     
     describe('POST /users', () => {
         it("it should register a user", (done) => {
             
             chai.request(server)
                 .post("/users")
-                .send({user: db.users.testUser})
+                .send({user: data.users.testUser})
                 .end((err, res) => {
                     //initial validation
                     res.should.have.status(201)
@@ -53,7 +44,7 @@ describe("Users", () => {
 
             chai.request(server)
                 .post("/users")
-                .send({ user: db.users.testUser })
+                .send({ user: data.users.testUser })
                 .end((err, res) => {
                     //initial validation
                     res.should.have.status(409)
@@ -68,24 +59,32 @@ describe("Users", () => {
 
             chai.request(server)
                 .post("/users/login")
-                .send(db.users.testUserCreds)
+                .send(data.users.testUserCreds)
                 .end((err, res) => {
                     //initial validation
                     res.should.have.status(200)
                     res.body.should.be.a("object")
+                    res.body.should.have.property("user")
+                    res.body.should.have.property("token")
                     
                     //user validation
-                    res.body.should.have.property("user")
-                    res.body.user.should.have.property("_id")
-                    res.body.user.should.have.property("username")
-                    res.body.user.should.have.property("fullname")
-                    res.body.user.should.have.property("email")
-                    res.body.user.should.have.property("isTeacher")
-                    res.body.user.should.have.property("createdAt")
-                    res.body.user.should.have.property("updatedAt")
+                    var user = res.body.user
+                    user.should.have.property("_id")
+                    user.should.have.property("username")
+                    user.should.have.property("fullname")
+                    user.should.have.property("email")
+                    user.should.have.property("isTeacher")
+                    user.should.have.property("createdAt")
+                    user.should.have.property("updatedAt")
+                    user.should.not.have.property("password")
+                    user.should.not.have.property("resetPasswordToken")
+                    user.should.not.have.property("resetPasswordExpires")
+                    user.should.not.have.property("accountArchiveToken")
                     
                     //token validation
-                    res.body.should.have.property("token")
+                    var token = res.body.token
+                    token.should.be.a("string")
+                    token.should.not.equal("")
                     
                     done()
                 })
@@ -94,7 +93,7 @@ describe("Users", () => {
         it("it should reject a user with an incorrect password", (done) => {
             chai.request(server)
                 .post("/users/login")
-                .send(db.users.incorrectCredentials)
+                .send(data.users.incorrectCredentials)
                 .end((err, res) => {
                     // initial validation
                     res.should.have.status(404)
