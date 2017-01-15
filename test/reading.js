@@ -11,15 +11,17 @@ var functions = require("./functions")
 chai.use(chaiHttp)
 
 var testUserToken
+var testUser
 
 describe("Readings", () => {
   beforeEach((done) => {
     // erases all user data, logs in a user and resolves with user's token
-    functions.seedUsers().then((token) => {
-      testUserToken = token
+    functions.seedUsers().then((res) => {
+      testUserToken = res.token
+      testUser = res.user
 
       // creates a reading for the created user
-      functions.createReading(data.readings.newReading, token)
+      functions.createReading(data.readings.newReading, testUserToken)
         .then((res) => { done() })
         .catch((err) => { console.error(err) })
       
@@ -139,6 +141,7 @@ describe("Readings", () => {
           var reading = res.body.readings[0]
           reading.should.have.property("_id")
           reading.should.have.property("owner_id")
+            reading.owner_id.should.equal(testUser._id)
           reading.should.have.property("title")
           reading.should.have.property("promoter_ids")
           reading.should.have.property("teacher_ids")
@@ -148,6 +151,24 @@ describe("Readings", () => {
           reading.should.not.have.property("words")
           reading.should.not.have.property("html")
           reading.should.not.have.property("comments")
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/readings")
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("user")
+          text.validationErrors.user.should.equal("required")
 
           done()
         })

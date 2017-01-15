@@ -20,10 +20,14 @@ Coming soon?
     *  `res.readings` should be an `array`
     *  `res.readings[0]` should have a:
         *  `_id`: `string`
-        *  `owner_id`: `string`
+        *  `owner_id`: `string` should be equal to the reading creator's id
         *  `title`: `string`
         *  `promoter_ids`: `string[]`
         *  `teacher_ids`: `string[]`
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
-4.  Pass without `Authorization` header --> receive `401`
+    *  `res.readings[0]` should NOT have:
+        *  `words`: `any[]`
+        *  `html`: `string`
+        *  `comments`: `Comment[]`
+2.  Pass without `Authorization` header --> receive `401`

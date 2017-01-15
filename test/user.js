@@ -15,7 +15,7 @@ describe("Users", () => {
     beforeEach((done) => {
         // erases all user data, logs in a user and resolves with user's token
         functions.seedUsers()
-            .then((token) => { done() })
+            .then((res) => { done() })
             .catch((err) => {
             console.error(err)
             })

@@ -18,7 +18,7 @@ var seedUsers = function() {
         .then((user) => {
           loginUser(data.users.testUserCreds)
             .then((res) => {
-              resolve(res.body.token)
+              resolve(res.body)
             })
         })
     })
