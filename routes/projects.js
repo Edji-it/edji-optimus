@@ -45,19 +45,38 @@ router.get("/",function(req, res){
     .populate('reading_id','title');
 });
 
-router.post("/:id", function(req, res) {
-    var project = Project(req.body.project);
-    project["reading_id"] = req.params.id;
+router.post("/", function(req, res) {
+    if (!req.user) { res.status(401).send(); }
+
+    var project = req.body.project;
 
     // if a specific id isn't passed, go ahead and set it as the creating user's id
     if (!project.teacher_id) {
         project.teacher_id = req.user.user_id;
     }
 
-    project.save(function(error, result) {
+    var model = Project(project);
+
+    model.save(function(error, result) {
         if (error) {
-            console.error(error);
-            res.status(500).send();
+            // constructs object with list of model-defined errors to send to user
+            if (error.name === "ValidationError") {
+                var errors = {};
+
+                for (var property in error.errors) {
+                    if (error.errors[property].kind === "user defined") {
+                        errors[property] = error.errors[property].properties.kind;
+                    } else {
+                        errors[property] = error.errors[property].kind;
+                    }
+                }
+
+                res.status(406).send({ validationErrors: errors });
+                return;
+            } else {
+                res.status(500).send(error);
+                return;
+            }
         } else {
             res.status(201).send({ project: result });
         }
