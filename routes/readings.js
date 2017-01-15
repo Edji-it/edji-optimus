@@ -17,12 +17,12 @@ router.post("/", function(req, res) {
     var user = req.user;
 
     if (!user) {
-        res.status(400).send();
+        res.status(401).send({ validationErrors: { user: "required" } });
         return;
     }
 
     if (!reading) {
-        res.status(400).send();
+        res.status(400).send({ validationErrors: { reading: "required" } });
         return;
     }
 

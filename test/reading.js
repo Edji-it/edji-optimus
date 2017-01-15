@@ -60,6 +60,13 @@ describe("Readings", () => {
         .end((err, res) => {
           // initial validation
           res.should.have.status(400)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("reading")
+          text.validationErrors.reading.should.equal("required")
 
           done()
         })
@@ -71,8 +78,14 @@ describe("Readings", () => {
         .send({ notReading: data.readings.newReading })
         .end((err, res) => {
           // initial validation
-          res.should.have.status(400)
+          res.should.have.status(401)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
 
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("user")
+          text.validationErrors.user.should.equal("required")
           done()
         })
     })
