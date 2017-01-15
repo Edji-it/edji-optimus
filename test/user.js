@@ -90,13 +90,68 @@ describe("Users", () => {
                 })
         })
 
-        it("it should reject a user with an incorrect password", (done) => {
+        it("it should login a user regardless of capitalization in username", (done) => {
+
+            chai.request(server)
+                .post("/users/login")
+                .send(data.users.testUserCapitalCreds)
+                .end((err, res) => {
+                    //initial validation
+                    res.should.have.status(200)
+                    res.body.should.be.a("object")
+                    res.body.should.have.property("user")
+                    res.body.should.have.property("token")
+                    
+                    done()
+                })
+        })
+
+        it("it should return not found for a user with an incorrect password", (done) => {
             chai.request(server)
                 .post("/users/login")
                 .send(data.users.incorrectCredentials)
                 .end((err, res) => {
                     // initial validation
                     res.should.have.status(404)
+                    res.body.should.be.a("object")
+
+                    done()
+                })
+        })
+
+        it("it should reject a call without a user", (done) => {
+            chai.request(server)
+                .post("/users/login")
+                .send({ nothing: {} })
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(400)
+                    res.body.should.be.a("object")
+
+                    done()
+                })
+        })
+
+        it("it should reject a user without a username", (done) => {
+            chai.request(server)
+                .post("/users/login")
+                .send({ user: { password: "hello" } })
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(400)
+                    res.body.should.be.a("object")
+
+                    done()
+                })
+        })
+
+        it("it should reject a user without a password", (done) => {
+            chai.request(server)
+                .post("/users/login")
+                .send({ user: { username: "hello" } })
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(400)
                     res.body.should.be.a("object")
 
                     done()

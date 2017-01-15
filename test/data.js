@@ -23,6 +23,12 @@ var users = {
       password: "nennerbPass"
     }
   },
+  testUserCapitalCreds: {
+    user: {
+      username: "NENNERB",
+      password: "nennerbPass"
+    }
+  },
   incorrectCredentials: {
     user: {
       username: "Ydoc",
