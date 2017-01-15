@@ -26,7 +26,7 @@ router.post("/", function(req, res) {
         return;
     }
 
-    // owner_id should be required on the model
+    // owner_id is required on the model, so we set it by default here
     if (!reading['owner_id']) {
         reading['owner_id'] = req.user._id;
     }
@@ -40,9 +40,24 @@ router.post("/", function(req, res) {
 
     model.save((error, result) => {
         if (error) {
-            console.error(error);
-            res.status(500).send();
-            return;
+            // constructs object with list of model-defined errors to send to user
+            if (error.name === "ValidationError") {
+                var errors = {};
+
+                for (var property in error.errors) {
+                    if (error.errors[property].kind === "user defined") {
+                        errors[property] = error.errors[property].properties.kind;
+                    } else {
+                        errors[property] = error.errors[property].kind;
+                    }
+                }
+
+                res.status(406).send({ validationErrors: errors });
+                return;
+            } else {
+                res.status(500).send(error);
+                return;
+            }
         } else {
             res.status(201).send({ reading: result });
         }
