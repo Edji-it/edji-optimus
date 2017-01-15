@@ -29,7 +29,7 @@ describe("Readings", () => {
       chai.request(server)
         .post("/readings")
         .set("Authorization", testUserToken)
-        .send({reading: data.readings.newReading })
+        .send({ reading: data.readings.newReading })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
@@ -47,6 +47,31 @@ describe("Readings", () => {
           reading.should.have.property("teacher_ids")
           reading.should.have.property("createdAt")
           reading.should.have.property("updatedAt")
+
+          done()
+        })
+    })
+
+    it("it should reject a POST without a reading", (done) => {
+      chai.request(server)
+        .post("/readings")
+        .set("Authorization", testUserToken)
+        .send({ notReading: data.readings.newReading })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should reject if there is no user", (done) => {
+      chai.request(server)
+        .post("/readings")
+        .send({ notReading: data.readings.newReading })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
 
           done()
         })

@@ -17,13 +17,11 @@ router.post("/", function(req, res) {
     var user = req.user;
 
     if (!user) {
-        console.log("no user");
         res.status(400).send();
         return;
     }
 
     if (!reading) {
-        console.log("no reading");
         res.status(400).send();
         return;
     }
