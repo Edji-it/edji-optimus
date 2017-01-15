@@ -40,9 +40,10 @@ Note: Validation of this call without certain properties should be overlapped by
     *  `res` should have a:
         *  `status` = `406`
         *  `errors`: `any` should have a:
-            *  `fullname`: `boolean` = `true`
-            *  `username`: `boolean` = `true`
-            *  `email`: `boolean` = `true`
+            *  `validationErrors`: `any` should have a:
+                *  `fullname`: `boolean` = `true`
+                *  `username`: `boolean` = `true`
+                *  `email`: `boolean` = `true`
 3.  Pass duplicate username
     *  `res` should have a:
         *  `status` = `409`
