@@ -22,7 +22,6 @@ describe("Readings", () => {
     .catch((err) => {
       console.error(err)
     })
-
   })
 
   describe("POST /readings", () => {
@@ -35,6 +34,19 @@ describe("Readings", () => {
           // initial validation
           res.should.have.status(201)
           res.body.should.have.property("reading")
+          
+          // reading validation
+          var reading = res.body.reading
+          reading.should.have.property("_id")
+          reading.should.have.property("owner_id")
+          reading.should.have.property("title")
+          reading.should.have.property("words")
+          reading.should.have.property("html")
+          reading.should.have.property("promoter_ids")
+          reading.should.have.property("comments")
+          reading.should.have.property("teacher_ids")
+          reading.should.have.property("createdAt")
+          reading.should.have.property("updatedAt")
 
           done()
         })

@@ -16,6 +16,7 @@ The request body will contain the following in json form
 req: {
   reading: {
     title: string,
+    html: string,
     source: string,
     words: any[]
   }
@@ -28,7 +29,7 @@ Coming soon?
 
 ## Test Cases
 
-1.  Pass minimum good object
+1.  Pass good object
     *  `res` should have a `reading`
     *  `res.reading` should have a:
         *  `status` = `201`
