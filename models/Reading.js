@@ -5,11 +5,11 @@ var ModelCreator = require("./ModelCreator");
 var Comment = require("./Comment");
 
 module.exports = ModelCreator("Reading", {
-    html:String,
-    preppedHtml:String,
-    words: [ ],
-    title:String,
-    owner_id:String,
+    html:{type: String, required: true},
+    preppedHtml:String, // depricated
+    words: {type: [], required: true},
+    title:{type: String, required: true},
+    owner_id:{type: String, required: true, ref: "User"},
     teacher_ids:[String],
     public:Boolean,
     comments:[Comment.schema],
