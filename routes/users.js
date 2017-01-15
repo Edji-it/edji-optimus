@@ -50,8 +50,9 @@ router.post("/", function(req, res){
                 res.status(500).send();
                 return;
             }
+        } else {
+            res.status(201).json(LoginController.generateLoginObjectForUser(result));
         }
-        res.status(201).json(LoginController.generateLoginObjectForUser(result));
     });
 
 });
