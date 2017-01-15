@@ -6,11 +6,23 @@ var server = require("./../index");
 chai.use(chaiHttp);
 
 var Q = require("q");
-// var loginController = require("./../LoginController");
 
 var User = require("./../models/User");
 
 var users = {
+  testUser: {
+    username:"nennerB",
+    fullname:"nennerB nilkciH",
+    password:"nennerbPass",
+    email:"nennerb.nilkcih@gmail.com",
+    isTeacher: false
+  },
+  testUserCreds: {
+    user: {
+      username: "nennerB",
+      password: "nennerbPass"
+    }
+  },
   newUser: {
     username:"nennerB",
     fullname:"nennerB nilkciH",
@@ -50,46 +62,8 @@ var readings = {
   }
 }
 
-var loginUser = function(user) {
-  return new Promise((resolve, reject) => {
-    chai.request(server)
-        .post("/users/login")
-        .send(db.users.existingUserCredentials)
-        .end((err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res.body.token);
-          }
-        });
-  });
-
-  var newUser = new User(user);
-}
-
 var db = {
-  seedDB: (done) => {
-  var promises = [
-      User.remove({}),
-      User(users.existingUser).save((err) => {
-        if (err) {
-            console.error("Unable to save seed user for testing");
-            console.error(err);
-        } else {
-          loginUser(users.existingUser).then((token) => {
-            users.existingUserToken = token;
-            console.log(token);
-          });
-        }
-      })
-    ]
-
-    Q.all(promises).done((results) => {
-      done();
-    });
-  },
   users: users,
-  getToken: function() { return users.token; },
   readings: readings
 }
 
