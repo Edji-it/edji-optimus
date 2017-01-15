@@ -11,30 +11,46 @@ var data = require("./data")
 
 var seedDB = function() {
   return new Promise((resolve, reject) => {
-
-    // set up array of promises to remove data from all used models
-    var removeData = [
-      User.remove({})
-    ]
-
-    // execute removeData promises and create array of promises with which to seed the database
-    Q.all(removeData).done((results) => {
-      var saveData = [
-        User(data.users.existingUser).save((err) => {
-          if (err) {
-              console.error("Unable to save seed user for testing");
-          }
+    //removes all users in database
+    User.remove({}).then((results) => {
+      // registers and logs in user
+      registerUser(data.users.testUser)
+        .then((user) => {
+          loginUser(data.users.testUserCreds)
+            .then((res) => {
+              resolve(res.body.token)
+            })
         })
-      ]
-
-      // execute all promises that save data
-      Q.all(saveData).done((results) => {
-        resolve()
-      })
     })
   })
 }
 
+var loginUser = function(credentials) {
+  return new Promise((resolve, reject) => {
+    chai.request(server)
+      .post("/users/login")
+      .send(credentials)
+      .end((err, res) => {
+        if (err) { reject(err) }
+        else { resolve(res) }
+      })
+  })
+}
+
+var registerUser = function(userData) {
+  return new Promise((resolve, reject) => {
+    chai.request(server)
+      .post("/users")
+      .send({user: userData})
+      .end((err, res) => {
+        if (err) { reject(err) }
+        else { resolve(res) }
+      })
+  })
+}
+
 module.exports = {
-  seedDB: seedDB
+  seedDB: seedDB,
+  loginUser: loginUser,
+  registerUser: registerUser
 }

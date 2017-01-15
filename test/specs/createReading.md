@@ -52,3 +52,4 @@ Coming soon?
                 *  `words`: `boolean` = `true`
                 *  `title`: `boolean` = `true`
                 *  `owner_id`: `boolean` = `true`
+4.  Pass without `Authorization` header --> receive `401`

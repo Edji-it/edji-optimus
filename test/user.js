@@ -7,8 +7,6 @@ var Q = require("q")
 var User = require("./../models/User")
 var data = require("./data")
 
-// var testDB = require("./testdb")
-
 chai.use(chaiHttp)
 
 describe("Users", () => {

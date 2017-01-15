@@ -1,13 +1,13 @@
-var chai = require("chai");
-var chaiHttp = require("chai-http");
-var server = require("./../index");
-// var should = chai.should();
+var chai = require("chai")
+var chaiHttp = require("chai-http")
+var server = require("./../index")
+// var should = chai.should()
 
-chai.use(chaiHttp);
+chai.use(chaiHttp)
 
-var Q = require("q");
+var Q = require("q")
 
-var User = require("./../models/User");
+var User = require("./../models/User")
 
 var users = {
   testUser: {
@@ -46,11 +46,9 @@ var users = {
 var readings = {
   newReading: {
     title: "Test Reading",
-    newReading: {
-      title: "Test Reading",
-      source: "http://www.source.com",
-      words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}]
-    }
+    html: "This is test content",
+    source: "http://www.source.com",
+    words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}]
   }
 }
 
@@ -59,4 +57,4 @@ var db = {
   readings: readings
 }
 
-module.exports = db;
+module.exports = db
