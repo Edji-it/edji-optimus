@@ -52,6 +52,32 @@ describe("Readings", () => {
         })
     })
 
+    it("it should reject a reading without required fields", (done) => {
+      chai.request(server)
+        .post("/readings")
+        .set("Authorization", testUserToken)
+        .send({ reading: { dumb: "this is not real data" } })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(406)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("title")
+          text.validationErrors.title.should.equal("required")
+
+          text.validationErrors.should.have.property("html")
+          text.validationErrors.html.should.equal("required")
+
+          text.validationErrors.should.have.property("words")
+          text.validationErrors.words.should.equal("required")
+
+          done()
+        })
+    })
+
     it("it should reject a POST without a reading", (done) => {
       chai.request(server)
         .post("/readings")
@@ -86,6 +112,7 @@ describe("Readings", () => {
           text.should.have.property("validationErrors")
           text.validationErrors.should.have.property("user")
           text.validationErrors.user.should.equal("required")
+
           done()
         })
     })
