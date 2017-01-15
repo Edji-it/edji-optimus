@@ -9,7 +9,7 @@ var Q = require("q")
 var User = require("./../models/User")
 var data = require("./data")
 
-var seedDB = function() {
+var seedUsers = function() {
   return new Promise((resolve, reject) => {
     //removes all users in database
     User.remove({}).then((results) => {
@@ -49,8 +49,22 @@ var registerUser = function(userData) {
   })
 }
 
+var createReading = function(reading, authToken) {
+  return new Promise((resolve, reject) => {
+    chai.request(server)
+      .post("/readings")
+      .set("Authorization", authToken)
+      .send({ reading: reading })
+      .end((err, res) => {
+        if (err) { reject(err) }
+        else { resolve(res) }
+      })
+  })
+}
+
 module.exports = {
-  seedDB: seedDB,
+  seedUsers: seedUsers,
   loginUser: loginUser,
-  registerUser: registerUser
+  registerUser: registerUser,
+  createReading: createReading
 }

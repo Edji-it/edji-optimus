@@ -15,9 +15,14 @@ var testUserToken
 describe("Readings", () => {
   beforeEach((done) => {
     // erases all user data, logs in a user and resolves with user's token
-    functions.seedDB().then((token) => {
+    functions.seedUsers().then((token) => {
       testUserToken = token
-      done()
+
+      // creates a reading for the created user
+      functions.createReading(data.readings.newReading, token)
+        .then((res) => { done() })
+        .catch((err) => { console.error(err) })
+      
     })
     .catch((err) => {
       console.error(err)
@@ -112,6 +117,37 @@ describe("Readings", () => {
           text.should.have.property("validationErrors")
           text.validationErrors.should.have.property("user")
           text.validationErrors.user.should.equal("required")
+
+          done()
+        })
+    })
+  })
+
+  describe("GET /readings", () => {
+    it("should get all of a users's readings", (done) => {
+      chai.request(server)
+        .get("/readings")
+        .set("Authorization", testUserToken)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("readings")
+          res.body.readings.should.be.instanceof(Array)
+          res.body.readings.length.should.be.above(0)
+
+          // reading validation
+          var reading = res.body.readings[0]
+          reading.should.have.property("_id")
+          reading.should.have.property("owner_id")
+          reading.should.have.property("title")
+          reading.should.have.property("promoter_ids")
+          reading.should.have.property("teacher_ids")
+          reading.should.have.property("createdAt")
+          reading.should.have.property("updatedAt")
+
+          reading.should.not.have.property("words")
+          reading.should.not.have.property("html")
+          reading.should.not.have.property("comments")
 
           done()
         })

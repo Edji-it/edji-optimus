@@ -76,8 +76,8 @@ router.get("/", function(req, res){
         function(error, results){
             // console.log("Added to readings!!!");
             // console.log(results);
-            error && console.log(error);
-            results && res.json(results);
+            error && console.error(error);
+            results && res.status(200).send({ readings: results });
     });
     
 });
