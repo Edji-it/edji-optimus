@@ -10,6 +10,13 @@ var Q = require("q")
 var User = require("./../models/User")
 
 var users = {
+  newUser: {
+    username: "kodiak",
+    fullname: "cody",
+    password: "codycodycody",
+    email: "cody@cody.cod",
+    isTeacher: true
+  },
   testUser: {
     username:"nennerB",
     fullname:"nennerB nilkciH",

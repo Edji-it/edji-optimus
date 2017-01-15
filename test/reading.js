@@ -14,7 +14,7 @@ var testUserToken
 
 describe("Readings", () => {
   beforeEach((done) => {
-    // erases all data, logs in a user and resolves with user's token
+    // erases all user data, logs in a user and resolves with user's token
     functions.seedDB().then((token) => {
       testUserToken = token
       done()

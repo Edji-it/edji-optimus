@@ -6,17 +6,27 @@ var Q = require("q")
 
 var User = require("./../models/User")
 var data = require("./data")
+var functions = require("./functions")
 
 chai.use(chaiHttp)
 
 describe("Users", () => {
+
+    beforeEach((done) => {
+        // erases all user data, logs in a user and resolves with user's token
+        functions.seedDB()
+            .then((token) => { done() })
+            .catch((err) => {
+            console.error(err)
+            })
+    })
     
     describe('POST /users', () => {
         it("it should register a user", (done) => {
             
             chai.request(server)
                 .post("/users")
-                .send({user: data.users.testUser})
+                .send({user: data.users.newUser})
                 .end((err, res) => {
                     //initial validation
                     res.should.have.status(201)
