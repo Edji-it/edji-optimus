@@ -6,7 +6,7 @@ Users can store a project
 
 ## Endpoint
 
-`/projects/:projectId`
+`/projects/:projectId` || `/projects/:projectCode`
 
 ## Request Type
 
@@ -18,7 +18,41 @@ Coming soon?
 
 ## Test Cases
 
-1.  Pass with creating teacher's credentials
+1.  Pass with creating teacher's credentials and project id
+    *  `res` should have a:
+        *  `status` = `200`
+        *  `project`: `any`
+    *  `res.project` should have a:
+        *  `students_ids`: `string[]` should:
+            *  Be an array of objects
+            *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
+
+2.  Pass with students's credentials and project id
+    *  `res` should have a:
+        *  `status` = `200`
+        *  `project`: `any`
+    *  `res.project` should have a:
+        *  `_id`: `string`
+        *  `teacher_id`: `string`
+        *  `reading_id`: `string`
+        *  `label`: `string`
+        *  `code`: `string`
+        *  `types`: `string[]`
+        *  `temp_ids`: `string[]`
+        *  `students_ids`: `string[]` should:
+            *  Be an array of objects
+            *  Contain an object of form `{ _id: studentId, fullname: studentFullName }`
+        *  `comments`: `Comment[]`
+        *  `updatedAt`: `Date`
+        *  `createdAt`: `Date`
+3.  Pass with temp user's credentials and project id
+    *  `res` should have a:
+        *  `status` = `200`
+        *  `project`: `any`
+    *  `res.project` should have a:
+        *  Be an array of objects
+        *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
+4.  Pass with students's credentials and project code
     *  `res` should have a:
         *  `status` = `200`
         *  `project`: `any`
@@ -34,4 +68,6 @@ Coming soon?
         *  `comments`: `Comment[]`
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
-2.  Pass without `Authorization` header --> receive `401`
+5.  Pass with invalid project id --> receive `404`
+6.  Pass with invalid project code --> receive `404`
+7.  Pass without `Authorization` header --> receive `401`
