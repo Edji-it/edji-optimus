@@ -9,10 +9,12 @@ var Q = require("q")
 var User = require("./../models/User")
 var Code = require("./../models/SessionCode")
 var Project = require("./../models/Project")
+var TempUser = require("./../models/TempUser")
 var data = require("./data")
 
 var seedUsers = function() {
-  var credentials = [] // will have teacher credentials at index 0 and student credentials at index 1
+  // should really simplify this into an object
+  var credentials = [] // will have teacher credentials at index 0, student credentials at index 1 and temp credentials at index 2
 
   return new Promise((resolve, reject) => {
     //removes all users in database
@@ -27,7 +29,10 @@ var seedUsers = function() {
             .then((body) => {
               // add credentials to array and resolve
               credentials.push(body)
-              resolve(credentials)
+              createTempUser(data.users.tempUser).then((body) => {
+                credentials.push(body)
+                resolve(credentials)
+              })
             })
         })
     })
@@ -55,6 +60,19 @@ var registerUser = function(userData) {
       .end((err, res) => {
         if (err) { reject(err) }
         else { resolve(res) }
+      })
+  })
+}
+
+// should be made more robust once testing tempuser routes
+var createTempUser = function(user) {
+  return new Promise((resolve, reject) => {
+    chai.request(server)
+      .post("/tempusers")
+      .send({ user: data.users.tempUser })
+      .end((err, res) => {
+        if (err) { reject(err) }
+        else { resolve(res.body) }
       })
   })
 }

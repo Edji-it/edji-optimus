@@ -30,7 +30,7 @@ router.post("/", function(req, res) {
 
         //creates the proper schema for the temp user's login token
         result.type = "temp";
-        res.json(LoginController.generateLoginObjectForUser(result));
+        res.status(201).send(LoginController.generateLoginObjectForUser(result));
     });
 
 });

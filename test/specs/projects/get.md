@@ -54,7 +54,7 @@ Coming soon?
     *  `res.project` should have a:
         *  Be an array of objects
         *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
-4.  Pass with students's credentials and project code
+4.  Pass with students's credentials and lowercase project code
     *  `res` should have a:
         *  `status` = `200`
         *  `project`: `any`
@@ -70,6 +70,10 @@ Coming soon?
         *  `comments`: `Comment[]`
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
-5.  Pass with invalid project id --> receive `404`
-6.  Pass with invalid project code --> receive `404`
-7.  Pass without `Authorization` header --> receive `401`
+5.  Pass with students's credentials and uppercase project code
+    *  `res` should have a:
+        *  `status` = `200`
+        *  `project`: `any`
+6.  Pass with invalid project id --> receive `404`
+7.  Pass with invalid project code --> receive `404`
+8.  Pass without `Authorization` header --> receive `401`

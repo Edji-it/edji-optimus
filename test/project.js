@@ -13,6 +13,7 @@ chai.use(chaiHttp)
 // variables stored for use in tests
 var testUser, testUserToken
 var testTeacher, testTeacherToken
+var testTemp, testTempToken
 var testReading
 var testProject
 
@@ -25,6 +26,9 @@ describe("Projects", () => {
 
       testUserToken = credentialsArr[1].token
       testUser = credentialsArr[1].user
+
+      testTemp = credentialsArr[2].user
+      testTempToken = credentialsArr[2].token
 
       // creates a reading for the created user
       functions.createReading(data.readings.newReading, testTeacherToken)

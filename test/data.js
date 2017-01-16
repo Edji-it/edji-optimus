@@ -60,6 +60,9 @@ var users = {
     fullname: "shit",
     email: "wrong@wrong",
     password: "whatever"
+  },
+  tempUser: {
+    fullname: "corbin"
   }
 }
 
