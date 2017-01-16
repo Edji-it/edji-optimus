@@ -27,13 +27,13 @@ describe("Projects", () => {
       testUser = credentialsArr[1].user
 
       // creates a reading for the created user
-      functions.createReading(data.readings.newReading, testUserToken)
+      functions.createReading(data.readings.newReading, testTeacherToken)
         .then((body) => {
           testReading = body.reading
           // seeds the database with lightning codes, which the project will take before saving
           functions.createCodes().then((codes) => {
             // clears all projects in the database, then creates a new one and saves as testProject
-            functions.createProject(data.projects.getNewProject(testReading._id), testUserToken)
+            functions.createProject(data.projects.getNewProject(testReading._id), testTeacherToken)
               .then((body) => {
                 testProject = body.project
                 done()
@@ -50,7 +50,7 @@ describe("Projects", () => {
     it("it should create a new project", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testTeacherToken)
         .send({ project: data.projects.getNewProject(testReading._id) })
         .end((err, res) => {
           // initial validation
@@ -61,6 +61,7 @@ describe("Projects", () => {
           var project = res.body.project
           project.should.have.property("_id")
           project.should.have.property("teacher_id")
+            project.teacher_id.should.equal(testTeacher._id)
           project.should.have.property("reading_id")
           project.should.have.property("label")
           project.should.have.property("code")
@@ -78,7 +79,7 @@ describe("Projects", () => {
     it("it should reject a request without a project", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testTeacherToken)
         .send({ nothing: data.projects.getNewProject(testReading._id) })
         .end((err, res) => {
           // initial validation
@@ -98,7 +99,7 @@ describe("Projects", () => {
     it("it should return 'required' errors for all missing fields that are required", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testTeacherToken)
         .send({ project: {missing: "everything"} })
         .end((err, res) => {
           // initial validation
@@ -121,7 +122,7 @@ describe("Projects", () => {
     it("it should catch invalid types in `types` array", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testTeacherToken)
         .send({ project: data.projects.getInvalidTypesProject(testReading._id) })
         .end((err, res) => {
           // initial validation
@@ -152,7 +153,31 @@ describe("Projects", () => {
   })
 
   describe("GET /projects/:id", () => {
-    it("should get a project when given an id", (done) => {
+    it("should get a project for a teacher", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .set("Authorization", testTeacherToken)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          // students_ids validation
+          var project = res.body.project
+          project.should.have.property("students_ids")
+          var students_ids = project.students_ids
+          
+          students_ids.should.be.instanceof(Array)
+          students_ids.forEach((stuObj) => {
+            stuObj.should.have.property("_id")
+              stuObj._id.should.not.equal(testTeacher._id)
+            stuObj.should.have.property("fullname")
+          })
+
+          done()
+        })
+    })
+
+    it("should get a project for a student", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testUserToken)
@@ -162,7 +187,6 @@ describe("Projects", () => {
           
           // project validation
           var project = res.body.project
-          console.log(project)
           project.should.have.property("_id")
           project.should.have.property("teacher_id")
           project.should.have.property("reading_id")
@@ -175,7 +199,16 @@ describe("Projects", () => {
           project.should.have.property("updatedAt")
           project.should.have.property("createdAt")
 
-          // 
+          // students_ids validation
+          var studentExists = false
+          var students_ids = project.students_ids
+          students_ids.should.be.instanceof(Array)
+          students_ids.forEach((stuObj) => {
+            stuObj.should.have.property("_id")
+            stuObj.should.have.property("fullname")
+            if (stuObj._id === testUser._id) { studentExists = true }
+          })
+          studentExists.should.equal(true)
 
           done()
         })

@@ -17,20 +17,15 @@ var seedUsers = function() {
   return new Promise((resolve, reject) => {
     //removes all users in database
     User.remove({}).then((results) => {
-      // // registers and logs in user
-      // registerUser(data.users.testUser)
-      //   .then((user) => {
-      //     loginUser(data.users.testUserCreds)
-      //       .then((res) => {
-      //         resolve(res.body)
-      //       })
-      //   })
 
+      // creates user from user object and logs in with the passed credentials
       createAndLogin(data.users.testTeacher, data.users.testTeacherCreds)
         .then((body) => {
+          // add the new credentials to the array
           credentials.push(body)
           createAndLogin(data.users.testUser, data.users.testUserCreds)
             .then((body) => {
+              // add credentials to array and resolve
               credentials.push(body)
               resolve(credentials)
             })
@@ -89,11 +84,6 @@ var createReading = function(reading, authToken) {
       })
   })
 }
-
-// var createProject = function(project, authToken) {
-
-// }
-
 
 // seeds several codes into the SessionCodes in database (they have to be unique)
 var createCodes = function() {

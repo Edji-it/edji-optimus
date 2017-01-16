@@ -42,7 +42,9 @@ Coming soon?
         *  `students_ids`: `string[]` should:
             *  Be an array of objects
             *  Contain an object of form `{ _id: studentId, fullname: studentFullName }`
-        *  `comments`: `Comment[]`
+        *  `comments`: `Comment[]` should:
+            *  Be an array of objects
+            *  Have comment data (not tested yet!)
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
 3.  Pass with temp user's credentials and project id
