@@ -18,9 +18,9 @@ var testReading
 describe("Readings", () => {
   beforeEach((done) => {
     // erases all user data, logs in a user and resolves with user's token
-    functions.seedUsers().then((res) => {
-      testUserToken = res.token
-      testUser = res.user
+    functions.seedUsers().then((credentialsArr) => {
+      testUserToken = credentialsArr[1].token
+      testUser = credentialsArr[1].user
 
       // creates a reading for the created user
       functions.createReading(data.readings.newReading, testUserToken)

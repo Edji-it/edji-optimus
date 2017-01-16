@@ -12,18 +12,31 @@ var Project = require("./../models/Project")
 var data = require("./data")
 
 var seedUsers = function() {
+  var credentials = [] // will have teacher credentials at index 0 and student credentials at index 1
+
   return new Promise((resolve, reject) => {
     //removes all users in database
     User.remove({}).then((results) => {
-      // registers and logs in user
-      registerUser(data.users.testUser)
-        .then((user) => {
-          loginUser(data.users.testUserCreds)
-            .then((res) => {
-              resolve(res.body)
+      // // registers and logs in user
+      // registerUser(data.users.testUser)
+      //   .then((user) => {
+      //     loginUser(data.users.testUserCreds)
+      //       .then((res) => {
+      //         resolve(res.body)
+      //       })
+      //   })
+
+      createAndLogin(data.users.testTeacher, data.users.testTeacherCreds)
+        .then((body) => {
+          credentials.push(body)
+          createAndLogin(data.users.testUser, data.users.testUserCreds)
+            .then((body) => {
+              credentials.push(body)
+              resolve(credentials)
             })
         })
     })
+    .catch((err) => { console.error(err) })
   })
 }
 
@@ -47,6 +60,19 @@ var registerUser = function(userData) {
       .end((err, res) => {
         if (err) { reject(err) }
         else { resolve(res) }
+      })
+  })
+}
+
+var createAndLogin = function(user, creds) {
+  return new Promise((resolve, reject) => {
+    // registers and logs in user
+    registerUser(user)
+      .then((user) => {
+        loginUser(creds)
+          .then((res) => {
+            resolve(res.body)
+          })
       })
   })
 }

@@ -4,9 +4,9 @@
 
 Users can store a project
 
-## Route
+## Endpoint
 
-`/projects/:readingId`
+`/projects`
 
 ## Request Type
 

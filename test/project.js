@@ -11,24 +11,28 @@ var functions = require("./functions")
 chai.use(chaiHttp)
 
 // variables stored for use in tests
-var testUserToken
-var testUser
+var testUser, testUserToken
+var testTeacher, testTeacherToken
 var testReading
 var testProject
 
 describe("Projects", () => {
   beforeEach((done) => {
     // erases all user data, logs in a user and resolves with user's token
-    functions.seedUsers().then((res) => {
-      testUserToken = res.token
-      testUser = res.user
+    functions.seedUsers().then((credentialsArr) => {
+      testTeacher = credentialsArr[0].user
+      testTeacherToken = credentialsArr[0].token
+
+      testUserToken = credentialsArr[1].token
+      testUser = credentialsArr[1].user
 
       // creates a reading for the created user
       functions.createReading(data.readings.newReading, testUserToken)
-        .then((res) => {
-          testReading = res.reading
+        .then((body) => {
+          testReading = body.reading
           // seeds the database with lightning codes, which the project will take before saving
           functions.createCodes().then((codes) => {
+            // clears all projects in the database, then creates a new one and saves as testProject
             functions.createProject(data.projects.getNewProject(testReading._id), testUserToken)
               .then((body) => {
                 testProject = body.project
@@ -147,5 +151,34 @@ describe("Projects", () => {
     })
   })
 
-  // describe("GET /projects/:id")
+  describe("GET /projects/:id", () => {
+    it("should get a project when given an id", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .set("Authorization", testUserToken)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          var project = res.body.project
+          console.log(project)
+          project.should.have.property("_id")
+          project.should.have.property("teacher_id")
+          project.should.have.property("reading_id")
+          project.should.have.property("label")
+          project.should.have.property("code")
+          project.should.have.property("types")
+          project.should.have.property("temp_ids")
+          project.should.have.property("students_ids")
+          project.should.have.property("comments")
+          project.should.have.property("updatedAt")
+          project.should.have.property("createdAt")
+
+          // 
+
+          done()
+        })
+    })
+  })
 })

@@ -143,7 +143,7 @@ router.get("/:id", function(req, res) {
                             throw new Error(err);
                         }
 
-                        res.json(result);
+                        res.status(200).send({ project: result })
                         return;
                     });
             });

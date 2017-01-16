@@ -30,6 +30,19 @@ var users = {
       password: "nennerbPass"
     }
   },
+  testTeacher: {
+    username:"will",
+    fullname:"William Wallace Steward IV",
+    password:"willPass",
+    email:"will@will.com",
+    isTeacher: true
+  },
+  testTeacherCreds: {
+    user: {
+      username:"will",
+      password:"willPass"
+    }
+  },
   testUserCapitalCreds: {
     user: {
       username: "NENNERB",
