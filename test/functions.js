@@ -69,7 +69,7 @@ var createReading = function(reading, authToken) {
 
 
 // seeds several codes into the SessionCodes in database (they have to be unique)
-var createCode = function() {
+var createCodes = function() {
   var codes = ["1234", "5678", "abcd", "fghj"]
   var codesProcessed = 0 // keeps track of how many codes' we've async saved so far
 
@@ -94,5 +94,5 @@ module.exports = {
   loginUser: loginUser,
   registerUser: registerUser,
   createReading: createReading,
-  createCode: createCode
+  createCodes: createCodes
 }
