@@ -105,10 +105,6 @@ router.get("/:id", function(req, res) {
     // Only pull out arrays since we'll be populating the object after saving
     Q(Project.find(findParams).exec())
         .then((projects) => {
-            if (!projects) {
-                res.status(404).send();
-                return;
-            }
             var project = projects.pop();
 
             if (!project) {
