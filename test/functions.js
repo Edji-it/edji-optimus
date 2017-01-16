@@ -8,6 +8,7 @@ var Q = require("q")
 
 var User = require("./../models/User")
 var Code = require("./../models/SessionCode")
+var Project = require("./../models/Project")
 var data = require("./data")
 
 var seedUsers = function() {
@@ -89,10 +90,26 @@ var createCodes = function() {
   })
 }
 
+var createProject = function(project, authToken) {
+  return new Promise((resolve, reject) => {
+    Project.remove({}).then((results) => {
+      chai.request(server)
+        .post("/projects")
+        .set("Authorization", authToken)
+        .send({ project: project })
+        .end((err, res) => {
+          if (err) { reject(err) }
+          else { resolve(res.body) }
+        })
+    })
+  })
+}
+
 module.exports = {
   seedUsers: seedUsers,
   loginUser: loginUser,
   registerUser: registerUser,
   createReading: createReading,
-  createCodes: createCodes
+  createCodes: createCodes,
+  createProject: createProject
 }

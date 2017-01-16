@@ -16,7 +16,7 @@ var testUser
 var testReading
 var testProject
 
-describe("Readings", () => {
+describe("Projects", () => {
   beforeEach((done) => {
     // erases all user data, logs in a user and resolves with user's token
     functions.seedUsers().then((res) => {
@@ -27,8 +27,14 @@ describe("Readings", () => {
       functions.createReading(data.readings.newReading, testUserToken)
         .then((res) => {
           testReading = res.reading
-
-          functions.createCodes().then((codes) => { done() })
+          // seeds the database with lightning codes, which the project will take before saving
+          functions.createCodes().then((codes) => {
+            functions.createProject(data.projects.getNewProject(testReading._id), testUserToken)
+              .then((body) => {
+                testProject = body.project
+                done()
+              })
+          })
         })
     })
     .catch((err) => {
@@ -140,4 +146,6 @@ describe("Readings", () => {
         })
     })
   })
+
+  // describe("GET /projects/:id")
 })
