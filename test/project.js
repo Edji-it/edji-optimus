@@ -245,7 +245,7 @@ describe("Projects", () => {
     it("it should get a project by the project code", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code)
-        .set("Authorization", testTempToken)
+        .set("Authorization", testUserToken)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -272,7 +272,7 @@ describe("Projects", () => {
     it("it should get a project even if the project code is capitalized", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code.toUpperCase())
-        .set("Authorization", testTempToken)
+        .set("Authorization", testUserToken)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -285,7 +285,7 @@ describe("Projects", () => {
     it("it should return 404 when project is not found by id", (done) => {
       chai.request(server)
         .get("/projects/" + testUser._id)
-        .set("Authorization", testTempToken)
+        .set("Authorization", testUserToken)
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
@@ -297,10 +297,21 @@ describe("Projects", () => {
     it("it should return 404 when project is not found by code", (done) => {
       chai.request(server)
         .get("/projects/cody")
-        .set("Authorization", testTempToken)
+        .set("Authorization", testUserToken)
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/projects/cody")
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
 
           done()
         })
