@@ -28,9 +28,8 @@ describe("Readings", () => {
         .then((res) => {
           testReading = res.reading
 
-          functions.createCode().then((result) => { done() })
+          functions.createCode().then((codes) => { done() })
         })
-      
     })
     .catch((err) => {
       console.error(err)

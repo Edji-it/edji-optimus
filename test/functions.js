@@ -67,13 +67,23 @@ var createReading = function(reading, authToken) {
 
 // }
 
+
+// seeds several codes into the SessionCodes in database (they have to be unique)
 var createCode = function() {
+  var codes = ["1234", "5678", "abcd", "fghj"]
+  var codesProcessed = 0 // keeps track of how many codes' we've async saved so far
+
   return new Promise((resolve, reject) => {
+    // remove all codes currently in there, so we don't get errors
     Code.remove({}).then((result) => {
-      var code = Code({ code: "1234" })
-      code.save((err, res) => {
-        if (err) { reject(err) }
-        else { resolve(res) }
+      // loop through codes
+      codes.forEach((oneCode) => {
+        var code = Code({ code: oneCode })
+        code.save((err, res) => {
+          if (err) { reject(err) }
+          codesProcessed ++
+          if (codesProcessed === codes.length) { resolve(codes) }
+        })
       })
     })
   })
