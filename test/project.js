@@ -108,6 +108,26 @@ describe("Readings", () => {
         })
     })
 
+    it("it should catch invalid types in `types` array", (done) => {
+      chai.request(server)
+        .post("/projects")
+        .set("Authorization", testUserToken)
+        .send({ project: data.projects.getInvalidTypesProject(testReading._id) })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(406)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("types.0")
+          text.validationErrors["types.0"].should.equal("enum")
+
+          done()
+        })
+    })
+
     it("it should reject an unauthorized user", (done) => {
       chai.request(server)
         .post("/projects")

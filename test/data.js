@@ -65,6 +65,13 @@ var projects = {
       label: "50 shades of Edji",
       types: ["emoji", "text"]
     }
+  },
+  getInvalidTypesProject: function(readingId) {
+    return {
+      reading_id: readingId,
+      label: "50 shades of Edji",
+      types: ["something", "nothing"]
+    }
   }
 }
 
