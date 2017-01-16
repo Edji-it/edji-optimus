@@ -1,4 +1,4 @@
-# Edji Test Specs: Login
+# Edji Test Specs: Create Project
 
 ## Goal
 

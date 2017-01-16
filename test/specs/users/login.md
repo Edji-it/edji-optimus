@@ -1,4 +1,4 @@
-# Edji Test Specs: Login
+# Edji Test Specs: Login User
 
 ## Goal
 

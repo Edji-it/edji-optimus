@@ -33,7 +33,24 @@ describe("Users", () => {
                     res.body.should.be.a("object")
                     res.body.should.have.property("token")
                     
-                    //other validation done in login tests
+                    //user validation
+                    var user = res.body.user
+                    user.should.have.property("_id")
+                    user.should.have.property("username")
+                    user.should.have.property("fullname")
+                    user.should.have.property("email")
+                    user.should.have.property("isTeacher")
+                    user.should.have.property("createdAt")
+                    user.should.have.property("updatedAt")
+                    user.should.not.have.property("password")
+                    user.should.not.have.property("resetPasswordToken")
+                    user.should.not.have.property("resetPasswordExpires")
+                    user.should.not.have.property("accountArchiveToken")
+
+                    //token validation
+                    var token = res.body.token
+                    token.should.be.a("string")
+                    token.should.not.equal("")
                     
                     done()
                 })

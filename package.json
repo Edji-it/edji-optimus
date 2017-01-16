@@ -8,7 +8,8 @@
     "test": "NODE_ENV=test mocha --timeout 4000",
     "test:projects": "NODE_ENV=test mocha --timeout 4000 --grep Projects",
     "test:readings": "NODE_ENV=test mocha --timeout 4000 --grep Readings",
-    "test:users": "NODE_ENV=test mocha --timeout 4000 --grep Users"
+    "test:users": "NODE_ENV=test mocha --timeout 4000 --grep Users",
+    "test:tempusers": "NODE_ENV=test mocha --timeout 4000 --grep TempUsers"
   },
   "repository": {
     "type": "git",
