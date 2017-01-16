@@ -268,5 +268,42 @@ describe("Projects", () => {
           done()
         })
     })
+
+    it("it should get a project even if the project code is capitalized", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject.code.toUpperCase())
+        .set("Authorization", testTempToken)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          done()
+        })
+    })
+
+    it("it should return 404 when project is not found by id", (done) => {
+      chai.request(server)
+        .get("/projects/" + testUser._id)
+        .set("Authorization", testTempToken)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should return 404 when project is not found by code", (done) => {
+      chai.request(server)
+        .get("/projects/cody")
+        .set("Authorization", testTempToken)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
   })
 })
