@@ -30,9 +30,10 @@ Coming soon?
 ## Test Cases
 
 1.  Pass good object
-    *  `res` should have a `reading`
-    *  `res.reading` should have a:
+    *  `res` should have a:
         *  `status` = `201`
+        *  `reading`: `any`
+    *  `res.reading` should have a:
         *  `_id`: `string`
         *  `owner_id`: `string`
         *  `title`: `string`

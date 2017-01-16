@@ -66,7 +66,7 @@ router.post("/", function(req, res) {
 
 router.get("/", function(req, res){
     if (!req.user || !req.user.id) {
-        res.status(401).send({ validationErrors: { user: "required" } });
+        res.status(401).send();
         return;
     }
 

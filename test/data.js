@@ -58,9 +58,18 @@ var readings = {
   }
 }
 
-var db = {
-  users: users,
-  readings: readings
+var projects = {
+  getNewProject: function(readingId) {
+    return {
+      reading_id: readingId,
+      label: "50 shades of Edji",
+      types: ["emoji", "text"]
+    }
+  }
 }
 
-module.exports = db
+module.exports = {
+  users: users,
+  readings: readings,
+  projects: projects
+}

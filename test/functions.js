@@ -7,6 +7,7 @@ chai.use(chaiHttp)
 var Q = require("q")
 
 var User = require("./../models/User")
+var Code = require("./../models/SessionCode")
 var data = require("./data")
 
 var seedUsers = function() {
@@ -57,8 +58,24 @@ var createReading = function(reading, authToken) {
       .send({ reading: reading })
       .end((err, res) => {
         if (err) { reject(err) }
+        else { resolve(res.body) }
+      })
+  })
+}
+
+// var createProject = function(project, authToken) {
+
+// }
+
+var createCode = function() {
+  return new Promise((resolve, reject) => {
+    Code.remove({}).then((result) => {
+      var code = Code({ code: "1234" })
+      code.save((err, res) => {
+        if (err) { reject(err) }
         else { resolve(res) }
       })
+    })
   })
 }
 
@@ -66,5 +83,6 @@ module.exports = {
   seedUsers: seedUsers,
   loginUser: loginUser,
   registerUser: registerUser,
-  createReading: createReading
+  createReading: createReading,
+  createCode: createCode
 }

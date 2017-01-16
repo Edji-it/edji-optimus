@@ -52,7 +52,7 @@ router.post("/", function(req, res) {
 
     // if a specific id isn't passed, go ahead and set it as the creating user's id
     if (!project.teacher_id) {
-        project.teacher_id = req.user.user_id;
+        project.teacher_id = req.user._id;
     }
 
     var model = Project(project);

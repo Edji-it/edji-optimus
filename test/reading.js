@@ -10,8 +10,10 @@ var functions = require("./functions")
 
 chai.use(chaiHttp)
 
+// variables stored for use in tests
 var testUserToken
 var testUser
+var testReading
 
 describe("Readings", () => {
   beforeEach((done) => {
@@ -22,8 +24,10 @@ describe("Readings", () => {
 
       // creates a reading for the created user
       functions.createReading(data.readings.newReading, testUserToken)
-        .then((res) => { done() })
-        .catch((err) => { console.error(err) })
+        .then((res) => {
+          testReading = res.reading
+          done()
+        })
       
     })
     .catch((err) => {
@@ -134,20 +138,22 @@ describe("Readings", () => {
           // initial validation
           res.should.have.status(200)
           res.body.should.have.property("readings")
-          res.body.readings.should.be.instanceof(Array)
-          res.body.readings.length.should.be.above(0)
+          var readings = res.body.readings
+          readings.should.be.instanceof(Array)
+          readings.length.should.be.above(0)
 
-          // reading validation
-          var reading = res.body.readings[0]
+          // reading validation - properties it should have
+          var reading = readings[0]
           reading.should.have.property("_id")
           reading.should.have.property("owner_id")
             reading.owner_id.should.equal(testUser._id)
           reading.should.have.property("title")
           reading.should.have.property("promoter_ids")
           reading.should.have.property("teacher_ids")
+            reading.teacher_ids.indexOf(testUser._id).should.be.above(-1)
           reading.should.have.property("createdAt")
           reading.should.have.property("updatedAt")
-
+          // reading validation - properties it should NOT have
           reading.should.not.have.property("words")
           reading.should.not.have.property("html")
           reading.should.not.have.property("comments")
@@ -162,16 +168,13 @@ describe("Readings", () => {
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
-          res.should.have.property("error")
-          res.error.should.have.property("text")
-
-          var text = JSON.parse(res.error.text)
-          text.should.have.property("validationErrors")
-          text.validationErrors.should.have.property("user")
-          text.validationErrors.user.should.equal("required")
 
           done()
         })
     })
   })
+
+  // describe("GET /readings/:readingId/projects/:userId", () => {
+  //   it("it should return all of a user's projects for a reading")
+  // })
 })
