@@ -16,7 +16,7 @@ router.get("/",function(req, res){
 
     var user = req.user;
     if (!req.user) {
-        res.status(401).send();
+        res.status(401).send({ validationErrors: { user: "required" } });
         return;
     }
 
@@ -29,7 +29,7 @@ router.get("/",function(req, res){
     }
 
     Project.find(findParams,
-        'reading_id teacher_id label code updatedAt createdAt',
+        'reading_id teacher_id label code types updatedAt createdAt',
         { sort: { createdAt: -1 } }, 
         (err, result) => {
             if (err) {

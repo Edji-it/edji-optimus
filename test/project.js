@@ -157,7 +157,7 @@ describe("Projects", () => {
   })
 
   describe("GET /projects/:id", () => {
-    it("should get a project for a teacher", (done) => {
+    it("it should get a project for a teacher", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testTeacherToken)
@@ -181,7 +181,7 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a project for a student", (done) => {
+    it("it should get a project for a student", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testUserToken)
@@ -218,7 +218,7 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a project for a temp user", (done) => {
+    it("it should get a project for a temp user", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testTempToken)
@@ -317,4 +317,20 @@ describe("Projects", () => {
         })
     })
   })
+
+  // describe("GET /projects", () => {
+
+  //   it("it should get a student's projects", (done) => {
+  //     chai.request(server)
+  //       .get("/projects")
+  //       .set("Authorization", testUserToken)
+  //       .end((err, res) => {
+  //         // initial validation
+  //         res.should.have.status(200)
+  //         console.log(res.body)
+  //         res.body.should.have.property("projects")
+  //         done()
+  //       })
+  //   })
+  // })
 })

@@ -18,7 +18,7 @@ Coming soon?
 
 ## Test Cases
 
-1.  Pass with `Authorization` header
+1.  Pass with `Authorization` header and student token
     *  `res` should have `status` = `200`
     *  `res` should have `projects`
     *  `res.projects` should be an `array`
@@ -35,9 +35,10 @@ Coming soon?
         *  `comments`: `Comment[]`
         *  `students_ids`: `string[]`
         *  `temp_ids`: `string[]`
-2.  Pass without `Authorization` header
-    *  `res` should have a:
-        *  `status` = `406`
-        *  `errors`: `any` should have a:
-            *  `validationErrors`: `any` should have a:
-                *  `user`: `string` = `required`
+    *  All projects in `res.projects` should belong to the student
+2.  Pass with `Authorization` header and temp user token (not yet tested)
+    *  `res` should have `status` = `200`
+    *  `res` should have `projects`
+    *  `res.projects` should be an `array`
+    *  All projects in `res.projects` should belong to the tempstudent (not yet tested)
+2.  Pass without `Authorization` header --> receive `401`

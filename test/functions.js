@@ -127,14 +127,60 @@ var createCodes = function() {
 var createProject = function(project, authToken) {
   return new Promise((resolve, reject) => {
     Project.remove({}).then((results) => {
-      chai.request(server)
-        .post("/projects")
-        .set("Authorization", authToken)
-        .send({ project: project })
-        .end((err, res) => {
-          if (err) { reject(err) }
-          else { resolve(res.body) }
-        })
+    chai.request(server)
+      .post("/projects")
+      .set("Authorization", authToken)
+      .send({ project: project })
+      .end((err, res) => {
+        if (err) { reject(err) }
+        else { resolve(res.body) }
+      })
+    })
+  })
+}
+
+/**
+ * Creates multiple projects and then gets those projects, which should in turn add the user's id to the correct array
+ * @param project A project object
+ * @param teacherToken A user token, returned by login, which references a user with isTeacher: true
+ * @param studentTokens An array of tokens for which a project will be created, and the id for the token added to the reading
+ */
+var createProjects = function(project, teacherToken, studentTokens) {
+  var projects = []
+  var completed = 0
+
+  return new Promise((resolve, reject) => {
+    // remove all projects in db
+    Project.remove({}).then((results) => {
+      // cycle through all student tokens
+      studentTokens.forEach((token) => {
+        // create a project with the teacher's token
+        chai.request(server)
+          .post("/projects")
+          .set("Authorization", teacherToken)
+          .send({ project: project })
+          .end((err, res) => {
+            if (err) { reject(err) }
+            else {
+              // get that created project with the student token (adding it to the correct _ids array)
+              var createdProject = res.body.project
+              chai.request(server)
+                .get("/projects/" + createdProject._id)
+                .set("Authorization", token)
+                .end((err, res) => {
+                  if (err) { reject(err) }
+                  else {
+                    // once we've completed the same number of calls as items in studentTokens, resolve with array of projects
+                    completed ++
+                    projects.push(res.body.project)
+                    if (completed === studentTokens.length) { resolve(projects) }
+                  }
+                })
+            }
+          })
+      })
+
+
     })
   })
 }

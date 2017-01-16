@@ -123,7 +123,7 @@ describe("Readings", () => {
   })
 
   describe("GET /readings", () => {
-    it("should get all of a users's readings", (done) => {
+    it("it should get all of a users's readings", (done) => {
       chai.request(server)
         .get("/readings")
         .set("Authorization", testUserToken)
