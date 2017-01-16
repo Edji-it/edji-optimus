@@ -241,5 +241,32 @@ describe("Projects", () => {
           done()
         })
     })
+
+    it("it should get a project by the project code", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject.code)
+        .set("Authorization", testTempToken)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          // project validation
+          var project = res.body.project
+          project.should.have.property("_id")
+          project.should.have.property("teacher_id")
+          project.should.have.property("reading_id")
+          project.should.have.property("label")
+          project.should.have.property("code")
+          project.should.have.property("types")
+          project.should.have.property("temp_ids")
+          project.should.have.property("students_ids")
+          project.should.have.property("comments")
+          project.should.have.property("updatedAt")
+          project.should.have.property("createdAt")
+
+          done()
+        })
+    })
   })
 })
