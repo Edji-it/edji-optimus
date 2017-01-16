@@ -217,5 +217,29 @@ describe("Projects", () => {
           done()
         })
     })
+
+    it("should get a project for a temp user", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .set("Authorization", testTempToken)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          // students_ids validation
+          var studentExists = false
+          res.body.project.should.have.property("temp_ids")
+          var temp_ids = res.body.project.temp_ids
+          temp_ids.should.be.instanceof(Array)
+          temp_ids.forEach((stuObj) => {
+            stuObj.should.have.property("_id")
+            stuObj.should.have.property("fullname")
+            if (stuObj._id === testTemp._id) { studentExists = true }
+          })
+          studentExists.should.equal(true)
+
+          done()
+        })
+    })
   })
 })
