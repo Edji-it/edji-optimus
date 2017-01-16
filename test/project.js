@@ -64,5 +64,60 @@ describe("Readings", () => {
           done()
         })
     })
+
+    it("it should reject a request without a project", (done) => {
+      chai.request(server)
+        .post("/projects")
+        .set("Authorization", testUserToken)
+        .send({ nothing: data.projects.getNewProject(testReading._id) })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("project")
+          text.validationErrors.project.should.equal("required")
+
+          done()
+        })
+    })
+
+    it("it should return 'required' errors for all missing fields that are required", (done) => {
+      chai.request(server)
+        .post("/projects")
+        .set("Authorization", testUserToken)
+        .send({ project: {missing: "everything"} })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(406)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+          text.validationErrors.should.have.property("label")
+          text.validationErrors.label.should.equal("required")
+
+          text.validationErrors.should.have.property("reading_id")
+          text.validationErrors.reading_id.should.equal("required")
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .post("/projects")
+        .send({ project: data.projects.getNewProject(testReading._id) })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
   })
 })

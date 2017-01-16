@@ -46,9 +46,10 @@ router.get("/",function(req, res){
 });
 
 router.post("/", function(req, res) {
-    if (!req.user) { res.status(401).send(); }
-
     var project = req.body.project;
+
+    if (!req.user) { res.status(401).send(); }
+    if (!project) { res.status(400).send({ validationErrors: { project: "required" } }) }
 
     // if a specific id isn't passed, go ahead and set it as the creating user's id
     if (!project.teacher_id) {

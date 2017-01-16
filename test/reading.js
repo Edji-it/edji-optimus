@@ -109,20 +109,13 @@ describe("Readings", () => {
         })
     })
 
-    it("it should reject if there is no user", (done) => {
+    it("it should reject an unauthorized user", (done) => {
       chai.request(server)
         .post("/readings")
         .send({ notReading: data.readings.newReading })
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
-          res.should.have.property("error")
-          res.error.should.have.property("text")
-
-          var text = JSON.parse(res.error.text)
-          text.should.have.property("validationErrors")
-          text.validationErrors.should.have.property("user")
-          text.validationErrors.user.should.equal("required")
 
           done()
         })
