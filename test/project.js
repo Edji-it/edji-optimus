@@ -424,7 +424,6 @@ describe("Projects", () => {
 
           // comment validation
           var comment = res.body.comment
-          testComments.emojiComment = comment
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
             comment.user_id.should.equal(testUsers.testStudent.user._id)
@@ -455,7 +454,7 @@ describe("Projects", () => {
 
           // comment validation
           var comment = res.body.comment
-          testComments.emojiComment = comment
+          testComments.emptyComment = comment
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
             comment.user_id.should.equal(testUsers.testStudent.user._id)
@@ -475,7 +474,33 @@ describe("Projects", () => {
         })
     })
 
-    it("it should create an emoji comment", (done) => {
+    it("it should update an existing comment", (done) => {
+      var updatedComment = {}
+      Object.assign(updatedComment, testComments.emptyComment)
+      updatedComment.data = "updated"
+
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: updatedComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          comment.should.have.property("data")
+            comment.data.should.be.equal(updatedComment.data)
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+            comment.updatedAt.should.be.above(comment.createdAt)
+
+          done()
+        })
+    })
+
+    it("it should send validation errors for required fields", (done) => {
       chai.request(server)
         .post("/projects/" + testProject._id + "/comments")
         .set("Authorization", testUsers.testStudent.token)
@@ -494,6 +519,7 @@ describe("Projects", () => {
           var end = false
           var user_id = false
 
+          // this will fail if a comment is added, so you have to change it to the proper number
           text.validationErrors.should.not.have.property("comments.3.user_id")
 
           text.validationErrors.should.have.property("comments.3.start")

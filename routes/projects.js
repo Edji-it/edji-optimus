@@ -209,13 +209,16 @@ router.post("/:id/comments", function(req, res) {
         } else if (!project) {
             res.status(404).send()
         } else {
-            var currentComment = project.comments.id(comment._id)
+            var currentComment = project.comments.id(comment._id) // if the comment already has an id, it already exists
 
+            var successStatus // 200 if updating, 201 if creating
             if (currentComment){
                 Object.assign(currentComment, comment)
+                successStatus = 200
             }
             else{
                 project.comments.push(comment)
+                successStatus = 201
             }
 
             project.save(function(error, project){
@@ -238,7 +241,7 @@ router.post("/:id/comments", function(req, res) {
                         res.status(500).send(error);
                         return;
                     }
-                } else { res.status(201).send({ comment: project.comments.id(comment._id) }) }
+                } else { res.status(successStatus).send({ comment: project.comments.id(comment._id) }) }
                     
             })
         }
