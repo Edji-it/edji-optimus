@@ -24,7 +24,7 @@ Coming soon?
         *  `projects`: `any[]`
     *  Each project in `res.projects` should have a:
         *  `_id`: `string`
-        *  `teacher_id`: `string`
+        *  `teacher_id`: `string` = user id indicated by credentials
         *  `reading_id`: `string`
         *  `label`: `string`
         *  `code`: `string`

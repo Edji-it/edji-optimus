@@ -359,6 +359,39 @@ describe("Projects", () => {
     })
   })
 
+  describe("GET /projects/:project_id/reading/:reading_id", () => {
+    it("it should get all projects for a reading", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id + "/reading/" + testProject.reading_id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("projects")
+          res.body.projects.should.be.instanceof(Array)
+
+          // project validation
+          var projects = res.body.projects
+          projects.length.should.be.above(0)
+          projects.forEach((project) => {
+            // make sure it's a project
+            project.should.have.property("_id")
+            project.should.have.property("teacher_id")
+              project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
+
+            // make sure it doesn't come with too much data
+            project.should.not.have.property("comments")
+            project.should.not.have.property("students_ids")
+            project.should.not.have.property("temp_ids")
+          })
+
+          done()
+        })
+    })
+
+    it("")
+  })
+
   describe("GET /projects/:code/validate", () => {
     it("it should validate an existing project", (done) => {
       chai.request(server)
