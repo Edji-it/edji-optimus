@@ -14,14 +14,14 @@ var connect = function(mongooseInstance) {
     });
 }
 
-//hook for mockgoose to intercept if running in test mode
-if (config.util.getEnv("NODE_ENV") === "test") {
-    console.log("test db");
-    mockgoose(mongoose).then(function() {
-        connect(mongoose);
-    });
-} else {
+// //hook for mockgoose to intercept if running in test mode
+// if (config.util.getEnv("NODE_ENV") === "test") {
+//     console.log("test db");
+//     mockgoose(mongoose).then(function() {
+//         connect(mongoose);
+//     });
+// } else {
     connect(mongoose);
-}
+// }
 
 module.exports = mongoose;

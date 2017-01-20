@@ -1,6 +1,7 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
 var server = require("./../index")
+// var server = "http://localhost:3354"
 var should = chai.should()
 var Q = require("q")
 
@@ -11,15 +12,6 @@ var functions = require("./functions")
 chai.use(chaiHttp)
 
 describe("Users", () => {
-
-    beforeEach((done) => {
-        // erases all user data, logs in a user and resolves with user's token
-        functions.seedUsers()
-            .then((res) => { done() })
-            .catch((err) => {
-            console.error(err)
-            })
-    })
     
     describe('POST /users', () => {
         it("it should register a user", (done) => {
@@ -60,7 +52,7 @@ describe("Users", () => {
 
             chai.request(server)
                 .post("/users")
-                .send({ user: data.users.testUser })
+                .send({ user: data.users.duplicateUser })
                 .end((err, res) => {
                     //initial validation
                     res.should.have.status(409)

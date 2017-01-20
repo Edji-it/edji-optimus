@@ -9,50 +9,94 @@ var Q = require("q")
 
 var User = require("./../models/User")
 
+// var users = {
+//   newUser: {
+//     username: "kodiak",
+//     fullname: "cody",
+//     password: "codycodycody",
+//     email: "cody@cody.cod",
+//     isTeacher: true
+//   },
+//   testUser: {
+//     username:"nennerB",
+//     fullname:"nennerB nilkciH",
+//     password:"nennerbPass",
+//     email:"nennerb.nilkcih@gmail.com",
+//     isTeacher: false
+//   },
+//   testUserCreds: {
+//     user: {
+//       username: "nennerB",
+//       password: "nennerbPass"
+//     }
+//   },
+//   testTeacher: {
+//     username:"will",
+//     fullname:"William Wallace Steward IV",
+//     password:"willPass",
+//     email:"will@will.com",
+//     isTeacher: true
+//   },
+//   testTeacherCreds: {
+//     user: {
+//       username:"will",
+//       password:"willPass"
+//     }
+//   },
+//   testUserCapitalCreds: {
+//     user: {
+//       username: "NENNERB",
+//       password: "nennerbPass"
+//     }
+//   },
+//   incorrectCredentials: {
+//     user: {
+//       username: "Ydoc",
+//       password: "whatsups"
+//     }
+//   },
+//   badUser: {
+//     username: "shit",
+//     fullname: "shit",
+//     email: "wrong@wrong",
+//     password: "whatever"
+//   },
+//   tempUser: {
+//     fullname: "corbin"
+//   }
+// }
+
 var users = {
-  newUser: {
-    username: "kodiak",
+  newUser:{
+    username: Date.now().toString(),
     fullname: "cody",
     password: "codycodycody",
     email: "cody@cody.cod",
     isTeacher: true
   },
-  testUser: {
-    username:"nennerB",
-    fullname:"nennerB nilkciH",
-    password:"nennerbPass",
-    email:"nennerb.nilkcih@gmail.com",
-    isTeacher: false
+  duplicateUser: {
+    username: "optimusprime",
+    password: "optimusprime",
+    fullname: "Optimus Prime",
+    email: "Optimus@prime.ed",
+    isTeacher: true
   },
   testUserCreds: {
     user: {
-      username: "nennerB",
-      password: "nennerbPass"
-    }
-  },
-  testTeacher: {
-    username:"will",
-    fullname:"William Wallace Steward IV",
-    password:"willPass",
-    email:"will@will.com",
-    isTeacher: true
-  },
-  testTeacherCreds: {
-    user: {
-      username:"will",
-      password:"willPass"
+      username: "optimusprime",
+      password: "optimusprime"
     }
   },
   testUserCapitalCreds: {
     user: {
-      username: "NENNERB",
-      password: "nennerbPass"
+      username: "OPTIMUSPRIME",
+      password: "optimusprime"
     }
   },
   incorrectCredentials: {
     user: {
-      username: "Ydoc",
-      password: "whatsups"
+      username: "optimusprime",
+      password: "notOPTIMUSpassword"
     }
   },
   badUser: {
