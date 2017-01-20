@@ -1,5 +1,4 @@
 var mongoose = require("mongoose");
-var mockgoose = require("mockgoose");
 var config = require("config");
 var dbConfig = config.get("Database");
 
@@ -14,14 +13,6 @@ var connect = function(mongooseInstance) {
     });
 }
 
-// //hook for mockgoose to intercept if running in test mode
-// if (config.util.getEnv("NODE_ENV") === "test") {
-//     console.log("test db");
-//     mockgoose(mongoose).then(function() {
-//         connect(mongoose);
-//     });
-// } else {
-    connect(mongoose);
-// }
+connect(mongoose);
 
 module.exports = mongoose;

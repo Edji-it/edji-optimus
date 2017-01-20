@@ -17,24 +17,6 @@ var testReading
 var testUsers
 
 describe("Readings", () => {
-  // beforeEach((done) => {
-  //   // erases all user data, logs in a user and resolves with user's token
-  //   functions.seedUsers().then((credentialsArr) => {
-  //     testUserToken = credentialsArr[1].token
-  //     testUser = credentialsArr[1].user
-
-  //     // creates a reading for the created user
-  //     functions.createReading(data.readings.newReading, testUserToken)
-  //       .then((res) => {
-  //         testReading = res.reading
-  //         done()
-  //       })
-      
-  //   })
-  //   .catch((err) => {
-  //     console.error(err)
-  //   })
-  // })
 
   before((done) => {
     functions.loginTestUsers().then((users) => {
