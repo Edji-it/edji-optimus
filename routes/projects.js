@@ -276,20 +276,27 @@ router.delete("/:project_id/comments/:comment_id", function(req, res){
 
     Project.findByIdAndUpdate(
         {_id :project_id},
-        {$pull:{
-            comments:{
-                _id: comment_id
+        {
+            $pull:{
+                comments:{
+                    _id: comment_id,
+                    user_id: user._id
+                }
             }
-        }}, function(error, result){
-            if (error){
-                console.error(error);
-                res.status(500).send();
-            } else {
-                res.status(204).send();
-            }
-        });
+        },{
+            passRawResult: true
+        }, function(error, result, original){
 
-});
+            if (error){
+                console.error(error)
+                res.status(500).send()
+            } else if (!result) {
+                res.status(404).send()
+            } else {
+                res.status(204).send()
+            }
+        })
+})
 
 router.get("/:project_code/validate", function(req, res) {
     var project_code = req.params.project_code.toLowerCase();

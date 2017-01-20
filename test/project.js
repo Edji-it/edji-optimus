@@ -585,6 +585,76 @@ describe("Projects", () => {
   })
 
   describe("DELETE /projects/:project_id/comments/:comment_id", () => {
+    it("it should reject an invalid project id", (done) => {
+      chai.request(server)
+        .del("/projects/jkfdjaklfd/comments/" + testComments.emojiComment._id)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          // error validation
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("badRequest")
+          text.badRequest.should.have.property("projectId")
+          text.badRequest.projectId.should.equal("invalid")
+
+          done()
+        })
+    })
+
+    it("it should reject an invalid comment id", (done) => {
+      chai.request(server)
+        .del("/projects/" + testProject._id + "/comments/fjdklja")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          // error validation
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("badRequest")
+          text.badRequest.should.have.property("commentId")
+          text.badRequest.commentId.should.equal("invalid")
+
+          done()
+        })
+    })
+
+    // // this test currently doesn't do anything good because we don't know if it actually updated or not
+    // it("it should reject a delete attempt from a user who is not the owner", (done) => {
+    //   chai.request(server)
+    //     .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
+    //     .set("Authorization", testUsers.testTeacher.token)
+    //     .end((err, res) => {
+    //       res.should.have.status(401)
+
+    //       done()
+    //     })
+    // })
+
+    it("it should return 404 for non existant project", (done) => {
+      chai.request(server)
+        .del("/projects/" + testUsers.testTeacher.user._id + "/comments/" + testComments.emojiComment._id)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(404)
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .del("/projects/" + testUsers.testTeacher.user._id + "/comments/" + testComments.emojiComment._id)
+        .end((err, res) => {
+          res.should.have.status(401)
+          done()
+        })
+    })
+
+    // this should come LAST in the comments tests because it actually deletes the comment
     it("it should delete a comment", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
