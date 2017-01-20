@@ -247,18 +247,7 @@ router.post("/:id/comments", function(req, res) {
         }
         
     })
-
 })
-
-router.get("/:id/comments", function(req, res){
-
-    var _id = req.params.id;
-
-    Project.findById({_id}, function(err, result){
-        res.status(200).send(result.comments);
-    });
-
-});
 
 router.delete("/:project_id/comments/:comment_id", function(req, res){
     var user = req.user
