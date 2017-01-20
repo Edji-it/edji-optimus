@@ -11,10 +11,6 @@ var functions = require("./functions")
 chai.use(chaiHttp)
 
 // variables stored for use in tests
-var testUser, testUserToken
-var testTeacher, testTeacherToken
-var testTemp, testTempToken
-var testReading
 var testProject
 var testUsers // comes with testStudent, testTeacher and testTemp
 
@@ -296,19 +292,31 @@ describe("Projects", () => {
     })
   })
 
-  // describe("GET /projects", () => {
+  describe("GET /projects", () => {
 
-  //   it("it should get a student's projects", (done) => {
-  //     chai.request(server)
-  //       .get("/projects")
-  //       .set("Authorization", testUserToken)
-  //       .end((err, res) => {
-  //         // initial validation
-  //         res.should.have.status(200)
-  //         console.log(res.body)
-  //         res.body.should.have.property("projects")
-  //         done()
-  //       })
+    it("it should get a student's projects", (done) => {
+      chai.request(server)
+        .get("/projects")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.be.instanceof(Array)
+
+          // project validation
+          var projects = res.body
+          projects.forEach((project) => {
+            project.should.have.property("_id")
+          })
+
+          done()
+        })
+    })
+  })
+
+  // describe("DELETE /projects", () => {
+  //   it("it should delete a project", (done) => {
+
   //   })
   // })
 })
