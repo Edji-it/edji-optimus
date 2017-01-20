@@ -474,6 +474,89 @@ describe("Projects", () => {
           done()
         })
     })
+
+    it("it should create an emoji comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.invalidComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(406)
+          res.should.have.property("error")
+          res.error.should.have.property("text")
+
+          // error validation
+          var text = JSON.parse(res.error.text)
+          text.should.have.property("validationErrors")
+
+          var start = false
+          var end = false
+          var user_id = false
+
+          text.validationErrors.should.not.have.property("comments.3.user_id")
+
+          text.validationErrors.should.have.property("comments.3.start")
+          text.validationErrors["comments.3.start"].should.equal("required")
+
+          text.validationErrors.should.have.property("comments.3.end")
+          text.validationErrors["comments.3.end"].should.equal("required")
+
+          done()
+        })
+    })
+
+    it("it should reject if project id is not valid", (done) => {
+      chai.request(server)
+        .post("/projects/fdjaklfdl/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should reject a call without a comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testUsers.testStudent.user._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ stupid: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should return 404 for project not found", (done) => {
+      chai.request(server)
+        .post("/projects/" + testUsers.testStudent.user._id + "/comments") // it won't find a project with this id, but the id is valid
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .send({ comment: data.comments.emojiComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+
   })
 
   describe("DELETE /projects", () => {

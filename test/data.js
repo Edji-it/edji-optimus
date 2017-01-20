@@ -109,6 +109,9 @@ var comments = {
     end: 73,
     type: "text",
     text: "It was the best of times, it was the worst of times"
+  },
+  invalidComment: {
+    data: "Japan is kind of scared of Russia"
   }
 }
 

@@ -189,6 +189,11 @@ router.post("/:id/comments", function(req, res) {
     var _id = req.params.id
     var user = req.user
 
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        res.status(400).send()
+        return
+    }
+
     if (!user) { res.status(401).send() }
     if (!req.body.comment) { res.status(400).send({ validationErrors: { comment: "required" }}) }
     
@@ -214,9 +219,27 @@ router.post("/:id/comments", function(req, res) {
             }
 
             project.save(function(error, project){
-                if (!error){
-                    res.status(201).send({ comment: project.comments.id(comment._id) })
-                }
+                if (error) {
+                    // constructs object with list of model-defined errors to send to user
+                    if (error.name === "ValidationError") {
+                        var errors = {};
+
+                        for (var property in error.errors) {
+                            if (error.errors[property].kind === "user defined") {
+                                errors[property] = error.errors[property].properties.kind;
+                            } else {
+                                errors[property] = error.errors[property].kind;
+                            }
+                        }
+
+                        res.status(406).send({ validationErrors: errors });
+                        return;
+                    } else {
+                        res.status(500).send(error);
+                        return;
+                    }
+                } else { res.status(201).send({ comment: project.comments.id(comment._id) }) }
+                    
             })
         }
         

@@ -83,9 +83,9 @@ Coming soon?
         *  `status` = `406`
         *  `errors`: `any` should have a:
             *  `validationErrors`: `any` should have a:
-                *  `user_id`: `string` = `required`
                 *  `start`: `string` = `required`
                 *  `end`: `string` = `required`
+            *  `validationErrors`: `any` should NOT have `user_id`: `string` = `required`
 5.  Pass with invalid project id --> receive `400`
 6.  Pass without comment --> receive `400`
 7.  Pass with non-existing project id --> receive `404`
