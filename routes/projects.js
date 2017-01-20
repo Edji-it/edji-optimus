@@ -186,16 +186,15 @@ router.delete("/:id", function(req, res) {
 })
 
 router.post("/:id/comments", function(req, res) {
-
-    var user = req.user
-    if(!user) { res.status(401).send() }
-
     var _id = req.params.id
-    var comment = Comment(req.body.comment)
+    var user = req.user
 
-    if (!comment.user_id) {
-        comment.user_id = req.user.user_id
-    }
+    if (!user) { res.status(401).send() }
+    if (!req.body.comment) { res.status(400).send({ validationErrors: { comment: "required" }}) }
+    
+    if (!req.body.comment.user_id) { req.body.comment.user_id = user._id }
+    if (!req.body.comment.author) { req.body.comment.author = user.fullname }
+    var comment = Comment(req.body.comment)
 
     //comment.user_id = req.logged_in_user.user_id
     Project.findById({_id}, function(err, project){
@@ -216,7 +215,7 @@ router.post("/:id/comments", function(req, res) {
 
             project.save(function(error, project){
                 if (!error){
-                    res.send(project.comments.id(comment._id))
+                    res.status(201).send({ comment: project.comments.id(comment._id) })
                 }
             })
         }

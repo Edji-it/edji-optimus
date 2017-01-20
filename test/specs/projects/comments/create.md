@@ -19,8 +19,6 @@ The request body will contain the following in json form
 ```javascript
 req: {
   comment: {
-    user_id: string,
-    author: string,
     start: number,
     end: number,
     type: string,

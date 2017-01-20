@@ -13,6 +13,7 @@ chai.use(chaiHttp)
 // variables stored for use in tests
 var testProject
 var testUsers // comes with testStudent, testTeacher and testTemp
+var testComments = {}
 
 describe("Projects", () => {
 
@@ -374,6 +375,102 @@ describe("Projects", () => {
         .get("/projects/demo/validate")
         .end((err, res) => {
           res.should.have.status(404)
+          done()
+        })
+    })
+  })
+
+  describe("POST /projects/:id/comments", () => {
+    it("it should create an emoji comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emojiComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          testComments.emojiComment = comment
+          comment.should.have.property("_id")
+          comment.should.have.property("user_id")
+            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.should.have.property("author")
+            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.should.have.property("start")
+          comment.should.have.property("end")
+          comment.should.have.property("type")
+          comment.should.have.property("end")
+          comment.should.have.property("data")
+          comment.should.have.property("text")
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+
+          done()
+        })
+    })
+
+    it("it should create a text comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.textComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          testComments.emojiComment = comment
+          comment.should.have.property("_id")
+          comment.should.have.property("user_id")
+            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.should.have.property("author")
+            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.should.have.property("start")
+          comment.should.have.property("end")
+          comment.should.have.property("type")
+          comment.should.have.property("end")
+          comment.should.have.property("data")
+          comment.should.have.property("text")
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+
+          done()
+        })
+    })
+
+    it("it should create an empty comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          testComments.emojiComment = comment
+          comment.should.have.property("_id")
+          comment.should.have.property("user_id")
+            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.should.have.property("author")
+            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.should.have.property("start")
+          comment.should.have.property("end")
+          comment.should.have.property("type")
+          comment.should.have.property("end")
+          comment.should.have.property("text")
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+
+          comment.should.not.have.property("data")
+
           done()
         })
     })

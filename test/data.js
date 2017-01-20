@@ -89,8 +89,32 @@ var projects = {
   }
 }
 
+var comments = {
+  emojiComment: {
+    start: 50,
+    end: 73,
+    type: "emoji",
+    text: "It was the best of times, it was the worst of times",
+    data: ":disappointed:"
+  },
+  textComment: {
+    start: 50,
+    end: 73,
+    type: "text",
+    text: "It was the best of times, it was the worst of times",
+    data: "w00t"
+  },
+  emptyComment: {
+    start: 50,
+    end: 73,
+    type: "text",
+    text: "It was the best of times, it was the worst of times"
+  }
+}
+
 module.exports = {
   users: users,
   readings: readings,
-  projects: projects
+  projects: projects,
+  comments: comments
 }
