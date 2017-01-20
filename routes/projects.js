@@ -261,16 +261,28 @@ router.get("/:id/comments", function(req, res){
 });
 
 router.delete("/:project_id/comments/:comment_id", function(req, res){
+    var user = req.user
+    var project_id = req.params.project_id
+    var comment_id = req.params.comment_id
+
+    if (!user) { res.status(401).send() }
+    if (!mongoose.Types.ObjectId.isValid(project_id)) {
+        res.status(400).send({ badRequest: { projectId: "invalid" }})
+        return
+    } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
+        res.status(400).send({ badRequest: { commentId: "invalid" }})
+        return
+    }
 
     Project.findByIdAndUpdate(
-        {"_id":req.params.project_id},
+        {_id :project_id},
         {$pull:{
             comments:{
-                _id: req.params.comment_id
+                _id: comment_id
             }
         }}, function(error, result){
             if (error){
-                console.log(error);
+                console.error(error);
                 res.status(500).send();
             } else {
                 res.status(204).send();
