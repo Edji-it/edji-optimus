@@ -24,6 +24,8 @@ router.get("/",function(req, res){
 
     if (user.isTeacher) {
         findParams.teacher_id = user._id;
+    } else if (user.type && user.type === "temp") {
+        findParams.temp_ids = user._id;
     } else {
         findParams.students_ids = user._id;
     }
