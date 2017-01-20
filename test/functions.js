@@ -185,11 +185,31 @@ var createProjects = function(project, teacherToken, studentTokens) {
   })
 }
 
+// returns object with login credentials for all users
+var loginTestUsers = function() {
+  return new Promise((resolve, reject) => {
+    var promises = [
+      loginUser(data.users.testStudentCreds),
+      loginUser(data.users.testTeacherCreds),
+      createTempUser(data.users.tempUser)
+    ]
+    Q.all(promises).done((results) => {
+      var testUsers = {
+        testStudent: results[0].body,
+        testTeacher: results[1].body,
+        testTemp: results[2]
+      }
+      resolve(testUsers)
+    })
+  })
+}
+
 module.exports = {
   seedUsers: seedUsers,
   loginUser: loginUser,
   registerUser: registerUser,
   createReading: createReading,
   createCodes: createCodes,
-  createProject: createProject
+  createProject: createProject,
+  loginTestUsers: loginTestUsers
 }

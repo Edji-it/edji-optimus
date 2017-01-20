@@ -9,63 +9,6 @@ var Q = require("q")
 
 var User = require("./../models/User")
 
-// var users = {
-//   newUser: {
-//     username: "kodiak",
-//     fullname: "cody",
-//     password: "codycodycody",
-//     email: "cody@cody.cod",
-//     isTeacher: true
-//   },
-//   testUser: {
-//     username:"nennerB",
-//     fullname:"nennerB nilkciH",
-//     password:"nennerbPass",
-//     email:"nennerb.nilkcih@gmail.com",
-//     isTeacher: false
-//   },
-//   testUserCreds: {
-//     user: {
-//       username: "nennerB",
-//       password: "nennerbPass"
-//     }
-//   },
-//   testTeacher: {
-//     username:"will",
-//     fullname:"William Wallace Steward IV",
-//     password:"willPass",
-//     email:"will@will.com",
-//     isTeacher: true
-//   },
-//   testTeacherCreds: {
-//     user: {
-//       username:"will",
-//       password:"willPass"
-//     }
-//   },
-//   testUserCapitalCreds: {
-//     user: {
-//       username: "NENNERB",
-//       password: "nennerbPass"
-//     }
-//   },
-//   incorrectCredentials: {
-//     user: {
-//       username: "Ydoc",
-//       password: "whatsups"
-//     }
-//   },
-//   badUser: {
-//     username: "shit",
-//     fullname: "shit",
-//     email: "wrong@wrong",
-//     password: "whatever"
-//   },
-//   tempUser: {
-//     fullname: "corbin"
-//   }
-// }
-
 var users = {
   newUser:{
     username: Date.now().toString(),
@@ -107,6 +50,18 @@ var users = {
   },
   tempUser: {
     fullname: "corbin"
+  },
+  testTeacherCreds: {
+    user: {
+      username: "apiteacher",
+      password: "apiteacher"
+    }
+  },
+  testStudentCreds: {
+    user: {
+      username: "apistudent",
+      password: "apistudent"
+    }
   }
 }
 
@@ -115,23 +70,22 @@ var readings = {
     title: "Test Reading",
     html: "This is test content",
     words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}]
+  },
+  testReading: {
+    _id: "588194976f38d90011467cea"
   }
 }
 
 var projects = {
-  getNewProject: function(readingId) {
-    return {
-      reading_id: readingId,
-      label: "50 shades of Edji",
-      types: ["emoji", "text"]
-    }
+  newProject: {
+    reading_id: "588194976f38d90011467cea",
+    label: "50 shades of Edji",
+    types: ["emoji", "text"]
   },
-  getInvalidTypesProject: function(readingId) {
-    return {
-      reading_id: readingId,
-      label: "50 shades of Edji",
-      types: ["something", "nothing"]
-    }
+  invalidTypesProject: {
+    reading_id: "588194976f38d90011467cea",
+    label: "50 shades of Edji",
+    types: ["something", "nothing"]
   }
 }
 

@@ -16,37 +16,14 @@ var testTeacher, testTeacherToken
 var testTemp, testTempToken
 var testReading
 var testProject
+var testUsers // comes with testStudent, testTeacher and testTemp
 
 describe("Projects", () => {
-  beforeEach((done) => {
-    // erases all user data, logs in a user and resolves with user's token
-    functions.seedUsers().then((credentialsArr) => {
-      testTeacher = credentialsArr[0].user
-      testTeacherToken = credentialsArr[0].token
 
-      testUserToken = credentialsArr[1].token
-      testUser = credentialsArr[1].user
-
-      testTemp = credentialsArr[2].user
-      testTempToken = credentialsArr[2].token
-
-      // creates a reading for the created user
-      functions.createReading(data.readings.newReading, testTeacherToken)
-        .then((body) => {
-          testReading = body.reading
-          // seeds the database with lightning codes, which the project will take before saving
-          functions.createCodes().then((codes) => {
-            // clears all projects in the database, then creates a new one and saves as testProject
-            functions.createProject(data.projects.getNewProject(testReading._id), testTeacherToken)
-              .then((body) => {
-                testProject = body.project
-                done()
-              })
-          })
-        })
-    })
-    .catch((err) => {
-      console.error(err)
+  before((done) => {
+    functions.loginTestUsers().then((users) => {
+      testUsers = users
+      done()
     })
   })
 
@@ -54,8 +31,8 @@ describe("Projects", () => {
     it("it should create a new project", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testTeacherToken)
-        .send({ project: data.projects.getNewProject(testReading._id) })
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ project: data.projects.newProject })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
@@ -63,9 +40,10 @@ describe("Projects", () => {
 
           // project validation
           var project = res.body.project
+          testProject = project // store the project for use in later tests!
           project.should.have.property("_id")
           project.should.have.property("teacher_id")
-            project.teacher_id.should.equal(testTeacher._id)
+            project.teacher_id.should.equal(testUsers.testTeacher.user._id)
           project.should.have.property("reading_id")
           project.should.have.property("label")
           project.should.have.property("code")
@@ -83,8 +61,8 @@ describe("Projects", () => {
     it("it should reject a request without a project", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testTeacherToken)
-        .send({ nothing: data.projects.getNewProject(testReading._id) })
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ nothing: data.projects.newProject })
         .end((err, res) => {
           // initial validation
           res.should.have.status(400)
@@ -103,7 +81,7 @@ describe("Projects", () => {
     it("it should return 'required' errors for all missing fields that are required", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testTeacherToken)
+        .set("Authorization", testUsers.testTeacher.token)
         .send({ project: {missing: "everything"} })
         .end((err, res) => {
           // initial validation
@@ -126,8 +104,8 @@ describe("Projects", () => {
     it("it should catch invalid types in `types` array", (done) => {
       chai.request(server)
         .post("/projects")
-        .set("Authorization", testTeacherToken)
-        .send({ project: data.projects.getInvalidTypesProject(testReading._id) })
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ project: data.projects.invalidTypesProject })
         .end((err, res) => {
           // initial validation
           res.should.have.status(406)
@@ -146,7 +124,7 @@ describe("Projects", () => {
     it("it should reject an unauthorized user", (done) => {
       chai.request(server)
         .post("/projects")
-        .send({ project: data.projects.getNewProject(testReading._id) })
+        .send({ project: data.projects.newProject })
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
@@ -160,7 +138,7 @@ describe("Projects", () => {
     it("it should get a project for a teacher", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
-        .set("Authorization", testTeacherToken)
+        .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.property("project")
@@ -173,7 +151,7 @@ describe("Projects", () => {
           students_ids.should.be.instanceof(Array)
           students_ids.forEach((stuObj) => {
             stuObj.should.have.property("_id")
-              stuObj._id.should.not.equal(testTeacher._id)
+              stuObj._id.should.not.equal(testUsers.testTeacher.user._id)
             stuObj.should.have.property("fullname")
           })
 
@@ -184,7 +162,7 @@ describe("Projects", () => {
     it("it should get a project for a student", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.property("project")
@@ -210,7 +188,7 @@ describe("Projects", () => {
           students_ids.forEach((stuObj) => {
             stuObj.should.have.property("_id")
             stuObj.should.have.property("fullname")
-            if (stuObj._id === testUser._id) { studentExists = true }
+            if (stuObj._id === testUsers.testStudent.user._id) { studentExists = true }
           })
           studentExists.should.equal(true)
 
@@ -221,7 +199,7 @@ describe("Projects", () => {
     it("it should get a project for a temp user", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
-        .set("Authorization", testTempToken)
+        .set("Authorization", testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.property("project")
@@ -234,7 +212,7 @@ describe("Projects", () => {
           temp_ids.forEach((stuObj) => {
             stuObj.should.have.property("_id")
             stuObj.should.have.property("fullname")
-            if (stuObj._id === testTemp._id) { studentExists = true }
+            if (stuObj._id === testUsers.testTemp.user._id) { studentExists = true }
           })
           studentExists.should.equal(true)
 
@@ -245,7 +223,7 @@ describe("Projects", () => {
     it("it should get a project by the project code", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code)
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -272,7 +250,7 @@ describe("Projects", () => {
     it("it should get a project even if the project code is capitalized", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code.toUpperCase())
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -284,8 +262,8 @@ describe("Projects", () => {
 
     it("it should return 404 when project is not found by id", (done) => {
       chai.request(server)
-        .get("/projects/" + testUser._id)
-        .set("Authorization", testUserToken)
+        .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
+        .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
@@ -297,7 +275,7 @@ describe("Projects", () => {
     it("it should return 404 when project is not found by code", (done) => {
       chai.request(server)
         .get("/projects/cody")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
