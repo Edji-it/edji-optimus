@@ -8,16 +8,14 @@ var ModelCreator = require("./ModelCreator");
 var User = require("./../models/User");
 
 var Model =  ModelCreator("Comment",{
-    start: Number,
-    end: Number,
+    user_id: {type: String, required: true}, // could be any type of user, maybe we want to add a user_type field?
+    start: {type: Number, required: true},
+    end: {type: Number, required: true},
     data: String,
-    user_id: String,
-    user: Object, //{ type: Schema.ObjectId, ref: 'User'},
-    author: String,
-    text: String,
-    type: String
-    //TODO:need a better way to include this field. dont think it should be a part of the scheema. Or maybe it should include itself on load/initialization
-    // I'm not sure this ever gets stored...
+    // user: Object, //{ type: Schema.ObjectId, ref: 'User'},
+    author: String, // user's name, stored for easy access
+    text: String, // the text which the comment is on!
+    type: String // type of comment (should be required)
 });
 
 module.exports = Model;

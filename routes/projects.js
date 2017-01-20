@@ -187,39 +187,43 @@ router.delete("/:id", function(req, res) {
 
 router.post("/:id/comments", function(req, res) {
 
-    var _id = req.params.id;
-    var comment = Comment(req.body.comment);
+    var user = req.user
+    if(!user) { res.status(401).send() }
+
+    var _id = req.params.id
+    var comment = Comment(req.body.comment)
 
     if (!comment.user_id) {
-        comment.user_id = req.user.user_id;
+        comment.user_id = req.user.user_id
     }
 
-    //comment.user_id = req.logged_in_user.user_id;
+    //comment.user_id = req.logged_in_user.user_id
     Project.findById({_id}, function(err, project){
-        if (project) {
-            var currentComment = project.comments.id(comment._id);
+        if (err) {
+            console.error(err)
+            res.status(500).send()
+        } else if (!project) {
+            res.status(404).send()
+        } else {
+            var currentComment = project.comments.id(comment._id)
 
             if (currentComment){
-                Object.assign(currentComment, comment);
+                Object.assign(currentComment, comment)
             }
             else{
-                project.comments.push(comment);
+                project.comments.push(comment)
             }
 
             project.save(function(error, project){
                 if (!error){
-                    res.send(project.comments.id(comment._id));
+                    res.send(project.comments.id(comment._id))
                 }
-                //res.send(project);
-            });
-        } else {
-            console.log(err);
-            res.status(500).send();
+            })
         }
         
-    });
+    })
 
-});
+})
 
 router.get("/:id/comments", function(req, res){
 

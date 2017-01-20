@@ -32,7 +32,7 @@ Coming soon?
 
 ## Test Cases
 
-1.  Pass good object
+1.  Pass good project
     *  `res` should have a:
         *  `status` = `201`
         *  `project`: `any`
