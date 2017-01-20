@@ -14,24 +14,32 @@ chai.use(chaiHttp)
 var testUserToken
 var testUser
 var testReading
+var testUsers
 
 describe("Readings", () => {
-  beforeEach((done) => {
-    // erases all user data, logs in a user and resolves with user's token
-    functions.seedUsers().then((credentialsArr) => {
-      testUserToken = credentialsArr[1].token
-      testUser = credentialsArr[1].user
+  // beforeEach((done) => {
+  //   // erases all user data, logs in a user and resolves with user's token
+  //   functions.seedUsers().then((credentialsArr) => {
+  //     testUserToken = credentialsArr[1].token
+  //     testUser = credentialsArr[1].user
 
-      // creates a reading for the created user
-      functions.createReading(data.readings.newReading, testUserToken)
-        .then((res) => {
-          testReading = res.reading
-          done()
-        })
+  //     // creates a reading for the created user
+  //     functions.createReading(data.readings.newReading, testUserToken)
+  //       .then((res) => {
+  //         testReading = res.reading
+  //         done()
+  //       })
       
-    })
-    .catch((err) => {
-      console.error(err)
+  //   })
+  //   .catch((err) => {
+  //     console.error(err)
+  //   })
+  // })
+
+  before((done) => {
+    functions.loginTestUsers().then((users) => {
+      testUsers = users
+      done()
     })
   })
 
@@ -39,7 +47,7 @@ describe("Readings", () => {
     it("it should create a new reading", (done) => {
       chai.request(server)
         .post("/readings")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testTeacher.token)
         .send({ reading: data.readings.newReading })
         .end((err, res) => {
           // initial validation
@@ -48,6 +56,7 @@ describe("Readings", () => {
           
           // reading validation
           var reading = res.body.reading
+          testReading = reading // stores reading for later tests
           reading.should.have.property("_id")
           reading.should.have.property("owner_id")
           reading.should.have.property("title")
@@ -66,7 +75,7 @@ describe("Readings", () => {
     it("it should reject a reading without required fields", (done) => {
       chai.request(server)
         .post("/readings")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testTeacher.token)
         .send({ reading: { dumb: "this is not real data" } })
         .end((err, res) => {
           // initial validation
@@ -92,7 +101,7 @@ describe("Readings", () => {
     it("it should reject a POST without a reading", (done) => {
       chai.request(server)
         .post("/readings")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testTeacher.token)
         .send({ notReading: data.readings.newReading })
         .end((err, res) => {
           // initial validation
@@ -126,7 +135,7 @@ describe("Readings", () => {
     it("it should get all of a users's readings", (done) => {
       chai.request(server)
         .get("/readings")
-        .set("Authorization", testUserToken)
+        .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -139,11 +148,11 @@ describe("Readings", () => {
           var reading = readings[0]
           reading.should.have.property("_id")
           reading.should.have.property("owner_id")
-            reading.owner_id.should.equal(testUser._id)
+            reading.owner_id.should.equal(testUsers.testTeacher.user._id)
           reading.should.have.property("title")
           reading.should.have.property("promoter_ids")
           reading.should.have.property("teacher_ids")
-            reading.teacher_ids.indexOf(testUser._id).should.be.above(-1)
+            reading.teacher_ids.indexOf(testUsers.testTeacher.user._id).should.be.above(-1)
           reading.should.have.property("createdAt")
           reading.should.have.property("updatedAt")
           // reading validation - properties it should NOT have
