@@ -358,6 +358,27 @@ describe("Projects", () => {
     })
   })
 
+  describe("GET /projects/:code/validate", () => {
+    it("it should validate an existing project", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject.code + "/validate")
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("_id")
+          done()
+        })
+    })
+
+    it("it should return 404 for invalid project", (done) => {
+      chai.request(server)
+        .get("/projects/demo/validate")
+        .end((err, res) => {
+          res.should.have.status(404)
+          done()
+        })
+    })
+  })
+
   describe("DELETE /projects", () => {
     it("it should reject an invalid project id", (done) => {
       chai.request(server)
