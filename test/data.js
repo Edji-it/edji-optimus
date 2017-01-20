@@ -12,7 +12,7 @@ var User = require("./../models/User")
 var users = {
   newUser:{
     username: Date.now().toString(),
-    fullname: "cody",
+    fullname: "newApiTestUser",
     password: "codycodycody",
     email: "cody@cody.cod",
     isTeacher: true
