@@ -582,7 +582,18 @@ describe("Projects", () => {
           done()
         })
     })
+  })
 
+  describe("DELETE /projects/:project_id/comments/:comment_id", () => {
+    it("it should delete a comment", (done) => {
+      chai.request(server)
+        .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
+        .set("Authorization", testUsers.testStudent.token) // this must be equal to the id of the user who created the comment
+        .end((err, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    })
   })
 
   describe("DELETE /projects", () => {

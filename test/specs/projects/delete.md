@@ -12,10 +12,6 @@ Allow a teacher to delete a single project
 
 `DELETE`
 
-## Response Data
-
-Coming soon?
-
 ## Test Cases
 
 1.  Pass with `Authorization` header and student token
