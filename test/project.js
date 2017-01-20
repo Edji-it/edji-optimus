@@ -359,6 +359,27 @@ describe("Projects", () => {
   })
 
   describe("DELETE /projects", () => {
+    it("it should reject an invalid project id", (done) => {
+      chai.request(server)
+        .del("/projects/fjdsklajfd")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+          done()
+        })
+    })
+
+    it("it should return 404 for project that does not exist", (done) => {
+      chai.request(server)
+        .del("/projects/" + testUsers.testTeacher.user._id) // this is a teacher's id, and will not be a project
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(404)
+          done()
+        })
+    })
+
+    // this test has to be the very last test in the /projects suite! It deletes the created test project
     it("it should delete a project", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id)

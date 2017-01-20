@@ -165,12 +165,22 @@ router.delete("/:id", function(req, res) {
         return
     }
 
-    Project.remove({_id:req.params.id, teacher_id: user._id}, function(error){
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).send()
+        return
+    }
+
+    Project.remove({_id:req.params.id, teacher_id: user._id}, (error, obj) => {
         if (error) {
             console.error(error)
+            res.status(500).send()
+            return
+        } else if (obj.result.n === 0) {
+            res.status(404).send()
             return
         } else {
             res.status(204).send()
+            return
         }
     })
 })
