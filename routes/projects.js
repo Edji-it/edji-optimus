@@ -10,7 +10,7 @@ var MountModelToRouter = require("./MountModelToRouter");
 var Q = require("q");
 var router = express.Router();
 
-MountModelToRouter(router, Project, "project", {read:false, list:false});
+MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false});
 
 router.get("/",function(req, res){
 
@@ -152,6 +152,26 @@ router.get("/:id", function(req, res) {
             res.status(500).send();
         });
 });
+
+// currently only works for teacher deleting a project
+router.delete("/:id", function(req, res) {
+    var id = req.params.id
+    var user = req.user
+
+    if (!user) {
+        res.status(401).send()
+        return
+    }
+
+    Project.remove({_id:req.params.id, teacher_id: user._id}, function(error){
+        if (error) {
+            console.error(error)
+            return
+        } else {
+            res.status(204).send()
+        }
+    })
+})
 
 router.post("/:id/comments", function(req, res) {
 
