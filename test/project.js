@@ -305,8 +305,52 @@ describe("Projects", () => {
 
           // project validation
           var projects = res.body
+          projects.length.should.be.above(0)
           projects.forEach((project) => {
+            // make sure it's a project
             project.should.have.property("_id")
+
+            // make sure it doesn't come with too much data
+            project.should.not.have.property("comments")
+            project.should.not.have.property("students_ids")
+            project.should.not.have.property("temp_ids")
+          })
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/projects")
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+
+    it("it should get a temp user's projects", (done) => {
+      chai.request(server)
+        .get("/projects")
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.be.instanceof(Array)
+
+          // project validation
+          var projects = res.body
+          projects.length.should.be.above(0)
+          projects.forEach((project) => {
+            // make sure it's a project
+            project.should.have.property("_id")
+
+            // make sure it doesn't come with too much data
+            project.should.not.have.property("comments")
+            project.should.not.have.property("students_ids")
+            project.should.not.have.property("temp_ids")
           })
 
           done()
