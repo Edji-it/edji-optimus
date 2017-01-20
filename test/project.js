@@ -314,9 +314,15 @@ describe("Projects", () => {
     })
   })
 
-  // describe("DELETE /projects", () => {
-  //   it("it should delete a project", (done) => {
-
-  //   })
-  // })
+  describe("DELETE /projects", () => {
+    it("it should delete a project", (done) => {
+      chai.request(server)
+        .del("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    })
+  })
 })
