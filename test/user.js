@@ -2,6 +2,9 @@ var chai = require("chai")
 var chaiHttp = require("chai-http")
 var server = require("./../index")
 // var server = "http://localhost:3354"
+// var server = "http://optimus-dev.edji.it"
+var config = require("config")
+var server = config.get("Testing.url")
 var should = chai.should()
 var Q = require("q")
 

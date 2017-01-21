@@ -24,7 +24,7 @@ Clone with SSH: `git@github.com:codiak/edji-server.git`
 
 ```bash
 yarn install
-yarn global install mocha
+yarn global add mocha
 ```
 
 ## Heroku
