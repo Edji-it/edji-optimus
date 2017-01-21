@@ -82,18 +82,6 @@ router.get("/", function(req, res){
     
 });
 
-router.get("/:id/projects/:user_id", function(req, res){
-
-    Project.find({ "reading_id":req.params.id, "teacher_id":req.params.user_id }, function(error, result){
-        error && console.log(error);
-        // find returns an array, and we should only be getting one item back
-        result && res.json( result );
-    });
-
-    // res.send([]);
-
-});
-
 //allows teachers to recommend reading to community library
 router.put("/:reading_id/recommend", function(req, res) {
     var reading_id = req.params.reading_id;
