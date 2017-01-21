@@ -362,7 +362,7 @@ describe("Projects", () => {
   describe("GET /projects/:project_id/reading/:reading_id", () => {
     it("it should get all projects for a reading", (done) => {
       chai.request(server)
-        .get("/projects/" + testProject._id + "/reading/" + testProject.reading_id)
+        .get("/projects/reading/" + testProject.reading_id)
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
           // initial validation
@@ -389,7 +389,42 @@ describe("Projects", () => {
         })
     })
 
-    it("")
+    it("it should return empty array for nonexistant reading id", (done) => {
+      chai.request(server)
+        .get("/projects/reading/" + testUsers.testStudent.user._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("projects")
+          res.body.projects.should.be.instanceof(Array)
+          res.body.projects.length.should.be.equal(0)
+
+          done()
+        })
+    })
+
+    it("it should reject an invalid reading id", (done) => {
+      chai.request(server)
+        .get("/projects/reading/jfkldsaj")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/projects/reading/" + testProject.reading_id)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
   })
 
   describe("GET /projects/:code/validate", () => {

@@ -6,7 +6,7 @@ Users can get all of the projects for a single reading
 
 ## Endpoint
 
-`/projects/:project_id/reading/:reading_id`
+`/projects/reading/:reading_id`
 
 ## Request Type
 
@@ -35,8 +35,6 @@ Coming soon?
         *  `comments`: `Comment[]`
         *  `students_ids`: `string[]`
         *  `temp_ids`: `string[]`
-2.  Pass with invalid project id --> receive `400`
-3.  Pass with invalid reading id --> receive `400`
-4.  Pass with non-existant project id --> receive `404`
-5.  Pass with non-existant reading id --> receive `404`
-6.  Pass without `Authorization` header --> receive `401`
+2.  Pass with invalid reading id --> receive `400`
+3.  Pass with non-existant reading id --> receive empty array
+4.  Pass without `Authorization` header --> receive `401`
