@@ -232,8 +232,14 @@ router.post("/:id/comments", function(req, res) {
         return
     }
 
-    if (!user) { res.status(401).send() }
-    if (!req.body.comment) { res.status(400).send({ validationErrors: { comment: "required" }}) }
+    if (!user) {
+        res.status(401).send()
+        return
+    }
+    if (!req.body.comment) {
+        res.status(400).send({ validationErrors: { comment: "required" }})
+        return
+    }
     
     if (!req.body.comment.user_id) { req.body.comment.user_id = user._id }
     if (!req.body.comment.author) { req.body.comment.author = user.fullname }
