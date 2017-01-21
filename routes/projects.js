@@ -209,7 +209,8 @@ router.get("/reading/:reading_id", function(req, res){
 
     Project.find(
         { reading_id: reading_id, teacher_id: user._id },
-        'reading_id teacher_id label code types updatedAt createdAt',
+        {},
+        // 'reading_id teacher_id label code types updatedAt createdAt',
         { sort: { createdAt: -1 } },
         (error, projects) => {
             if (error) {
