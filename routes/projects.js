@@ -30,7 +30,8 @@ router.get("/",function(req, res){
         findParams.students_ids = user._id;
     }
 
-    Project.find(findParams,
+    Project.find(
+        findParams,
         'reading_id teacher_id label code types updatedAt createdAt',
         { sort: { createdAt: -1 } }, 
         (err, result) => {
@@ -192,23 +193,33 @@ router.delete("/:id", function(req, res) {
 })
 
 // get projects for a single reading id
-router.get("/:project_id/reading/:reading_id", function(req, res){
+router.get("/reading/:reading_id", function(req, res){
     var reading_id = req.params.reading_id
-    var project_id = req.params.project_id
+    var user = req.user
 
-    if (!req.user) {
+    if (!user) {
         res.status(401).send()
         return
     }
 
-    Project.find({ reading_id :reading_id, teacher_id :user._id }, function(error, result) {
-        if (error) {
-            console.error(error)
-            res.status(500).send()
-        } else {
-            res.status(200).send({ projects: result })
+    if (!mongoose.Types.ObjectId.isValid(reading_id)) {
+        res.status(400).send()
+        return
+    }
+
+    Project.find(
+        { reading_id: reading_id, teacher_id: user._id },
+        'reading_id teacher_id label code types updatedAt createdAt',
+        { sort: { createdAt: -1 } },
+        (error, projects) => {
+            if (error) {
+                console.log(error)
+                res.status(500).send()
+            } else {
+                res.status(200).send({ projects: projects })
+            }
         }
-    })
+    )
 })
 
 router.post("/:id/comments", function(req, res) {
@@ -315,23 +326,24 @@ router.delete("/:project_id/comments/:comment_id", function(req, res){
             } else {
                 res.status(204).send()
             }
-        })
+        }
+    )
 })
 
 router.get("/:project_code/validate", function(req, res) {
-    var project_code = req.params.project_code.toLowerCase();
+    var project_code = req.params.project_code.toLowerCase()
 
     Q(Project.findOne({code:project_code}).exec()).then(function(project) {
         if (project) {
-            res.status(200).send({ _id : project._id });
+            res.status(200).send({ _id : project._id })
         } else {
-            res.status(404).send();
+            res.status(404).send()
         }
     })
     .catch(function(err) {
-        console.log(err);
-        res.status(500).send();
-    });
-});
+        console.log(err)
+        res.status(500).send()
+    })
+})
 
-module.exports = router;
+module.exports = router
