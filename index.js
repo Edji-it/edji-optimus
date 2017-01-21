@@ -19,7 +19,6 @@ var projects = require("./routes/projects")
 var app = express()
 
 var server = require('http').createServer(app)
-require("./Sockets.js")(server)
 
 app.use(bodyParser.json({limit: '5mb'}))
 app.use(LoginController.middleware)
