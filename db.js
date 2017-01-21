@@ -1,18 +1,18 @@
-var mongoose = require("mongoose");
-var config = require("config");
-var dbConfig = config.get("Database");
+var mongoose = require("mongoose")
+var config = require("config")
+var dbConfig = config.get("Database")
 
 var connect = function(mongooseInstance) {
     //sets up database connection based on current NODE_ENV
-    console.log(dbConfig.message);
-    mongooseInstance.connect(dbConfig.host, { user:dbConfig.user, password:dbConfig.password });
+    console.log(dbConfig.message)
+    mongooseInstance.connect(dbConfig.host, { user:dbConfig.user, password:dbConfig.password })
     
-    mongooseInstance.connection.on("error", console.error.bind(console, "connection error:"));
+    mongooseInstance.connection.on("error", console.error.bind(console, "connection error:"))
     mongooseInstance.connection.once("open", function(){
-        console.log("Connected to Mongo!");
-    });
+        console.log("Connected to Mongo!")
+    })
 }
 
-connect(mongoose);
+connect(mongoose)
 
-module.exports = mongoose;
+module.exports = mongoose

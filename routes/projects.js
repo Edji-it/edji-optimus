@@ -1,33 +1,33 @@
 /**
  * corbfon 1/12/17
  */
-var express = require( "express");
-var mongoose = require( "mongoose");
-var Project = require("./../models/Project");
-var Comment = require("./../models/Comment");
-var User = require("./../models/User");
-var MountModelToRouter = require("./MountModelToRouter");
-var Q = require("q");
-var router = express.Router();
+var express = require( "express")
+var mongoose = require( "mongoose")
+var Project = require("./../models/Project")
+var Comment = require("./../models/Comment")
+var User = require("./../models/User")
+var MountModelToRouter = require("./MountModelToRouter")
+var Q = require("q")
+var router = express.Router()
 
-MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false});
+MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false})
 
 router.get("/",function(req, res){
 
-    var user = req.user;
+    var user = req.user
     if (!req.user) {
-        res.status(401).send({ validationErrors: { user: "required" } });
-        return;
+        res.status(401).send({ validationErrors: { user: "required" } })
+        return
     }
 
-    var findParams = {};
+    var findParams = {}
 
     if (user.isTeacher) {
-        findParams.teacher_id = user._id;
+        findParams.teacher_id = user._id
     } else if (user.type && user.type === "temp") {
-        findParams.temp_ids = user._id;
+        findParams.temp_ids = user._id
     } else {
-        findParams.students_ids = user._id;
+        findParams.students_ids = user._id
     }
 
     Project.find(
@@ -36,17 +36,17 @@ router.get("/",function(req, res){
         { sort: { createdAt: -1 } }, 
         (err, result) => {
             if (err) {
-                console.error(err);
-                res.status(500).send();
-                return;
+                console.error(err)
+                res.status(500).send()
+                return
             }
 
-            res.status(200).send(result);
+            res.status(200).send(result)
         }
     )
     .populate('teacher_id','fullname email username')
-    .populate('reading_id','title');
-});
+    .populate('reading_id','title')
+})
 
 router.post("/", function(req, res) {
     var project = req.body.project
@@ -271,21 +271,21 @@ router.post("/:id/comments", function(req, res) {
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
-                        var errors = {};
+                        var errors = {}
 
                         for (var property in error.errors) {
                             if (error.errors[property].kind === "user defined") {
-                                errors[property] = error.errors[property].properties.kind;
+                                errors[property] = error.errors[property].properties.kind
                             } else {
-                                errors[property] = error.errors[property].kind;
+                                errors[property] = error.errors[property].kind
                             }
                         }
 
-                        res.status(406).send({ validationErrors: errors });
-                        return;
+                        res.status(406).send({ validationErrors: errors })
+                        return
                     } else {
-                        res.status(500).send(error);
-                        return;
+                        res.status(500).send(error)
+                        return
                     }
                 } else { res.status(successStatus).send({ comment: project.comments.id(comment._id) }) }
                     

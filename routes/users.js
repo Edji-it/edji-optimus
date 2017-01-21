@@ -1,109 +1,109 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-var express = require( "express");
-var request = require("request");
-var bcrypt = require("bcryptjs");
-var MountModelToRouter = require("./MountModelToRouter");
-var nodemailer = require('nodemailer');
-var mandrillTransport = require('nodemailer-mandrill-transport');
-var bcrypt = require("bcryptjs");
-var Q = require("q");
-var queryString = require("querystring");
-var config = require("config");
-var mandrillConfig = config.get("Mandrill");
+var express = require( "express")
+var request = require("request")
+var bcrypt = require("bcryptjs")
+var MountModelToRouter = require("./MountModelToRouter")
+var nodemailer = require('nodemailer')
+var mandrillTransport = require('nodemailer-mandrill-transport')
+var bcrypt = require("bcryptjs")
+var Q = require("q")
+var queryString = require("querystring")
+var config = require("config")
+var mandrillConfig = config.get("Mandrill")
 
-var User = require("./../models/User");
-var ArchivedUser = require("./../models/ArchivedUser");
-var LoginController = require("./../LoginController");
+var User = require("./../models/User")
+var ArchivedUser = require("./../models/ArchivedUser")
+var LoginController = require("./../LoginController")
 
-var router = express.Router();
+var router = express.Router()
 
-MountModelToRouter(router, User, "user", {create:false, delete: false});
+MountModelToRouter(router, User, "user", {create:false, delete: false})
 
 router.post("/", function(req, res){
 
-    var userData = req.body.user;
+    var userData = req.body.user
 
-    var model = User(userData);
+    var model = User(userData)
 
     model.save((error, result)=>{
         if (error){
             if (error.name === "ValidationError") {
-                var errors = {};
+                var errors = {}
 
                 for (var property in error.errors) {
                     if (error.errors[property].kind === "user defined") {
-                        errors[property] = error.errors[property].properties.kind;
+                        errors[property] = error.errors[property].properties.kind
                     } else {
-                        errors[property] = error.errors[property].kind;
+                        errors[property] = error.errors[property].kind
                     }
                 }
 
-                res.status(406).send({ validationErrors: errors });
-                return;
+                res.status(406).send({ validationErrors: errors })
+                return
             } else if (error.code === 11000) {
-                res.status(409).send();
-                return;
+                res.status(409).send()
+                return
             } else {
-                console.error(error);
-                res.status(500).send();
-                return;
+                console.error(error)
+                res.status(500).send()
+                return
             }
         } else {
-            res.status(201).json(LoginController.generateLoginObjectForUser(result));
+            res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
-    });
+    })
 
-});
+})
 
 router.post("/login", function(req, res){
-    var user = req.body.user;
+    var user = req.body.user
 
     if (!user || !user.username || !user.password) {
-        res.status(400).send();
-        return;
+        res.status(400).send()
+        return
     }
 
     LoginController.login(user)
         .then(function(result){
-            res.json(result);
+            res.json(result)
         }).fail(function(err){
-            res.status(404).send();
-        });
+            res.status(404).send()
+        })
 
-});
+})
 
 router.post("/reset_password", function(req, res) {
-    var user = req.user;
-    var oldPassword = req.body.resetObject.oldPassword;
-    var newPassword = req.body.resetObject.newPassword;
-    var token = req.body.resetObject.token;
+    var user = req.user
+    var oldPassword = req.body.resetObject.oldPassword
+    var newPassword = req.body.resetObject.newPassword
+    var token = req.body.resetObject.token
 
     if (oldPassword && newPassword) {
         bcrypt.compare(oldPassword, user.password, function(error, result) {
             if (error) {
-                res.status(500).send();
-                return;
+                res.status(500).send()
+                return
             } else if (!result) {
-                res.status(400).send();
-                return;
+                res.status(400).send()
+                return
             } else {
                 Q(User.findById(user._id).exec())
                     .then((userRes) => {
-                        userRes.password = newPassword;
-                        userRes.save();
-                        res.json(LoginController.generateLoginObjectForUser(userRes));
+                        userRes.password = newPassword
+                        userRes.save()
+                        res.json(LoginController.generateLoginObjectForUser(userRes))
                     })
                     .catch((error) => {
-                        console.error(error);
-                        res.status(500).send();
-                    });
+                        console.error(error)
+                        res.status(500).send()
+                    })
             }
 
             
-        });
-        return;
+        })
+        return
     } else if (token && newPassword) {
         //passively validates token and date
         Q(User.findOne({
@@ -113,25 +113,25 @@ router.post("/reset_password", function(req, res) {
             .exec())
             .then(function(user) {
                 if (!user) {
-                    throw new Error("No user found");
+                    throw new Error("No user found")
                 }
 
-                user.password = newPassword;
-                user.save();
-                res.json(LoginController.generateLoginObjectForUser(user));
+                user.password = newPassword
+                user.save()
+                res.json(LoginController.generateLoginObjectForUser(user))
             }).catch(function(e) {
-                console.error(e);
-                res.status(500).send();
-            });
-        return;
+                console.error(e)
+                res.status(500).send()
+            })
+        return
     } else {
-        res.status(400).send();
+        res.status(400).send()
     }
     
-});
+})
 
 router.post("/recover_password", function(req, res) {
-    var username = req.body.username;
+    var username = req.body.username
 
     if (username && username.length > 0) {
 
@@ -139,38 +139,38 @@ router.post("/recover_password", function(req, res) {
         .then(function(user) {
             //send back OK response even if the user is not found
             if (!user) {
-                var e = new Error("No user found");
-                e.status = 204;
-                throw e;
+                var e = new Error("No user found")
+                e.status = 204
+                throw e
             } else {
                 return new Promise(function(resolve, reject) {
                     bcrypt.hash(String(user._id) + Date.now().toString(), 8, function(err, hash) {
                         if (err) {
-                            reject(err);
+                            reject(err)
                         } else {
-                            user.resetPasswordToken = hash;
-                            user.resetPasswordExpires = Date.now() + 3600000;
-                            resolve(user);
+                            user.resetPasswordToken = hash
+                            user.resetPasswordExpires = Date.now() + 3600000
+                            resolve(user)
                         }
-                    });
-                });
+                    })
+                })
             }
         }).then(function(user) {
 
             user.save(function(err) {
-                if (err) { throw new Error(err); }
-            });
+                if (err) { throw new Error(err) }
+            })
 
             //TODO automatically set prod/test keys
             var transport = nodemailer.createTransport(mandrillTransport({
                 auth: {
                     apiKey: mandrillConfig.apiKey
                 }
-            }));
+            }))
 
             var query = queryString.stringify({
                 token: user.resetPasswordToken
-            });
+            })
             
             //TODO set link to Angular component URL
             transport.sendMail({
@@ -188,42 +188,42 @@ router.post("/recover_password", function(req, res) {
                 `
             }, function(err, info) {
                 if (err) {
-                    throw new Error(err);
+                    throw new Error(err)
                 } else {
-                    // console.log(info);
+                    // console.log(info)
                 }
-            });
-            res.status(204).send();
+            })
+            res.status(204).send()
         }).catch(function(e) {
 
             // e.status will be 204 if no user is found so that we don't tell people the user exists
-            var status;
+            var status
             if (e.status && e.status === 204) {
-                status = e.status;
+                status = e.status
             } else {
-                console.error(e);
-                status = 500;
+                console.error(e)
+                status = 500
             }
-            // var status = e.status || 500;
-            res.status(status).send();
-        });
+            // var status = e.status || 500
+            res.status(status).send()
+        })
     }
-});
+})
 
 router.delete("/:id", function(req, res) {
-    var id = req.params.id;
-    var user = req.user;
+    var id = req.params.id
+    var user = req.user
 
     if (!user || id != user._id) {
-        res.status(400).send();
-        return;
+        res.status(400).send()
+        return
     }
 
     Q(User.findById(user._id).exec())
         .then((dbUser) => {
             if (!dbUser) {
-                res.status(400).send();
-                return;
+                res.status(400).send()
+                return
             }
 
             if (dbUser.accountArchiveToken && dbUser.accountArchiveToken > Date.now()) {
@@ -234,35 +234,35 @@ router.delete("/:id", function(req, res) {
                     username: user.username,
                     email: user.email,
                     fullname: user.fullname
-                });
+                })
 
                 archiveUser.save((err) => {
                     if (err) {
-                        throw new Error(err);
+                        throw new Error(err)
                     }
                     dbUser.remove((err, doc) => {
-                        if (err) { console.error(err); }
-                        res.status(204).send();
-                    });
-                });
+                        if (err) { console.error(err) }
+                        res.status(204).send()
+                    })
+                })
             } else {
-                res.status(400).send();
+                res.status(400).send()
             }
         })
         .catch((err) => {
-            console.error(err);
-            res.status(500).send();
-        });
-});
+            console.error(err)
+            res.status(500).send()
+        })
+})
 
 /** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
 router.post("/verify", function(req, res) {
-    var submittedPassword = req.body.password; // should have password and username properties
-    var user = req.user;
+    var submittedPassword = req.body.password // should have password and username properties
+    var user = req.user
 
     if (!user) {
-        req.status(400).send();
-        return;
+        req.status(400).send()
+        return
     }
 
     // construct a new user to make sure we're not messing with any mongo objects
@@ -276,28 +276,28 @@ router.post("/verify", function(req, res) {
 
         if (!userObject.user) {
             // this should never happen anyway
-            res.status(400).send();
-            return;
+            res.status(400).send()
+            return
         }
 
         Q(User.findById(userObject.user._id).exec())
             .then((dbUser) => {
                 if (!dbUser) {
-                    res.status(400).send();
+                    res.status(400).send()
                 }
 
-                //by this point, we pretty much think the user is the real deal; set that user's token and send back the thumbs up
-                dbUser.accountArchiveToken = Date.now() + 300000;
+                //by this point, we pretty much think the user is the real deal set that user's token and send back the thumbs up
+                dbUser.accountArchiveToken = Date.now() + 300000
                 dbUser.save((err) => {
-                    if (err) { throw new Error(err); }
-                    res.status(204).send();
-                });
-            });
+                    if (err) { throw new Error(err) }
+                    res.status(204).send()
+                })
+            })
     })
     .catch((error) => {
-        console.log(error);
-        res.status(500).send();
-    });
-});
+        console.log(error)
+        res.status(500).send()
+    })
+})
 
-module.exports = router;
+module.exports = router
