@@ -9,8 +9,8 @@ var User = require("./../models/User");
 
 var Model =  ModelCreator("Comment",{
     user_id: {type: String, required: true}, // could be any type of user, maybe we want to add a user_type field?
-    start: {type: Number, required: true},
-    end: {type: Number, required: true},
+    start: {type: Number, required: true, default: -1 },
+    end: {type: Number, required: true, default: -1 },
     data: String,
     // user: Object, //{ type: Schema.ObjectId, ref: 'User'},
     author: String, // user's name, stored for easy access
