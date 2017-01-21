@@ -66,8 +66,9 @@ app.use("/projects", projects)
 
 var port = process.env.PORT || 3354
 
-server.listen(port)
-
-console.log("Server connected at " + port)
+server.listen(port, () => {
+    console.log("Server connected at " + port)
+})
+server.timeout(2000)
 
 module.exports = server
