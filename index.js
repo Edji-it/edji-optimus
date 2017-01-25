@@ -58,9 +58,9 @@ app.use(function (req, res, next) {
     next()
 })
 
-app.use("/users",users)
+app.use("/users", users)
 app.use("/tempusers", tempusers)
-app.use("/readings",readings)
+app.use("/readings", readings)
 app.use("/projects", projects)
 
 var port = process.env.PORT || 3354

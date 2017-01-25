@@ -14,5 +14,6 @@ module.exports = ModelCreator("Reading", {
     public:Boolean,
     comments:[Comment.schema],
     promoter_ids: [String],
-    source:String
+    source:String,
+    cover_img: String
 });

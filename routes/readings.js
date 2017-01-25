@@ -4,7 +4,6 @@
 var express = require( "express")
 var Reading = require("./../models/Reading")
 var Project = require("./../models/Project")
-// var Comment = require("./../models/Comment")
 var User = require("./../models/User")
 var MountModelToRouter = require("./MountModelToRouter")
 var Q = require("q")
@@ -80,6 +79,17 @@ router.get("/", function(req, res){
             results && res.status(200).send({ readings: results })
     })
     
+})
+
+router.get("/all/projects", function(req, res) {
+    res.status(200).send()
+
+    var user = req.user
+
+    if (!user) {
+        req.status(401).send()
+        return
+    }
 })
 
 //allows teachers to recommend reading to community library
