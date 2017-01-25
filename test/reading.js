@@ -1,6 +1,7 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
-var server = require("./../index")
+var config = require("config")
+var server = config.get("Testing.url")
 var should = chai.should()
 var Q = require("q")
 
@@ -33,7 +34,6 @@ describe("Readings", () => {
 
       Q.all(createProjects)
         .done((result) => { done() })
-        .catch((err) => { console.log(err) })
     })
   })
 
@@ -171,18 +171,18 @@ describe("Readings", () => {
   })
 
   describe("GET /readings/projects", () => {
-    it("it should return all readings with a bunch of projects", (done) => {
+    it("it should return all of a user's readings with all of their of projects", (done) => {
       chai.request(server)
-        .get("/readings/projects")
+        .get("/readings/all/projects")
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.should.have.property("readings")
-          res.readings.should.be.instanceof(Array)
+          res.body.should.have.property("readings")
+          res.body.readings.should.be.instanceof(Array)
 
           // readings validation
-          var readings = res.readings
+          var readings = res.body.readings
           readings.forEach((reading) => {
             // things the reading SHOULD have
             reading.should.have.property("_id")
@@ -221,6 +221,19 @@ describe("Readings", () => {
               project.should.not.have.property("temp_ids")
             })
           })
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/readings/projects")
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
         })
     })
   })
