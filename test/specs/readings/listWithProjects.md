@@ -31,9 +31,10 @@ Coming soon?
         *  `createdAt`: `Date`
         *  `updatedAt`: `Date`
         *  Each project should have
+            *  `_id`: `string`
             *  `teacher_id`: `string`
-            *  SUM(`comments`): `number`
-            *  SUM(`students_ids`) + SUM(`temp_ids`): `number`
+            *  `comment_count` = SUM(`comments`): `number`
+            *  `students_count` = SUM(`students_ids`) + SUM(`temp_ids`): `number`
             *  `label`: `string`
             *  `code`: `string`
             *  `types`: `string[]`
