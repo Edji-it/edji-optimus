@@ -78,12 +78,12 @@ var readings = {
 
 var projects = {
   newProject: {
-    reading_id: "588194976f38d90011467cea",
+    reading_id: readings.testReading._id,
     label: "50 shades of Edji",
     types: ["emoji", "text"]
   },
   invalidTypesProject: {
-    reading_id: "588194976f38d90011467cea",
+    reading_id: readings.testReading._id,
     label: "50 shades of Edji",
     types: ["something", "nothing"]
   }

@@ -52,7 +52,6 @@ var createReading = function(reading, authToken) {
 
 var createProject = function(project, authToken) {
   return new Promise((resolve, reject) => {
-    Project.remove({}).then((results) => {
     chai.request(server)
       .post("/projects")
       .set("Authorization", authToken)
@@ -61,7 +60,6 @@ var createProject = function(project, authToken) {
         if (err) { reject(err) }
         else { resolve(res.body) }
       })
-    })
   })
 }
 
@@ -86,5 +84,6 @@ var loginTestUsers = function() {
 
 module.exports = {
   createReading: createReading,
+  createProject: createProject,
   loginTestUsers: loginTestUsers
 }

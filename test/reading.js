@@ -15,13 +15,25 @@ var testUserToken
 var testUser
 var testReading
 var testUsers
+var testProject
 
 describe("Readings", () => {
 
   before((done) => {
+    // get test users from database
     functions.loginTestUsers().then((users) => {
       testUsers = users
-      done()
+
+      // create several projects for a teacher
+      var makeProject = functions.createProject(data.projects.newProject, testUsers.testTeacher.token)
+      var createProjects = []
+      createProjects.push(makeProject)
+      createProjects.push(makeProject)
+      createProjects.push(makeProject)
+
+      Q.all(createProjects)
+        .done((result) => { done() })
+        .catch((err) => { console.log(err) })
     })
   })
 
@@ -158,7 +170,58 @@ describe("Readings", () => {
     })
   })
 
-  // describe("GET /readings/:readingId/projects/:userId", () => {
-  //   it("it should return all of a user's projects for a reading")
-  // })
+  describe("GET /readings/projects", () => {
+    it("it should return all readings with a bunch of projects", (done) => {
+      chai.request(server)
+        .get("/readings/projects")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.should.have.property("readings")
+          res.readings.should.be.instanceof(Array)
+
+          // readings validation
+          var readings = res.readings
+          readings.forEach((reading) => {
+            // things the reading SHOULD have
+            reading.should.have.property("_id")
+            reading.should.have.property("owner_id")
+            reading.should.have.property("title")
+            reading.should.have.property("promoter_count")
+            reading.should.have.property("keeper_ids")
+            reading.should.have.property("public")
+            reading.should.have.property("source")
+            reading.should.have.property("cover_img")
+            reading.should.have.property("createdAt")
+            reading.should.have.property("updatedAt")
+
+            // things the reading should NOT have
+            reading.should.not.have.property("words")
+            reading.should.not.have.property("html")
+            reading.should.not.have.property("comments")
+
+            // project validation
+            reading.should.have.property("projects")
+            reading.projects.forEach((project) => {
+              // things a project SHOULD have
+              project.should.have.property("_id")
+              project.should.have.property("teacher_id")
+              project.should.have.property("comment_count")
+              project.should.have.property("students_count")
+              project.should.have.property("label")
+              project.should.have.property("code")
+              project.should.have.property("types")
+              project.should.have.property("createdAt")
+              project.should.have.property("updatedAt")
+
+              // things a project should NOT have
+              project.should.not.have.property("comments")
+              project.should.not.have.property("students_ids")
+              project.should.not.have.property("temp_ids")
+            })
+          })
+        })
+    })
+  })
 })
