@@ -22,12 +22,12 @@ Coming soon?
         *  `_id`: `string`
         *  `owner_id`: `string` should be equal to the reading creator's id
         *  `title`: `string`
-        *  SUM(`promoter_ids`): `number`
+        *  `promoter_count` = SUM(`promoter_ids`): `number`
         *  `keeper_ids`: `string[]`
-        *  `projects`: `any[]`
         *  `public`: `boolean`
         *  `source`: `string`
         *  `projects`: `any[]`
+        *  `cover_img`: `string`
         *  `createdAt`: `Date`
         *  `updatedAt`: `Date`
         *  Each project should have
