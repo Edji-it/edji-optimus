@@ -1,8 +1,8 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-var ModelCreator = require("./ModelCreator");
-var Comment = require("./Comment");
+var ModelCreator = require("./ModelCreator")
+var Comment = require("./Comment")
 var Tags = require("./Tags")
 
 module.exports = ModelCreator("Reading", {
@@ -18,4 +18,4 @@ module.exports = ModelCreator("Reading", {
     source:String,
     cover_img: String,
     tags: [Tags.schema]
-});
+})
