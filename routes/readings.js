@@ -70,7 +70,7 @@ router.get("/", function(req, res){
     }
 
     Reading.find({ 'teacher_ids' : req.user._id },
-        'title owner_id teacher_ids public promoter_ids source createdAt updatedAt',
+        'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
         { sort: {createdAt: -1} },
         function(error, results){
             // console.log("Added to readings!!!")
@@ -92,11 +92,11 @@ router.get("/all/projects", function(req, res) {
     var promises = [
         Project.find(
             { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
-            'reading_id teacher_id label code types comments students_ids temp_ids updatedAt createdAt'
+            'reading_id teacher_id label code types comments students_ids temp_ids tags updatedAt createdAt'
         ).lean().exec(),
         Reading.find(
             { teacher_ids: req.user._id },
-            'title owner_id teacher_ids public promoter_ids source createdAt updatedAt'
+            'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt'
         ).lean().exec()
     ]
 

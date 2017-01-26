@@ -32,7 +32,7 @@ router.get("/",function(req, res){
 
     Project.find(
         findParams,
-        'reading_id teacher_id label code types updatedAt createdAt',
+        'reading_id teacher_id label code types tags updatedAt createdAt',
         { sort: { createdAt: -1 } }, 
         (err, result) => {
             if (err) {
