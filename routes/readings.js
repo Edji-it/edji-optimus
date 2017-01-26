@@ -82,14 +82,38 @@ router.get("/", function(req, res){
 })
 
 router.get("/all/projects", function(req, res) {
-    res.status(200).send()
-
     var user = req.user
 
     if (!user) {
         req.status(401).send()
         return
     }
+
+    var promises = [
+        Project.find(
+            { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
+            'reading_id teacher_id label code types updatedAt createdAt'
+        ).exec(),
+        Reading.find(
+            { teacher_ids: req.user._id },
+            'title owner_id teacher_ids public promoter_ids source createdAt updatedAt'
+        ).exec()
+    ]
+
+    Q.all(promises)
+        .then((results) => {
+            var projects = JSON.parse(JSON.stringify(results[0]))
+            var readings = JSON.parse(JSON.stringify(results[1]))
+
+            readings.forEach((reading, index) => {
+                // console.log("next reading")
+                readings[index].projects = projects.filter((project) => {
+                    return project.reading_id == reading._id
+                })
+            })
+
+            res.status(200).send({readings: readings})
+        })
 })
 
 //allows teachers to recommend reading to community library
