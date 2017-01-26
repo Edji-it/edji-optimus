@@ -3,6 +3,7 @@
  */
 var ModelCreator = require("./ModelCreator");
 var Comment = require("./Comment");
+var Tags = require("./Tags")
 
 module.exports = ModelCreator("Reading", {
     html:{type: String, required: true},
@@ -15,5 +16,6 @@ module.exports = ModelCreator("Reading", {
     comments:[Comment.schema],
     promoter_ids: [String],
     source:String,
-    cover_img: String
+    cover_img: String,
+    tags: [Tags.schema]
 });

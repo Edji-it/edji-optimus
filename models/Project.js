@@ -1,11 +1,12 @@
 /**
  * Project Model
  */
-var ModelCreator = require("./ModelCreator");
-var Comment = require("./Comment");
-var SessionCode = require("./SessionCode");
-var Hashids = require("hashids");
-var mongoose = require("mongoose");
+var ModelCreator = require("./ModelCreator")
+var Comment = require("./Comment")
+var SessionCode = require("./SessionCode")
+var Hashids = require("hashids")
+var mongoose = require("mongoose")
+var Tags = require("./Tags")
 
 /** mongoose hook for validation against acceptable values for `types` */
 var typesEnum = {
@@ -21,30 +22,31 @@ var Model = ModelCreator("Project", {
     temp_ids: [{ type: String, ref: "TempUser" }],
     label:{type:String, required:true},
     code:{type:String, unique:true},
-    types: [{ type: String, enum: typesEnum, default: "emoji" }]
-});
+    types: [{ type: String, enum: typesEnum, default: "emoji" }],
+    tags: [Tags.schema]
+})
 
 Model.schema.pre("save", function(next){
     if (!this.code){
-        var this_project = this;
+        var this_project = this
 
         SessionCode.findOne({active: false}, function(err, result) {
             if (!err) {
-                this_project.code = result.code;
-                result.active = true;
+                this_project.code = result.code
+                result.active = true
                 result.save(function(err, result) {
                     if (!err) {
-                        next();
+                        next()
                     } else {
-                        console.error(err);
+                        console.error(err)
                     }
-                });
+                })
             } else {
-                console.error(err);
+                console.error(err)
             }
-        });
+        })
     } else {
-        next();
+        next()
     }
-});
-module.exports = Model;
+})
+module.exports = Model
