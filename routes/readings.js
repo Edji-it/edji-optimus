@@ -110,11 +110,8 @@ router.get("/all/projects", function(req, res) {
             readings.forEach((reading, index) => {
                 readings[index].projects = projects.filter((project) => {
                     if (project.reading_id == reading._id) {
-                        comLen = project.comments.length
-                        stuLen = project.students_ids.length + project.temp_ids.length
-
-                        project.commentCount = comLen
-                        project.studentCount = stuLen
+                        if (project.comments) { project.commentCount = project.comments.length }
+                        if(project.temp_ids && project.students_ids) { project.studentCount = project.students_ids.length + project.temp_ids.length }
 
                         project.comments = []
                         project.students_ids = []
@@ -122,12 +119,6 @@ router.get("/all/projects", function(req, res) {
                         return true
                     } else { return false}
                 })
-
-                // readings[index].projects.forEach((project) => {
-                //     project.comments = []
-                //     project.students_ids = []
-                //     project.temp_ids = []
-                // })
             })
 
             res.status(200).send({readings: readings})
