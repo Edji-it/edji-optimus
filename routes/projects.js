@@ -20,18 +20,8 @@ router.get("/",function(req, res){
         return
     }
 
-    var findParams = {}
-
-    if (user.isTeacher) {
-        findParams.teacher_id = user._id
-    } else if (user.type && user.type === "temp") {
-        findParams.temp_ids = user._id
-    } else {
-        findParams.students_ids = user._id
-    }
-
     Project.find(
-        findParams,
+        { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
         'reading_id teacher_id label code types tags updatedAt createdAt',
         { sort: { createdAt: -1 } }, 
         (err, result) => {
