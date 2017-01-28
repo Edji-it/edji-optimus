@@ -96,7 +96,8 @@ router.get("/all/projects", function(req, res) {
         ).lean().exec(),
         Reading.find(
             { teacher_ids: req.user._id },
-            'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt'
+            'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
+            { sort: { createdAt: -1 } }
         ).lean().exec()
     ]
 
@@ -111,7 +112,7 @@ router.get("/all/projects", function(req, res) {
                 readings[index].projects = projects.filter((project) => {
                     if (project.reading_id == reading._id) {
                         if (project.comments) { project.commentCount = project.comments.length }
-                        if(project.temp_ids && project.students_ids) { project.studentCount = project.students_ids.length + project.temp_ids.length }
+                        if (project.temp_ids && project.students_ids) { project.studentCount = project.students_ids.length + project.temp_ids.length }
 
                         project.comments = []
                         project.students_ids = []
