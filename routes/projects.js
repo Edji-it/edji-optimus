@@ -21,7 +21,7 @@ router.get("/",function(req, res){
     }
 
     Project.find(
-        { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
+        { $or: [{students_ids: user._id}, {temp_ids: user._id}] },
         'reading_id teacher_id label code types tags updatedAt createdAt',
         { sort: { createdAt: -1 } }, 
         (err, result) => {
