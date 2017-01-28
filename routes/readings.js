@@ -85,7 +85,7 @@ router.get("/all/projects", function(req, res) {
     var user = req.user
 
     if (!user) {
-        req.status(401).send()
+        res.status(401).send()
         return
     }
 
@@ -123,6 +123,10 @@ router.get("/all/projects", function(req, res) {
             })
 
             res.status(200).send({readings: readings})
+        })
+        .catch((err) => {
+            console.log(err)
+            res.status(500).send()
         })
 })
 

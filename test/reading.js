@@ -170,7 +170,7 @@ describe("Readings", () => {
     })
   })
 
-  describe("GET /readings/projects", () => {
+  describe("GET /readings/all/projects", () => {
     it("it should return all of a user's readings with all of their of projects", (done) => {
       chai.request(server)
         .get("/readings/all/projects")
@@ -228,7 +228,7 @@ describe("Readings", () => {
 
     it("it should reject an unauthorized user", (done) => {
       chai.request(server)
-        .get("/readings/projects")
+        .get("/readings/all/projects")
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
