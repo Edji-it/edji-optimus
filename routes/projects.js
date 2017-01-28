@@ -107,17 +107,13 @@ router.get("/:id", function(req, res) {
             var project = projects.pop()
 
             if (!project) {
-                res.status(404).send()
+                res.status(200).send( {} )
                 return
             }
 
             // don't add the teacher to the students array of their own project
             if (user._id != project.teacher_id) {
                 if (user.type && user.type === "temp") {
-                    // some old readings don't have temp_ids
-                    if (!project.temp_ids) {
-                        project.temp_ids = []
-                    }
                     // only add the user's id if it's not already in the project
                     if (project.temp_ids.indexOf(req.user._id) < 0) {
                         project.temp_ids.push(req.user._id)

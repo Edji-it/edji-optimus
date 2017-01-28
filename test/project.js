@@ -258,25 +258,41 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 when project is not found by id", (done) => {
+    it("it should return an empty object when project is not found by id", (done) => {
       chai.request(server)
         .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
         .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
-          res.should.have.status(404)
+          res.should.have.status(200)
+
+          // project validation
+          res.body.should.be.a("object")
+          var properties = 0
+          for (var property in res.body) {
+            properties ++
+          }
+          properties.should.be.equal(0)
 
           done()
         })
     })
 
-    it("it should return 404 when project is not found by code", (done) => {
+    it("it should return an empty object when project is not found by code", (done) => {
       chai.request(server)
         .get("/projects/cody")
         .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
-          res.should.have.status(404)
+          res.should.have.status(200)
+
+          // project validation
+          res.body.should.be.a("object")
+          var properties = 0
+          for (var property in res.body) {
+            properties ++
+          }
+          properties.should.be.equal(0)
 
           done()
         })
