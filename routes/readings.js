@@ -118,7 +118,7 @@ router.get("/all/projects", function(req, res) {
                         project.students_ids = []
                         project.temp_ids = []
                         return true
-                    } else { return false}
+                    } else { return false }
                 })
             })
 
@@ -130,12 +130,6 @@ router.get("/all/projects", function(req, res) {
 router.put("/:reading_id/recommend", function(req, res) {
     var reading_id = req.params.reading_id
     var user = req.user
-
-    //user must be teacher in order to recommend
-    if (!user.isTeacher) {
-        res.status(400).send()
-        return
-    }
 
     Reading.findById(reading_id, function(error, reading) {
         error && console.log(error)
