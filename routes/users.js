@@ -69,7 +69,7 @@ router.post("/login", function(req, res){
         .then(function(result){
             res.json(result)
         }).fail(function(err){
-            res.status(401).send()
+            res.status(404).send()
         })
 
 })
