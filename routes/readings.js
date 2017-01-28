@@ -32,8 +32,10 @@ router.post("/", function(req, res) {
 
     // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
     // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
-    if (!reading['teacher_ids']) { reading['teacher_ids'] = [] }
-    if (reading.teacher_ids.indexOf(user._id) < 0) { reading.teacher_ids.push(user._id) }
+    if (!reading['teacher_ids']) {
+        reading['teacher_ids'] = []
+        reading.teacher_ids.push(user._id)
+    }
 
     var model = Reading(reading)
 
@@ -69,14 +71,19 @@ router.get("/", function(req, res){
         return
     }
 
-    Reading.find({ 'teacher_ids' : req.user._id },
+    Reading.find({ teacher_ids : req.user._id },
         'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
         { sort: {createdAt: -1} },
         function(error, results){
             // console.log("Added to readings!!!")
             // console.log(results)
-            error && console.error(error)
-            results && res.status(200).send({ readings: results })
+            if (error) {
+                console.error(error)
+                res.status(500).send()
+                return
+            } else {
+                res.status(200).send({ readings: results })
+            }
     })
     
 })
