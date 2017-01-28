@@ -18,8 +18,8 @@ req: {
     username: string,
     password: string,
     fullname: string,
-    email: string [regex],
-    isTeacher?: boolean
+    email: string [enum],
+    identities: string[]
   }
 }
 ```

@@ -34,7 +34,6 @@ describe("Users", () => {
                     user.should.have.property("username")
                     user.should.have.property("fullname")
                     user.should.have.property("email")
-                    user.should.have.property("isTeacher")
                     user.should.have.property("createdAt")
                     user.should.have.property("updatedAt")
                     user.should.not.have.property("password")
@@ -97,7 +96,7 @@ describe("Users", () => {
         it("it should return 'required' errors for all missing fields that are required", (done) => {
             chai.request(server)
                 .post("/users")
-                .send({ user: { isTeacher: true } })
+                .send({ user: { identities: ["teacher"] } })
                 .end((err, res) => {
                     // initial validation
                     res.should.have.status(406)
@@ -148,7 +147,6 @@ describe("Users", () => {
                     user.should.have.property("username")
                     user.should.have.property("fullname")
                     user.should.have.property("email")
-                    user.should.have.property("isTeacher")
                     user.should.have.property("createdAt")
                     user.should.have.property("updatedAt")
                     user.should.not.have.property("password")

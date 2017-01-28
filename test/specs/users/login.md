@@ -46,7 +46,6 @@ token: string
                 *  `username`: `string`
                 *  `fullname`: `string`
                 *  `email`: `string`
-                *  `isTeacher`: `boolean`
                 *  `createdAt`: `Date`
                 *  `updatedAt`: `Date`
             *  `user` should NOT have a:

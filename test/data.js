@@ -15,14 +15,14 @@ var users = {
     fullname: "newApiTestUser",
     password: "codycodycody",
     email: "cody@cody.cod",
-    isTeacher: true
+    identities: ["teacher", "business"]
   },
   duplicateUser: {
     username: "optimusprime",
     password: "optimusprime",
     fullname: "Optimus Prime",
     email: "Optimus@prime.ed",
-    isTeacher: true
+    identities: ["robot"]
   },
   testUserCreds: {
     user: {

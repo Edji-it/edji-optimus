@@ -40,8 +40,7 @@ var model = ModelCreator("User", {
     identities: [String],
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    accountArchiveToken: Date,
-    isTeacher:Boolean
+    accountArchiveToken: Date
 }, function(schema) {
     schema.methods.toPublic = function() {
         //makes copy of document
