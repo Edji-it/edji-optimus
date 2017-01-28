@@ -120,6 +120,7 @@ router.get("/all/projects", function(req, res) {
                         return true
                     } else { return false }
                 })
+                if (reading.promoter_ids) { reading.promoter_count = reading.promoter_ids.length }
             })
 
             res.status(200).send({readings: readings})
