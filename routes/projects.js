@@ -169,7 +169,7 @@ router.delete("/:id", function(req, res) {
             res.status(500).send()
             return
         } else if (obj.result.n === 0) {
-            res.status(404).send()
+            res.status(400).send()
             return
         } else {
             res.status(204).send()
@@ -238,7 +238,7 @@ router.post("/:id/comments", function(req, res) {
             res.status(500).send()
             return
         } else if (!project) {
-            res.status(404).send()
+            res.status(200).send({})
             return
         } else {
             var currentComment = project.comments.id(comment._id) // if the comment already has an id, it already exists
@@ -315,7 +315,7 @@ router.delete("/:project_id/comments/:comment_id", function(req, res){
                 console.error(error)
                 res.status(500).send()
             } else if (!result) {
-                res.status(404).send()
+                res.status(400).send()
             } else {
                 res.status(204).send()
             }
@@ -330,7 +330,7 @@ router.get("/:project_code/validate", function(req, res) {
         if (project) {
             res.status(200).send({ _id : project._id })
         } else {
-            res.status(404).send()
+            res.status(200).send({})
         }
     })
     .catch(function(err) {

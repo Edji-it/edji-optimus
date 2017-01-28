@@ -34,7 +34,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
                 result && res.json( result.pop() )
             })
         } else {
-            res.status(404).send()
+            res.status(400).send()
         }
         
     })
