@@ -23,7 +23,8 @@ var Model = ModelCreator("Project", {
     label:{type:String, required:true},
     code:{type:String, unique:true},
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
-    tags: [Tags.schema]
+    tags: [Tags.schema],
+    public_comments: Boolean
 })
 
 Model.schema.pre("save", function(next){
