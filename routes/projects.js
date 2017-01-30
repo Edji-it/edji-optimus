@@ -77,7 +77,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
     })
 })
 
-router.get("/:id", Middleware.authRequired, function(req, res) {
+router.get("/:id", function(req, res) {
     var id = req.params.id
     var user = req.user
 
@@ -100,17 +100,19 @@ router.get("/:id", Middleware.authRequired, function(req, res) {
                 return
             }
 
-            // don't add the teacher to the students array of their own project
-            if (user._id != project.teacher_id) {
-                if (user.type && user.type === "temp") {
-                    // only add the user's id if it's not already in the project
-                    if (project.temp_ids.indexOf(req.user._id) < 0) {
-                        project.temp_ids.push(req.user._id)
-                    }
-                } else {
-                    // only add the user's id if it's not already in the project
-                    if (project.students_ids.indexOf(req.user._id) < 0) {
-                        project.students_ids.push(req.user._id)
+            if (user) {
+                // don't add the teacher to the students array of their own project
+                if (user._id != project.teacher_id) {
+                    if (user.type && user.type === "temp") {
+                        // only add the user's id if it's not already in the project
+                        if (project.temp_ids.indexOf(req.user._id) < 0) {
+                            project.temp_ids.push(req.user._id)
+                        }
+                    } else {
+                        // only add the user's id if it's not already in the project
+                        if (project.students_ids.indexOf(req.user._id) < 0) {
+                            project.students_ids.push(req.user._id)
+                        }
                     }
                 }
             }
