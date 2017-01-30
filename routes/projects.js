@@ -3,22 +3,21 @@
  */
 var express = require( "express")
 var mongoose = require( "mongoose")
+var Q = require("q")
+
 var Project = require("./../models/Project")
 var Comment = require("./../models/Comment")
 var User = require("./../models/User")
 var MountModelToRouter = require("./MountModelToRouter")
-var Q = require("q")
+var Middleware = require("./../middleware/Middleware")
+
 var router = express.Router()
 
 MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false})
 
-router.get("/",function(req, res){
+router.get("/", Middleware.authRequired, function(req, res){
 
     var user = req.user
-    if (!req.user) {
-        res.status(401).send({ validationErrors: { user: "required" } })
-        return
-    }
 
     Project.find(
         { $or: [{students_ids: user._id}, {temp_ids: user._id}] },
@@ -38,13 +37,9 @@ router.get("/",function(req, res){
     .populate('reading_id','title')
 })
 
-router.post("/", function(req, res) {
+router.post("/", Middleware.authRequired, function(req, res) {
     var project = req.body.project
 
-    if (!req.user) {
-        res.status(401).send()
-        return
-    }
     if (!project) {
         res.status(400).send({ validationErrors: { project: "required" } })
         return
@@ -83,14 +78,9 @@ router.post("/", function(req, res) {
     })
 })
 
-router.get("/:id", function(req, res) {
+router.get("/:id", Middleware.authRequired, function(req, res) {
     var id = req.params.id
     var user = req.user
-
-    if (!user) {
-        res.status(401).send()
-        return
-    }
 
     var findParams = {}
 
@@ -149,14 +139,9 @@ router.get("/:id", function(req, res) {
 })
 
 // currently only works for teacher deleting a project
-router.delete("/:id", function(req, res) {
+router.delete("/:id", Middleware.authRequired, function(req, res) {
     var id = req.params.id
     var user = req.user
-
-    if (!user) {
-        res.status(401).send()
-        return
-    }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         res.status(400).send()
@@ -179,14 +164,9 @@ router.delete("/:id", function(req, res) {
 })
 
 // get projects for a single reading id
-router.get("/reading/:reading_id", function(req, res){
+router.get("/reading/:reading_id", Middleware.authRequired, function(req, res){
     var reading_id = req.params.reading_id
     var user = req.user
-
-    if (!user) {
-        res.status(401).send()
-        return
-    }
 
     if (!mongoose.Types.ObjectId.isValid(reading_id)) {
         res.status(400).send()
@@ -209,7 +189,7 @@ router.get("/reading/:reading_id", function(req, res){
     )
 })
 
-router.post("/:id/comments", function(req, res) {
+router.post("/:id/comments", Middleware.authRequired, function(req, res) {
     var _id = req.params.id
     var user = req.user
 
@@ -218,10 +198,6 @@ router.post("/:id/comments", function(req, res) {
         return
     }
 
-    if (!user) {
-        res.status(401).send()
-        return
-    }
     if (!req.body.comment) {
         res.status(400).send({ validationErrors: { comment: "required" }})
         return
@@ -281,15 +257,11 @@ router.post("/:id/comments", function(req, res) {
     })
 })
 
-router.delete("/:project_id/comments/:comment_id", function(req, res){
+router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res){
     var user = req.user
     var project_id = req.params.project_id
     var comment_id = req.params.comment_id
 
-    if (!user) {
-        res.status(401).send()
-        return
-    }
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
         res.status(400).send({ badRequest: { projectId: "invalid" }})
         return

@@ -41,4 +41,4 @@ Coming soon?
     *  `res` should have `projects`
     *  `res.projects` should be an `array`
     *  All projects in `res.projects` should belong to the tempstudent (not yet tested)
-2.  Pass without `Authorization` header --> receive `401`
+3.  Pass without `Authorization` header --> receive `401`
