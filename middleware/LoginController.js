@@ -3,8 +3,8 @@
  */
 
 var jwt = require("jsonwebtoken")
-var User = require("./models/User")
-var TempUser = require("./models/TempUser")
+var User = require("./../models/User")
+var TempUser = require("./../models/TempUser")
 var bcrypt = require("bcryptjs")
 var Q = require("q")
 //TODO: need something more secret than this

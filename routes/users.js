@@ -15,7 +15,7 @@ var mandrillConfig = config.get("Mandrill")
 
 var User = require("./../models/User")
 var ArchivedUser = require("./../models/ArchivedUser")
-var LoginController = require("./../LoginController")
+var LoginController = require("./../middleware/LoginController")
 
 var router = express.Router()
 

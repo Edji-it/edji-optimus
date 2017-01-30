@@ -1,6 +1,6 @@
 var express = require("express")
 var TempUser = require("./../models/TempUser")
-var LoginController = require("./../LoginController")
+var LoginController = require("./../middleware/LoginController")
 // var MountModelToRouter = require("./MountModelToRouter")
 var router = express.Router()
 

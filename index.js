@@ -6,7 +6,7 @@ var express = require("express")
 var mongoose = require("mongoose")
 var bodyParser = require("body-parser")
 var User = require("./models/User")
-var LoginController = require("./LoginController")
+var LoginController = require("./middleware/LoginController")
 var util = require('util')
 
 //routers
