@@ -2,23 +2,20 @@
  * Created by bvfergus on 3/5/16.
  */
 var express = require( "express")
+var Q = require("q")
 var Reading = require("./../models/Reading")
 var Project = require("./../models/Project")
 var User = require("./../models/User")
 var MountModelToRouter = require("./MountModelToRouter")
-var Q = require("q")
+var Middleware = require("./../middleware/Middleware")
+
 var router = express.Router()
 
 MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: true, create:false })
 
-router.post("/", function(req, res) {
+router.post("/", Middleware.authRequired, function(req, res) {
     var reading = req.body.reading
     var user = req.user
-
-    if (!user) {
-        res.status(401).send()
-        return
-    }
 
     if (!reading) {
         res.status(400).send({ validationErrors: { reading: "required" } })
@@ -65,11 +62,7 @@ router.post("/", function(req, res) {
     })
 })
 
-router.get("/", function(req, res){
-    if (!req.user || !req.user.id) {
-        res.status(401).send()
-        return
-    }
+router.get("/", Middleware.authRequired, function(req, res){
 
     Reading.find({ teacher_ids : req.user._id },
         'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
@@ -88,13 +81,8 @@ router.get("/", function(req, res){
     
 })
 
-router.get("/all/projects", function(req, res) {
+router.get("/all/projects", Middleware.authRequired, function(req, res) {
     var user = req.user
-
-    if (!user) {
-        res.status(401).send()
-        return
-    }
 
     var promises = [
         Project.find(
@@ -139,7 +127,7 @@ router.get("/all/projects", function(req, res) {
 })
 
 //allows teachers to recommend reading to community library
-router.put("/:reading_id/recommend", function(req, res) {
+router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
     var reading_id = req.params.reading_id
     var user = req.user
 

@@ -29,7 +29,6 @@ router.get("/", Middleware.authRequired, function(req, res){
                 res.status(500).send()
                 return
             }
-
             res.status(200).send(result)
         }
     )
