@@ -24,7 +24,7 @@ var Model = ModelCreator("Project", {
     code:{type:String, unique:true},
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
     tags: [Tags.schema],
-    public_comments: Boolean
+    heat_vision: Boolean
 })
 
 Model.schema.pre("save", function(next){
