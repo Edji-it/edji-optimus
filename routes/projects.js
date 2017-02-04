@@ -165,6 +165,7 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
 })
 
 router.put("/:id", Middleware.authRequired, function(req, res) {
+    let user = req.user
     let id = req.params.id
     let project = req.body.project
 
@@ -178,12 +179,17 @@ router.put("/:id", Middleware.authRequired, function(req, res) {
         return
     }
 
-    Q(Project.findOneAndUpdate(id, project, {
+    Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, project, {
         new: true, runValidators: true, setDefaultsOnInsert: true
     }).exec())
     .then((project) => {
-        console.log(project)
-        res.status(200).send({project: project})
+        // send 404 if the project doesn't exist
+        if (!project) {
+            res.status(404).send()
+            return
+        } else {
+            res.status(200).send({project: project})
+        }
     })
     .catch((err) => {
         console.error(err)

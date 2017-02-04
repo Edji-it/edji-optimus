@@ -760,8 +760,17 @@ describe("Projects", () => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
+        .send({ project: { heat_vision: true }})
         .end((err, res) => {
-          res.should.have.status(204)
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          let project = res.body.project
+          project.should.have.property("heat_vision")
+          project.heat_vision.should.be.equal(true);
+
           done()
         })
     })
