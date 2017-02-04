@@ -753,6 +753,18 @@ describe("Projects", () => {
     })
   })
 
+  describe("PUT /projects/:id", () => {
+    it("it should successfully update heat vision", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    })
+  })
+
   describe("DELETE /projects", () => {
     it("it should reject an invalid project id", (done) => {
       chai.request(server)
