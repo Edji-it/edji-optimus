@@ -76,4 +76,7 @@ Coming soon?
         *  `project`: `any`
 6.  Pass with invalid project id --> receive empty object
 7.  Pass with invalid project code --> receive empty object
-8.  Pass without `Authorization` header --> receive `401`
+8.  Pass without `Authorization` header
+    *  `res` should have a:
+        *  `status` = `200`
+        *  `res.body.project` should be a `object`

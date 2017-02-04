@@ -298,12 +298,14 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("it should get a project for an unauthorized user", (done) => {
       chai.request(server)
-        .get("/projects/cody")
+        .get("/projects/" + testProject._id)
         .end((err, res) => {
           // initial validation
-          res.should.have.status(401)
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          res.body.project.should.be.a("object")
 
           done()
         })
