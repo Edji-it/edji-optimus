@@ -164,6 +164,33 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
     })
 })
 
+router.put("/:id", Middleware.authRequired, function(req, res) {
+    let id = req.params.id
+    let project = req.body.project
+
+    if (!project) {
+        res.status(400).send()
+        return
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).send()
+        return
+    }
+
+    Q(Project.findOneAndUpdate(id, project, {
+        new: true, runValidators: true, setDefaultsOnInsert: true
+    }).exec())
+    .then((project) => {
+        console.log(project)
+        res.status(200).send({project: project})
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).send()
+    })
+})
+
 // get projects for a single reading id
 router.get("/reading/:reading_id", Middleware.authRequired, function(req, res){
     var reading_id = req.params.reading_id
