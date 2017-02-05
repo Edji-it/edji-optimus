@@ -190,9 +190,9 @@ describe("Readings", () => {
             reading.should.have.property("title")
             reading.should.have.property("promoter_count")
             reading.should.have.property("teacher_ids")
-            reading.should.have.property("public")
-            reading.should.have.property("source")
-            reading.should.have.property("cover_img")
+            // reading.should.have.property("public") // not a required field
+            // reading.should.have.property("source") // not a required field
+            // reading.should.have.property("cover_img") // not a required field
             reading.should.have.property("createdAt")
             reading.should.have.property("updatedAt")
 

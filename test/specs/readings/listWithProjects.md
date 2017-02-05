@@ -28,10 +28,10 @@ Coming soon?
         *  `title`: `string`
         *  `promoter_count` = SUM(`promoter_ids`): `number`
         *  `teacher_ids`: `string[]`
-        *  `public`: `boolean`
-        *  `source`: `string`
+        *  `public`: `boolean` - this is not currently a required field
+        *  `source`: `string` - this is not currently a required field
         *  `projects`: `any[]`
-        *  `cover_img`: `string`
+        *  `cover_img`: `string` - this is not currently a required field
         *  `createdAt`: `Date`
         *  `updatedAt`: `Date`
         *  Each project should have
