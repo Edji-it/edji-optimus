@@ -774,7 +774,89 @@ describe("Projects", () => {
           done()
         })
     })
+
+    it("it should reject a call without a project", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ notProject: { heat_vision: true }})
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+          done()
+      })
+    })
+
+    it("it should reject an invalid id", (done) => {
+      chai.request(server)
+        .put("/projects/brennen")
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ project: { heat_vision: true }})
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+      })
+    })
+
+    it("it should return 404 for a non-existant id", (done) => {
+      chai.request(server)
+        .put("/projects/" + testUsers.testTeacher.user._id) // this id shouldn't exist in projects
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ project: { heat_vision: true }})
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should not allow the update of fields which don't exist", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ project: { non_existant: true }})
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          let project = res.body.project
+          project.should.not.have.property("non_existant")
+
+          done()
+        })
+    })
+
+    it("it should return 404 if the auth token does not match the owner's", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ project: { heat_vision: true }})
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id)
+        .send({ project: { heat_vision: true }})
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
   })
+
 
   describe("DELETE /projects", () => {
     it("it should reject an invalid project id", (done) => {
