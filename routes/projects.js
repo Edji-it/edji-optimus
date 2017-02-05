@@ -96,7 +96,7 @@ router.get("/:id", function(req, res) {
             var project = projects.pop()
 
             if (!project) {
-                res.status(200).send( {} )
+                res.status(404).send()
                 return
             }
 
