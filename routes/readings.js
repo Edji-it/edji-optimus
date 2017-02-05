@@ -81,51 +81,6 @@ router.get("/", Middleware.authRequired, function(req, res){
     
 })
 
-// router.get("/all/projects", Middleware.authRequired, function(req, res) {
-//     var user = req.user
-
-//     var promises = [
-//         Project.find(
-//             { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
-//             'reading_id teacher_id label code types comments students_ids temp_ids tags updatedAt createdAt'
-//         ).lean().exec(),
-//         Reading.find(
-//             { teacher_ids: req.user._id },
-//             'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
-//             { sort: { createdAt: -1 } }
-//         ).lean().exec()
-//     ]
-
-//     Q.all(promises)
-//         .then((results) => {
-//             var projects = results[0]
-//             var readings = results[1]
-
-//             var comLen
-//             var stuLen
-//             readings.forEach((reading, index) => {
-//                 readings[index].projects = projects.filter((project) => {
-//                     if (project.reading_id == reading._id) {
-//                         if (project.comments) { project.commentCount = project.comments.length }
-//                         if (project.temp_ids && project.students_ids) { project.studentCount = project.students_ids.length + project.temp_ids.length }
-
-//                         project.comments = []
-//                         project.students_ids = []
-//                         project.temp_ids = []
-//                         return true
-//                     } else { return false }
-//                 })
-//                 if (reading.promoter_ids) { reading.promoter_count = reading.promoter_ids.length }
-//             })
-
-//             res.status(200).send({readings: readings})
-//         })
-//         .catch((err) => {
-//             console.log(err)
-//             res.status(500).send()
-//         })
-// })
-
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
     var user = req.user
 
