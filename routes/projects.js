@@ -332,7 +332,7 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
 router.get("/:project_code/validate", function(req, res) {
     var project_code = req.params.project_code.toLowerCase()
 
-    Q(Project.findOne({code:project_code}).exec()).then(function(project) {
+    Q(Project.findOne({code:project_code}, "_id").exec()).then(function(project) {
         if (project) {
             res.status(200).send({ _id : project._id })
         } else {
