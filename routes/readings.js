@@ -81,19 +81,70 @@ router.get("/", Middleware.authRequired, function(req, res){
     
 })
 
+// router.get("/all/projects", Middleware.authRequired, function(req, res) {
+//     var user = req.user
+
+//     var promises = [
+//         Project.find(
+//             { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
+//             'reading_id teacher_id label code types comments students_ids temp_ids tags updatedAt createdAt'
+//         ).lean().exec(),
+//         Reading.find(
+//             { teacher_ids: req.user._id },
+//             'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
+//             { sort: { createdAt: -1 } }
+//         ).lean().exec()
+//     ]
+
+//     Q.all(promises)
+//         .then((results) => {
+//             var projects = results[0]
+//             var readings = results[1]
+
+//             var comLen
+//             var stuLen
+//             readings.forEach((reading, index) => {
+//                 readings[index].projects = projects.filter((project) => {
+//                     if (project.reading_id == reading._id) {
+//                         if (project.comments) { project.commentCount = project.comments.length }
+//                         if (project.temp_ids && project.students_ids) { project.studentCount = project.students_ids.length + project.temp_ids.length }
+
+//                         project.comments = []
+//                         project.students_ids = []
+//                         project.temp_ids = []
+//                         return true
+//                     } else { return false }
+//                 })
+//                 if (reading.promoter_ids) { reading.promoter_count = reading.promoter_ids.length }
+//             })
+
+//             res.status(200).send({readings: readings})
+//         })
+//         .catch((err) => {
+//             console.log(err)
+//             res.status(500).send()
+//         })
+// })
+
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
     var user = req.user
 
-    var promises = [
-        Project.find(
-            { $or: [{teacher_id: user._id}, {teacher_ids: user._id}, {students_ids: user._id}, {temp_ids: user._id}] },
-            'reading_id teacher_id label code types comments students_ids temp_ids tags updatedAt createdAt'
-        ).lean().exec(),
-        Reading.find(
-            { teacher_ids: req.user._id },
-            'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
-            { sort: { createdAt: -1 } }
-        ).lean().exec()
+    let promises = [
+        Project.aggregate([
+            { $match: { $or: [{ teacher_id: user._id.toString() }, { students_ids: user._id.toString() }, { temp_ids: user._id.toString() }]}},
+            { $project: {
+                teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
+                comment_count: { $size: "$comments" },
+                students_count: { $sum: [{ $size: "$students_ids" }, { $size: "$temp_ids" }] }
+            }}
+        ]).exec(),
+        Reading.aggregate([
+            { $match: { teacher_ids: user._id.toString() }},
+            { $project: {
+                title: 1, owner_id: 1, teacher_ids: 1, "public": 1, source: 1, cover_img: 1, createdAt: 1, updatedAt: 1,
+                promoter_count: { $size: { $ifNull: [ "$promoter_ids", [] ]}}
+            }}
+        ]).exec()
     ]
 
     Q.all(promises)
@@ -101,24 +152,14 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             var projects = results[0]
             var readings = results[1]
 
-            var comLen
-            var stuLen
             readings.forEach((reading, index) => {
                 readings[index].projects = projects.filter((project) => {
-                    if (project.reading_id == reading._id) {
-                        if (project.comments) { project.commentCount = project.comments.length }
-                        if (project.temp_ids && project.students_ids) { project.studentCount = project.students_ids.length + project.temp_ids.length }
-
-                        project.comments = []
-                        project.students_ids = []
-                        project.temp_ids = []
-                        return true
-                    } else { return false }
+                    if (project.reading_id == reading._id.toString()) { return true }
+                    else { return false }
                 })
-                if (reading.promoter_ids) { reading.promoter_count = reading.promoter_ids.length }
             })
 
-            res.status(200).send({readings: readings})
+            res.status(200).send({readings})
         })
         .catch((err) => {
             console.log(err)

@@ -189,7 +189,7 @@ describe("Readings", () => {
             reading.should.have.property("owner_id")
             reading.should.have.property("title")
             reading.should.have.property("promoter_count")
-            reading.should.have.property("keeper_ids")
+            reading.should.have.property("teacher_ids")
             reading.should.have.property("public")
             reading.should.have.property("source")
             reading.should.have.property("cover_img")
@@ -207,6 +207,7 @@ describe("Readings", () => {
               // things a project SHOULD have
               project.should.have.property("_id")
               project.should.have.property("teacher_id")
+                project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
               project.should.have.property("comment_count")
               project.should.have.property("students_count")
               project.should.have.property("label")

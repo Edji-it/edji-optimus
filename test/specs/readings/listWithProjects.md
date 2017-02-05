@@ -4,6 +4,10 @@
 
 Get all of a user's readings, along with projects nested under the readings
 
+## Endpoint
+
+`/readings/all/projects`
+
 ## Request Type
 
 `GET`
@@ -23,7 +27,7 @@ Coming soon?
         *  `owner_id`: `string` should be equal to the reading creator's id
         *  `title`: `string`
         *  `promoter_count` = SUM(`promoter_ids`): `number`
-        *  `keeper_ids`: `string[]`
+        *  `teacher_ids`: `string[]`
         *  `public`: `boolean`
         *  `source`: `string`
         *  `projects`: `any[]`
@@ -33,6 +37,7 @@ Coming soon?
         *  Each project should have
             *  `_id`: `string`
             *  `teacher_id`: `string`
+            *  `reading_id`: `string`
             *  `comment_count` = SUM(`comments`): `number`
             *  `students_count` = SUM(`students_ids`) + SUM(`temp_ids`): `number`
             *  `label`: `string`
