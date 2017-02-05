@@ -14,7 +14,7 @@ var validateName = function(name) {
 var model = ModelCreator("TempUser", {
     fullname: {type: String, required: true, validate: [validateName, "Invalid username"]},
     type: {type: String, required: true, default: "temp"},
-    timer: {type: Date, required: true, default: Date.now, expires: 60*60*24}
+    timer: {type: Date, required: true, default: Date.now, expires: 60*60*24*365}
 }, function(schema) {
     schema.methods.toPublic = function() {
         return this._doc;
