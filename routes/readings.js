@@ -98,7 +98,8 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             { $project: {
                 title: 1, owner_id: 1, teacher_ids: 1, "public": 1, source: 1, cover_img: 1, createdAt: 1, updatedAt: 1,
                 promoter_count: { $size: { $ifNull: [ "$promoter_ids", [] ]}}
-            }}
+            }},
+            { $sort: { createdAt: -1 }}
         ]).exec()
     ]
 
