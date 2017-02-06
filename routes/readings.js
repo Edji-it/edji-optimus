@@ -90,7 +90,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             { $project: {
                 teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
                 comment_count: { $size: "$comments" },
-                students_count: { $sum: [{ $size: "$students_ids" }, { $size: "$temp_ids" }] }
+                student_count: { $sum: [{ $size: "$students_ids" }, { $size: "$temp_ids" }] }
             }}
         ]).exec(),
         Reading.aggregate([

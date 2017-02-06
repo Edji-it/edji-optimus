@@ -209,7 +209,7 @@ describe("Readings", () => {
               project.should.have.property("teacher_id")
                 project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
               project.should.have.property("comment_count")
-              project.should.have.property("students_count")
+              project.should.have.property("student_count")
               project.should.have.property("label")
               project.should.have.property("code")
               project.should.have.property("types")

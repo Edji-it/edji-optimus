@@ -39,7 +39,7 @@ Coming soon?
             *  `teacher_id`: `string`
             *  `reading_id`: `string`
             *  `comment_count` = SUM(`comments`): `number`
-            *  `students_count` = SUM(`students_ids`) + SUM(`temp_ids`): `number`
+            *  `student_count` = SUM(`students_ids`) + SUM(`temp_ids`): `number`
             *  `label`: `string`
             *  `code`: `string`
             *  `types`: `string[]`
