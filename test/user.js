@@ -1,13 +1,11 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
-var server = require("./../index")
-// var server = "http://localhost:3354"
-// var server = "http://optimus-dev.edji.it"
 var config = require("config")
 var server = config.get("Testing.url")
 var should = chai.should()
 var Q = require("q")
 
+var server = require("./../index")
 var User = require("./../models/User")
 var data = require("./data")
 var functions = require("./functions")
@@ -17,114 +15,168 @@ chai.use(chaiHttp)
 describe("Users", () => {
     
     describe('POST /users', () => {
-        it("it should register a user", (done) => {
-            
-            chai.request(server)
-                .post("/users")
-                .send({user: data.users.newUser})
-                .end((err, res) => {
-                    //initial validation
-                    res.should.have.status(201)
-                    res.body.should.be.a("object")
-                    res.body.should.have.property("token")
-                    
-                    //user validation
-                    var user = res.body.user
-                    user.should.have.property("_id")
-                    user.should.have.property("username")
-                    user.should.have.property("fullname")
-                    user.should.have.property("email")
-                    user.should.have.property("createdAt")
-                    user.should.have.property("updatedAt")
-                    user.should.not.have.property("password")
-                    user.should.not.have.property("resetPasswordToken")
-                    user.should.not.have.property("resetPasswordExpires")
-                    user.should.not.have.property("accountArchiveToken")
+        describe("Standard registration", () => {
+            it("it should register a user", (done) => {
+                
+                chai.request(server)
+                    .post("/users")
+                    .send({user: data.users.newUser})
+                    .end((err, res) => {
+                        //initial validation
+                        res.should.have.status(201)
+                        res.body.should.be.a("object")
+                        res.body.should.have.property("token")
+                        
+                        //user validation
+                        var user = res.body.user
+                        user.should.have.property("_id")
+                        user.should.have.property("username")
+                        user.should.have.property("fullname")
+                        user.should.have.property("email")
+                        user.should.have.property("createdAt")
+                        user.should.have.property("updatedAt")
+                        user.should.not.have.property("password")
+                        user.should.not.have.property("resetPasswordToken")
+                        user.should.not.have.property("resetPasswordExpires")
+                        user.should.not.have.property("accountArchiveToken")
 
-                    //token validation
-                    var token = res.body.token
-                    token.should.be.a("string")
-                    token.should.not.equal("")
-                    
-                    done()
-                })
+                        //token validation
+                        var token = res.body.token
+                        token.should.be.a("string")
+                        token.should.not.equal("")
+                        
+                        done()
+                    })
+            })
+
+            it("it should not allow a duplicate user", (done) => {
+
+                chai.request(server)
+                    .post("/users")
+                    .send({ user: data.users.duplicateUser })
+                    .end((err, res) => {
+                        //initial validation
+                        res.should.have.status(409)
+                        res.should.have.property("error")
+                        done()
+                    })
+            })
+
+            it("it should catch profane names, usernames and invalid emails", (done) => {
+                chai.request(server)
+                    .post("/users")
+                    .send({ user: data.users.badUser })
+                    .end((err, res) => {
+                        // initial validation
+                        res.should.have.status(406)
+                        res.should.have.property("error")
+                        res.error.should.have.property("text")
+
+                        // error response validation
+                        var text = JSON.parse(res.error.text)
+                        text.should.have.property("validationErrors")
+                        text.validationErrors.should.be.a("object")
+
+                        text.validationErrors.should.have.property("email")
+                        text.validationErrors.email.should.be.a("string")
+                        text.validationErrors.email.should.equal("emailRegex")
+
+                        text.validationErrors.should.have.property("fullname")
+                        text.validationErrors.fullname.should.be.a("string")
+                        text.validationErrors.fullname.should.be.equal("badWords")
+
+                        text.validationErrors.should.have.property("username")
+                        text.validationErrors.username.should.be.a("string")
+                        text.validationErrors.username.should.be.equal("badWords")
+                        done()
+                    })
+            })
+
+            it("it should return 'required' errors for all missing fields that are required", (done) => {
+                chai.request(server)
+                    .post("/users")
+                    .send({ user: { identities: ["teacher"] } })
+                    .end((err, res) => {
+                        // initial validation
+                        res.should.have.status(406)
+                        res.should.have.property("error")
+                        res.error.should.have.property("text")
+
+                        // error response validation
+                        var text = JSON.parse(res.error.text)
+                        text.should.have.property("validationErrors")
+                        text.validationErrors.should.be.a("object")
+
+                        text.validationErrors.should.have.property("email")
+                        text.validationErrors.email.should.be.a("string")
+                        text.validationErrors.email.should.equal("required")
+
+                        text.validationErrors.should.have.property("fullname")
+                        text.validationErrors.fullname.should.be.a("string")
+                        text.validationErrors.fullname.should.be.equal("required")
+
+                        text.validationErrors.should.have.property("username")
+                        text.validationErrors.username.should.be.a("string")
+                        text.validationErrors.username.should.be.equal("required")
+
+                        text.validationErrors.should.have.property("password")
+                        text.validationErrors.password.should.be.a("string")
+                        text.validationErrors.password.should.be.equal("required")
+                        done()
+                    })
+            })
         })
 
-        it("it should not allow a duplicate user", (done) => {
+        describe("Temp user conversion", () => {
+            let tempUser, testReading, testProject
 
-            chai.request(server)
-                .post("/users")
-                .send({ user: data.users.duplicateUser })
-                .end((err, res) => {
-                    //initial validation
-                    res.should.have.status(409)
-                    res.should.have.property("error")
-                    done()
+            before((done) => {
+
+                // create a temp user, for which we'll create readings and projects
+                functions.createTempUser(data.users.tempUser).then((returnUser) => {
+                    // save the temp user to accessible variable
+                    tempUser = returnUser
+                    console.log("temp:", tempUser)
+                    // return promise which creates reading
+                    return functions.createReading(data.readings.newReading, tempUser.token)
                 })
-        })
-
-        it("it should catch profane names, usernames and invalid emails", (done) => {
-            chai.request(server)
-                .post("/users")
-                .send({ user: data.users.badUser })
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(406)
-                    res.should.have.property("error")
-                    res.error.should.have.property("text")
-
-                    // error response validation
-                    var text = JSON.parse(res.error.text)
-                    text.should.have.property("validationErrors")
-                    text.validationErrors.should.be.a("object")
-
-                    text.validationErrors.should.have.property("email")
-                    text.validationErrors.email.should.be.a("string")
-                    text.validationErrors.email.should.equal("emailRegex")
-
-                    text.validationErrors.should.have.property("fullname")
-                    text.validationErrors.fullname.should.be.a("string")
-                    text.validationErrors.fullname.should.be.equal("badWords")
-
-                    text.validationErrors.should.have.property("username")
-                    text.validationErrors.username.should.be.a("string")
-                    text.validationErrors.username.should.be.equal("badWords")
-                    done()
+                .then((readingPromise) => {
+                    console.log("looking at reading")
+                    // chain to reading promise
+                    return readingPromise.then((returnReading) => {
+                        // save out test reading
+                        testReading = returnReading.reading
+                        console.log("reading", testReading)
+                        // resolve with nothing
+                        return
+                    })
                 })
-        })
+                .then(() => {
+                    // create a new project object so that we can reset the reading_id
+                    let newProj = Object.assign({}, data.projects.newProject)
+                    // set reading_id for newly created project
+                    newProj.reading_id = testReading._id
 
-        it("it should return 'required' errors for all missing fields that are required", (done) => {
-            chai.request(server)
-                .post("/users")
-                .send({ user: { identities: ["teacher"] } })
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(406)
-                    res.should.have.property("error")
-                    res.error.should.have.property("text")
-
-                    // error response validation
-                    var text = JSON.parse(res.error.text)
-                    text.should.have.property("validationErrors")
-                    text.validationErrors.should.be.a("object")
-
-                    text.validationErrors.should.have.property("email")
-                    text.validationErrors.email.should.be.a("string")
-                    text.validationErrors.email.should.equal("required")
-
-                    text.validationErrors.should.have.property("fullname")
-                    text.validationErrors.fullname.should.be.a("string")
-                    text.validationErrors.fullname.should.be.equal("required")
-
-                    text.validationErrors.should.have.property("username")
-                    text.validationErrors.username.should.be.a("string")
-                    text.validationErrors.username.should.be.equal("required")
-
-                    text.validationErrors.should.have.property("password")
-                    text.validationErrors.password.should.be.a("string")
-                    text.validationErrors.password.should.be.equal("required")
-                    done()
+                    // create a new project and pass to promise
+                    return functions.createProject(newProj, tempUser.token)
                 })
+                .then((projPromise) => {
+                    // chain on projPromise
+                    projPromise.then((returnProj) => {
+                        // assign out to assessible variable
+                        testProject = returnProj.project
+                        console.log("project:", testProject)
+                        done()
+                    })
+                })
+            })
+
+            it("it should do the right stuff", (done) => {
+                console.log("temp:", tempUser)
+                console.log("reading, testReading")
+                console.log("project:", testProject)
+                done()
+            })
         })
     })
     

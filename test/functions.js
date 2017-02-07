@@ -85,5 +85,6 @@ var loginTestUsers = function() {
 module.exports = {
   createReading: createReading,
   createProject: createProject,
-  loginTestUsers: loginTestUsers
+  loginTestUsers: loginTestUsers,
+  createTempUser: createTempUser
 }
