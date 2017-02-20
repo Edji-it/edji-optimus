@@ -304,13 +304,21 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
         return
     }
 
-    Project.findByIdAndUpdate(
-        {_id :project_id},
+    Project.findOneAndUpdate(
+        {
+            _id: project_id,
+            $or: [
+                { teacher_id: user._id },
+                { comments: { $elemMatch: {
+                    _id: comment_id,
+                    user_id: user._id
+                }}}
+            ]
+        },
         {
             $pull:{
                 comments:{
-                    _id: comment_id,
-                    user_id: user._id
+                    _id: comment_id
                 }
             }
         },{
