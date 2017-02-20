@@ -497,6 +497,7 @@ describe("Projects", () => {
 
           // comment validation
           var comment = res.body.comment
+          testComments.textComment = comment
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
             comment.user_id.should.equal(testUsers.testStudent.user._id)
@@ -731,10 +732,21 @@ describe("Projects", () => {
     })
 
     // this should come LAST in the comments tests because it actually deletes the comment
-    it("it should delete a comment", (done) => {
+    it("it should delete a comment for the comment owner", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
         .set("Authorization", testUsers.testStudent.token) // this must be equal to the id of the user who created the comment
+        .end((err, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    })
+
+    // this should come LAST in the comments tests because it actually deletes the comment
+    it("it should delete a comment for the project owner", (done) => {
+      chai.request(server)
+        .del("/projects/" + testProject._id + "/comments/" + testComments.textComment._id)
+        .set("Authorization", testUsers.testTeacher.token) // this must be equal to the id of the user who created the comment
         .end((err, res) => {
           res.should.have.status(204)
           done()
