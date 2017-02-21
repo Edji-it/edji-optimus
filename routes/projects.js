@@ -324,9 +324,6 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
         },{
             passRawResult: true
         }, function(error, result, original){
-            console.log(result);
-            console.log(original);
-
 
             if (error){
                 console.error(error)
