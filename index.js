@@ -17,10 +17,10 @@ var comments = require("./routes/comments")
 var projects = require("./routes/projects")
 
 var app = express()
+app.use(bodyParser.json({limit: '20mb'}))
 
 var server = require('http').createServer(app)
 
-app.use(bodyParser.json({limit: '5mb'}))
 app.use(LoginController.middleware)
 
 // Access allowed for development
