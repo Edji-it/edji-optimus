@@ -33,11 +33,13 @@ router.post("/", Middleware.authRequired, function(req, res) {
         reading['teacher_ids'] = []
         reading.teacher_ids.push(user._id)
     }
-
+    
     var model = Reading(reading)
 
-    model.save((error, result) => {
+    // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
+    model.forceSave((error, result) => {
         if (error) {
+            console.log('Save Error:', error)
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
                 var errors = {}

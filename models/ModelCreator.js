@@ -22,14 +22,14 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     }
     var Model = db.model(modelName, Schema);
 
-    Model.prototype.oldSave = Model.prototype.save;
+    Model.prototype.forceSave = Model.prototype.save;
+
     Model.prototype.save = function(callback){
         if (this._id) {
             Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true,setDefaultsOnInsert:true}, callback);
         } else {
-            this.oldSave(callback);
+            this.forceSave(callback);
         }
-
     };
 
     return Model;
