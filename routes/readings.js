@@ -57,7 +57,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 return
             }
         } else {
-            res.status(201).send({ reading: result })
+            res.status(201).send({ reading: { _id: result._id, success: true } })
         }
     })
 })
