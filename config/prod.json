@@ -1,9 +1,9 @@
 {
     "Database": {
         "message":"Wiring up the Production DB",
-        "host":"mongodb://edjiuser:edjiuser1@ds023408.mlab.com:23408/edji",
+        "host":"mongodb://edjiuser:FHXmrMY3DBTauYReDsy@ds163339-a0.mlab.com:63339,ds163339-a1.mlab.com:63339/edji-prod?replicaSet=rs-ds163339",
         "user":"edjiuser",
-        "password":"edjiuser1"
+        "password":"FHXmrMY3DBTauYReDsy"
     },
     "Mandrill": {
         "host": "edji.it",

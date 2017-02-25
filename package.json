@@ -1,6 +1,6 @@
 {
   "name": "edji-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Node backend for Edji.",
   "scripts": {
     "start": "node ./index.js",
