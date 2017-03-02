@@ -15,7 +15,8 @@ var Model =  ModelCreator("Comment",{
     // user: Object, //{ type: Schema.ObjectId, ref: 'User'},
     author: String, // user's name, stored for easy access
     text: String, // the text which the comment is on!
-    type: String // type of comment (should be required)
+    type: String, // type of comment (should be required)
+    location: { type: Object }
 });
 
 module.exports = Model;
