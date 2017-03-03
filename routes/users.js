@@ -179,7 +179,7 @@ router.post("/recover_password", function(req, res) {
                 subject: 'Password Recovery - Edji',
                 html: `
                     <p>Hello ${user.fullname},</p>
-                    <p>You (or someone else) requested a password reset on your Edji account. Please click the link to <a href="http://${mandrillConfig.host}/#/reset-assword?${query}">reset your password</a></p>
+                    <p>You (or someone else) requested a password reset on your Edji account. Please click the link to <a href="http://${mandrillConfig.host}/#/reset-password?${query}">reset your password</a></p>
                     <hr>
                     <p>If you did not request a password reset, please ignore this email.</p>
                     <br>
