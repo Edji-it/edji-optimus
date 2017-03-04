@@ -6,7 +6,6 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var ModelCreator = require("./ModelCreator");
 var User = require("./../models/User");
-var Location = require("./Location")
 
 var Model =  ModelCreator("Comment",{
     user_id: {type: String, required: true}, // could be any type of user, maybe we want to add a user_type field?
