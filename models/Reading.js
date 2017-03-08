@@ -17,5 +17,6 @@ module.exports = ModelCreator("Reading", {
     promoter_ids: [String],
     source:String,
     cover_img: String,
-    tags: [Tags.schema]
+    tags: [Tags.schema],
+    draft: { type: Boolean, default: true }
 })
