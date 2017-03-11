@@ -67,7 +67,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 router.get("/", Middleware.authRequired, function(req, res){
 
     Reading.find({ teacher_ids : req.user._id },
-        'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt',
+        'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt draft',
         { sort: {createdAt: -1} },
         function(error, results){
             // console.log("Added to readings!!!")
