@@ -40,7 +40,16 @@ var model = ModelCreator("User", {
     identities: [String],
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    accountArchiveToken: Date
+    accountArchiveToken: Date,
+    prefs: {
+        recentEmoji: [ String ]
+    },
+    documents: [
+        {
+            title: String,
+            pages: [ String ]
+        }
+    ]
 }, function(schema) {
     schema.methods.toPublic = function() {
         //makes copy of document
