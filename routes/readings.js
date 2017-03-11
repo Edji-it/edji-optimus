@@ -98,7 +98,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         Reading.aggregate([
             { $match: { teacher_ids: user._id.toString() }},
             { $project: {
-                title: 1, owner_id: 1, teacher_ids: 1, "public": 1, source: 1, cover_img: 1, createdAt: 1, updatedAt: 1,
+                title: 1, owner_id: 1, teacher_ids: 1, "public": 1, source: 1, cover_img: 1, draft: 1, createdAt: 1, updatedAt: 1,
                 promoter_count: { $size: { $ifNull: [ "$promoter_ids", [] ]}}
             }},
             { $sort: { createdAt: -1 }}
