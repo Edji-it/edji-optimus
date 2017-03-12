@@ -64,6 +64,30 @@ router.post("/", Middleware.authRequired, function(req, res) {
     })
 })
 
+// Update a reading if in draft
+router.put("/:reading_id", Middleware.authRequired, function(req, res) {
+    var reading_upd = req.body.reading
+    var reading_id = req.params.reading_id
+
+    Reading.findById(reading_id, function(error, reading) {
+        error && console.log(error)
+
+        if (reading) {
+            reading.html = reading_upd.html
+            reading.title = reading_upd.title
+            reading.source = reading_upd.source
+
+            reading.save(function(err) {
+                if (err) {
+                    res.status(500).send()
+                } else {
+                    res.status(200).send()
+                }
+            })
+        }
+    })
+})
+
 router.get("/", Middleware.authRequired, function(req, res){
 
     Reading.find({ teacher_ids : req.user._id },
