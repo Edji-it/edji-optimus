@@ -12,8 +12,10 @@ var functions = require("./functions")
 
 chai.use(chaiHttp)
 
+var testUsers // comes with testStudent, testTeacher and testTemp
+
 describe("Users", () => {
-    
+
     describe('POST /users', () => {
         describe("Standard registration", () => {
             it("it should register a user", (done) => {
@@ -171,12 +173,81 @@ describe("Users", () => {
                 })
             })
 
-            it("it should do the right stuff", (done) => {
-                console.log("temp:", tempUser)
-                console.log("reading, testReading")
-                console.log("project:", testProject)
+            // it("it should do the right stuff", (done) => {
+            //     console.log("temp:", tempUser)
+            //     console.log("reading, testReading")
+            //     console.log("project:", testProject)
+            //     done()
+            // })
+        })
+    })
+
+    describe('PUT /users', () => {
+        
+        before((done) => {
+            functions.loginTestUsers().then((users) => {
+                testUsers = users
                 done()
             })
+        })
+
+        it("it should update a user", (done) => {
+
+            chai.request(server)
+                .put("/users")
+                .set("Authorization", testUsers.testStudent.token)
+                .send({ user: { 
+                    fullname: 'API Student', 
+                    prefs : { recentEmojis : ['100', 'skull'] } 
+                }})
+                .end((err, res) => {
+                    //initial validation
+                    res.should.have.status(200)
+                    res.body.should.be.a("object")
+                    
+                    //user validation
+                    var user = res.body.user
+                    user.should.have.property("_id")
+                    user.should.have.property("username")
+                    user.should.have.property("fullname")
+                    user.should.have.property("email")
+                    user.should.have.property("createdAt")
+                    user.should.have.property("updatedAt")
+                    user.should.not.have.property("password")
+                    user.should.not.have.property("resetPasswordToken")
+                    user.should.not.have.property("resetPasswordExpires")
+                    user.should.not.have.property("accountArchiveToken")
+
+                    done()
+                })
+        })
+
+        it("it should catch profane names and invalid emails", (done) => {
+            chai.request(server)
+                .put("/users")
+                .set("Authorization", testUsers.testStudent.token)
+                .send({ user: data.users.badUser })
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(406)
+                    res.should.have.property("error")
+                    res.error.should.have.property("text")
+
+                    // error response validation
+                    var text = JSON.parse(res.error.text)
+                    text.should.have.property("validationErrors")
+                    text.validationErrors.should.be.a("object")
+
+                    text.validationErrors.should.have.property("email")
+                    text.validationErrors.email.should.be.a("string")
+                    text.validationErrors.email.should.equal("emailRegex")
+
+                    text.validationErrors.should.have.property("fullname")
+                    text.validationErrors.fullname.should.be.a("string")
+                    text.validationErrors.fullname.should.be.equal("badWords")
+                    
+                    done()
+                })
         })
     })
     

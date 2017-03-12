@@ -3,12 +3,14 @@
  */
 var express = require( "express")
 var request = require("request")
+var mongoose = require( "mongoose")
 var bcrypt = require("bcryptjs")
 var MountModelToRouter = require("./MountModelToRouter")
 var nodemailer = require('nodemailer')
 var mandrillTransport = require('nodemailer-mandrill-transport')
 var bcrypt = require("bcryptjs")
 var Q = require("q")
+var _ = require("underscore")
 var queryString = require("querystring")
 var config = require("config")
 var mandrillConfig = config.get("Mandrill")
@@ -54,6 +56,96 @@ router.post("/", function(req, res){
             res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
     })
+
+})
+
+router.put("/", function(req, res){
+    var userData = req.body.user
+    let id = req.user._id
+
+     if (!userData) {
+        res.status(400).send()
+        return
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).send()
+        return
+    }
+
+    // New object for acceptable updatable attribute
+    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'documents')
+
+    Q(User.findOneAndUpdate( { '_id' : id }, updatedUser, {
+        new: false, runValidators: true, setDefaultsOnInsert: false
+    }).exec())
+    .then((user) => {
+        // send 404 if the user doesn't exist
+        if (!user) {
+            res.status(400).send()
+            return
+        } else {
+            var returnUser = _.pick(user, 
+                '_id', 
+                'username',
+                'fullname', 
+                'email', 
+                'createdAt',
+                'updatedAt',
+                'prefs', 
+                'documents'
+            )
+            res.status(200).send({ user: returnUser })
+        }
+    })
+    .catch((error) => {
+        if (error.name === "ValidationError") {
+                var errors = {}
+
+                for (var property in error.errors) {
+                    if (error.errors[property].kind === "user defined") {
+                        errors[property] = error.errors[property].properties.kind
+                    } else {
+                        errors[property] = error.errors[property].kind
+                    }
+                }
+
+                res.status(406).send({ validationErrors: errors })
+        } else if (error.code === 11000) {
+            res.status(409).send()
+        } else {
+            console.error(error)
+            res.status(500).send()
+        }
+    })
+
+    // model.save((error, result)=>{
+    //     if (error){
+    //         if (error.name === "ValidationError") {
+    //             var errors = {}
+
+    //             for (var property in error.errors) {
+    //                 if (error.errors[property].kind === "user defined") {
+    //                     errors[property] = error.errors[property].properties.kind
+    //                 } else {
+    //                     errors[property] = error.errors[property].kind
+    //                 }
+    //             }
+
+    //             res.status(406).send({ validationErrors: errors })
+    //             return
+    //         } else if (error.code === 11000) {
+    //             res.status(409).send()
+    //             return
+    //         } else {
+    //             console.error(error)
+    //             res.status(500).send()
+    //             return
+    //         }
+    //     } else {
+    //         res.status(201).json(LoginController.generateLoginObjectForUser(result))
+    //     }
+    // })
 
 })
 
