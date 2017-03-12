@@ -44,12 +44,19 @@ var model = ModelCreator("User", {
     prefs: {
         recentEmoji: [ String ]
     },
-    documents: [
-        {
+    media: {
+        images: [ {
             title: String,
-            pages: [ String ]
-        }
-    ]
+            src:  String
+        } ],
+        documents: [
+            {
+                title: String,
+                pages: [ String ]
+            }
+        ]
+    }
+    
 }, function(schema) {
     schema.methods.toPublic = function() {
         //makes copy of document

@@ -74,7 +74,7 @@ router.put("/", function(req, res){
     }
 
     // New object for acceptable updatable attribute
-    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'documents')
+    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media')
 
     Q(User.findOneAndUpdate( { '_id' : id }, updatedUser, {
         new: false, runValidators: true, setDefaultsOnInsert: false

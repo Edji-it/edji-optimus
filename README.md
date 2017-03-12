@@ -61,3 +61,9 @@ Run a single endpoint's tests is done with a colon and the endpoint name.
 ```bash
 yarn test:projects
 ```
+
+## Modifying Models
+
+### Removing Properties
+- Must clean the property from the database
+- Increment server as a Major version
