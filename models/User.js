@@ -47,7 +47,7 @@ var model = ModelCreator("User", {
     media: {
         images: [ {
             title: String,
-            src:  String
+            url:  String
         } ],
         documents: [
             {
