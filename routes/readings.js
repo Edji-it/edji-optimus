@@ -2,6 +2,7 @@
  * Created by bvfergus on 3/5/16.
  */
 var express = require( "express")
+var mongoose = require( "mongoose")
 var Q = require("q")
 var Reading = require("./../models/Reading")
 var Project = require("./../models/Project")
@@ -68,24 +69,51 @@ router.post("/", Middleware.authRequired, function(req, res) {
 router.put("/:reading_id", Middleware.authRequired, function(req, res) {
     var reading_upd = req.body.reading
     var reading_id = req.params.reading_id
+    var user = req.user
 
-    Reading.findById(reading_id, function(error, reading) {
-        error && console.log(error)
+    // Validate the reading ID is of the proper type
+    if (!mongoose.Types.ObjectId.isValid(reading_id)) {
+        // If the reading id is not a valid mongo id
+        res.status(400).send()
+        return
+    }
 
-        if (reading) {
-            reading.html = reading_upd.html
-            reading.title = reading_upd.title
-            reading.source = reading_upd.source
+    if (reading_upd) {
+        Reading.findById(reading_id, function(error, reading) {
+            if (error) {
+                // If there is an error in searching for the existing reading
+                res.status(404).send()
+            } else {
+                if (reading) {
+                    // Make sure the user trying to modify the reading owns it
+                    if (user._id==reading.owner_id) {
+                        reading.html = reading_upd.html
+                        reading.title = reading_upd.title
+                        reading.source = reading_upd.source
 
-            reading.save(function(err) {
-                if (err) {
-                    res.status(500).send()
+                        reading.save(function(err) {
+                            if (err) {
+                                // If the reading cannot be saved
+                                res.status(500).send()
+                            } else {
+                                // If the reading is updated, give it back!
+                                res.status(201).send(reading)
+                            }
+                        })
+                    } else {
+                        // If the user requesting an update is not the owner of the reading
+                        res.status(401).send({ validationErrors: { permission: "incorrect user" } })
+                    }
                 } else {
-                    res.status(200).send()
+                    // If the reading is not found in the db
+                    res.status(404).send()
                 }
-            })
-        }
-    })
+            }
+        })
+    } else {
+        // If a reading is not sent in the body of the request
+        res.status(404).send()
+    }
 })
 
 router.get("/", Middleware.authRequired, function(req, res){
