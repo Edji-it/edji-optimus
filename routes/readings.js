@@ -69,6 +69,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 router.put("/:reading_id", Middleware.authRequired, function(req, res) {
     var reading_upd = req.body.reading
     var reading_id = req.params.reading_id
+    reading_upd._id = reading_id
     var user = req.user
 
     // Validate the reading ID is of the proper type
@@ -78,58 +79,25 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
         return
     }
 
-    if (reading_upd) {
-        // Reading.findById(reading_id, function(error, reading) {
-        //     if (error) {
-        //         // If there is an error in searching for the existing reading
-        //         res.status(404).send({ issue: 'error in search'})
-        //     } else {
-        //         if (reading) {
-        //             // Make sure the user trying to modify the reading owns it
-        //             if (user._id==reading.owner_id) {
-        //                 reading.html = reading_upd.html
-        //                 reading.title = reading_upd.title
-        //                 reading.source = reading_upd.source
-        //                 // If the draft property is updating from true to false, then make the update
-        //                 if (reading_upd.draft==false) {
-        //                     reading.draft = false;
-        //                 }
+    var reading = Reading(reading_upd)
 
-        //                 reading.save(function(err) {
-        //                     if (err) {
-        //                         // If the reading cannot be saved
-        //                         res.status(500).send()
-        //                     } else {
-        //                         // If the reading is updated, give it back!
-        //                         //res.status(201).send({reading: reading})
-        //                         res.status(201).send({ reading: { _id: reading_id, success: true } })
-        //                     }
-        //                 })
-        //             } else {
-        //                 // If the user requesting an update is not the owner of the reading
-        //                 res.status(401).send({ validationErrors: { permission: "incorrect user" } })
-        //             }
-        //         } else {
-        //             // If the reading is not found in the db
-        //             res.status(404).send()
-        //         }
-        //     }
-        // })
-        Q(Reading.findOneAndUpdate({ _id: reading_id }, reading_upd).exec())
-        .then((reading) => {
-            // send 404 if the reading doesn't exist
-            if (!reading) {
-                res.status(404).send()
-                return
-            } else {
-                //res.status(201).send({reading: reading})
-                res.status(201).send({ reading: { _id: reading_id, success: true } })
+    if (reading) {
+        reading.save().then(
+            reading => {
+                if (!reading) {
+                    res.status(404).send()
+                    return
+                } else {
+                    //res.status(201).send({reading: reading})
+                    res.status(201).send({ reading: { _id: reading_id, success: true } })
+                }
             }
-        })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send()
-        })
+        ).catch(
+             error => {
+                console.error(error)
+                res.status(500).send()
+            }
+        )
     } else {
         // If a reading is not sent in the body of the request
         res.status(404).send()
