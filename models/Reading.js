@@ -18,5 +18,5 @@ module.exports = ModelCreator("Reading", {
     source:String,
     cover_img: String,
     tags: [Tags.schema],
-    draft: { type: Boolean, default: true }
+    draft: { type: Boolean }
 })
