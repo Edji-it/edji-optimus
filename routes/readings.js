@@ -88,8 +88,8 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
                     res.status(404).send()
                     return
                 } else {
-                    //res.status(201).send({reading: reading})
-                    res.status(201).send({ reading: { _id: reading_id, success: true } })
+                    reading.success = true;
+                    res.status(201).send({reading: reading})
                 }
             }
         ).catch(
