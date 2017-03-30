@@ -88,8 +88,8 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
                     res.status(404).send()
                     return
                 } else {
-                    //res.status(201).send({reading: reading})
-                    res.status(201).send({ reading: { _id: reading_id, success: true } })
+                    reading.success = true;
+                    res.status(201).send({reading: reading})
                 }
             }
         ).catch(
@@ -161,7 +161,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             }}
         ]).exec(),
         Reading.aggregate([
-            { $match: { teacher_ids: user._id.toString() }},
+            { $match: { owner_id: user._id.toString() }},
             { $project: {
                 title: 1, owner_id: 1, teacher_ids: 1, "public": 1, source: 1, cover_img: 1, draft: 1, createdAt: 1, updatedAt: 1,
                 promoter_count: { $size: { $ifNull: [ "$promoter_ids", [] ]}}
