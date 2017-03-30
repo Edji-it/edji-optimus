@@ -30,7 +30,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
     // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
     // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
-    if (!reading['teacher_ids']) {
+    if (!reading['teacher_ids'] || reading.teacher_ids.length < 1) {
         reading['teacher_ids'] = []
         reading.teacher_ids.push(user._id)
     }
