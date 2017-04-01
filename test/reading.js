@@ -50,17 +50,20 @@ describe("Readings", () => {
           
           // reading validation
           var reading = res.body.reading
+          console.log(reading)
           testReading = reading // stores reading for later tests
           reading.should.have.property("_id")
-          reading.should.have.property("owner_id")
-          reading.should.have.property("title")
-          reading.should.have.property("words")
-          reading.should.have.property("html")
-          reading.should.have.property("promoter_ids")
-          reading.should.have.property("comments")
-          reading.should.have.property("teacher_ids")
-          reading.should.have.property("createdAt")
-          reading.should.have.property("updatedAt")
+          reading.should.have.property("success")
+          reading.success.should.be.equal(true)
+          reading.should.not.have.property("owner_id")
+          reading.should.not.have.property("title")
+          reading.should.not.have.property("words")
+          reading.should.not.have.property("html")
+          reading.should.not.have.property("promoter_ids")
+          reading.should.not.have.property("comments")
+          reading.should.not.have.property("teacher_ids")
+          reading.should.not.have.property("createdAt")
+          reading.should.not.have.property("updatedAt")
 
           done()
         })

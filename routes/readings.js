@@ -18,6 +18,8 @@ router.post("/", Middleware.authRequired, function(req, res) {
     var reading = req.body.reading
     var user = req.user
 
+    console.log(reading)
+
     if (!reading) {
         res.status(400).send({ validationErrors: { reading: "required" } })
         return
@@ -37,13 +39,11 @@ router.post("/", Middleware.authRequired, function(req, res) {
     
     var model = Reading(reading)
 
-    // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
-    model.forceSave((error, result) => {
+    let errors = {}
+    model.validate((error) => {
         if (error) {
-            console.log('Save Error:', error)
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
-                var errors = {}
 
                 for (var property in error.errors) {
                     if (error.errors[property].kind === "user defined") {
@@ -53,14 +53,19 @@ router.post("/", Middleware.authRequired, function(req, res) {
                     }
                 }
 
-                res.status(406).send({ validationErrors: errors })
-                return
-            } else {
-                res.status(500).send(error)
-                return
+                return res.status(406).send({ validationErrors: errors })
             }
         } else {
-            res.status(201).send({ reading: { _id: result._id, success: true } })
+            // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
+            model.forceSave((error, result) => {
+                if (error) {
+                    res.status(500).send(error)
+                    return
+                    
+                } else {
+                    res.status(201).send({ reading: { _id: result._id, success: true } })
+                }
+            })
         }
     })
 })
