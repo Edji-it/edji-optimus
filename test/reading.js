@@ -186,7 +186,6 @@ describe("Readings", () => {
           // readings validation
           var readings = res.body.readings
           readings.forEach((reading) => {
-            console.log(reading)
             // things the reading SHOULD have
             reading.should.have.property("_id")
             reading.should.have.property("owner_id")
