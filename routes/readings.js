@@ -109,30 +109,30 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
     }
 })
 
-// Used for deleting readings in Postman for now
-router.delete("/:id", Middleware.authRequired, function(req, res) {
-    var id = req.params.id
-    var user = req.user
+// // Used for deleting readings in Postman for now
+// router.delete("/:id", Middleware.authRequired, function(req, res) {
+//     var id = req.params.id
+//     var user = req.user
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).send()
-        return
-    }
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//         res.status(400).send()
+//         return
+//     }
 
-    Reading.remove({_id: id}, (error, obj) => {
-        if (error) {
-            console.error(error)
-            res.status(500).send()
-            return
-        } else if (obj.result.n === 0) {
-            res.status(404).send()
-            return
-        } else {
-            res.status(204).send()
-            return
-        }
-    })
-})
+//     Reading.remove({_id: id}, (error, obj) => {
+//         if (error) {
+//             console.error(error)
+//             res.status(500).send()
+//             return
+//         } else if (obj.result.n === 0) {
+//             res.status(404).send()
+//             return
+//         } else {
+//             res.status(204).send()
+//             return
+//         }
+//     })
+// })
 
 router.get("/", Middleware.authRequired, function(req, res){
 

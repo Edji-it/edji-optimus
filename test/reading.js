@@ -50,7 +50,6 @@ describe("Readings", () => {
           
           // reading validation
           var reading = res.body.reading
-          console.log(reading)
           testReading = reading // stores reading for later tests
           reading.should.have.property("_id")
           reading.should.have.property("success")
