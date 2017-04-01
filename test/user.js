@@ -303,13 +303,13 @@ describe("Users", () => {
                 })
         })
 
-        it("it should return not found for a user with an incorrect password", (done) => {
+        it("it should return 401 for a user with an incorrect password", (done) => {
             chai.request(server)
                 .post("/users/login")
                 .send(data.users.incorrectCredentials)
                 .end((err, res) => {
                     // initial validation
-                    res.should.have.status(404)
+                    res.should.have.status(401)
                     res.body.should.be.a("object")
 
                     done()
