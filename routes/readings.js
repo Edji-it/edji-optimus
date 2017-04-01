@@ -18,8 +18,6 @@ router.post("/", Middleware.authRequired, function(req, res) {
     var reading = req.body.reading
     var user = req.user
 
-    console.log(reading)
-
     if (!reading) {
         res.status(400).send({ validationErrors: { reading: "required" } })
         return
