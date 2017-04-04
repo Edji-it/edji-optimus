@@ -73,6 +73,16 @@ var readings = {
   },
   testReading: {
     _id: "588194976f38d90011467cea"
+  },
+  updateReading: { // this reading contains properties acceptable to update by PUT /readings/:id
+    html: "<p>This is definitely new content</p>",
+    words: [{"styles": ["p", "p-first"], "str": "Done!"}],
+    title: "Test reading updated title",
+    public: true,
+    source: "http://something.com",
+    cover_img: "https://pbs.twimg.com/media/C52NouDWUAEUc5D.jpg",
+    tags: [{ userId: "58c490e8385fe5cc4b10eab1", values: ["wot in titration"] }],
+    draft: true
   }
 }
 

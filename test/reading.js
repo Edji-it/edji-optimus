@@ -38,7 +38,7 @@ describe("Readings", () => {
   })
 
   describe("POST /readings", () => {
-    it("it should create a new reading", (done) => {
+    it("should create a new reading", (done) => {
       chai.request(server)
         .post("/readings")
         .set("Authorization", testUsers.testTeacher.token)
@@ -68,7 +68,7 @@ describe("Readings", () => {
         })
     })
 
-    it("it should reject a reading without required fields", (done) => {
+    it("should reject a reading without required fields", (done) => {
       chai.request(server)
         .post("/readings")
         .set("Authorization", testUsers.testTeacher.token)
@@ -94,7 +94,7 @@ describe("Readings", () => {
         })
     })
 
-    it("it should reject a POST without a reading", (done) => {
+    it("should reject a POST without a reading", (done) => {
       chai.request(server)
         .post("/readings")
         .set("Authorization", testUsers.testTeacher.token)
@@ -114,7 +114,7 @@ describe("Readings", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .post("/readings")
         .send({ notReading: data.readings.newReading })
@@ -128,7 +128,7 @@ describe("Readings", () => {
   })
 
   describe("GET /readings", () => {
-    it("it should get all of a users's readings", (done) => {
+    it("should get all of a users's readings", (done) => {
       chai.request(server)
         .get("/readings")
         .set("Authorization", testUsers.testTeacher.token)
@@ -140,7 +140,7 @@ describe("Readings", () => {
           readings.should.be.instanceof(Array)
           readings.length.should.be.above(0)
 
-          // reading validation - properties it should have
+          // reading validation - properties should have
           var reading = readings[0]
           reading.should.have.property("_id")
           reading.should.have.property("owner_id")
@@ -151,7 +151,7 @@ describe("Readings", () => {
             reading.teacher_ids.indexOf(testUsers.testTeacher.user._id).should.be.above(-1)
           reading.should.have.property("createdAt")
           reading.should.have.property("updatedAt")
-          // reading validation - properties it should NOT have
+          // reading validation - properties should NOT have
           reading.should.not.have.property("words")
           reading.should.not.have.property("html")
           reading.should.not.have.property("comments")
@@ -160,7 +160,7 @@ describe("Readings", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .get("/readings")
         .end((err, res) => {
@@ -173,7 +173,7 @@ describe("Readings", () => {
   })
 
   describe("GET /readings/all/projects", () => {
-    it("it should return all of a user's readings with all of their of projects", (done) => {
+    it("should return all of a user's readings with all of their of projects", (done) => {
       chai.request(server)
         .get("/readings/all/projects")
         .set("Authorization", testUsers.testTeacher.token)
@@ -229,7 +229,7 @@ describe("Readings", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .get("/readings/all/projects")
         .end((err, res) => {
@@ -237,6 +237,30 @@ describe("Readings", () => {
           res.should.have.status(401)
 
           done()
+        })
+    })
+  })
+
+  describe("PUT /readings/:id", () => {
+    it("should update a readings with acceptable properties", (done) => {
+      chai.request(server)
+        .put("/readings/" + testReading._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ reading: data.readings.updateReading })
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("reading")
+
+          let reading = res.body.reading
+          reading.should.have.property("_id")
+          reading.should.have.property("html")
+          reading.should.have.property("title")
+          reading.should.have.property("words")
+          reading.should.have.property("public")
+          reading.should.have.property("source")
+          reading.should.have.property("cover_img")
+          reading.should.have.property("tags")
+          reading.should.have.property("draft")
         })
     })
   })

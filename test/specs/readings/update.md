@@ -19,12 +19,9 @@ The request body should contain a `reading` with any one of the following option
 ```javascript
 reading: {
   html: string,
-  preppedHtml: string,
   words: string,
   title: string,
-  teacher_ids: string[],
   public: boolean,
-  promoter_ids: string[],
   source: string,
   cover_img: string,
   tags: Tag[],
