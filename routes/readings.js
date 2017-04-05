@@ -95,11 +95,10 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
         return res.status(400).send({ validationErrors: { invalidProperties: invalidProperties }})
     }
 
-    Q(Reading.update({  }))
-
     Q(Reading.findById(reading_id).exec())
         .then((result) => {
             if (!result) { return res.status(404).send() }
+            if (result.owner_id != user._id) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
             result.save((err) => {
