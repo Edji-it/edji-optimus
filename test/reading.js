@@ -267,5 +267,41 @@ describe("Readings", () => {
           done()
         })
     })
+
+    it("should return 400 when there is not a reading", (done) => {
+      chai.request(server)
+        .put("/readings/" + testReading._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ notReading: data.readings.updateReading })
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should receive 400 when an invalid id is passed", () => {
+      chai.request(server)
+        .put("/readings/notanid")
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ reading: data.readings.updateReading })
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should return 404 for an id that does not exist", () => {
+      chai.request(server)
+        .put("/readings/57bf5b422af8bc9a5a0fbae1")
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ reading: data.readings.updateReading })
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
+        })
+    })
   })
 })
