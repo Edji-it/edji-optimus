@@ -72,39 +72,70 @@ router.post("/", Middleware.authRequired, function(req, res) {
 router.put("/:reading_id", Middleware.authRequired, function(req, res) {
     var reading_upd = req.body.reading
     var reading_id = req.params.reading_id
-    reading_upd._id = reading_id
     var user = req.user
+
+    if (!reading_upd) { return res.status(400).send() }
 
     // Validate the reading ID is of the proper type
     if (!mongoose.Types.ObjectId.isValid(reading_id)) {
         // If the reading id is not a valid mongo id
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
-    var reading = Reading(reading_upd)
+    // now we need to make sure they are not trying to update anything we don't want them to
+    validProperties = ["html", "words", "title", "public", "source", "cover_img", "tags", "draft"]
+    let invalidProperties = []
+    for (let property in reading_upd) {
+        if (validProperties.indexOf(property) < 0) {
+            invalidProperties.push(property)
+        }
+    }
 
-    if (reading) {
-        reading.save().then(
-            reading => {
-                if (!reading) {
-                    res.status(404).send()
-                    return
+    if (invalidProperties.length > 0) {
+        return res.status(400).send({ validationErrors: { invalidProperties: invalidProperties }})
+    }
+
+    Q(Reading.update({  }))
+
+    Q(Reading.findById(reading_id).exec())
+        .then((result) => {
+            if (!result) { return res.status(404).send() }
+
+            Object.assign(result, reading_upd)
+            result.save((err) => {
+                console.log("got saved result")
+                if (err) {
+                    console.error(err)
+                    return res.status(500).send()
                 } else {
-                    reading.success = true;
-                    res.status(201).send({reading: reading})
+                    return res.status(200).send({ reading: result })
                 }
-            }
-        ).catch(
-             error => {
-                console.error(error)
-                res.status(500).send()
-            }
-        )
-    } else {
-        // If a reading is not sent in the body of the request
-        res.status(404).send()
-    }
+            })
+        })
+        .catch((err) => {
+            console.log("error caught while looking up the reading")
+            console.error(err)
+            return res.status(500).send()
+        })
+
+    // var reading = Reading(reading_upd)
+
+    // reading.save().then(
+    //     reading => {
+    //         if (!reading) {
+    //             res.status(404).send()
+    //             return
+    //         } else {
+    //             reading.success = true;
+    //             res.status(201).send({reading: reading})
+    //         }
+    //     }
+    // ).catch(
+    //         error => {
+    //         console.error(error)
+    //         res.status(500).send()
+    //     }
+    // )
 })
 
 // // Used for deleting readings in Postman for now

@@ -261,6 +261,10 @@ describe("Readings", () => {
           reading.should.have.property("cover_img")
           reading.should.have.property("tags")
           reading.should.have.property("draft")
+          reading.should.have.property("createdAt")
+          reading.should.have.property("updatedAt")
+
+          done()
         })
     })
   })
