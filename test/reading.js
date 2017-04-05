@@ -315,5 +315,16 @@ describe("Readings", () => {
           done()
         })
     })
+
+    it("should reject a request that does not have an auth token", (done) => {
+      chai.request(server)
+        .put("/readings/" + testReading._id)
+        .send({ reading: data.readings.updateReading })
+        .end((err, res) => {
+          res.should.have.status(401)
+
+          done()
+        })
+    })
   })
 })
