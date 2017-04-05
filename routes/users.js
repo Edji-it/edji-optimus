@@ -270,7 +270,7 @@ router.post("/recover_password", function(req, res) {
             
             //TODO set link to Angular component URL
             transport.sendMail({
-                from: 'recovery@edji.it',
+                from: 'Edji <recovery@edji.it>',
                 to: user.email,
                 subject: 'Password Recovery - Edji',
                 html: `
