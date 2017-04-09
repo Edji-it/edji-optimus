@@ -129,57 +129,57 @@ describe("Users", () => {
             })
         })
 
-        describe("Temp user conversion", () => {
-            let tempUser, testReading, testProject
+        // describe("Temp user conversion", () => {
+        //     let tempUser, testReading, testProject
 
-            before((done) => {
+        //     before((done) => {
 
-                // create a temp user, for which we'll create readings and projects
-                functions.createTempUser(data.users.tempUser).then((returnUser) => {
-                    // save the temp user to accessible variable
-                    tempUser = returnUser
-                    console.log("temp:", tempUser)
-                    // return promise which creates reading
-                    return functions.createReading(data.readings.newReading, tempUser.token)
-                })
-                .then((readingPromise) => {
-                    console.log("looking at reading")
-                    // chain to reading promise
-                    return readingPromise.then((returnReading) => {
-                        // save out test reading
-                        testReading = returnReading.reading
-                        console.log("reading", testReading)
-                        // resolve with nothing
-                        return
-                    })
-                })
-                .then(() => {
-                    // create a new project object so that we can reset the reading_id
-                    let newProj = Object.assign({}, data.projects.newProject)
-                    // set reading_id for newly created project
-                    newProj.reading_id = testReading._id
+        //         // create a temp user, for which we'll create readings and projects
+        //         functions.createTempUser(data.users.tempUser).then((returnUser) => {
+        //             // save the temp user to accessible variable
+        //             tempUser = returnUser
+        //             console.log("temp:", tempUser)
+        //             // return promise which creates reading
+        //             return functions.createReading(data.readings.newReading, tempUser.token)
+        //         })
+        //         .then((readingPromise) => {
+        //             console.log("looking at reading")
+        //             // chain to reading promise
+        //             return readingPromise.then((returnReading) => {
+        //                 // save out test reading
+        //                 testReading = returnReading.reading
+        //                 console.log("reading", testReading)
+        //                 // resolve with nothing
+        //                 return
+        //             })
+        //         })
+        //         .then(() => {
+        //             // create a new project object so that we can reset the reading_id
+        //             let newProj = Object.assign({}, data.projects.newProject)
+        //             // set reading_id for newly created project
+        //             newProj.reading_id = testReading._id
 
-                    // create a new project and pass to promise
-                    return functions.createProject(newProj, tempUser.token)
-                })
-                .then((projPromise) => {
-                    // chain on projPromise
-                    projPromise.then((returnProj) => {
-                        // assign out to assessible variable
-                        testProject = returnProj.project
-                        console.log("project:", testProject)
-                        done()
-                    })
-                })
-            })
+        //             // create a new project and pass to promise
+        //             return functions.createProject(newProj, tempUser.token)
+        //         })
+        //         .then((projPromise) => {
+        //             // chain on projPromise
+        //             projPromise.then((returnProj) => {
+        //                 // assign out to assessible variable
+        //                 testProject = returnProj.project
+        //                 console.log("project:", testProject)
+        //                 done()
+        //             })
+        //         })
+        //     })
 
-            // it("it should do the right stuff", (done) => {
-            //     console.log("temp:", tempUser)
-            //     console.log("reading, testReading")
-            //     console.log("project:", testProject)
-            //     done()
-            // })
-        })
+        //     // it("it should do the right stuff", (done) => {
+        //     //     console.log("temp:", tempUser)
+        //     //     console.log("reading, testReading")
+        //     //     console.log("project:", testProject)
+        //     //     done()
+        //     // })
+        // })
     })
 
     describe('PUT /users', () => {
