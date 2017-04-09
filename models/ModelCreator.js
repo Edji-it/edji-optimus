@@ -26,7 +26,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
 
     Model.prototype.save = function(callback){
         if (this._id) {
-            Model.findOneAndUpdate({_id:this._id}, this, {new:true,upsert:true,setDefaultsOnInsert:true}, callback);
+            Model.findOneAndUpdate({_id:this._id}, this, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }, callback);
         } else {
             this.forceSave(callback);
         }
