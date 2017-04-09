@@ -188,6 +188,81 @@ describe("Users", () => {
         // })
     })
 
+    describe("GET /users/:id", () => {
+        it("should return a user", (done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(200)
+                    res.body.should.be.a("object")
+
+                    //user validation
+                    var user = res.body.user
+                    user.should.have.property("_id")
+                    user.should.have.property("username")
+                    user.should.have.property("fullname")
+                    user.should.have.property("email")
+                    user.should.have.property("createdAt")
+                    user.should.have.property("updatedAt")
+                    user.should.not.have.property("password")
+                    user.should.not.have.property("resetPasswordToken")
+                    user.should.not.have.property("resetPasswordExpires")
+                    user.should.not.have.property("accountArchiveToken")
+
+                    done()
+                })
+        })
+
+        it("should receive 400 for an invalid id", (done) => {
+            chai.request(server)
+                .get("/users/corbin")
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(400)
+
+                    done()
+                })
+        })
+
+        it("should receive 401 for id which does not exist", (done) => {
+            chai.request(server)
+                .get("/users/57bf5b422af8bc9a5a0fbae1")
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(401)
+
+                    done()
+                })
+        })
+
+        it("should receive 401 if passed without the Authorization header", (done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(401)
+
+                    done()
+                })
+        })
+
+        it("should receive 401 if the token does not match the requested id", (done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .set("Authorization", testUsers.testTeacher.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(401)
+
+                    done()
+                })
+        })
+    })
+
     describe('PUT /users', () => {
 
         it("should update a user", (done) => {
@@ -197,7 +272,7 @@ describe("Users", () => {
                 .set("Authorization", testUsers.testStudent.token)
                 .send({ user: { 
                     fullname: 'API Student', 
-                    prefs : { recentEmojis : ['100', 'skull'] } 
+                    prefs : { recentEmoji : ['100', 'skull'] } 
                 }})
                 .end((err, res) => {
                     //initial validation
@@ -209,15 +284,44 @@ describe("Users", () => {
                     user.should.have.property("_id")
                     user.should.have.property("username")
                     user.should.have.property("fullname")
+                        user.fullname.should.be.equal("API Student")
                     user.should.have.property("email")
                     user.should.have.property("createdAt")
                     user.should.have.property("updatedAt")
                     user.should.have.property("prefs")
+                    user.prefs.should.have.property("recentEmoji")
+                        user.prefs.recentEmoji.should.be.instanceOf(Array)
+                        user.prefs.recentEmoji.length.should.be.equal(2)
+                        user.prefs.recentEmoji[0].should.be.equal("100")
+                        user.prefs.recentEmoji[1].should.be.equal("skull")
                     user.should.not.have.property("password")
                     user.should.not.have.property("resetPasswordToken")
                     user.should.not.have.property("resetPasswordExpires")
                     user.should.not.have.property("accountArchiveToken")
 
+                    // chai.request(server)
+                    //     .get("/users/" + testUsers.testStudent.user._id)
+                    //     .set("Authorization", testUsers.testStudent.token)
+                    //     .end((err, res) => {
+                    //         // initial validation
+                    //         res.should.have.status(200)
+                    //         res.body.should.be.a("object")
+
+                    //         //user validation
+                    //         var user = res.body.user
+                    //         user.should.have.property("_id")
+                    //         user.should.have.property("username")
+                    //         user.should.have.property("fullname")
+                    //         user.should.have.property("email")
+                    //         user.should.have.property("createdAt")
+                    //         user.should.have.property("updatedAt")
+                    //         user.should.not.have.property("password")
+                    //         user.should.not.have.property("resetPasswordToken")
+                    //         user.should.not.have.property("resetPasswordExpires")
+                    //         user.should.not.have.property("accountArchiveToken")
+
+                    //         done()
+                    //     })
                     done()
                 })
         })
@@ -349,81 +453,6 @@ describe("Users", () => {
                     // initial validation
                     res.should.have.status(400)
                     res.body.should.be.a("object")
-
-                    done()
-                })
-        })
-    })
-
-    describe("GET /users/:id", () => {
-        it("should return a user", (done) => {
-            chai.request(server)
-                .get("/users/" + testUsers.testStudent.user._id)
-                .set("Authorization", testUsers.testStudent.token)
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(200)
-                    res.body.should.be.a("object")
-
-                    //user validation
-                    var user = res.body.user
-                    user.should.have.property("_id")
-                    user.should.have.property("username")
-                    user.should.have.property("fullname")
-                    user.should.have.property("email")
-                    user.should.have.property("createdAt")
-                    user.should.have.property("updatedAt")
-                    user.should.not.have.property("password")
-                    user.should.not.have.property("resetPasswordToken")
-                    user.should.not.have.property("resetPasswordExpires")
-                    user.should.not.have.property("accountArchiveToken")
-
-                    done()
-                })
-        })
-
-        it("should receive 400 for an invalid id", (done) => {
-            chai.request(server)
-                .get("/users/corbin")
-                .set("Authorization", testUsers.testStudent.token)
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(400)
-
-                    done()
-                })
-        })
-
-        it("should receive 401 for id which does not exist", (done) => {
-            chai.request(server)
-                .get("/users/57bf5b422af8bc9a5a0fbae1")
-                .set("Authorization", testUsers.testStudent.token)
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(401)
-
-                    done()
-                })
-        })
-
-        it("should receive 401 if passed without the Authorization header", (done) => {
-            chai.request(server)
-                .get("/users/" + testUsers.testStudent.user._id)
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(401)
-
-                    done()
-                })
-        })
-
-        it("should receive 401 if the token does not match the requested id", (done) => {
-            chai.request(server)
-                .get("/users/" + testUsers.testStudent.user._id)
-                .set("Authorization", testUsers.testTeacher.token)
-                .end((err, res) => {
-                    // initial validation
-                    res.should.have.status(401)
 
                     done()
                 })

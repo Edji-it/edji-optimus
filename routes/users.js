@@ -97,17 +97,8 @@ router.put("/", function(req, res){
             res.status(400).send()
             return
         } else {
-            var returnUser = _.pick(user, 
-                '_id', 
-                'username',
-                'fullname', 
-                'email', 
-                'createdAt',
-                'updatedAt',
-                'prefs', 
-                'documents'
-            )
-            res.status(200).send({ user: returnUser })
+
+            res.status(200).send({ user: user.toPublic() })
         }
     })
     .catch((error) => {
