@@ -21,7 +21,7 @@ var LoginController = require("./../middleware/LoginController")
 
 var router = express.Router()
 
-MountModelToRouter(router, User, "user", {create:false, delete: false})
+MountModelToRouter(router, User, "user", { create:false, delete: false, read: false, list: false })
 
 router.post("/", function(req, res){
 
@@ -57,6 +57,17 @@ router.post("/", function(req, res){
         }
     })
 
+})
+
+router.get("/:id", function(req, res) {
+    let user = req.user
+    let _id = req.params.id
+
+    if (!mongoose.Types.ObjectId.isValid(_id)) { return res.status(400).send() }
+
+    if (user._id =! _id) { return res.status(401).send() }
+
+    return res.status(200).send({ user: user })
 })
 
 router.put("/", function(req, res){
