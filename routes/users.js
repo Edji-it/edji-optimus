@@ -18,6 +18,7 @@ var mandrillConfig = config.get("Mandrill")
 var User = require("./../models/User")
 var ArchivedUser = require("./../models/ArchivedUser")
 var LoginController = require("./../middleware/LoginController")
+let middleware = require("./../middleware/Middleware")
 
 var router = express.Router()
 
@@ -59,13 +60,13 @@ router.post("/", function(req, res){
 
 })
 
-router.get("/:id", function(req, res) {
+router.get("/:id", middleware.authRequired,function(req, res) {
     let user = req.user
     let _id = req.params.id
 
     if (!mongoose.Types.ObjectId.isValid(_id)) { return res.status(400).send() }
 
-    if (user._id =! _id) { return res.status(401).send() }
+    if (user._id != _id) { return res.status(401).send() }
 
     return res.status(200).send({ user: user.toPublic() })
 })

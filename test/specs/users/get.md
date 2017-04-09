@@ -36,6 +36,6 @@ Coming soon?
             *  `resetPasswordExpires`
             *  `accountArchiveToken`
 2.  Pass with invalid id --> receive `400`
-3.  Pass with id that does not exist --> receive `404`
+3.  Pass with id that does not exist --> receive `401`
 4.  Pass without `Authorization` header --> receive `401`
 5.  Pass with token that does not match the user --> receive `401`

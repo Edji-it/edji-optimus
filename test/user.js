@@ -24,7 +24,7 @@ describe("Users", () => {
 
     describe('POST /users', () => {
         describe("Standard registration", () => {
-            it("it should register a user", (done) => {
+            it("should register a user", (done) => {
                 
                 chai.request(server)
                     .post("/users")
@@ -57,7 +57,7 @@ describe("Users", () => {
                     })
             })
 
-            it("it should not allow a duplicate user", (done) => {
+            it("should not allow a duplicate user", (done) => {
 
                 chai.request(server)
                     .post("/users")
@@ -70,7 +70,7 @@ describe("Users", () => {
                     })
             })
 
-            it("it should catch profane names, usernames and invalid emails", (done) => {
+            it("should catch profane names, usernames and invalid emails", (done) => {
                 chai.request(server)
                     .post("/users")
                     .send({ user: data.users.badUser })
@@ -100,7 +100,7 @@ describe("Users", () => {
                     })
             })
 
-            it("it should return 'required' errors for all missing fields that are required", (done) => {
+            it("should return 'required' errors for all missing fields that are required", (done) => {
                 chai.request(server)
                     .post("/users")
                     .send({ user: { identities: ["teacher"] } })
@@ -179,7 +179,7 @@ describe("Users", () => {
         //         })
         //     })
 
-        //     // it("it should do the right stuff", (done) => {
+        //     // it("should do the right stuff", (done) => {
         //     //     console.log("temp:", tempUser)
         //     //     console.log("reading, testReading")
         //     //     console.log("project:", testProject)
@@ -190,7 +190,7 @@ describe("Users", () => {
 
     describe('PUT /users', () => {
 
-        it("it should update a user", (done) => {
+        it("should update a user", (done) => {
 
             chai.request(server)
                 .put("/users")
@@ -222,7 +222,7 @@ describe("Users", () => {
                 })
         })
 
-        it("it should catch profane names and invalid emails", (done) => {
+        it("should catch profane names and invalid emails", (done) => {
             chai.request(server)
                 .put("/users")
                 .set("Authorization", testUsers.testStudent.token)
@@ -252,7 +252,7 @@ describe("Users", () => {
     })
     
     describe("POST /users/login", () => {
-        it("it should login an existing user", (done) => {
+        it("should login an existing user", (done) => {
 
             chai.request(server)
                 .post("/users/login")
@@ -286,7 +286,7 @@ describe("Users", () => {
                 })
         })
 
-        it("it should login a user regardless of capitalization in username", (done) => {
+        it("should login a user regardless of capitalization in username", (done) => {
 
             chai.request(server)
                 .post("/users/login")
@@ -302,7 +302,7 @@ describe("Users", () => {
                 })
         })
 
-        it("it should return 401 for a user with an incorrect password", (done) => {
+        it("should return 401 for a user with an incorrect password", (done) => {
             chai.request(server)
                 .post("/users/login")
                 .send(data.users.incorrectCredentials)
@@ -315,7 +315,7 @@ describe("Users", () => {
                 })
         })
 
-        it("it should reject a call without a user", (done) => {
+        it("should reject a call without a user", (done) => {
             chai.request(server)
                 .post("/users/login")
                 .send({ nothing: {} })
@@ -328,7 +328,7 @@ describe("Users", () => {
                 })
         })
 
-        it("it should reject a user without a username", (done) => {
+        it("should reject a user without a username", (done) => {
             chai.request(server)
                 .post("/users/login")
                 .send({ user: { password: "hello" } })
@@ -341,7 +341,7 @@ describe("Users", () => {
                 })
         })
 
-        it("it should reject a user without a password", (done) => {
+        it("should reject a user without a password", (done) => {
             chai.request(server)
                 .post("/users/login")
                 .send({ user: { username: "hello" } })
@@ -356,7 +356,7 @@ describe("Users", () => {
     })
 
     describe("GET /users/:id", () => {
-        it("it should return a user", (done) => {
+        it("should return a user", (done) => {
             chai.request(server)
                 .get("/users/" + testUsers.testStudent.user._id)
                 .set("Authorization", testUsers.testStudent.token)
@@ -377,6 +377,53 @@ describe("Users", () => {
                     user.should.not.have.property("resetPasswordToken")
                     user.should.not.have.property("resetPasswordExpires")
                     user.should.not.have.property("accountArchiveToken")
+
+                    done()
+                })
+        })
+
+        it("should receive 400 for an invalid id", (done) => {
+            chai.request(server)
+                .get("/users/corbin")
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(400)
+
+                    done()
+                })
+        })
+
+        it("should receive 401 for id which does not exist", (done) => {
+            chai.request(server)
+                .get("/users/57bf5b422af8bc9a5a0fbae1")
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(401)
+
+                    done()
+                })
+        })
+
+        it("should receive 401 if passed without the Authorization header", (done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(401)
+
+                    done()
+                })
+        })
+
+        it("should receive 401 if the token does not match the requested id", (done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .set("Authorization", testUsers.testTeacher.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(401)
 
                     done()
                 })
