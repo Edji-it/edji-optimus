@@ -2,7 +2,7 @@
 
 ## Goal
 
-Users can store a project
+User can retreive a project
 
 ## Endpoint
 
