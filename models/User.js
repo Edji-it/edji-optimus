@@ -67,6 +67,7 @@ var model = ModelCreator("User", {
         delete user.password
         delete user.resetPasswordToken
         delete user.resetPasswordExpires
+        delete user.accountArchiveToken
         return user
     }
 })
