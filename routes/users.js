@@ -67,7 +67,7 @@ router.get("/:id", function(req, res) {
 
     if (user._id =! _id) { return res.status(401).send() }
 
-    return res.status(200).send({ user: user })
+    return res.status(200).send({ user: user.toPublic() })
 })
 
 router.put("/", function(req, res){
