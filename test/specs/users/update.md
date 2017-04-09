@@ -6,7 +6,7 @@ Update one or more of a select list of properties on a reading
 
 ## Endpoint
 
-`/users/:id`
+`/users`
 
 ## Request Type
 
@@ -14,7 +14,7 @@ Update one or more of a select list of properties on a reading
 
 ## Request Data
 
-The request body should contain a `reading` with any one of the following options in json form
+The request body should contain a `user` with any one of the following options in json form
 
 ```javascript
 user: {
