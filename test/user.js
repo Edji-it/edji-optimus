@@ -15,6 +15,12 @@ chai.use(chaiHttp)
 var testUsers // comes with testStudent, testTeacher and testTemp
 
 describe("Users", () => {
+    before((done) => {
+        functions.loginTestUsers().then((users) => {
+            testUsers = users
+            done()
+        })
+    })
 
     describe('POST /users', () => {
         describe("Standard registration", () => {
@@ -183,13 +189,6 @@ describe("Users", () => {
     })
 
     describe('PUT /users', () => {
-        
-        before((done) => {
-            functions.loginTestUsers().then((users) => {
-                testUsers = users
-                done()
-            })
-        })
 
         it("it should update a user", (done) => {
 
@@ -350,6 +349,36 @@ describe("Users", () => {
                     // initial validation
                     res.should.have.status(400)
                     res.body.should.be.a("object")
+
+                    done()
+                })
+        })
+    })
+
+    describe("GET /users/:id", () => {
+        it("it should return a user", (done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    // initial validation
+                    res.should.have.status(200)
+                    res.body.should.be.a("object")
+
+                    console.log(res.body)
+
+                    //user validation
+                    var user = res.body.user
+                    user.should.have.property("_id")
+                    user.should.have.property("username")
+                    user.should.have.property("fullname")
+                    user.should.have.property("email")
+                    user.should.have.property("createdAt")
+                    user.should.have.property("updatedAt")
+                    user.should.not.have.property("password")
+                    user.should.not.have.property("resetPasswordToken")
+                    user.should.not.have.property("resetPasswordExpires")
+                    user.should.not.have.property("accountArchiveToken")
 
                     done()
                 })
