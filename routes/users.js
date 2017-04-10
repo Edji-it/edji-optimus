@@ -87,9 +87,10 @@ router.put("/", function(req, res){
 
     // New object for acceptable updatable attribute
     updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media')
+    console.log(updatedUser)
 
     Q(User.findOneAndUpdate( { '_id' : id }, updatedUser, {
-        new: false, runValidators: true, setDefaultsOnInsert: false
+        new: true, runValidators: true, setDefaultsOnInsert: false
     }).exec())
     .then((user) => {
         // send 404 if the user doesn't exist
@@ -97,7 +98,7 @@ router.put("/", function(req, res){
             res.status(400).send()
             return
         } else {
-
+            console.log(user.toPublic())
             res.status(200).send({ user: user.toPublic() })
         }
     })

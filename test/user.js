@@ -1,11 +1,12 @@
-var chai = require("chai")
-var chaiHttp = require("chai-http")
-var config = require("config")
-var server = config.get("Testing.url")
-var should = chai.should()
-var Q = require("q")
+const chai = require("chai")
+const chaiHttp = require("chai-http")
+const config = require("config")
+const server = config.get("Testing.url")
+const should = chai.should()
+const Q = require("q")
+const uuid = require("uuid")
 
-var server = require("./../index")
+// var server = require("./../index")
 var User = require("./../models/User")
 var data = require("./data")
 var functions = require("./functions")
@@ -267,33 +268,59 @@ describe("Users", () => {
 
         it("should update a user", (done) => {
 
+            let userUpdate = {
+                fullname: uuid.v4(),
+                email: uuid.v4() + "@gmail.com",
+                prefs: {
+                    recentEmoji: [uuid.v4(), uuid.v4()]
+                },
+                media: {
+                    images: [{ title: uuid.v4(), url: "http://" + uuid.v4() }],
+                    documents: [{ title: uuid.v4(), pages: ["http://" + uuid.v4()] }]
+                }
+            }
+
             chai.request(server)
                 .put("/users")
                 .set("Authorization", testUsers.testStudent.token)
-                .send({ user: { 
-                    fullname: 'API Student', 
-                    prefs : { recentEmoji : ['100', 'skull'] } 
-                }})
+                .send({ user: userUpdate})
                 .end((err, res) => {
-                    //initial validation
+                    // initial validation
                     res.should.have.status(200)
                     res.body.should.be.a("object")
                     
-                    //user validation
+                    // properties a user should have
                     var user = res.body.user
                     user.should.have.property("_id")
                     user.should.have.property("username")
                     user.should.have.property("fullname")
-                        user.fullname.should.be.equal("API Student")
+                        user.fullname.should.be.equal(userUpdate.fullname)
                     user.should.have.property("email")
+                        user.email.should.be.equal(userUpdate.email)
                     user.should.have.property("createdAt")
                     user.should.have.property("updatedAt")
                     user.should.have.property("prefs")
                     user.prefs.should.have.property("recentEmoji")
                         user.prefs.recentEmoji.should.be.instanceOf(Array)
                         user.prefs.recentEmoji.length.should.be.equal(2)
-                        user.prefs.recentEmoji[0].should.be.equal("100")
-                        user.prefs.recentEmoji[1].should.be.equal("skull")
+                        user.prefs.recentEmoji[0].should.be.equal(userUpdate.prefs.recentEmoji[0])
+                        user.prefs.recentEmoji[1].should.be.equal(userUpdate.prefs.recentEmoji[1])
+                    user.should.have.property("media")
+                    user.media.should.have.property("images")
+                        user.media.images.should.be.instanceOf(Array)
+                        user.media.images[0].should.have.property("title")
+                            user.media.images[0].title.should.be.equal(userUpdate.media.images[0].title)
+                        user.media.images[0].should.have.property("url")
+                            user.media.images[0].url.should.be.equal(userUpdate.media.images[0].url),
+                    user.media.should.have.property("documents")
+                        user.media.documents.should.be.instanceOf(Array)
+                        user.media.documents[0].should.have.property("title")
+                            user.media.documents[0].title.should.be.equal(userUpdate.media.documents[0].title)
+                        user.media.documents[0].should.have.property("pages")
+                            user.media.documents[0].pages.should.be.instanceOf(Array)
+                            user.media.documents[0].pages[0].should.be.equal(userUpdate.media.documents[0].pages[0])
+
+                    // properties a user should not have
                     user.should.not.have.property("password")
                     user.should.not.have.property("resetPasswordToken")
                     user.should.not.have.property("resetPasswordExpires")
