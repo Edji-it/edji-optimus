@@ -66,7 +66,8 @@ router.post("/", Middleware.authRequired, function(req, res) {
             Q(ReadingVersion.findOneAndUpdate({ // we can't use save here because of the special $push operation
                     _id: model.version_id
                 }, {
-                    $push: { readings: model._id }
+                    $push: { readings: model._id },
+                    updatedAt: Date.now()
                 }, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true })
                 .exec())
                 .then((version) => {
