@@ -23,24 +23,21 @@ router.post("/", Middleware.authRequired, function(req, res) {
         res.status(400).send({ validationErrors: { reading: "required" } })
         return
     }
+    
+    // if the original owner is not the user, we need to create a new version_id to keep track of this user's version separately
+    // this means that, if we don't receive an owner_id with the call, we will attribute this to a new version
+    //  if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
+    //  all we have to do is give it the version id, because later we'll create the ReadingVersion based on this id
+    let makeNewVersionId = false
+    if (!reading.owner_id || reading.owner_id != user._id || !reading.version_id) { reading.version_id = mongoose.Types.ObjectId() }
 
-    // owner_id is required on the model, so we set it by default here
-    if (!reading['owner_id']) {
-        reading['owner_id'] = req.user._id
-    }
+    // going to just always set owner_id for now. don't see any reason that the front end would set it
+    reading.owner_id = user._id
 
     // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
     // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
-    if (!reading['teacher_ids'] || reading.teacher_ids.length < 1) {
-        reading['teacher_ids'] = []
-        reading.teacher_ids.push(user._id)
-    }
-
-    // if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
-    if (!reading.version_id) {
-        // all we have to do is give it the version id, because later we'll create the ReadingVersion based on this id
-        reading.version_id = mongoose.Types.ObjectId()
-    }
+    reading.teacher_ids = []
+    reading.teacher_ids.push(user._id)
     
     let model = Reading(reading)
 
@@ -64,7 +61,8 @@ router.post("/", Middleware.authRequired, function(req, res) {
             // first, make the necessary update to the version in the linking table
             // the upsert: true makes sure that, if the version_id doesn't exist, it gets created
             Q(ReadingVersion.findOneAndUpdate({ // we can't use save here because of the special $push operation
-                    _id: model.version_id
+                    _id: model.version_id,
+                    owner_id: user._id
                 }, {
                     $push: { readings: model._id },
                     updatedAt: Date.now()
@@ -84,7 +82,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 })
                 .catch((err) => {
                     console.error(err)
-                    res.status(500).send(err)
+                    res.status(500).send()
                 })
         }
     })
