@@ -23,6 +23,8 @@ req: {
 }
 ```
 
+NOTE: If you are trying to make a new version of an existing reading, and it should be V2 of a user's reading, the call MUST have the `owner_id` in order to know which version to attribute the new reading to. Otherwise, it will automatically open up a new version list.
+
 ## Response Data
 
 Coming soon?
