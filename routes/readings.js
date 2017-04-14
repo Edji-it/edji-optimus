@@ -63,7 +63,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
         } else {
             // first, make the necessary update to the version in the linking table
             // the upsert: true makes sure that, if the version_id doesn't exist, it gets created
-            Q(ReadingVersion.findOneAndUpdate({
+            Q(ReadingVersion.findOneAndUpdate({ // we can't use save here because of the special $push operation
                     _id: model.version_id
                 }, {
                     $push: { readings: model._id }
