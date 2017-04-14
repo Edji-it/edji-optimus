@@ -136,69 +136,6 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
             console.error(err)
             return res.status(500).send()
         })
-
-    // var reading = Reading(reading_upd)
-
-    // reading.save().then(
-    //     reading => {
-    //         if (!reading) {
-    //             res.status(404).send()
-    //             return
-    //         } else {
-    //             reading.success = true;
-    //             res.status(201).send({reading: reading})
-    //         }
-    //     }
-    // ).catch(
-    //         error => {
-    //         console.error(error)
-    //         res.status(500).send()
-    //     }
-    // )
-})
-
-// // Used for deleting readings in Postman for now
-// router.delete("/:id", Middleware.authRequired, function(req, res) {
-//     var id = req.params.id
-//     var user = req.user
-
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//         res.status(400).send()
-//         return
-//     }
-
-//     Reading.remove({_id: id}, (error, obj) => {
-//         if (error) {
-//             console.error(error)
-//             res.status(500).send()
-//             return
-//         } else if (obj.result.n === 0) {
-//             res.status(404).send()
-//             return
-//         } else {
-//             res.status(204).send()
-//             return
-//         }
-//     })
-// })
-
-router.get("/", Middleware.authRequired, function(req, res){
-
-    Reading.find({ teacher_ids : req.user._id },
-        'title owner_id teacher_ids public promoter_ids source tags createdAt updatedAt draft',
-        { sort: {createdAt: -1} },
-        function(error, results){
-            // console.log("Added to readings!!!")
-            // console.log(results)
-            if (error) {
-                console.error(error)
-                res.status(500).send()
-                return
-            } else {
-                res.status(200).send({ readings: results })
-            }
-    })
-    
 })
 
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
