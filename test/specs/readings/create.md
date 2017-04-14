@@ -29,13 +29,15 @@ Coming soon?
 
 ## Test Cases
 
-1.  Pass good object
+1.  Pass good object without `version_id`
     *  `res` should have a:
         *  `status` = `201`
         *  `reading`: `any`
     *  `res.reading` should have a:
         *  `_id`: `string`
+    *  `res.reading` should NOT have a:
         *  `owner_id`: `string`
+        *  `version_id`: `ObjectId`
         *  `title`: `string`
         *  `words`: `any[]`
         *  `html`: `string`
@@ -44,8 +46,25 @@ Coming soon?
         *  `teacher_ids`: `string[]`
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
-2.  Pass without reading --> receive `400`
-3.  Pass without required fields
+2.  Pass good object with `version_id`
+    *  `res` should have a:
+        *  `status` = `201`
+        *  `reading`: `any`
+    *  `res.reading` should have a:
+        *  `_id`: `string`
+    *  `res.reading` should NOT have a:
+        *  `owner_id`: `string`
+        *  `version_id`: `ObjectId`
+        *  `title`: `string`
+        *  `words`: `any[]`
+        *  `html`: `string`
+        *  `promoter_ids`: `string[]`
+        *  `comments`: `Comment[]`
+        *  `teacher_ids`: `string[]`
+        *  `updatedAt`: `Date`
+        *  `createdAt`: `Date`
+3.  Pass without reading --> receive `400`
+4.  Pass without required fields
     *  `res` should have a:
         *  `status` = `406`
         *  `errors`: `any` should have a:
@@ -54,4 +73,4 @@ Coming soon?
                 *  `words`: `boolean` = `true`
                 *  `title`: `boolean` = `true`
                 *  `owner_id`: `boolean` = `true`
-4.  Pass without `Authorization` header --> receive `401`
+5.  Pass without `Authorization` header --> receive `401`
