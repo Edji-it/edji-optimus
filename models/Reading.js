@@ -7,7 +7,6 @@ var Comment = require("./Comment")
 var Tags = require("./Tags")
 
 module.exports = ModelCreator("Reading", {
-    _id: { type: mongoose.Schema.ObjectId, required: true, default: mongoose.Types.ObjectId() },
     html:{type: String, required: true},
     preppedHtml: String, // depricated
     words: {type: [], required: true},
