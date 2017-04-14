@@ -1,14 +1,15 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-var express = require( "express")
-var mongoose = require( "mongoose")
-var Q = require("q")
-var Reading = require("./../models/Reading")
-var Project = require("./../models/Project")
-var User = require("./../models/User")
-var MountModelToRouter = require("./MountModelToRouter")
-var Middleware = require("./../middleware/Middleware")
+const express = require( "express")
+const mongoose = require( "mongoose")
+const Q = require("q")
+let Reading = require("./../models/Reading")
+let Project = require("./../models/Project")
+let User = require("./../models/User")
+let ReadingVersion = require("./../models/ReadingVersion")
+let MountModelToRouter = require("./MountModelToRouter")
+let Middleware = require("./../middleware/Middleware")
 
 var router = express.Router()
 
@@ -34,8 +35,17 @@ router.post("/", Middleware.authRequired, function(req, res) {
         reading['teacher_ids'] = []
         reading.teacher_ids.push(user._id)
     }
+
+    // if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
+    if (!reading.version_id) {
+        // let modelVersion = ReadingVersion({ readings: [reading._id] }) // we init with empty array because later we'll $push the reading._id into the array
+        // reading.version_id = modelVersion._id
+        // console.log(reading._id, reading.version_id)
+        // console.log(modelVersion)
+        reading.version_id = mongoose.Types.ObjectId()
+    }
     
-    var model = Reading(reading)
+    let model = Reading(reading)
 
     let errors = {}
     model.validate((error) => {
@@ -54,16 +64,31 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 return res.status(406).send({ validationErrors: errors })
             }
         } else {
-            // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
-            model.forceSave((error, result) => {
-                if (error) {
-                    res.status(500).send(error)
-                    return
-                    
-                } else {
-                    res.status(201).send({ reading: { _id: result._id, success: true } })
-                }
-            })
+            // first, make the necessary update to the version in the linking table
+            Q(ReadingVersion.findOneAndUpdate({
+                    _id: model.version_id
+                }, {
+                    $push: { readings: model._id }
+                }, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true })
+                .exec())
+                .then((version) => {
+                    console.log("readingversion", version)
+                    console.log("reading", model)
+                    // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
+                    model.forceSave((error, result) => {
+                        if (error) {
+                            res.status(500).send(error)
+                            return
+                            
+                        } else {
+                            res.status(201).send({ reading: { _id: result._id, success: true } })
+                        }
+                    })
+                })
+                .catch((err) => {
+                    console.error(err)
+                    res.status(500).send(err)
+                })
         }
     })
 })
