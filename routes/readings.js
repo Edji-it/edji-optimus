@@ -38,10 +38,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
     // if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
     if (!reading.version_id) {
-        // let modelVersion = ReadingVersion({ readings: [reading._id] }) // we init with empty array because later we'll $push the reading._id into the array
-        // reading.version_id = modelVersion._id
-        // console.log(reading._id, reading.version_id)
-        // console.log(modelVersion)
+        // all we have to do is give it the version id, because later we'll create the ReadingVersion based on this id
         reading.version_id = mongoose.Types.ObjectId()
     }
     
@@ -65,6 +62,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
             }
         } else {
             // first, make the necessary update to the version in the linking table
+            // the upsert: true makes sure that, if the version_id doesn't exist, it gets created
             Q(ReadingVersion.findOneAndUpdate({
                     _id: model.version_id
                 }, {
@@ -72,8 +70,6 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 }, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true })
                 .exec())
                 .then((version) => {
-                    console.log("readingversion", version)
-                    console.log("reading", model)
                     // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
                     model.forceSave((error, result) => {
                         if (error) {
