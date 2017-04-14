@@ -38,11 +38,44 @@ describe("Readings", () => {
   })
 
   describe("POST /readings", () => {
-    it("should create a new reading", (done) => {
+    it("should create a new reading without version id", (done) => {
       chai.request(server)
         .post("/readings")
         .set("Authorization", testUsers.testTeacher.token)
         .send({ reading: data.readings.newReading })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("reading")
+          
+          // reading validation
+          var reading = res.body.reading
+          testReading = reading // stores reading for later tests
+          reading.should.have.property("_id")
+          reading.should.have.property("success")
+          reading.success.should.be.equal(true)
+          reading.should.not.have.property("owner_id")
+          reading.should.not.have.property("title")
+          reading.should.not.have.property("words")
+          reading.should.not.have.property("html")
+          reading.should.not.have.property("promoter_ids")
+          reading.should.not.have.property("comments")
+          reading.should.not.have.property("teacher_ids")
+          reading.should.not.have.property("createdAt")
+          reading.should.not.have.property("updatedAt")
+
+          done()
+        })
+    })
+
+    it("should create a new reading with version id", (done) => {
+      let newReading = Object.assign({}, data.readings.newReading)
+      newReading.version_id = "58f13da5bbbc066712ad017f"
+
+      chai.request(server)
+        .post("/readings")
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ reading: newReading })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
