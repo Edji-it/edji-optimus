@@ -233,6 +233,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
                 source: "$reading.source",
                 cover_img: "$reading.cover_img",
                 draft: "$reading.draft",
+                version_id: "$reading.version_id",
                 createdAt: "$reading.createdAt",
                 updatedAt: "$reading.updatedAt",
                 versionCount: 1
