@@ -138,6 +138,19 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
         })
 })
 
+router.get("/:id/versions", Middleware.authRequired, function(req, res) {
+    let id = req.params.id
+    let user = req.user
+
+    // Validate the reading ID is of the proper type
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        // If the reading id is not a valid mongo id
+        return res.status(400).send()
+    }
+
+
+})
+
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
     var user = req.user
 
@@ -153,7 +166,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         ReadingVersion.aggregate([
             { $match: { owner_id: user._id }},
             { $project: {
-                versionsCount: { $size: "$readings" },
+                versionCount: { $size: "$readings" },
                 readings: 1,
                 updatedAt: 1
             }},
