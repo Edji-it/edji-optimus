@@ -162,7 +162,8 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
                 _id: "$_id",
                 reading: { $last: "$readings" },
                 versionCount: { $last: "$versionsCount" },
-                updatedAt: { $last: "$updatedAt" }
+                updatedAt: { $last: "$updatedAt" },
+                promoter_count: { $last: "$promoter_count" }
             }},
             { $sort: { "updatedAt": 1 } },
             { $lookup: {
