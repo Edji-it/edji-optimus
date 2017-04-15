@@ -161,7 +161,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             { $group: {
                 _id: "$_id",
                 reading: { $last: "$readings" },
-                versionsCount: { $last: "$versionsCount" },
+                versionCount: { $last: "$versionsCount" },
                 updatedAt: { $last: "$updatedAt" }
             }},
             { $sort: { "updatedAt": 1 } },
@@ -183,7 +183,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
                 draft: "$reading.draft",
                 createdAt: "$reading.createdAt",
                 updatedAt: "$reading.updatedAt",
-                versionsCount: 1
+                versionCount: 1
             }}
         ])
     ]

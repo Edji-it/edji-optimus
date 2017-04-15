@@ -160,51 +160,6 @@ describe("Readings", () => {
     })
   })
 
-  describe("GET /readings", () => {
-    it("should get all of a users's readings", (done) => {
-      chai.request(server)
-        .get("/readings")
-        .set("Authorization", testUsers.testTeacher.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("readings")
-          var readings = res.body.readings
-          readings.should.be.instanceof(Array)
-          readings.length.should.be.above(0)
-
-          // reading validation - properties should have
-          var reading = readings[0]
-          reading.should.have.property("_id")
-          reading.should.have.property("owner_id")
-            reading.owner_id.should.equal(testUsers.testTeacher.user._id)
-          reading.should.have.property("title")
-          reading.should.have.property("promoter_ids")
-          reading.should.have.property("teacher_ids")
-            reading.teacher_ids.indexOf(testUsers.testTeacher.user._id).should.be.above(-1)
-          reading.should.have.property("createdAt")
-          reading.should.have.property("updatedAt")
-          // reading validation - properties should NOT have
-          reading.should.not.have.property("words")
-          reading.should.not.have.property("html")
-          reading.should.not.have.property("comments")
-
-          done()
-        })
-    })
-
-    it("should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/readings")
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(401)
-
-          done()
-        })
-    })
-  })
-
   describe("GET /readings/all/projects", () => {
     it("should return all of a user's readings with all of their of projects", (done) => {
       chai.request(server)
@@ -228,6 +183,7 @@ describe("Readings", () => {
             // reading.should.have.property("public") // not a required field
             // reading.should.have.property("source") // not a required field
             // reading.should.have.property("cover_img") // not a required field
+            reading.should.have.property("versionCount")
             reading.should.have.property("createdAt")
             reading.should.have.property("updatedAt")
 

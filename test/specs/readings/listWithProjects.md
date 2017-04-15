@@ -32,6 +32,7 @@ Coming soon?
         *  `source`: `string` - this is not currently a required field
         *  `projects`: `any[]`
         *  `cover_img`: `string` - this is not currently a required field
+        *  `versionCount`: `number`
         *  `createdAt`: `Date`
         *  `updatedAt`: `Date`
         *  Each project should have
