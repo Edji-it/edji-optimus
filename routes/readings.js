@@ -138,17 +138,55 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
         })
 })
 
-router.get("/:id/versions", Middleware.authRequired, function(req, res) {
-    let id = req.params.id
+router.get("/versions/:version_id", Middleware.authRequired, function(req, res) {
+    let version_id = req.params.version_id
     let user = req.user
+    console.log("version_id", version_id)
 
     // Validate the reading ID is of the proper type
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(version_id)) {
         // If the reading id is not a valid mongo id
         return res.status(400).send()
     }
 
 
+    // Q(ReadingVersion.findById(version_id)
+    Q(ReadingVersion.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(version_id) }},
+        { $unwind: "$readings" },
+        { $project: {
+            _id: "$readings"
+        }},
+        { $lookup: {
+            from: "readings",
+            localField: "_id",
+            foreignField: "_id",
+            as: "reading"
+        }},
+        { $unwind: "$reading" },
+        { $project: {
+            _id: "$reading._id",
+            title: "$reading.title",
+            owner_id: "$reading.owner_id",
+            teacher_ids: "$reading.teacher_ids",
+            "public": "$reading.public",
+            source: "$reading.source",
+            cover_img: "$reading.cover_img",
+            draft: "$reading.draft",
+            createdAt: "$reading.createdAt",
+            updatedAt: "$reading.updatedAt",
+            versionCount: 1
+        }}
+    ])
+    .exec())
+    .then((readings) => {
+        console.log(readings)
+        res.status(200).send({readings: readings})
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).send()
+    })
 })
 
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
