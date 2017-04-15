@@ -150,14 +150,42 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
                 student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", [] ]}}, { $size: { $ifNull: ["$temp_ids", [] ]}}] }
             }}
         ]).exec(),
-        Reading.aggregate([
-            { $match: { teacher_ids: user._id.toString() }},
+        ReadingVersion.aggregate([
+            { $match: { owner_id: user._id }},
             { $project: {
-                title: 1, owner_id: 1, teacher_ids: 1, "public": 1, source: 1, cover_img: 1, draft: 1, createdAt: 1, updatedAt: 1,
-                promoter_count: { $size: { $ifNull: [ "$promoter_ids", [] ]}}
+                versionsCount: { $size: "$readings" },
+                readings: 1,
+                updatedAt: 1
             }},
-            { $sort: { createdAt: -1 }}
-        ]).exec()
+            { $unwind: "$readings" },
+            { $group: {
+                _id: "$_id",
+                reading: { $last: "$readings" },
+                versionsCount: { $last: "$versionsCount" },
+                updatedAt: { $last: "$updatedAt" }
+            }},
+            { $sort: { "updatedAt": 1 } },
+            { $lookup: {
+                from: "readings",
+                localField: "reading",
+                foreignField: "_id",
+                as: "reading"
+            }},
+            { $unwind: "$reading"},
+            { $project: {
+                _id: "$reading._id",
+                title: "$reading.title",
+                owner_id: "$reading.owner_id",
+                teacher_ids: "$reading.teacher_ids",
+                "public": "$reading.public",
+                source: "$reading.source",
+                cover_img: "$reading.cover_img",
+                draft: "$reading.draft",
+                createdAt: "$reading.createdAt",
+                updatedAt: "$reading.updatedAt",
+                versionsCount: 1
+            }}
+        ])
     ]
 
     Q.all(promises)
