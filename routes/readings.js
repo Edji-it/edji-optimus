@@ -150,7 +150,6 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
     }
 
 
-    // Q(ReadingVersion.findById(version_id)
     Q(ReadingVersion.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(version_id) }},
         { $unwind: "$readings" },
