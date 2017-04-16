@@ -194,6 +194,53 @@ describe("Readings", () => {
           done()
         })
     })
+
+    it("should reject an invalid version id", (done) => {
+      chai.request(server)
+        .get("/readings/versions/hello")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should receive 404 for a version_id that does not exist", (done) => {
+      chai.request(server)
+        .get("/readings/versions/" + testUsers.testTeacher.user._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("should receive 401 if there is not Authorization header", (done) => {
+      chai.request(server)
+        .get("/readings/versions/" + testReading.version_id)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+
+    it("should receive 401 for incorrect user's id", (done) => {
+      chai.request(server)
+        .get("/readings/versions/" + testReading.version_id)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
   })
 
   describe("GET /readings/all/projects", () => {

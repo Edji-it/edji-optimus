@@ -140,14 +140,12 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
 router.get("/versions/:version_id", Middleware.authRequired, function(req, res) {
     let version_id = req.params.version_id
     let user = req.user
-    console.log("version_id", version_id)
 
     // Validate the reading ID is of the proper type
     if (!mongoose.Types.ObjectId.isValid(version_id)) {
         // If the reading id is not a valid mongo id
         return res.status(400).send()
     }
-
 
     Q(ReadingVersion.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(version_id) }},
@@ -178,8 +176,11 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
     ])
     .exec())
     .then((readings) => {
-        console.log(readings)
-        res.status(200).send({readings: readings})
+        if (readings.length < 1) { return res.status(404).send() }
+        console.log(readings[0].owner_id, user._id)
+        if (readings[0].owner_id != user._id) { return res.status(401).send() }
+
+        return res.status(200).send({ readings: readings })
     })
     .catch((err) => {
         console.error(err)
