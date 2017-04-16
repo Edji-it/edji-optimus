@@ -160,6 +160,42 @@ describe("Readings", () => {
     })
   })
 
+  describe("GET /readings/versions/:version_id", () => {
+    it("should return all of the readings for a version id", (done) => {
+      chai.request(server)
+        .get("/readings/versions/" + testReading.version_id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("readings")
+          res.body.readings.should.be.instanceof(Array)
+
+          // readings validation
+          let readings = res.body.readings
+          readings.forEach((reading) => {
+            // things the reading SHOULD have
+            reading.should.have.property("_id")
+            reading.should.have.property("owner_id")
+            reading.should.have.property("title")
+            reading.should.have.property("teacher_ids")
+            // reading.should.have.property("public") // not a required field
+            // reading.should.have.property("source") // not a required field
+            // reading.should.have.property("cover_img") // not a required field
+            // reading.should.have.property("promoter_count") // not a required field
+            reading.should.have.property("createdAt")
+            reading.should.have.property("updatedAt")
+
+            // things the reading should NOT have
+            reading.should.not.have.property("words")
+            reading.should.not.have.property("html")
+          })
+
+          done()
+        })
+    })
+  })
+
   describe("GET /readings/all/projects", () => {
     it("should return all of a user's readings with all of their of projects", (done) => {
       chai.request(server)
@@ -178,7 +214,7 @@ describe("Readings", () => {
             reading.should.have.property("_id")
             reading.should.have.property("owner_id")
             reading.should.have.property("title")
-            reading.should.have.property("promoter_count")
+            // reading.should.have.property("promoter_count")
             reading.should.have.property("teacher_ids")
             // reading.should.have.property("public") // not a required field
             // reading.should.have.property("source") // not a required field
@@ -190,7 +226,6 @@ describe("Readings", () => {
             // things the reading should NOT have
             reading.should.not.have.property("words")
             reading.should.not.have.property("html")
-            reading.should.not.have.property("comments")
 
             // project validation
             reading.should.have.property("projects")

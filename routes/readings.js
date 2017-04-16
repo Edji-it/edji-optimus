@@ -72,11 +72,10 @@ router.post("/", Middleware.authRequired, function(req, res) {
                     // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
                     model.forceSave((error, result) => {
                         if (error) {
-                            res.status(500).send(error)
-                            return
-                            
+                            console.error(error)
+                            return res.status(500).send()
                         } else {
-                            res.status(201).send({ reading: { _id: result._id, success: true } })
+                            return res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
                         }
                     })
                 })
