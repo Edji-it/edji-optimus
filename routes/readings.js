@@ -147,46 +147,103 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
         return res.status(400).send()
     }
 
-    Q(ReadingVersion.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(version_id) }},
-        { $unwind: "$readings" },
-        { $project: {
-            _id: "$readings"
-        }},
-        { $lookup: {
-            from: "readings",
-            localField: "_id",
-            foreignField: "_id",
-            as: "reading"
-        }},
-        { $unwind: "$reading" },
-        { $project: {
-            _id: "$reading._id",
-            title: "$reading.title",
-            owner_id: "$reading.owner_id",
-            teacher_ids: "$reading.teacher_ids",
-            "public": "$reading.public",
-            source: "$reading.source",
-            cover_img: "$reading.cover_img",
-            draft: "$reading.draft",
-            createdAt: "$reading.createdAt",
-            updatedAt: "$reading.updatedAt",
-            versionCount: 1
-        }}
-    ])
-    .exec())
-    .then((readings) => {
-        if (readings.length < 1) { return res.status(404).send() }
+    let promises = [
+        Project.aggregate([
+            { $match: { $or: [{ teacher_id: user._id.toString() }, { students_ids: user._id.toString() }, { temp_ids: user._id.toString() }]}},
+            { $project: {
+                teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
+                comment_count: { $size: { $ifNull: [ "$comments", [] ]}},
+                student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", [] ]}}, { $size: { $ifNull: ["$temp_ids", [] ]}}] }
+            }}
+        ]).exec(),
+        ReadingVersion.aggregate([
+            { $match: { _id: mongoose.Types.ObjectId(version_id) }},
+            { $unwind: "$readings" },
+            { $project: {
+                _id: "$readings"
+            }},
+            { $lookup: {
+                from: "readings",
+                localField: "_id",
+                foreignField: "_id",
+                as: "reading"
+            }},
+            { $unwind: "$reading" },
+            { $project: {
+                _id: "$reading._id",
+                title: "$reading.title",
+                owner_id: "$reading.owner_id",
+                teacher_ids: "$reading.teacher_ids",
+                "public": "$reading.public",
+                source: "$reading.source",
+                cover_img: "$reading.cover_img",
+                draft: "$reading.draft",
+                createdAt: "$reading.createdAt",
+                updatedAt: "$reading.updatedAt",
+                versionCount: 1
+            }}
+        ])
+    ]
 
-        // check the first reading's owner_id to see if it matches the user._id
-        if (readings[0].owner_id != user._id) { return res.status(401).send() }
+    Q.all(promises)
+        .then((results) => {
+            var projects = results[0]
+            var readings = results[1]
 
-        return res.status(200).send({ readings: readings })
-    })
-    .catch((err) => {
-        console.error(err)
-        res.status(500).send()
-    })
+            readings.forEach((reading, index) => {
+                readings[index].projects = projects.filter((project) => {
+                    if (project.reading_id == reading._id.toString()) { return true }
+                    else { return false }
+                })
+            })
+
+            res.status(200).send({readings})
+        })
+        .catch((err) => {
+            console.log(err)
+            res.status(500).send()
+        })
+
+    // Q(ReadingVersion.aggregate([
+    //     { $match: { _id: mongoose.Types.ObjectId(version_id) }},
+    //     { $unwind: "$readings" },
+    //     { $project: {
+    //         _id: "$readings"
+    //     }},
+    //     { $lookup: {
+    //         from: "readings",
+    //         localField: "_id",
+    //         foreignField: "_id",
+    //         as: "reading"
+    //     }},
+    //     { $unwind: "$reading" },
+    //     { $project: {
+    //         _id: "$reading._id",
+    //         title: "$reading.title",
+    //         owner_id: "$reading.owner_id",
+    //         teacher_ids: "$reading.teacher_ids",
+    //         "public": "$reading.public",
+    //         source: "$reading.source",
+    //         cover_img: "$reading.cover_img",
+    //         draft: "$reading.draft",
+    //         createdAt: "$reading.createdAt",
+    //         updatedAt: "$reading.updatedAt",
+    //         versionCount: 1
+    //     }}
+    // ])
+    // .exec())
+    // .then((readings) => {
+    //     if (readings.length < 1) { return res.status(404).send() }
+
+    //     // check the first reading's owner_id to see if it matches the user._id
+    //     if (readings[0].owner_id != user._id) { return res.status(401).send() }
+
+    //     return res.status(200).send({ readings: readings })
+    // })
+    // .catch((err) => {
+    //     console.error(err)
+    //     res.status(500).send()
+    // })
 })
 
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
