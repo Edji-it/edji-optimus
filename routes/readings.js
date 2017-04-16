@@ -212,7 +212,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             { $group: {
                 _id: "$_id",
                 reading: { $last: "$readings" },
-                versionCount: { $last: "$versionsCount" },
+                versionCount: { $last: "$versionCount" },
                 updatedAt: { $last: "$updatedAt" },
                 promoter_count: { $last: "$promoter_count" }
             }},
