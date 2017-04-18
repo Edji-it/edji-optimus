@@ -196,7 +196,10 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
                     else { return false }
                 })
             })
+            if (readings.length < 1) { return res.status(404).send() }
 
+            // check the first reading's owner_id to see if it matches the user._id
+            if (readings[0].owner_id != user._id) { return res.status(401).send() }
             res.status(200).send({readings})
         })
         .catch((err) => {
