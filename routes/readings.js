@@ -276,7 +276,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
                 updatedAt: { $last: "$updatedAt" },
                 promoter_count: { $last: "$promoter_count" }
             }},
-            { $sort: { "updatedAt": 1 } },
+            { $sort: { "updatedAt": -1 } },
             { $lookup: {
                 from: "readings",
                 localField: "reading",
