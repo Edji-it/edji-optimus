@@ -181,7 +181,8 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
                 createdAt: "$reading.createdAt",
                 updatedAt: "$reading.updatedAt",
                 versionCount: 1
-            }}
+            }},
+            { $sort: { _id: -1 }}
         ])
     ]
 
