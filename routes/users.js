@@ -72,19 +72,14 @@ router.get("/:id", middleware.authRequired,function(req, res) {
 })
 
 router.put("/", function(req, res){
-    var userData = req.body.user
+    let userData = req.body.user
     let id = req.user._id
 
-     if (!userData) {
+    if (!userData) {
         res.status(400).send()
         return
     }
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).send()
-        return
-    }
-
+    
     // New object for acceptable updatable attribute
     updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media')
     console.log(updatedUser)
@@ -98,7 +93,6 @@ router.put("/", function(req, res){
             res.status(400).send()
             return
         } else {
-            console.log(user.toPublic())
             res.status(200).send({ user: user.toPublic() })
         }
     })

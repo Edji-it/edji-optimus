@@ -16,14 +16,14 @@ var router = express.Router()
 MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: true, create:false })
 
 router.post("/", Middleware.authRequired, function(req, res) {
-    var reading = req.body.reading
-    var user = req.user
+    let reading = req.body.reading
+    let user = req.user
 
     if (!reading) {
         res.status(400).send({ validationErrors: { reading: "required" } })
         return
     }
-    
+
     // if the original owner is not the user, we need to create a new version_id to keep track of this user's version separately
     // this means that, if we don't receive an owner_id with the call, we will attribute this to a new version
     //  if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
