@@ -60,17 +60,6 @@ router.post("/", function(req, res){
 
 })
 
-router.get("/:id", middleware.authRequired,function(req, res) {
-    let user = req.user
-    let _id = req.params.id
-
-    if (!mongoose.Types.ObjectId.isValid(_id)) { return res.status(400).send() }
-
-    if (user._id != _id) { return res.status(401).send() }
-
-    return res.status(200).send({ user: user.toPublic() })
-})
-
 router.put("/", function(req, res){
     let userData = req.body.user
     let id = req.user._id
@@ -116,34 +105,66 @@ router.put("/", function(req, res){
             res.status(500).send()
         }
     })
+})
 
-    // model.save((error, result)=>{
-    //     if (error){
-    //         if (error.name === "ValidationError") {
-    //             var errors = {}
+router.get("/:id", middleware.authRequired,function(req, res) {
+    let user = req.user
+    let _id = req.params.id
 
-    //             for (var property in error.errors) {
-    //                 if (error.errors[property].kind === "user defined") {
-    //                     errors[property] = error.errors[property].properties.kind
-    //                 } else {
-    //                     errors[property] = error.errors[property].kind
-    //                 }
-    //             }
+    if (!mongoose.Types.ObjectId.isValid(_id)) { return res.status(400).send() }
 
-    //             res.status(406).send({ validationErrors: errors })
-    //             return
-    //         } else if (error.code === 11000) {
-    //             res.status(409).send()
-    //             return
-    //         } else {
-    //             console.error(error)
-    //             res.status(500).send()
-    //             return
-    //         }
-    //     } else {
-    //         res.status(201).json(LoginController.generateLoginObjectForUser(result))
-    //     }
-    // })
+    if (user._id != _id) { return res.status(401).send() }
+
+    return res.status(200).send({ user: user.toPublic() })
+})
+
+router.delete("/:id", function(req, res) {
+    var id = req.params.id
+    var user = req.user
+
+    if (!user || id != user._id) {
+        res.status(400).send()
+        return
+    }
+
+    Q(User.findById(user._id).exec())
+        .then((dbUser) => {
+            if (!dbUser) {
+                res.status(400).send()
+                return
+            }
+
+            if (dbUser.accountArchiveToken && dbUser.accountArchiveToken > Date.now()) {
+
+                // good to go, we can archive the account
+                var archiveUser = ArchivedUser({
+                    user_id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    fullname: user.fullname
+                })
+
+                archiveUser.save((err) => {
+                    if (err) {
+                        throw new Error(err)
+                    }
+                    dbUser.remove((err, doc) => {
+                        if (err) { console.error(err) }
+                        res.status(204).send()
+                    })
+                })
+            } else {
+                res.status(400).send()
+            }
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send()
+        })
+})
+
+router.post("/convert/:temp_id", function(req, res) {
+    let user = req.user
 
 })
 
@@ -302,51 +323,6 @@ router.post("/recover_password", function(req, res) {
             res.status(status).send()
         })
     }
-})
-
-router.delete("/:id", function(req, res) {
-    var id = req.params.id
-    var user = req.user
-
-    if (!user || id != user._id) {
-        res.status(400).send()
-        return
-    }
-
-    Q(User.findById(user._id).exec())
-        .then((dbUser) => {
-            if (!dbUser) {
-                res.status(400).send()
-                return
-            }
-
-            if (dbUser.accountArchiveToken && dbUser.accountArchiveToken > Date.now()) {
-
-                // good to go, we can archive the account
-                var archiveUser = ArchivedUser({
-                    user_id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    fullname: user.fullname
-                })
-
-                archiveUser.save((err) => {
-                    if (err) {
-                        throw new Error(err)
-                    }
-                    dbUser.remove((err, doc) => {
-                        if (err) { console.error(err) }
-                        res.status(204).send()
-                    })
-                })
-            } else {
-                res.status(400).send()
-            }
-        })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send()
-        })
 })
 
 /** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
