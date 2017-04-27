@@ -1,26 +1,26 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-var express = require( "express")
-var request = require("request")
-var mongoose = require( "mongoose")
-var bcrypt = require("bcryptjs")
-var MountModelToRouter = require("./MountModelToRouter")
-var nodemailer = require('nodemailer')
-var mandrillTransport = require('nodemailer-mandrill-transport')
-var bcrypt = require("bcryptjs")
-var Q = require("q")
-var _ = require("underscore")
-var queryString = require("querystring")
-var config = require("config")
-var mandrillConfig = config.get("Mandrill")
+const express = require("express")
+const request = require("request")
+const mongoose = require("mongoose")
+const nodemailer = require('nodemailer')
+const mandrillTransport = require('nodemailer-mandrill-transport')
+const bcrypt = require("bcryptjs")
+const Q = require("q")
+const _ = require("underscore")
+const queryString = require("querystring")
+const config = require("config")
+const mandrillConfig = config.get("Mandrill")
 
-var User = require("./../models/User")
-var ArchivedUser = require("./../models/ArchivedUser")
-var LoginController = require("./../middleware/LoginController")
+let User = require("./../models/User")
+let Project = require("./../models/Project")
+let ArchivedUser = require("./../models/ArchivedUser")
+let LoginController = require("./../middleware/LoginController")
 let middleware = require("./../middleware/Middleware")
+let MountModelToRouter = require("./MountModelToRouter")
 
-var router = express.Router()
+let router = express.Router()
 
 MountModelToRouter(router, User, "user", { create:false, delete: false, read: false, list: false })
 
@@ -166,6 +166,7 @@ router.delete("/:id", function(req, res) {
 router.post("/convert/:temp_id", function(req, res) {
     let user = req.user
 
+    
 })
 
 router.post("/login", function(req, res){
