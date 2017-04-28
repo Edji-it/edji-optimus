@@ -42,7 +42,13 @@ var model = ModelCreator("User", {
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
     prefs: {
-        recentEmoji: [ String ]
+        recentEmoji: [ String ],
+        onboarding: {
+            highlighting: {
+                firstDone: Date,
+                lastDone: Date
+            }
+        }
     },
     media: {
         images: [ {
