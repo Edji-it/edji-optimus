@@ -661,6 +661,20 @@ describe("Projects", () => {
     })
   })
 
+  describe("PUT /projects/:id/temp_id", () => {
+    it("should add a temp id to a project", (done) => {
+      testProject.temp_ids.indexOf(testUsers.testTemp.user._id).should.be.equal(-1)
+
+      chai.request(server)
+        .put("/projects/" + testProject._id + "/push_temp")
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          done()
+        })
+    })
+  })
+
   describe("DELETE /projects/:project_id/comments/:comment_id", () => {
     it("it should reject an invalid project id", (done) => {
       chai.request(server)
