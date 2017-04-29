@@ -6,7 +6,7 @@ Users can update a project to contain a new user or temp id
 
 ## Endpoint
 
-`/projects/:id/user` || `/projects/:id/temp`
+`/projects/:id/user_id`
 
 ## Request Type
 
