@@ -197,6 +197,29 @@ router.put("/:id", Middleware.authRequired, function(req, res) {
     })
 })
 
+router.put("/:id/push_temp", Middleware.authRequired, function(req, res) {
+    let user = req.user
+    let id = req.params.id
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).send()
+        return
+    }
+
+    Q(Project.update(
+        { _id: id },
+        { $push: { temp_ids: user._id }}
+    ).exec())
+    .then((err, project) => {
+        if (err) { return res.status(500).send() }
+        else if (!project) {
+            return res.status(404).send()
+        } else {
+            return res.status(200).send({ project: project })
+        }
+    })
+})
+
 // get projects for a single reading id
 router.get("/reading/:reading_id", Middleware.authRequired, function(req, res){
     var reading_id = req.params.reading_id
