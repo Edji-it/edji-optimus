@@ -1,12 +1,12 @@
-# Edji Test Specs: Add temp id to a project
+# Edji Test Specs: Add student or temp id to project
 
 ## Goal
 
-Users can update a project to contain a temp id
+Users can update a project to contain a new user or temp id
 
 ## Endpoint
 
-`/projects/:id/push_temp`
+`/projects/:id/user` || `/projects/:id/temp`
 
 ## Request Type
 
@@ -26,22 +26,12 @@ The request body can be an empty object
 
 ## Test Cases
 
-1.  Pass good project as a temp user
+1.  Pass good project as a user
     *  `res` should have a:
         *  `status` = `200`
-        *  `project`: `any`
-    *  `res.project` should have a:
-        *  `_id`: `string`
-        *  `teacher_id`: `string`
-        *  `reading_id`: `string`
-        *  `label`: `string`
-        *  `code`: `string`
-        *  `types`: `string[]`
-        *  `temp_ids`: `string[]`
-        *  `students_ids`: `string[]`
-        *  `comments`: `Comment[]`
-        *  `updatedAt`: `Date`
-        *  `createdAt`: `Date`
+2.  Pass good project as a temp user
+    *  `res` should have a:
+        *  `status` = `200`
 2.  Pass with corrupt project id --> receive `400`
 3.  Pass with non-existant project id --> receive `404`
 4.  Pass without `Authorization` header --> receive `401`
