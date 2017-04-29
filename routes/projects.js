@@ -208,7 +208,9 @@ router.put("/:id/push_temp", Middleware.authRequired, function(req, res) {
         { $addToSet: { temp_ids: user._id }}
     ).exec())
     .then((update) => {
-        return res.status(200).send()
+        console.log(update)
+        if (update.nModified > 0) { return res.status(200).send() }
+        else { return res.status(404).send({ error: "No project modified" }) }
     })
     .catch((err) => {
         console.error(err)
