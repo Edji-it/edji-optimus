@@ -663,6 +663,7 @@ describe("Projects", () => {
 
   describe("PUT /projects/:id/temp_id", () => {
     it("should add a temp id to a project", (done) => {
+      // make sure that id isn't already there
       testProject.temp_ids.indexOf(testUsers.testTemp.user._id).should.be.equal(-1)
 
       chai.request(server)
@@ -670,6 +671,35 @@ describe("Projects", () => {
         .set("Authorization", testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(200)
+          done()
+        })
+    })
+
+    it("should reject a corrupt project id", (done) => {
+      chai.request(server)
+        .put("/projects/hahaha/push_temp")
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+          done()
+        })
+    })
+
+    it("should return 404 if the project does not exist", (done) => {
+      chai.request(server)
+        .put("/projects/" + testUsers.testTemp.user._id + "/push_temp")
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          res.should.have.status(404)
+          done()
+        })
+    })
+
+    it("should return 401 if sent without a bad Authorization token", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id + "/push_temp")
+        .end((err, res) => {
+          res.should.have.status(401)
           done()
         })
     })
