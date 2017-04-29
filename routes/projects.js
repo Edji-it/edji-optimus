@@ -201,22 +201,18 @@ router.put("/:id/push_temp", Middleware.authRequired, function(req, res) {
     let user = req.user
     let id = req.params.id
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).send()
-        return
-    }
+    if (!mongoose.Types.ObjectId.isValid(id)) { return res.status(400).send() }
 
     Q(Project.update(
         { _id: id },
-        { $push: { temp_ids: user._id }}
+        { $addToSet: { temp_ids: user._id }}
     ).exec())
-    .then((err, project) => {
-        if (err) { return res.status(500).send() }
-        else if (!project) {
-            return res.status(404).send()
-        } else {
-            return res.status(200).send({ project: project })
-        }
+    .then((update) => {
+        return res.status(200).send()
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
     })
 })
 
