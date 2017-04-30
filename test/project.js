@@ -21,7 +21,11 @@ describe("Projects", () => {
   before((done) => {
     functions.loginTestUsers().then((users) => {
       testUsers = users
-      done()
+      functions.createTempUser(data.users.tempUser)
+        .then((user) => {
+          testUsers.testTemp2 = user
+          done()
+        })
     })
   })
 
@@ -668,7 +672,7 @@ describe("Projects", () => {
 
       chai.request(server)
         .put("/projects/" + testProject._id + "/user_id")
-        .set("Authorization", testUsers.testTemp.token)
+        .set("Authorization", testUsers.testTemp2.token)
         .end((err, res) => {
           res.should.have.status(200)
           done()

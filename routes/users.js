@@ -163,11 +163,18 @@ router.delete("/:id", function(req, res) {
         })
 })
 
-router.post("/convert/:temp_id", function(req, res) {
-    let user = req.user
+// router.post("/convert/:temp_id", function(req, res) {
+//     let user = req.user
+//     let temp_id = req.params.temp_id
 
-    
-})
+//     Q(Project.update(
+//         { temp_ids: temp_id, "comments.user_id": user._id },
+//         {
+//             "comments.$.user_id": user._id,
+//             "comment.$.author": user.fullname 
+//         }
+//     ).exec())
+// })
 
 router.post("/login", function(req, res){
     var user = req.body.user
