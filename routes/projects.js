@@ -197,18 +197,23 @@ router.put("/:id", Middleware.authRequired, function(req, res) {
     })
 })
 
-router.put("/:id/push_temp", Middleware.authRequired, function(req, res) {
+router.put("/:id/user_id", Middleware.authRequired, function(req, res) {
     let user = req.user
     let id = req.params.id
 
     if (!mongoose.Types.ObjectId.isValid(id)) { return res.status(400).send() }
 
+    if (user.type === "temp") {
+        update = { $addToSet: { temp_ids: user._id }}
+    } else {
+        update = { $addToSet: { students_ids: user._id }}
+    }
+
     Q(Project.update(
         { _id: id },
-        { $addToSet: { temp_ids: user._id }}
+        update
     ).exec())
     .then((update) => {
-        console.log(update)
         if (update.nModified > 0) { return res.status(200).send() }
         else { return res.status(404).send({ error: "No project modified" }) }
     })
