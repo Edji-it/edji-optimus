@@ -661,13 +661,13 @@ describe("Projects", () => {
     })
   })
 
-  describe("PUT /projects/:id/temp_id", () => {
+  describe("PUT /projects/:id/user_id", () => {
     it("should add a temp id to a project", (done) => {
       // make sure that id isn't already there
       testProject.temp_ids.indexOf(testUsers.testTemp.user._id).should.be.equal(-1)
 
       chai.request(server)
-        .put("/projects/" + testProject._id + "/push_temp")
+        .put("/projects/" + testProject._id + "/user_id")
         .set("Authorization", testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(200)
@@ -677,7 +677,7 @@ describe("Projects", () => {
 
     it("should reject a corrupt project id", (done) => {
       chai.request(server)
-        .put("/projects/hahaha/push_temp")
+        .put("/projects/hahaha/user_id")
         .set("Authorization", testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(400)
@@ -687,7 +687,7 @@ describe("Projects", () => {
 
     it("should return 404 if the project does not exist", (done) => {
       chai.request(server)
-        .put("/projects/" + testUsers.testTemp.user._id + "/push_temp")
+        .put("/projects/" + testUsers.testTemp.user._id + "/user_id")
         .set("Authorization", testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(404)
@@ -697,7 +697,7 @@ describe("Projects", () => {
 
     it("should return 401 if sent without a bad Authorization token", (done) => {
       chai.request(server)
-        .put("/projects/" + testProject._id + "/push_temp")
+        .put("/projects/" + testProject._id + "/user_id")
         .end((err, res) => {
           res.should.have.status(401)
           done()
