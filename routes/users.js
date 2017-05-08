@@ -107,7 +107,7 @@ router.put("/", function(req, res){
     })
 })
 
-router.get("/:id", middleware.authRequired,function(req, res) {
+router.get("/:id", middleware.authRequired, function(req, res) {
     let user = req.user
     let _id = req.params.id
 
