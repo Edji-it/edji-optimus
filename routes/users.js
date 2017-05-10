@@ -14,6 +14,7 @@ const config = require("config")
 const mandrillConfig = config.get("Mandrill")
 
 let User = require("./../models/User")
+let TempUser = require("./../models/TempUser")
 let Project = require("./../models/Project")
 let ArchivedUser = require("./../models/ArchivedUser")
 let LoginController = require("./../middleware/LoginController")
@@ -60,9 +61,9 @@ router.post("/", function(req, res){
 
 })
 
-router.put("/", function(req, res){
+router.put("/", middleware.authRequired, function(req, res){
     let userData = req.body.user
-    let id = req.user._id
+    let user = req.user
 
     if (!userData) {
         res.status(400).send()
@@ -71,9 +72,15 @@ router.put("/", function(req, res){
     
     // New object for acceptable updatable attribute
     updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media')
-    console.log(updatedUser)
 
-    Q(User.findOneAndUpdate( { '_id' : id }, updatedUser, {
+    let queryModel
+    if (user.type == "temp") {
+        queryModel = TempUser
+    } else {
+        queryModel = User
+    }
+
+    Q(queryModel.findByIdAndUpdate( user._id, updatedUser, {
         new: true, runValidators: true, setDefaultsOnInsert: false
     }).exec())
     .then((user) => {
