@@ -28,7 +28,6 @@ describe("TempUsers", () => {
           user.should.have.property("_id")
           user.should.have.property("fullname")
           user.should.have.property("type")
-          user.should.have.property("timer")
           user.should.have.property("createdAt")
           user.should.have.property("updatedAt")
 
