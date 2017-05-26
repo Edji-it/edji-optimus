@@ -1,10 +1,4 @@
 {
-    "Database": {
-        "message":"Wiring up the Test DB",
-        "host":"mongodb://edjiuser:edjiuser1@ds161999-a0.mlab.com:61999,ds161999-a1.mlab.com:61999/edji-dev?replicaSet=rs-ds161999",
-        "user":"edjiuser",
-        "password":"edjiuser1"
-    },
     "Mandrill": {
         "host": "localhost:9000",
         "apiKey": "wMtMJaiBpAHZ8-PsPIxY2A"
