@@ -6,7 +6,7 @@ Allow a teacher to delete a single project
 
 ## Endpoint
 
-`/projects`
+`/projects/:id`
 
 ## Request Type
 

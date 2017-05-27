@@ -13,7 +13,7 @@ let Middleware = require("./../middleware/Middleware")
 
 var router = express.Router()
 
-MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: true, create:false })
+MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
 
 router.post("/", Middleware.authRequired, function(req, res) {
     let reading = req.body.reading
@@ -135,6 +135,40 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
             console.error(err)
             return res.status(500).send()
         })
+})
+
+router.delete("/:id", Middleware.authRequired, function(req, res) {
+    let id = req.params.id
+    let user = req.user
+
+    // Validate the reading ID is of the proper type
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        // If the reading id is not a valid mongo id
+        return res.status(400).send()
+    }
+
+    // remove all of the readings with the same id
+    Q(Reading.remove({ _id: id }).exec())
+        .then(() => {
+            return res.status(200).send()
+        })
+        .catch((err) => {
+            console.log(err)
+            return res.status(500).send()
+        })
+    // (err) => {
+    //     // if there's an error, throw it
+    //     if (err) { return res.status(500).send() }
+
+    //     // if no error, tell the user it went well
+    //     return res.status(200).send()
+    // })
+
+    // Project.remove({ reading_id: id }, (err) => {
+    //     if (err) { return res.status(500).send() }
+
+    //     return res.status(200).send()
+    // })
 })
 
 router.get("/versions/:version_id", Middleware.authRequired, function(req, res) {
