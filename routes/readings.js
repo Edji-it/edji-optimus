@@ -147,28 +147,21 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
         return res.status(400).send()
     }
 
+    let promises = []
     // remove all of the readings with the same id
-    Q(Reading.remove({ _id: id }).exec())
+    promises.push(Reading.remove({ _id: id }).exec())
+    // remove all projects associated with the reading
+    promises.push(Project.remove({ reading_id: id }).exec())
+
+    // run all of the promises and return to client
+    Q.all(promises)
         .then(() => {
             return res.status(200).send()
         })
         .catch((err) => {
-            console.log(err)
+            console.error(err)
             return res.status(500).send()
         })
-    // (err) => {
-    //     // if there's an error, throw it
-    //     if (err) { return res.status(500).send() }
-
-    //     // if no error, tell the user it went well
-    //     return res.status(200).send()
-    // })
-
-    // Project.remove({ reading_id: id }, (err) => {
-    //     if (err) { return res.status(500).send() }
-
-    //     return res.status(200).send()
-    // })
 })
 
 router.get("/versions/:version_id", Middleware.authRequired, function(req, res) {
