@@ -47,6 +47,10 @@ var model = ModelCreator("User", {
             highlighting: {
                 firstDone: Date,
                 lastDone: Date
+            },
+            newReading: {
+                firstDone: Date,
+                lastDone: Date
             }
         }
     },
