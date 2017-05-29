@@ -12,6 +12,9 @@ Allow a teacher to delete a project and all of the associated readings
 
 `DELETE`
 
+## Returns
+`200` upon success
+
 ## Test Cases
 
 1.  Pass with `Authorization` header and student token
