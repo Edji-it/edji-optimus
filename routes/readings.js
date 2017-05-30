@@ -234,47 +234,6 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
             console.log(err)
             res.status(500).send()
         })
-
-    // Q(ReadingVersion.aggregate([
-    //     { $match: { _id: mongoose.Types.ObjectId(version_id) }},
-    //     { $unwind: "$readings" },
-    //     { $project: {
-    //         _id: "$readings"
-    //     }},
-    //     { $lookup: {
-    //         from: "readings",
-    //         localField: "_id",
-    //         foreignField: "_id",
-    //         as: "reading"
-    //     }},
-    //     { $unwind: "$reading" },
-    //     { $project: {
-    //         _id: "$reading._id",
-    //         title: "$reading.title",
-    //         owner_id: "$reading.owner_id",
-    //         teacher_ids: "$reading.teacher_ids",
-    //         "public": "$reading.public",
-    //         source: "$reading.source",
-    //         cover_img: "$reading.cover_img",
-    //         draft: "$reading.draft",
-    //         createdAt: "$reading.createdAt",
-    //         updatedAt: "$reading.updatedAt",
-    //         versionCount: 1
-    //     }}
-    // ])
-    // .exec())
-    // .then((readings) => {
-    //     if (readings.length < 1) { return res.status(404).send() }
-
-    //     // check the first reading's owner_id to see if it matches the user._id
-    //     if (readings[0].owner_id != user._id) { return res.status(401).send() }
-
-    //     return res.status(200).send({ readings: readings })
-    // })
-    // .catch((err) => {
-    //     console.error(err)
-    //     res.status(500).send()
-    // })
 })
 
 router.get("/all/projects", Middleware.authRequired, function(req, res) {
