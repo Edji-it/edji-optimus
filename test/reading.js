@@ -426,23 +426,31 @@ describe("Readings", () => {
         .end((err, res) => {
           res.should.have.status(200)
 
-          // check to make sure it is deleted
-          chai.request(server)
-            .get("/readings/" + testReading._id)
-            .set("Authorization", testUsers.testTeacher.token)
-            .end((err, res) => {
-              res.should.have.status(404)
+          done()
+        })
+    })
 
-              // check to make sure associated project is also deleted
-              chai.request(server)
-                .get("/projects/" + deleteProject._id)
-                .set("Authorization", testUsers.testTeacher.token)
-                .end((err, res) => {
-                  res.should.have.status(404)
+    it("should get a 404 when requesting the deleted reading's id", (done) => {
+      // check to make sure it is deleted
+      chai.request(server)
+        .get("/readings/" + testReading._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(404)
 
-                  done()
-                })
-            })
+          done()
+        })
+    })
+
+    it("should get a 404 when requesting a project associated with the deleted reading", (done) => {
+      // check to make sure associated project is also deleted
+      chai.request(server)
+        .get("/projects/" + deleteProject._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
         })
     })
   })
