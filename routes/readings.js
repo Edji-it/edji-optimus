@@ -138,7 +138,7 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
 })
 
 router.delete("/:id", Middleware.authRequired, function(req, res) {
-    let id = req.params.id
+    let id = mongoose.Types.ObjectId(req.params.id)
     let user = req.user
 
     // Validate the reading ID is of the proper type
@@ -152,6 +152,12 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
     promises.push(Reading.remove({ _id: id }).exec())
     // remove all projects associated with the reading
     promises.push(Project.remove({ reading_id: id }).exec())
+    // remove the version id from all the version id places
+    promises.push(ReadingVersion.update(
+        { readings: id },
+        { $pull: { readings: id }},
+        {}
+    ).exec())
 
     // run all of the promises and return to client
     Q.all(promises)
