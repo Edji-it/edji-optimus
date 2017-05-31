@@ -176,8 +176,6 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
                 return res.status(404).send()
             }
 
-            // console.log("responses:", responses)
-
         })
         .catch((err) => {
             console.error(err)
