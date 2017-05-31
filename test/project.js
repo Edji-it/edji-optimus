@@ -574,9 +574,9 @@ describe("Projects", () => {
             comment.data.should.be.equal(updatedComment.data)
           comment.should.have.property("updatedAt")
           comment.should.have.property("createdAt")
-          let updatedAt = new Date(comment.updatedAt).getTime()
-          let createdAt = new Date(comment.createdAt).getTime()
-          updatedAt.should.be.above(createdAt)
+            let updatedAt = new Date(comment.updatedAt).getTime()
+            let createdAt = new Date(comment.createdAt).getTime()
+            updatedAt.should.be.above(createdAt)
 
           done()
         })
@@ -691,12 +691,22 @@ describe("Projects", () => {
         })
     })
 
-    it("should return 404 if the project does not exist", (done) => {
+    it("should return 304 if passed with the owner's token", (done) => {
+      chai.request(server)
+        .put("/projects/" + testProject._id + "/user_id")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(304)
+          done()
+        })
+    })
+
+    it("should return 304 if the project does not exist", (done) => {
       chai.request(server)
         .put("/projects/" + testUsers.testTemp.user._id + "/user_id")
         .set("Authorization", testUsers.testTemp.token)
         .end((err, res) => {
-          res.should.have.status(404)
+          res.should.have.status(304)
           done()
         })
     })

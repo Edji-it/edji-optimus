@@ -210,12 +210,15 @@ router.put("/:id/user_id", Middleware.authRequired, function(req, res) {
     }
 
     Q(Project.update(
-        { _id: id },
+        {
+            _id: id,
+            teacher_id: { $not: { $eq: user._id }} // don't add a project owner to their own project as a student
+        },
         update
     ).exec())
     .then((update) => {
         if (update.nModified > 0) { return res.status(200).send() }
-        else { return res.status(404).send({ error: "No project modified" }) }
+        else { return res.status(304).send() }
     })
     .catch((err) => {
         console.error(err)

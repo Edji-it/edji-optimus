@@ -33,5 +33,6 @@ The request body can be an empty object
     *  `res` should have a:
         *  `status` = `200`
 2.  Pass with corrupt project id --> receive `400`
-3.  Pass with non-existant project id --> receive `404`
-4.  Pass without `Authorization` header --> receive `401`
+3.  Pass with non-existant project id --> receive `304`
+4.  Pass with project owner's token --> receive `304`
+5.  Pass without `Authorization` header --> receive `401`
