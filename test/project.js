@@ -574,7 +574,9 @@ describe("Projects", () => {
             comment.data.should.be.equal(updatedComment.data)
           comment.should.have.property("updatedAt")
           comment.should.have.property("createdAt")
-            comment.updatedAt.should.be.above(comment.createdAt)
+          let updatedAt = new Date(comment.updatedAt).getTime()
+          let createdAt = new Date(comment.createdAt).getTime()
+          updatedAt.should.be.above(createdAt)
 
           done()
         })
