@@ -6,8 +6,8 @@ var db = require("./../db");
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator){
 
-    schemaJson.createdAt = { type: Date, default: Date.now() };
-    schemaJson.updatedAt = { type: Date, default: Date.now() };
+    schemaJson.createdAt = { type: Date, default: Date.now };
+    schemaJson.updatedAt = { type: Date, default: Date.now };
 
     var Schema = new db.Schema(schemaJson);
 
