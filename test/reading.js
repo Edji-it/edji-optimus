@@ -398,4 +398,52 @@ describe("Readings", () => {
         })
     })
   })
+
+  describe("DELETE /readings/:id", () => {
+    let deleteProject
+    before((done) => {
+      functions.createProject({
+        reading_id: testReading._id,
+        label: "label for project",
+        types: ["emoji"]
+      }, testUsers.testTeacher.token)
+      .then((res) => {
+        // check to make sure it comes back with a project
+        res.should.have.property("project")
+        deleteProject = res.project
+        done()
+      })
+      .catch((err) => { console.error(err) })
+    })
+
+
+    // this test should come LAST since all of the other tests depend on the reading still existing
+    it("should delete a reading", (done) => {
+      // delete the reading
+      chai.request(server)
+        .del("/readings/" + testReading._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+
+          // check to make sure it is deleted
+          chai.request(server)
+            .get("/readings/" + testReading._id)
+            .set("Authorization", testUsers.testTeacher.token)
+            .end((err, res) => {
+              res.should.have.status(404)
+
+              // check to make sure associated project is also deleted
+              chai.request(server)
+                .get("/projects/" + deleteProject._id)
+                .set("Authorization", testUsers.testTeacher.token)
+                .end((err, res) => {
+                  res.should.have.status(404)
+
+                  done()
+                })
+            })
+        })
+    })
+  })
 })
