@@ -25,5 +25,5 @@ Allow a teacher to delete a project and all of the associated readings
     *  `res` should have `status` = `404`
 4.  Pass with `Authorization` header and invalid project id --> receive `400`
 5.  Pass with `Authorization` and non-existant project id --> receive `404`
-6.  Pass with `Authorization` header that has student token --> receive `404`
+6.  Pass with `Authorization` header that has a different user's token --> receive `404`
 7.  Pass without `Authorization` header --> receive `401`

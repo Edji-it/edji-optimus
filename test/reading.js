@@ -417,7 +417,48 @@ describe("Readings", () => {
         .catch((err) => { console.error(err) })
     })
 
-    // it("should")
+    it("should receive 400 for improper id", (done) => {
+      chai.request(server)
+        .del("/readings/bad_id")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should receive 404 if the reading does not exist", (done) => {
+      chai.request(server)
+        .del("/readings/" + testUsers.testTeacher.user._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("should return 404 if non-owner requests delete of the reading", (done) => {
+      chai.request(server)
+        .del("/readings/" + testReading._id)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .del("/readings/" + testReading._id)
+        .end((err, res) => {
+          res.should.have.status(401)
+
+          done()
+        })
+    })
 
     // this test should come LAST (except for the ones verifying other effects) since all of the other tests depend on the reading still existing
     it("should delete a reading", (done) => {
@@ -427,6 +468,15 @@ describe("Readings", () => {
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(200)
+          res.body.should.have.property("results")
+          
+          let results = res.body.results
+          results.should.have.property("deletedReadings")
+            results.deletedReadings.should.be.gt(0)
+          results.should.have.property("deletedProjects")
+            results.deletedProjects.should.be.gt(0)
+
+          console.log(res.body)
 
           done()
         })

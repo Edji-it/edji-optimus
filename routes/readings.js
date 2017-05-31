@@ -138,7 +138,7 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
 })
 
 router.delete("/:id", Middleware.authRequired, function(req, res) {
-    let id = mongoose.Types.ObjectId(req.params.id)
+    let id = req.params.id
     let user = req.user
 
     // Validate the reading ID is of the proper type
@@ -149,20 +149,35 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
 
     let promises = []
     // remove all of the readings with the same id
-    promises.push(Reading.remove({ _id: id }).exec())
+    promises.push(Reading.remove({ _id: id, owner_id: user._id }).exec())
     // remove all projects associated with the reading
-    promises.push(Project.remove({ reading_id: id }).exec())
+    promises.push(Project.remove({ reading_id: id, teacher_id: user._id }).exec())
     // remove the version id from all the version id places
     promises.push(ReadingVersion.update(
-        { readings: id },
+        { readings: id, owner_id: user._id },
         { $pull: { readings: id }},
         {}
     ).exec())
 
     // run all of the promises and return to client
     Q.all(promises)
-        .then(() => {
-            return res.status(200).send()
+        .then((responses) => {
+
+            // if the delete reading response indicates that a reading has been deleted, assign properties and return 200
+            if (responses.length && responses[0].result && responses[0].result.n > 0) {
+                let delReadings = responses[0].result.n
+                let delProjects = responses[1].result.n
+
+                return res.status(200).send({ results: {
+                    deletedReadings: delReadings,
+                    deletedProjects: delProjects
+                }})
+            } else {
+                return res.status(404).send()
+            }
+
+            // console.log("responses:", responses)
+
         })
         .catch((err) => {
             console.error(err)
