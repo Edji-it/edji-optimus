@@ -402,22 +402,23 @@ describe("Readings", () => {
   describe("DELETE /readings/:id", () => {
     let deleteProject
     before((done) => {
+      // create a project associated with the reading, which we will later check is deleted
       functions.createProject({
-        reading_id: testReading._id,
-        label: "label for project",
-        types: ["emoji"]
-      }, testUsers.testTeacher.token)
-      .then((res) => {
-        // check to make sure it comes back with a project
-        res.should.have.property("project")
-        deleteProject = res.project
-        done()
-      })
-      .catch((err) => { console.error(err) })
+          reading_id: testReading._id,
+          label: "label for project",
+          types: ["emoji"]
+        }, testUsers.testTeacher.token)
+        .then((res) => {
+          // check to make sure it comes back with a project
+          res.should.have.property("project")
+          deleteProject = res.project
+          done()
+        })
+        .catch((err) => { console.error(err) })
     })
 
 
-    // this test should come LAST since all of the other tests depend on the reading still existing
+    // this test should come LAST (except for the ones verifying other effects) since all of the other tests depend on the reading still existing
     it("should delete a reading", (done) => {
       // delete the reading
       chai.request(server)
@@ -430,6 +431,7 @@ describe("Readings", () => {
         })
     })
 
+    // check that the deleted reading cannot be found
     it("should get a 404 when requesting the deleted reading's id", (done) => {
       // check to make sure it is deleted
       chai.request(server)
@@ -442,6 +444,7 @@ describe("Readings", () => {
         })
     })
 
+    // check that the delete reading call also deleted associated projects
     it("should get a 404 when requesting a project associated with the deleted reading", (done) => {
       // check to make sure associated project is also deleted
       chai.request(server)
