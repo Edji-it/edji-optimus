@@ -51,6 +51,10 @@ var model = ModelCreator("User", {
             newReading: {
                 firstDone: Date,
                 lastDone: Date
+            },
+            createReadingFromDash: {
+                firstDone: Date,
+                lastDone: Date
             }
         }
     },
