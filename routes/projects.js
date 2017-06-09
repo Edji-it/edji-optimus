@@ -284,6 +284,8 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
 
             var successStatus // 200 if updating, 201 if creating
             if (currentComment){
+                // Preserve "createdAt"
+                comment.createdAt = currentComment.createdAt
                 Object.assign(currentComment, comment)
                 successStatus = 200
             }
