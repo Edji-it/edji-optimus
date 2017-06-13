@@ -9,11 +9,27 @@ const User = require("./models/User")
 const LoginController = require("./middleware/LoginController")
 const util = require('util')
 const config = require('config')
+const session = require('express-session')
+const passport = require('passport')
+const GoogleStrategy = require('passport-google-oauth20').Strategy
 
+// configure express
 var app = express()
 app.use(bodyParser.json({limit: '20mb'}))
 
+// this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
+
+// Configure the session and session storage.
+const sessionConfig = {
+    resave: false,
+    saveUninitialized: false,
+    secret: "uXp7igLyn3C^z;fvjZ6mVXMMojuFtqRmvNwfn6Ne",
+    signed: true
+}
+
+app.use(passport.initialize())
+app.use(session(sessionConfig))
 
 app.use(LoginController.middleware)
 
@@ -67,21 +83,6 @@ app.use("/projects", projects)
 
 
 ////////////CONSTRUCTION ZONE////////////
-
-const session = require('express-session')
-const passport = require('passport')
-const GoogleStrategy = require('passport-google-oauth20').Strategy
-
-// Configure the session and session storage.
-const sessionConfig = {
-    resave: false,
-    saveUninitialized: false,
-    secret: "uXp7igLyn3C^z;fvjZ6mVXMMojuFtqRmvNwfn6Ne",
-    signed: true
-}
-
-app.use(passport.initialize())
-app.use(session(sessionConfig))
 
 function extractProfile (profile) {
     let imageUrl = ''
