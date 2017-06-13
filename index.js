@@ -80,6 +80,7 @@ const sessionConfig = {
     signed: true
 }
 
+app.use(passport.initialize())
 app.use(session(sessionConfig))
 
 function extractProfile (profile) {
@@ -125,21 +126,26 @@ passport.deserializeUser((obj, cb) => {
 app.get('/auth/testlogin', passport.authenticate('google', { scope: ['email', 'profile'] }))
 
 app.get(
-  // OAuth 2 callback url. Use this url to configure your OAuth client in the
-  // Google Developers console
-  '/auth/google/callback',
+    // OAuth 2 callback url. Use this url to configure your OAuth client in the
+    // Google Developers console
+    '/auth/google/callback',
+    (req, res, next) => {
+        console.log("auth callback got hit!")
+        next()
+    },
 
-  // Finish OAuth 2 flow using Passport.js
-  passport.authenticate('google'),
+    // Finish OAuth 2 flow using Passport.js
+    passport.authenticate('google'),
 
-  // Redirect back to the original page, if any
-  (req, res) => {
-    console.log("got the Google request!!!!!!!!!!!!!!!!!!!!!")
-    const redirect = req.session.oauth2return || '/'
-    delete req.session.oauth2return
-    res.redirect(redirect)
-  }
+    // Redirect back to the original page, if any
+    (req, res) => {
+        console.log("got the Google request!!!!!!!!!!!!!!!!!!!!!")
+        const redirect = 'http://edji.it'
+        delete req.session.oauth2return
+        res.redirect(redirect)
+    }
 )
+
 
 ////////////CONSTRUCTION ZONE////////////
 
