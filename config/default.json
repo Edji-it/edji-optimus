@@ -11,5 +11,12 @@
     },
     "Testing": {
         "url": "http://optimus-dev.edji.it"
+    },
+    "AUTH": {
+        "GOOGLE": {
+            "OAUTH2_CLIENT_ID": "818267463222-juaf42dsga990i2t9avl78qi7isu5ac8.apps.googleusercontent.com",
+            "OAUTH2_CLIENT_SECRET": "7l1W-oL6i-H_hIROL5dpdfyj",
+            "OAUTH2_CALLBACK": "http://localhost:3354/auth/google/callback"
+        }
     }
 }
