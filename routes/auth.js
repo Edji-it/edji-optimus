@@ -55,7 +55,7 @@ passport.deserializeUser((_id, done) => {
     done(null, _id)
 })
 
-router.get('/testlogin', passport.authenticate('google', { scope: ['email', 'profile'] }))
+router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
 
 router.get(
     // OAuth 2 callback url. Use this url to configure your OAuth client in the
