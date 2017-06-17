@@ -16,8 +16,15 @@ function extractProfile (profile) {
     }
     return {
         id: profile.id,
+<<<<<<< HEAD
         displayName: profile.displayName,
         image: imageUrl
+=======
+        fullname: profile.displayName,
+        email: profile.emails[0].value,
+        avatar: imageUrl,
+        type: profile.provider // should always be google I think
+>>>>>>> dev
     }
 }
 
@@ -34,6 +41,7 @@ passport.use(new GoogleStrategy({
     callbackURL: config.get('AUTH.GOOGLE.OAUTH2_CALLBACK'),
     accessType: 'offline'
 }, (accessToken, refreshToken, profile, cb) => {
+<<<<<<< HEAD
     console.log("got a response from the google strat")
     // Extract the minimal profile information we need from the profile object
     // provided by Google
@@ -47,6 +55,25 @@ passport.serializeUser((user, cb) => {
 })
 passport.deserializeUser((obj, cb) => {
     cb(null, obj);
+=======
+    // Extract the minimal profile information we need from the profile object
+    // provided by Google
+    console.log(profile)
+    let user = extractProfile(profile)
+    cb(null, user) // need to create the user and pass the user to callback
+    console.log(user)
+}))
+
+// read about these: https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
+passport.serializeUser((user, done) => {
+  // user passed to callback above will be received here 
+    done(null, user) // should pass user._id here instead
+})
+passport.deserializeUser((_id, done) => {
+  // look the user up in the database by id and return it as second callback of done
+  // _id is used as the key to get user's info from session
+    done(null, _id)
+>>>>>>> dev
 })
 
 router.get('/testlogin', passport.authenticate('google', { scope: ['email', 'profile'] }))
@@ -55,17 +82,23 @@ router.get(
     // OAuth 2 callback url. Use this url to configure your OAuth client in the
     // Google Developers console
     '/google/callback',
+<<<<<<< HEAD
     (req, res, next) => {
         console.log("auth callback got hit!")
         next()
     },
+=======
+>>>>>>> dev
 
     // Finish OAuth 2 flow using Passport.js
     passport.authenticate('google'),
 
     // Redirect back to the original page, if any
     (req, res) => {
+<<<<<<< HEAD
         console.log("got the Google request!!!!!!!!!!!!!!!!!!!!!")
+=======
+>>>>>>> dev
         const redirect = 'http://edji.it'
         delete req.session.oauth2return
         res.redirect(redirect)

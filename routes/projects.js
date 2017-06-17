@@ -78,10 +78,14 @@ router.post("/", Middleware.authRequired, function(req, res) {
 })
 
 router.get("/:id", function(req, res) {
-    var id = req.params.id
-    var user = req.user
+    let id = req.params.id
+    let user = req.user
+    let populate = req.query.pop || []
+    if (typeof populate == 'string') { // otherwise it's going to be an array of strings, which is what we want
+        populate = [populate]
+    }
 
-    var findParams = {}
+    let findParams = {}
 
     //creates flexibility to use with either project code or with project id
     if (mongoose.Types.ObjectId.isValid(id)) {
@@ -90,16 +94,19 @@ router.get("/:id", function(req, res) {
         findParams.code = id.toLowerCase()
     }
 
-    // Only pull out arrays since we'll be populating the object after saving
-    Q(Project.find(findParams).exec())
-        .then((projects) => {
-            var project = projects.pop()
+    Q(Project.findOne(findParams)
+            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id") // populate the reading_id if it was provided to query
+            .exec()
+        )
+        .then((project) => {
 
             if (!project) {
                 res.status(404).send()
                 return
             }
 
+            // to have a list of students who have been to a reading, regardless of whether or not they comment,
+            //  we add them to the temp_ids or students_ids array
             if (user) {
                 // don't add the teacher to the students array of their own project
                 if (user._id != project.teacher_id) {
@@ -108,6 +115,8 @@ router.get("/:id", function(req, res) {
                         if (project.temp_ids.indexOf(req.user._id) < 0) {
                             project.temp_ids.push(req.user._id)
                         }
+
+                        // should call update here
                     } else {
                         // only add the user's id if it's not already in the project
                         if (project.students_ids.indexOf(req.user._id) < 0) {
@@ -117,20 +126,14 @@ router.get("/:id", function(req, res) {
                 }
             }
 
+            res.status(200).send({ project: project })
+
+            // we save it afterward so that we don't obstruct returning the data
+            //  if this fails, we won't have their username in the array, but oh well
             project.save((err) => {
                 if (err) {
-                    throw new Error(err)
+                    console.error(err)
                 }
-
-                project.populate('students_ids', 'fullname')
-                    .populate('temp_ids', 'fullname', (err, result) => {
-                        if (err) {
-                            throw new Error(err)
-                        }
-
-                        res.status(200).send({ project: result })
-                        return
-                    })
             })
         })
         .catch((error) => {

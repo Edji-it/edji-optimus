@@ -151,10 +151,11 @@ describe("Projects", () => {
           var students_ids = project.students_ids
           
           students_ids.should.be.instanceof(Array)
-          students_ids.forEach((stuObj) => {
-            stuObj.should.have.property("_id")
-              stuObj._id.should.not.equal(testUsers.testTeacher.user._id)
-            stuObj.should.have.property("fullname")
+          students_ids.forEach((stuId) => {
+            stuId.should.not.equal(testUsers.testTeacher.user._id)
+            // stuObj.should.have.property("_id")
+            //   stuObj._id.should.not.equal(testUsers.testTeacher.user._id)
+            // stuObj.should.have.property("fullname")
           })
 
           done()
@@ -187,10 +188,10 @@ describe("Projects", () => {
           var studentExists = false
           var students_ids = project.students_ids
           students_ids.should.be.instanceof(Array)
-          students_ids.forEach((stuObj) => {
-            stuObj.should.have.property("_id")
-            stuObj.should.have.property("fullname")
-            if (stuObj._id === testUsers.testStudent.user._id) { studentExists = true }
+          students_ids.forEach((stuId) => {
+            // stuObj.should.have.property("_id")
+            // stuObj.should.have.property("fullname")
+            if (stuId === testUsers.testStudent.user._id) { studentExists = true }
           })
           studentExists.should.equal(true)
 
@@ -211,10 +212,10 @@ describe("Projects", () => {
           res.body.project.should.have.property("temp_ids")
           var temp_ids = res.body.project.temp_ids
           temp_ids.should.be.instanceof(Array)
-          temp_ids.forEach((stuObj) => {
-            stuObj.should.have.property("_id")
-            stuObj.should.have.property("fullname")
-            if (stuObj._id === testUsers.testTemp.user._id) { studentExists = true }
+          temp_ids.forEach((stuId) => {
+            // stuId.should.have.property("_id")
+            // stuId.should.have.property("fullname")
+            if (stuId === testUsers.testTemp.user._id) { studentExists = true }
           })
           studentExists.should.equal(true)
 
@@ -257,6 +258,26 @@ describe("Projects", () => {
           // initial validation
           res.should.have.status(200)
           res.body.should.have.property("project")
+
+          done()
+        })
+    })
+
+    it("should populate a reading_id with a full reading object", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id + "?pop=reading_id")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          var project = res.body.project
+          project.should.have.property("_id")
+          project.should.have.property("reading_id")
+          project.reading_id.should.have.property("_id")
+          project.reading_id.should.have.property("words")
+          project.reading_id.should.not.have.property("html")
 
           done()
         })

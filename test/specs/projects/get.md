@@ -8,6 +8,10 @@ User can retreive a project
 
 `/projects/:projectId` || `/projects/:projectCode`
 
+## Available Query Parameters
+
+`pop=reading_id`: allows population of the reading document straight onto the project
+
 ## Request Type
 
 `GET`
@@ -23,9 +27,7 @@ Coming soon?
         *  `status` = `200`
         *  `project`: `any`
     *  `res.project` should have a:
-        *  `students_ids`: `string[]` should:
-            *  Be an array of objects
-            *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
+        *  `students_ids`: `string[]` should NOT contain the user's id
 
 2.  Pass with students's credentials and project id
     *  `res` should have a:
@@ -39,9 +41,7 @@ Coming soon?
         *  `code`: `string`
         *  `types`: `string[]`
         *  `temp_ids`: `string[]`
-        *  `students_ids`: `string[]` should:
-            *  Be an array of objects
-            *  Contain an object of form `{ _id: studentId, fullname: studentFullName }`
+        *  `students_ids`: `string[]` should contain the user's id
         *  `comments`: `Comment[]` should:
             *  Be an array of objects
             *  Have comment data (not tested yet!)
@@ -52,8 +52,7 @@ Coming soon?
         *  `status` = `200`
         *  `project`: `any`
     *  `res.project` should have a:
-        *  Be an array of objects
-        *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
+        *  `students_ids`: `string[]` should contain the user's id
 4.  Pass with students's credentials and lowercase project code
     *  `res` should have a:
         *  `status` = `200`
@@ -74,9 +73,14 @@ Coming soon?
     *  `res` should have a:
         *  `status` = `200`
         *  `project`: `any`
-6.  Pass with invalid project id --> receive `404`
-7.  Pass with invalid project code --> receive `404`
-8.  Pass without `Authorization` header
+6.  Pass with valid `id` and query string `pop=reading_id`
+    *  `res` should have a:
+        *  `status` = `200`
+        *  `project`: `any` should have a:
+            *  `reading_id`: `any` should have an `_id` and `words`
+7.  Pass with invalid project id --> receive `404`
+8.  Pass with invalid project code --> receive `404`
+9.  Pass without `Authorization` header
     *  `res` should have a:
         *  `status` = `200`
         *  `res.body.project` should be a `object`
