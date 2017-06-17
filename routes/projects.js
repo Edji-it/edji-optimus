@@ -121,6 +121,8 @@ router.get("/:id", function(req, res) {
 
             res.status(200).send({ project: project })
 
+            // we save it afterward so that we don't obstruct returning the data
+            //  if this fails, we won't have their username in the array, but oh well
             project.save((err) => {
                 if (err) {
                     throw new Error(err)
