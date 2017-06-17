@@ -94,13 +94,11 @@ router.get("/:id", function(req, res) {
         findParams.code = id.toLowerCase()
     }
 
-    // Only pull out arrays since we'll be populating the object after saving
-    Q(Project.find(findParams)
+    Q(Project.findOne(findParams)
             .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "") // populate the reading_id if it was provided to query
             .exec()
         )
-        .then((projects) => {
-            let project = projects.pop()
+        .then((project) => {
 
             if (!project) {
                 res.status(404).send()
@@ -134,7 +132,7 @@ router.get("/:id", function(req, res) {
             //  if this fails, we won't have their username in the array, but oh well
             project.save((err) => {
                 if (err) {
-                    throw new Error(err)
+                    console.error(err)
                 }
             })
         })
