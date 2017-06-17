@@ -95,7 +95,7 @@ router.get("/:id", function(req, res) {
     }
 
     Q(Project.findOne(findParams)
-            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "") // populate the reading_id if it was provided to query
+            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id") // populate the reading_id if it was provided to query
             .exec()
         )
         .then((project) => {
