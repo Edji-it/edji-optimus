@@ -100,8 +100,6 @@ router.get("/:id", function(req, res) {
                 return
             }
 
-            res.status(200).send({ project: project })
-
             if (user) {
                 // don't add the teacher to the students array of their own project
                 if (user._id != project.teacher_id) {
@@ -121,25 +119,13 @@ router.get("/:id", function(req, res) {
                 }
             }
 
-            // res.status(200).send({ project: project })
+            res.status(200).send({ project: project })
 
-            // project.save((err) => {
-            //     if (err) {
-            //         throw new Error(err)
-            //     }
-
-
-            //     res.status(200).send({ project: project })
-            //     // project.populate('students_ids', 'fullname')
-            //     //     .populate('temp_ids', 'fullname', (err, result) => {
-            //     //         if (err) {
-            //     //             throw new Error(err)
-            //     //         }
-
-            //     //         res.status(200).send({ project: result })
-            //     //         return
-            //     //     })
-            // })
+            project.save((err) => {
+                if (err) {
+                    throw new Error(err)
+                }
+            })
         })
         .catch((error) => {
             console.error(error)

@@ -23,9 +23,7 @@ Coming soon?
         *  `status` = `200`
         *  `project`: `any`
     *  `res.project` should have a:
-        *  `students_ids`: `string[]` should:
-            *  Be an array of objects
-            *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
+        *  `students_ids`: `string[]` should NOT contain the user's id
 
 2.  Pass with students's credentials and project id
     *  `res` should have a:
@@ -39,9 +37,7 @@ Coming soon?
         *  `code`: `string`
         *  `types`: `string[]`
         *  `temp_ids`: `string[]`
-        *  `students_ids`: `string[]` should:
-            *  Be an array of objects
-            *  Contain an object of form `{ _id: studentId, fullname: studentFullName }`
+        *  `students_ids`: `string[]` should contain the user's id
         *  `comments`: `Comment[]` should:
             *  Be an array of objects
             *  Have comment data (not tested yet!)
@@ -52,8 +48,7 @@ Coming soon?
         *  `status` = `200`
         *  `project`: `any`
     *  `res.project` should have a:
-        *  Be an array of objects
-        *  NOT contain an object of form `{ _id: teachersId, fullname: teachersFullname }`
+        *  `students_ids`: `string[]` should contain the user's id
 4.  Pass with students's credentials and lowercase project code
     *  `res` should have a:
         *  `status` = `200`
