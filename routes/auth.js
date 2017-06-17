@@ -16,15 +16,10 @@ function extractProfile (profile) {
     }
     return {
         id: profile.id,
-<<<<<<< HEAD
-        displayName: profile.displayName,
-        image: imageUrl
-=======
         fullname: profile.displayName,
         email: profile.emails[0].value,
         avatar: imageUrl,
         type: profile.provider // should always be google I think
->>>>>>> dev
     }
 }
 
