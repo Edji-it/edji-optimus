@@ -263,6 +263,26 @@ describe("Projects", () => {
         })
     })
 
+    it("should populate a reading_id with a full reading object", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id + "?pop=reading_id")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          var project = res.body.project
+          project.should.have.property("_id")
+          project.should.have.property("reading_id")
+          project.reading_id.should.have.property("_id")
+          project.reading_id.should.have.property("words")
+          project.reading_id.should.not.have.property("html")
+
+          done()
+        })
+    })
+
     it("it should return 404 when project is not found by id", (done) => {
       chai.request(server)
         .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
