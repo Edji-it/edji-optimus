@@ -78,10 +78,14 @@ router.post("/", Middleware.authRequired, function(req, res) {
 })
 
 router.get("/:id", function(req, res) {
-    var id = req.params.id
-    var user = req.user
+    let id = req.params.id
+    let user = req.user
+    let populate = req.query.pop || []
+    if (typeof populate == 'string') { // otherwise it's going to be an array of strings, which is what we want
+        populate = [populate]
+    }
 
-    var findParams = {}
+    let findParams = {}
 
     //creates flexibility to use with either project code or with project id
     if (mongoose.Types.ObjectId.isValid(id)) {
@@ -91,15 +95,20 @@ router.get("/:id", function(req, res) {
     }
 
     // Only pull out arrays since we'll be populating the object after saving
-    Q(Project.find(findParams).exec())
+    Q(Project.find(findParams)
+            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "") // populate the reading_id if it was provided to query
+            .exec()
+        )
         .then((projects) => {
-            var project = projects.pop()
+            let project = projects.pop()
 
             if (!project) {
                 res.status(404).send()
                 return
             }
 
+            // to have a list of students who have been to a reading, regardless of whether or not they comment,
+            //  we add them to the temp_ids or students_ids array
             if (user) {
                 // don't add the teacher to the students array of their own project
                 if (user._id != project.teacher_id) {
