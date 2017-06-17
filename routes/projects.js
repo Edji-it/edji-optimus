@@ -100,6 +100,8 @@ router.get("/:id", function(req, res) {
                 return
             }
 
+            res.status(200).send({ project: project })
+
             if (user) {
                 // don't add the teacher to the students array of their own project
                 if (user._id != project.teacher_id) {
@@ -108,6 +110,8 @@ router.get("/:id", function(req, res) {
                         if (project.temp_ids.indexOf(req.user._id) < 0) {
                             project.temp_ids.push(req.user._id)
                         }
+
+                        // should call update here
                     } else {
                         // only add the user's id if it's not already in the project
                         if (project.students_ids.indexOf(req.user._id) < 0) {
@@ -117,21 +121,25 @@ router.get("/:id", function(req, res) {
                 }
             }
 
-            project.save((err) => {
-                if (err) {
-                    throw new Error(err)
-                }
+            // res.status(200).send({ project: project })
 
-                project.populate('students_ids', 'fullname')
-                    .populate('temp_ids', 'fullname', (err, result) => {
-                        if (err) {
-                            throw new Error(err)
-                        }
+            // project.save((err) => {
+            //     if (err) {
+            //         throw new Error(err)
+            //     }
 
-                        res.status(200).send({ project: result })
-                        return
-                    })
-            })
+
+            //     res.status(200).send({ project: project })
+            //     // project.populate('students_ids', 'fullname')
+            //     //     .populate('temp_ids', 'fullname', (err, result) => {
+            //     //         if (err) {
+            //     //             throw new Error(err)
+            //     //         }
+
+            //     //         res.status(200).send({ project: result })
+            //     //         return
+            //     //     })
+            // })
         })
         .catch((error) => {
             console.error(error)
