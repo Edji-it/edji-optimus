@@ -427,8 +427,7 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     let assetId = req.params.asset_id
     let type = req.params.type
     const allowableTypes = [
-        'audio',
-        'images'
+        'audio'
     ]
 
     // kick them out if they try an invalid type
@@ -440,12 +439,8 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
         return res.status(400).send({ error: "not a valid id" })
     }
 
-    console.log("real id:", assetId)
-
-
     // at this point, everything should be good for deleting the asset - check if that object exists
     let assetToDelete = user.media[type].find((asset) => {
-        console.log(asset._id)
         return asset._id == assetId
     })
 
@@ -454,9 +449,13 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
         return res.status(404).send()
     }
 
-    
+    // remove the object from the user's media array
+    user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
 
-    // res.status(200).send(user)
+    // make sure to save the user without the asset which will be deleted
+    user.save()
+
+    res.status(204).send()
 })
 
 module.exports = router
