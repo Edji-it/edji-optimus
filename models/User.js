@@ -41,6 +41,7 @@ var model = ModelCreator("User", {
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
+    avatar : String,
     prefs: {
         recentEmoji: [ String ],
         onboarding: {
