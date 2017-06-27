@@ -422,12 +422,41 @@ router.post("/verify", function(req, res) {
     })
 })
 
-router.delete('/assets/:type/:id', middleware.authRequired, (req, res) => {
+router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => {
     let user = req.user
-    let assetId = req.params.id
+    let assetId = req.params.asset_id
     let type = req.params.type
+    const allowableTypes = [
+        'audio',
+        'images'
+    ]
 
-    res.status(200).send(user)
+    // kick them out if they try an invalid type
+    if (allowableTypes.indexOf(type) < 0) {
+        return res.status(400).send({ error: "type not allowed" })
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(assetId)) {
+        return res.status(400).send({ error: "not a valid id" })
+    }
+
+    console.log("real id:", assetId)
+
+
+    // at this point, everything should be good for deleting the asset - check if that object exists
+    let assetToDelete = user.media[type].find((asset) => {
+        console.log(asset._id)
+        return asset._id == assetId
+    })
+
+    // tell the requester if the object doesn't exist on this user
+    if (!assetToDelete) {
+        return res.status(404).send()
+    }
+
+    
+
+    // res.status(200).send(user)
 })
 
 module.exports = router
