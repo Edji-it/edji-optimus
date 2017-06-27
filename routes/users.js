@@ -422,4 +422,12 @@ router.post("/verify", function(req, res) {
     })
 })
 
+router.delete('/assets/:type/:id', middleware.authRequired, (req, res) => {
+    let user = req.user
+    let assetId = req.params.id
+    let type = req.params.type
+
+    res.status(200).send(user)
+})
+
 module.exports = router
