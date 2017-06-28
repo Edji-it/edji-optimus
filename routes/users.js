@@ -427,7 +427,9 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     let assetId = req.params.asset_id
     let type = req.params.type
     const allowableTypes = [
-        'audio'
+        'audio',
+        'images',
+        'documents'
     ]
 
     // kick them out if they try an invalid type
