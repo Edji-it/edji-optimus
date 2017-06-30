@@ -422,6 +422,14 @@ router.post("/verify", function(req, res) {
     })
 })
 
+// finds the asset of the specified type on the user object
+let getAssetOnUser = function(user, type, id) {
+    let assetToDelete = user.media[type].find((asset) => {
+        return asset._id == id
+    })
+    return assetToDelete
+}
+
 router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => {
     let user = req.user
     let assetId = req.params.asset_id
@@ -441,10 +449,7 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
         return res.status(400).send({ error: "not a valid id" })
     }
 
-    // at this point, everything should be good for deleting the asset - check if that object exists
-    let assetToDelete = user.media[type].find((asset) => {
-        return asset._id == assetId
-    })
+    let assetToDelete = getAssetOnUser(user, type, assetId)
 
     // tell the requester if the object doesn't exist on this user
     if (!assetToDelete) {
