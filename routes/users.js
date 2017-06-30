@@ -448,13 +448,12 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
                         // if there isn't an asset, just tell them it isn't there
                         return res.status(404).send()
                     }
-                    break
                 })
                 .catch((err) => {
                     console.error(err)
                     res.status(500).send()
-                    break
                 })
+            break
         case 'images':
         case 'documents':
             let assetToDelete = getAssetOnUser(user, type, assetId)
