@@ -15,7 +15,8 @@ var users = {
     fullname: "newApiTestUser",
     password: "codycodycody",
     email: "cody@cody.cod",
-    identities: ["teacher", "business"]
+    identities: ["teacher", "business"],
+    avatar: "//image-dev.edji.it/avatar/test.png"
   },
   duplicateUser: {
     username: "optimusprime",

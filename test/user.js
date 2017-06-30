@@ -44,6 +44,7 @@ describe("Users", () => {
                         user.should.have.property("email")
                         user.should.have.property("createdAt")
                         user.should.have.property("updatedAt")
+                        user.should.have.property("avatar")
                         user.should.not.have.property("password")
                         user.should.not.have.property("resetPasswordToken")
                         user.should.not.have.property("resetPasswordExpires")
