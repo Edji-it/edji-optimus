@@ -14,6 +14,7 @@ const config = require("config")
 const mandrillConfig = config.get("Mandrill")
 
 let User = require("./../models/User")
+let Comment = require("./../models/Comment")
 let TempUser = require("./../models/TempUser")
 let Project = require("./../models/Project")
 let ArchivedUser = require("./../models/ArchivedUser")
@@ -420,6 +421,59 @@ router.post("/verify", function(req, res) {
         console.log(error)
         res.status(500).send()
     })
+})
+
+// finds the asset of the specified type on the user object
+let getAssetOnUser = function(user, type, id) {
+    let assetToDelete = user.media[type].find((asset) => {
+        return asset._id == id
+    })
+    return assetToDelete
+}
+
+router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => {
+    let user = req.user
+    let assetId = req.params.asset_id
+    let type = req.params.type
+
+    if (!mongoose.Types.ObjectId.isValid(assetId)) {
+        return res.status(400).send({ error: "not a valid id" })
+    }
+
+    switch (type) {
+        case 'audio':
+            let comment = Q(Comment.find({ _id: assetId, user_id: user._id }).exec())
+                .then((comments) => {
+                    if (comments.length === 0) {
+                        // if there isn't an asset, just tell them it isn't there
+                        return res.status(404).send()
+                    }
+                })
+                .catch((err) => {
+                    console.error(err)
+                    res.status(500).send()
+                })
+            break
+        case 'images':
+        case 'documents':
+            let assetToDelete = getAssetOnUser(user, type, assetId)
+
+            // tell the requester if the object doesn't exist on this user
+            if (!assetToDelete) {
+                return res.status(404).send()
+            }
+
+            // remove the object from the user's media array
+            user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
+
+            // make sure to save the user without the asset which will be deleted
+            user.save()
+            break
+        default:
+            res.status(400).send({ error: "type not allowed" })
+    }
+
+    res.status(204).send()
 })
 
 module.exports = router
