@@ -14,6 +14,7 @@ const config = require("config")
 const mandrillConfig = config.get("Mandrill")
 
 let User = require("./../models/User")
+let Comment = require("./../models/Comment")
 let TempUser = require("./../models/TempUser")
 let Project = require("./../models/Project")
 let ArchivedUser = require("./../models/ArchivedUser")
@@ -434,16 +435,6 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     let user = req.user
     let assetId = req.params.asset_id
     let type = req.params.type
-    const allowableTypes = [
-        'audio',
-        'images',
-        'documents'
-    ]
-
-    // // kick them out if they try an invalid type
-    // if (allowableTypes.indexOf(type) < 0) {
-    //     return res.status(400).send({ error: "type not allowed" })
-    // }
 
     if (!mongoose.Types.ObjectId.isValid(assetId)) {
         return res.status(400).send({ error: "not a valid id" })
@@ -451,14 +442,25 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
 
     switch (type) {
         case 'audio':
-            return res.status(400).send({ error: "can't do audio yet" })
+            let comment = Q(Comment.find({ _id: assetId, user_id: user._id }).exec())
+                .then((comments) => {
+                    if (comments.length === 0) {
+                        // if there isn't an asset, just tell them it isn't there
+                        return res.status(404).send()
+                    }
+                    break
+                })
+                .catch((err) => {
+                    console.error(err)
+                    res.status(500).send()
+                    break
+                })
         case 'images':
         case 'documents':
             let assetToDelete = getAssetOnUser(user, type, assetId)
 
             // tell the requester if the object doesn't exist on this user
             if (!assetToDelete) {
-                console.log("sending response")
                 return res.status(404).send()
             }
 
