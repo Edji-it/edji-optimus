@@ -440,27 +440,37 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
         'documents'
     ]
 
-    // kick them out if they try an invalid type
-    if (allowableTypes.indexOf(type) < 0) {
-        return res.status(400).send({ error: "type not allowed" })
-    }
+    // // kick them out if they try an invalid type
+    // if (allowableTypes.indexOf(type) < 0) {
+    //     return res.status(400).send({ error: "type not allowed" })
+    // }
 
     if (!mongoose.Types.ObjectId.isValid(assetId)) {
         return res.status(400).send({ error: "not a valid id" })
     }
 
-    let assetToDelete = getAssetOnUser(user, type, assetId)
+    switch (type) {
+        case 'audio':
+            return res.status(400).send({ error: "can't do audio yet" })
+        case 'images':
+        case 'documents':
+            let assetToDelete = getAssetOnUser(user, type, assetId)
 
-    // tell the requester if the object doesn't exist on this user
-    if (!assetToDelete) {
-        return res.status(404).send()
+            // tell the requester if the object doesn't exist on this user
+            if (!assetToDelete) {
+                console.log("sending response")
+                return res.status(404).send()
+            }
+
+            // remove the object from the user's media array
+            user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
+
+            // make sure to save the user without the asset which will be deleted
+            user.save()
+            break
+        default:
+            res.status(400).send({ error: "type not allowed" })
     }
-
-    // remove the object from the user's media array
-    user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
-
-    // make sure to save the user without the asset which will be deleted
-    user.save()
 
     res.status(204).send()
 })
