@@ -366,45 +366,33 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
             } else if (!project) {
                 res.status(404).send()
             } else {
-                console.log("just deleted the comment in the db")
                 // go through and find the comment that should have been deleted
                 if (project.comments) {
                     modComment = project.comments.find((comment) => {
                         return comment._id == comment_id
                     })
-                    console.log(modComment)
-                    console.log("modComment.url:", modComment['url'])
-                    for (let property in modComment) {
-                        // console.log(property)
-                        if (property == 'url') {
-                            console.log('url:', modComment[property])
-                        }
-                    }
 
                     // if the old comment had a url, we need to delete that asset
                     if (modComment && modComment.url) {
                         // here is where we call the asset delete call in grapple!!! W00T!
                         let options = {
                             method: 'DELETE',
-                            uri: [GRAPPLE_API.DOMAIN, "v1", "s3", modComment.url].join("/"),
+                            uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(modComment.url)].join("/"),
                             headers: { Authorization: GRAPPLE_API.TOKEN },
                             json: true
                         }
-                        console.log(options)
 
                         rp(options)
                             .then((body) => { // { deleted_urls: string[] }
-                                console.log("got the successful res!")
                                 return res.status(200).send({ deleted_comment: modComment })
                             })
                             .catch((err) => {
                                 return res.status(err.statusCode).send(err)
                             })
                     } else {
-                        res.status(500).send({ comment: modComment, error: "modComment did not have a url" })
+                        return res.status(500).send({ comment: modComment, error: "modComment did not have a url" })
                     }
                 }
-                // res.status(200).send({ project: project })
             }
         }
     )
