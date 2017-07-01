@@ -382,7 +382,7 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                     }
 
                     rp(options)
-                        .then((body) => { // { deleted_urls: string[] }
+                        .then((body) => { // { deleted_url: string[] }
                             return res.status(200).send({ deleted_comment: modComment })
                         })
                         .catch((err) => {
