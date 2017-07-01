@@ -443,14 +443,10 @@ let getAssetOnUser = function(user, type, id) {
 let getAssetFileLocations = function(asset, type) {
     switch (type) {
         case 'images':
-            console.log('adding image url', asset.url)
-            console.log([asset.url])
             return [asset.url]
         case 'documents':
-            console.log('returning document pages')
             return asset.pages.slice()
         default:
-            console.log('hit the default.....')
             return
     }
 }
@@ -502,7 +498,6 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
             return res.status(400).send({ error: "type not allowed" })
     }
 
-    console.log("locations:", fileLocations)
     res.status(200).send({ fileLocations: fileLocations })
 })
 
