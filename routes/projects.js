@@ -367,31 +367,29 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                 res.status(404).send()
             } else {
                 // go through and find the comment that should have been deleted
-                if (project.comments) {
-                    modComment = project.comments.find((comment) => {
-                        return comment._id == comment_id
-                    })
+                modComment = project.comments.find((comment) => {
+                    return comment._id == comment_id
+                })
 
-                    // if the old comment had a url, we need to delete that asset
-                    if (modComment && modComment.url) {
-                        // here is where we call the asset delete call in grapple!!! W00T!
-                        let options = {
-                            method: 'DELETE',
-                            uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(modComment.url)].join("/"),
-                            headers: { Authorization: GRAPPLE_API.TOKEN },
-                            json: true
-                        }
-
-                        rp(options)
-                            .then((body) => { // { deleted_urls: string[] }
-                                return res.status(200).send({ deleted_comment: modComment })
-                            })
-                            .catch((err) => {
-                                return res.status(err.statusCode).send(err)
-                            })
-                    } else {
-                        return res.status(500).send({ comment: modComment, error: "modComment did not have a url" })
+                // if the old comment had a url, we need to delete that asset
+                if (modComment && modComment.url) {
+                    // here is where we call the asset delete call in grapple!!! W00T!
+                    let options = {
+                        method: 'DELETE',
+                        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(modComment.url)].join("/"),
+                        headers: { Authorization: GRAPPLE_API.TOKEN },
+                        json: true
                     }
+
+                    rp(options)
+                        .then((body) => { // { deleted_urls: string[] }
+                            return res.status(200).send({ deleted_comment: modComment })
+                        })
+                        .catch((err) => {
+                            return res.status(err.statusCode).send(err)
+                        })
+                } else {
+                    return res.status(200).send({ deleted_comment: modComment })
                 }
             }
         }
