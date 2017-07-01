@@ -341,31 +341,41 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
     Project.findOneAndUpdate(
         {
             _id: project_id,
-            $or: [
-                { teacher_id: user._id },
-                { comments: { $elemMatch: {
+            $or: [ 
+                { teacher_id: user._id }, // this lets teachers delete a student's comment
+                { comments: { $elemMatch: { // this is likely a student deleting their own comment
                     _id: comment_id,
                     user_id: user._id
                 }}}
             ]
-        },
-        {
-            $pull:{
-                comments:{
+        }, {
+            $pull: {
+                comments: {
                     _id: comment_id
                 }
             }
-        },{
-            passRawResult: true
-        }, function(error, result, original){
+        }, {
+        }, (error, project) => { // the project that gets passed is the project before the update
 
             if (error){
                 console.error(error)
                 res.status(500).send()
-            } else if (!result) {
+            } else if (!project) {
                 res.status(404).send()
             } else {
-                res.status(204).send()
+                // go through and find the comment that should have been deleted
+                if (project.comments) {
+                    modComment = project.comments.find((comment) => {
+                        return comment._id == comment_id
+                    })
+
+                    // if the old comment had a url, we need to delete that asset
+                    if (modComment && modComment.url) {
+                        // here is where we call the asset delete call in grapple!!! W00T!
+                        
+                    }
+                }
+                res.status(200).send({ project: project })
             }
         }
     )
