@@ -14,8 +14,12 @@ Allow a user to delete their own comment
 
 ## Test Cases
 
-1.  Pass with `Authorization` header and student token --> receive `204`
-2.  Pass with `Authorization` header and project owner's token --> receive `204`
+1.  Pass with `Authorization` header and student token --> `res` should have a:
+    *  `status` = `200`
+    *  `deleted_comment`: `any`
+2.  Pass with `Authorization` header and project owner's token --> `res` should have a:
+    *  `status` = `200`
+    *  `deleted_comment`: `any`
 3.  Pass with `Authorization` header and invalid project id --> receive `400`
     *  `res` should have an `errors`
     *  `res.errors` should have a:
