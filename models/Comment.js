@@ -12,6 +12,7 @@ var Model =  ModelCreator("Comment",{
     start: {type: Number, required: true, default: -1 },
     end: {type: Number, required: true, default: -1 },
     data: String,
+    dataArray: Array,
     url: String,
     author: String, // user's name, stored for easy access
     text: String, // the text which the comment is on!
