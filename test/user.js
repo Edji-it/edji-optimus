@@ -356,7 +356,11 @@ describe("Users", () => {
                 .del("/users/assets/images/" + delAsset._id)
                 .set("Authorization", testUsers.testStudent.token)
                 .end((err, res) => {
-                    res.should.have.status(204)
+                    res.should.have.status(200)
+
+                    res.body.should.have.property("file_locations")
+                    res.body.file_locations.should.be.instanceOf(Array)
+                    res.body.file_locations.length.should.be.above(0)
                     done()
                 })
         })

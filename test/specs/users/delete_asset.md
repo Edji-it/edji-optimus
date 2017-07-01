@@ -22,7 +22,8 @@ The type is the type of object you're looking to delete. Allowed values are:
 
 1.  Pass with valid type and object id that exists on the user
     *  `res` should have a:
-        *  `status` = `204`
+        *  `status` = `200`
+        *  `file_locations`: `string[]` with a length greater than 0
 2.  Pass with valid type and object id which does not exist on the user object
     *  `res` should have a:
         *  `status` = `404`

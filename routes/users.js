@@ -498,7 +498,7 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
             return res.status(400).send({ error: "type not allowed" })
     }
 
-    res.status(200).send({ fileLocations: fileLocations })
+    res.status(200).send({ file_locations: fileLocations })
 })
 
 module.exports = router
