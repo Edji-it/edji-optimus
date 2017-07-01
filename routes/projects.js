@@ -1,17 +1,20 @@
 /**
  * corbfon 1/12/17
  */
-var express = require( "express")
-var mongoose = require( "mongoose")
-var Q = require("q")
+let express = require( "express")
+let mongoose = require( "mongoose")
+let Q = require("q")
+let rp = require("request-promise")
+let config = require("config")
 
-var Project = require("./../models/Project")
-var Comment = require("./../models/Comment")
-var User = require("./../models/User")
-var MountModelToRouter = require("./MountModelToRouter")
-var Middleware = require("./../middleware/Middleware")
+let Project = require("./../models/Project")
+let Comment = require("./../models/Comment")
+let User = require("./../models/User")
+let MountModelToRouter = require("./MountModelToRouter")
+let Middleware = require("./../middleware/Middleware")
+let GRAPPLE_API = config.get("EDJI_API.GRAPPLE")
 
-var router = express.Router()
+let router = express.Router()
 
 MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false})
 
@@ -349,11 +352,11 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                 }}}
             ]
         }, {
-            $pull: {
-                comments: {
-                    _id: comment_id
-                }
-            }
+            // $pull: {
+            //     comments: {
+            //         _id: comment_id
+            //     }
+            // }
         }, {
         }, (error, project) => { // the project that gets passed is the project before the update
 
@@ -363,19 +366,45 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
             } else if (!project) {
                 res.status(404).send()
             } else {
+                console.log("just deleted the comment in the db")
                 // go through and find the comment that should have been deleted
                 if (project.comments) {
                     modComment = project.comments.find((comment) => {
                         return comment._id == comment_id
                     })
+                    console.log(modComment)
+                    console.log("modComment.url:", modComment['url'])
+                    for (let property in modComment) {
+                        // console.log(property)
+                        if (property == 'url') {
+                            console.log('url:', modComment[property])
+                        }
+                    }
 
                     // if the old comment had a url, we need to delete that asset
                     if (modComment && modComment.url) {
                         // here is where we call the asset delete call in grapple!!! W00T!
-                        
+                        let options = {
+                            method: 'DELETE',
+                            uri: [GRAPPLE_API.DOMAIN, "v1", "s3", modComment.url].join("/"),
+                            headers: { Authorization: GRAPPLE_API.TOKEN },
+                            json: true
+                        }
+                        console.log(options)
+
+                        rp(options)
+                            .then((body) => { // { deleted_urls: string[] }
+                                console.log("got the successful res!")
+                                return res.status(200).send({ deleted_comment: modComment })
+                            })
+                            .catch((err) => {
+                                return res.status(err.statusCode).send(err)
+                            })
+                    } else {
+                        res.status(500).send({ comment: modComment, error: "modComment did not have a url" })
                     }
                 }
-                res.status(200).send({ project: project })
+                // res.status(200).send({ project: project })
             }
         }
     )
