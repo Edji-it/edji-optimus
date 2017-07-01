@@ -15,7 +15,7 @@
     "EDJI_API": {
         "GRAPPLE": {
             "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",
-            "DOMAIN": "http://localhost:3456"
+            "DOMAIN": "https://grapple-dev.edjiit"
         }
     }
 }
