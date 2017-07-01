@@ -424,11 +424,35 @@ router.post("/verify", function(req, res) {
 })
 
 // finds the asset of the specified type on the user object
+//  if it doesn't find anything, it will return undefined
 let getAssetOnUser = function(user, type, id) {
     let assetToDelete = user.media[type].find((asset) => {
         return asset._id == id
     })
     return assetToDelete
+    // switch (type) {
+    //     case 'images':
+    //         return [assetToDelete.url]
+    //     case 'documents':
+    //         return assetToDelete.pages || []
+    //     default:
+    //         return []
+    // }
+}
+
+let getAssetFileLocations = function(asset, type) {
+    switch (type) {
+        case 'images':
+            console.log('adding image url', asset.url)
+            console.log([asset.url])
+            return [asset.url]
+        case 'documents':
+            console.log('returning document pages')
+            return asset.pages.slice()
+        default:
+            console.log('hit the default.....')
+            return
+    }
 }
 
 router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => {
@@ -440,13 +464,16 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
         return res.status(400).send({ error: "not a valid id" })
     }
 
+    let fileLocations
     switch (type) {
         case 'audio':
-            let comment = Q(Comment.find({ _id: assetId, user_id: user._id }).exec())
-                .then((comments) => {
-                    if (comments.length === 0) {
+            let comment = Q(Comment.findOne({ _id: assetId, user_id: user._id }).exec())
+                .then((comment) => {
+                    if (!comment) {
                         // if there isn't an asset, just tell them it isn't there
                         return res.status(404).send()
+                    } else {
+                        fileLocations = [comment.audio_url]
                     }
                 })
                 .catch((err) => {
@@ -463,6 +490,8 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
                 return res.status(404).send()
             }
 
+            fileLocations = getAssetFileLocations(assetToDelete, type)
+
             // remove the object from the user's media array
             user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
 
@@ -470,10 +499,11 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
             user.save()
             break
         default:
-            res.status(400).send({ error: "type not allowed" })
+            return res.status(400).send({ error: "type not allowed" })
     }
 
-    res.status(204).send()
+    console.log("locations:", fileLocations)
+    res.status(200).send({ fileLocations: fileLocations })
 })
 
 module.exports = router
