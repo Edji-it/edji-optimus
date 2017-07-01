@@ -455,48 +455,34 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     let user = req.user
     let assetId = req.params.asset_id
     let type = req.params.type
+    const allowedTypes = [
+        'images',
+        'documents'
+    ]
 
     if (!mongoose.Types.ObjectId.isValid(assetId)) {
         return res.status(400).send({ error: "not a valid id" })
     }
 
-    let fileLocations
-    switch (type) {
-        case 'audio':
-            let comment = Q(Comment.findOne({ _id: assetId, user_id: user._id }).exec())
-                .then((comment) => {
-                    if (!comment) {
-                        // if there isn't an asset, just tell them it isn't there
-                        return res.status(404).send()
-                    } else {
-                        fileLocations = [comment.audio_url]
-                    }
-                })
-                .catch((err) => {
-                    console.error(err)
-                    res.status(500).send()
-                })
-            break
-        case 'images':
-        case 'documents':
-            let assetToDelete = getAssetOnUser(user, type, assetId)
-
-            // tell the requester if the object doesn't exist on this user
-            if (!assetToDelete) {
-                return res.status(404).send()
-            }
-
-            fileLocations = getAssetFileLocations(assetToDelete, type)
-
-            // remove the object from the user's media array
-            user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
-
-            // make sure to save the user without the asset which will be deleted
-            user.save()
-            break
-        default:
-            return res.status(400).send({ error: "type not allowed" })
+    // kick them out if they try to access a type that isn't allowed
+    if (allowedTypes.indexOf(type) < 0) {
+        return res.status(400).send({ error: "type not allowed" })
     }
+
+    let assetToDelete = getAssetOnUser(user, type, assetId)
+
+    // tell the requester if the object doesn't exist on this user
+    if (!assetToDelete) {
+        return res.status(404).send()
+    }
+
+    let fileLocations = getAssetFileLocations(assetToDelete, type)
+
+    // remove the object from the user's media array
+    user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
+
+    // make sure to save the user without the asset which will be deleted
+    user.save()
 
     res.status(200).send({ file_locations: fileLocations })
 })
