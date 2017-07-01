@@ -352,11 +352,11 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                 }}}
             ]
         }, {
-            // $pull: {
-            //     comments: {
-            //         _id: comment_id
-            //     }
-            // }
+            $pull: {
+                comments: {
+                    _id: comment_id
+                }
+            }
         }, {
         }, (error, project) => { // the project that gets passed is the project before the update
 
