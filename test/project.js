@@ -781,17 +781,16 @@ describe("Projects", () => {
         })
     })
 
-    // // this test currently doesn't do anything good because we don't know if it actually updated or not
-    // it("it should reject a delete attempt from a user who is not the owner", (done) => {
-    //   chai.request(server)
-    //     .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
-    //     .set("Authorization", testUsers.testTeacher.token)
-    //     .end((err, res) => {
-    //       res.should.have.status(401)
+    it("it should reject a delete attempt from a user who is not the owner", (done) => {
+      chai.request(server)
+        .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          res.should.have.status(404)
 
-    //       done()
-    //     })
-    // })
+          done()
+        })
+    })
 
     it("it should return 404 for non existant project", (done) => {
       chai.request(server)
@@ -805,7 +804,7 @@ describe("Projects", () => {
 
     it("it should reject an unauthorized user", (done) => {
       chai.request(server)
-        .del("/projects/" + testUsers.testTeacher.user._id + "/comments/" + testComments.emojiComment._id)
+        .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
         .end((err, res) => {
           res.should.have.status(401)
           done()
