@@ -818,7 +818,8 @@ describe("Projects", () => {
         .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
         .set("Authorization", testUsers.testStudent.token) // this must be equal to the id of the user who created the comment
         .end((err, res) => {
-          res.should.have.status(204)
+          res.should.have.status(200)
+          res.body.should.have.property("deleted_comment")
           done()
         })
     })
@@ -829,7 +830,8 @@ describe("Projects", () => {
         .del("/projects/" + testProject._id + "/comments/" + testComments.textComment._id)
         .set("Authorization", testUsers.testTeacher.token) // this must be equal to the id of the user who created the comment
         .end((err, res) => {
-          res.should.have.status(204)
+          res.should.have.status(200)
+          res.body.should.have.property("deleted_comment")
           done()
         })
     })
