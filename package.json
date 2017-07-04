@@ -31,6 +31,7 @@
     "forever": "^0.15.1",
     "hashids": "^1.1.0",
     "jsonwebtoken": "^5.7.0",
+    "mailchimp": "^1.2.0",
     "mongoose": "4.7.6",
     "mongoose-simple-random": "^0.3.3",
     "nodemailer": "^2.6.4",

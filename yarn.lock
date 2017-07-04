@@ -1472,6 +1472,13 @@ lru-cache@^4.0.1:
     pseudomap "^1.0.1"
     yallist "^2.0.0"
 
+mailchimp@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/mailchimp/-/mailchimp-1.2.0.tgz#cbabf992120e5f7225ca9484a4393844a58272b4"
+  dependencies:
+    qs "^6.2.0"
+    request "^2.72.0"
+
 mailcomposer@4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/mailcomposer/-/mailcomposer-4.0.0.tgz#109b2c344331cbe57fa05a82e92d0c0f17752893"
@@ -2150,7 +2157,7 @@ request-promise@^4.2.1:
     stealthy-require "^1.1.0"
     tough-cookie ">=2.3.0"
 
-request@^2.79.0:
+request@^2.72.0, request@^2.79.0:
   version "2.79.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.79.0.tgz#4dfe5bf6be8b8cdc37fcf93e04b65577722710de"
   dependencies:
