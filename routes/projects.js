@@ -1,17 +1,20 @@
 /**
  * corbfon 1/12/17
  */
-var express = require( "express")
-var mongoose = require( "mongoose")
-var Q = require("q")
+let express = require( "express")
+let mongoose = require( "mongoose")
+let Q = require("q")
+let rp = require("request-promise")
+let config = require("config")
 
-var Project = require("./../models/Project")
-var Comment = require("./../models/Comment")
-var User = require("./../models/User")
-var MountModelToRouter = require("./MountModelToRouter")
-var Middleware = require("./../middleware/Middleware")
+let Project = require("./../models/Project")
+let Comment = require("./../models/Comment")
+let User = require("./../models/User")
+let MountModelToRouter = require("./MountModelToRouter")
+let Middleware = require("./../middleware/Middleware")
+let GRAPPLE_API = config.get("EDJI_API.GRAPPLE")
 
-var router = express.Router()
+let router = express.Router()
 
 MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false})
 
@@ -341,31 +344,53 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
     Project.findOneAndUpdate(
         {
             _id: project_id,
-            $or: [
-                { teacher_id: user._id },
-                { comments: { $elemMatch: {
+            $or: [ 
+                { teacher_id: user._id }, // this lets teachers delete a student's comment
+                { comments: { $elemMatch: { // this is likely a student deleting their own comment
                     _id: comment_id,
                     user_id: user._id
                 }}}
             ]
-        },
-        {
-            $pull:{
-                comments:{
+        }, {
+            $pull: {
+                comments: {
                     _id: comment_id
                 }
             }
-        },{
-            passRawResult: true
-        }, function(error, result, original){
+        }, {
+        }, (error, project) => { // the project that gets passed is the project before the update
 
             if (error){
                 console.error(error)
                 res.status(500).send()
-            } else if (!result) {
+            } else if (!project) {
                 res.status(404).send()
             } else {
-                res.status(204).send()
+                // go through and find the comment that should have been deleted
+                modComment = project.comments.find((comment) => {
+                    return comment._id == comment_id
+                })
+
+                // if the old comment had a url, we need to delete that asset
+                if (modComment && modComment.url) {
+                    // here is where we call the asset delete call in grapple!!! W00T!
+                    let options = {
+                        method: 'DELETE',
+                        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(modComment.url)].join("/"),
+                        headers: { Authorization: GRAPPLE_API.TOKEN },
+                        json: true
+                    }
+
+                    rp(options)
+                        .then((body) => { // { deleted_url: string[] }
+                            return res.status(200).send({ deleted_comment: modComment })
+                        })
+                        .catch((err) => {
+                            return res.status(err.statusCode).send(err)
+                        })
+                } else {
+                    return res.status(200).send({ deleted_comment: modComment })
+                }
             }
         }
     )

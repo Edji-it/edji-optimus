@@ -14,6 +14,7 @@ const config = require("config")
 const mandrillConfig = config.get("Mandrill")
 
 let User = require("./../models/User")
+let Comment = require("./../models/Comment")
 let TempUser = require("./../models/TempUser")
 let Project = require("./../models/Project")
 let ArchivedUser = require("./../models/ArchivedUser")
@@ -71,7 +72,7 @@ router.put("/", middleware.authRequired, function(req, res){
     }
     
     // New object for acceptable updatable attribute
-    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media')
+    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media', 'avatar')
 
     let queryModel
     if (user.type == "temp") {
@@ -420,6 +421,70 @@ router.post("/verify", function(req, res) {
         console.log(error)
         res.status(500).send()
     })
+})
+
+// finds the asset of the specified type on the user object
+//  if it doesn't find anything, it will return undefined
+let getAssetOnUser = function(user, type, id) {
+    let assetToDelete = user.media[type].find((asset) => {
+        return asset._id == id
+    })
+    return assetToDelete
+    // switch (type) {
+    //     case 'images':
+    //         return [assetToDelete.url]
+    //     case 'documents':
+    //         return assetToDelete.pages || []
+    //     default:
+    //         return []
+    // }
+}
+
+let getAssetFileLocations = function(asset, type) {
+    switch (type) {
+        case 'images':
+            return [asset.url]
+        case 'documents':
+            return asset.pages.slice()
+        default:
+            return
+    }
+}
+
+router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => {
+    let user = req.user
+    let assetId = req.params.asset_id
+    let type = req.params.type
+    const allowedTypes = [
+        'images',
+        'documents'
+    ]
+
+    if (!mongoose.Types.ObjectId.isValid(assetId)) {
+        return res.status(400).send({ error: "not a valid id" })
+    }
+
+    // kick them out if they try to access a type that isn't allowed
+    if (allowedTypes.indexOf(type) < 0) {
+        return res.status(400).send({ error: "type not allowed" })
+    }
+
+    let assetToDelete = getAssetOnUser(user, type, assetId)
+
+    // tell the requester if the object doesn't exist on this user
+    if (!assetToDelete) {
+        return res.status(404).send()
+    }
+
+    let fileLocations = getAssetFileLocations(assetToDelete, type)
+
+    // remove the object from the user's media array
+    user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
+
+    // make sure to save the user without the asset which will be deleted
+    user.save()
+
+    res.status(200).send({ file_locations: fileLocations })
 })
 
 module.exports = router

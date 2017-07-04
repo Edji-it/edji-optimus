@@ -18,5 +18,11 @@
             "OAUTH2_CLIENT_SECRET": "7l1W-oL6i-H_hIROL5dpdfyj",
             "OAUTH2_CALLBACK": "http://localhost:3354/auth/google/callback"
         }
+    },
+    "EDJI_API": {
+        "GRAPPLE": {
+            "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",
+            "DOMAIN": "https://grapple-dev.edjiit"
+        }
     }
 }

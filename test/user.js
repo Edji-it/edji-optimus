@@ -44,6 +44,7 @@ describe("Users", () => {
                         user.should.have.property("email")
                         user.should.have.property("createdAt")
                         user.should.have.property("updatedAt")
+                        user.should.have.property("avatar")
                         user.should.not.have.property("password")
                         user.should.not.have.property("resetPasswordToken")
                         user.should.not.have.property("resetPasswordExpires")
@@ -135,58 +136,6 @@ describe("Users", () => {
                     })
             })
         })
-
-        // describe("Temp user conversion", () => {
-        //     let tempUser, testReading, testProject
-
-        //     before((done) => {
-
-        //         // create a temp user, for which we'll create readings and projects
-        //         functions.createTempUser(data.users.tempUser).then((returnUser) => {
-        //             // save the temp user to accessible variable
-        //             tempUser = returnUser
-        //             console.log("temp:", tempUser)
-        //             // return promise which creates reading
-        //             return functions.createReading(data.readings.newReading, tempUser.token)
-        //         })
-        //         .then((readingPromise) => {
-        //             console.log("looking at reading")
-        //             // chain to reading promise
-        //             return readingPromise.then((returnReading) => {
-        //                 // save out test reading
-        //                 testReading = returnReading.reading
-        //                 console.log("reading", testReading)
-        //                 // resolve with nothing
-        //                 return
-        //             })
-        //         })
-        //         .then(() => {
-        //             // create a new project object so that we can reset the reading_id
-        //             let newProj = Object.assign({}, data.projects.newProject)
-        //             // set reading_id for newly created project
-        //             newProj.reading_id = testReading._id
-
-        //             // create a new project and pass to promise
-        //             return functions.createProject(newProj, tempUser.token)
-        //         })
-        //         .then((projPromise) => {
-        //             // chain on projPromise
-        //             projPromise.then((returnProj) => {
-        //                 // assign out to assessible variable
-        //                 testProject = returnProj.project
-        //                 console.log("project:", testProject)
-        //                 done()
-        //             })
-        //         })
-        //     })
-
-        //     // it("should do the right stuff", (done) => {
-        //     //     console.log("temp:", tempUser)
-        //     //     console.log("reading, testReading")
-        //     //     console.log("project:", testProject)
-        //     //     done()
-        //     // })
-        // })
     })
 
     describe("GET /users/:id", () => {
@@ -377,6 +326,80 @@ describe("Users", () => {
                     text.validationErrors.fullname.should.be.a("string")
                     text.validationErrors.fullname.should.be.equal("badWords")
                     
+                    done()
+                })
+        })
+    })
+
+    describe("DELETE /users/assets/:type/:asset_id", () => {
+        let delTestUser // we'll get the user from the database and save it to this object first, so that we can reference it throughout the tests
+        before((done) => {
+            chai.request(server)
+                .get("/users/" + testUsers.testStudent.user._id)
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    res.should.have.status(200)
+                    res.body.should.have.property("user")
+
+                    // get the user and test to make sure it has the necessary properties (given by the above PUT /users/:id tests)
+                    delTestUser = res.body.user
+                    delTestUser.should.have.property("media")
+                    delTestUser.media.should.have.property("images")
+                    delTestUser.media.images.length.should.be.above(0)
+                    done()
+                })
+        })
+
+        it("should delete a property from a user object", (done) => {
+            let delAsset = delTestUser.media.images[0]
+            chai.request(server)
+                .del("/users/assets/images/" + delAsset._id)
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    res.should.have.status(200)
+
+                    res.body.should.have.property("file_locations")
+                    res.body.file_locations.should.be.instanceOf(Array)
+                    res.body.file_locations.length.should.be.above(0)
+                    done()
+                })
+        })
+
+        it("should return 404 for an id which does not exist within the array", (done) => {
+            chai.request(server)
+                .del("/users/assets/images/" + testUsers.testStudent.user._id) // not real likely that an asset will have this id
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    res.should.have.status(404)
+                    done()
+                })
+        })
+
+        it("should receive 400 if the requested :type is not allowable", (done) => {
+            chai.request(server)
+                .del("/users/assets/dumb/" + testUsers.testStudent.user._id) // this id will not exist on the assets
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    res.should.have.status(400)
+                    done()
+                })
+        })
+
+        it("should receive 400 if an invalid id is sent", (done) => {
+            chai.request(server)
+                .del("/users/assets/images/this_aint_no_id")
+                .set("Authorization", testUsers.testStudent.token)
+                .end((err, res) => {
+                    res.should.have.status(400)
+                    done()
+                })
+        })
+
+        it("should receive 401 if sent without authorization", (done) => {
+            chai.request(server)
+                .del("/users/assets/images/" + testUsers.testStudent.user._id) // this id will not exist on the assets
+                .end((err, res) => {
+                    res.should.have.status(401)
                     done()
                 })
         })
