@@ -28,8 +28,21 @@ function noWhitespace(username) {
 }
 
 function hasValidLogin(username) {
-    // make sure it has a password or an oauth type
-    return this.password || (this.oauth && this.oauth.type)
+    
+    // I'm doing this strange if statement because, for some reason, hasValidLogin is getting called twice and
+    //  `this` is different between the two calls. The first time it's the mongoose model, like you'd expect, and the
+    //  first part of the call will run. The next time, it looks like it's called with `this` as the entire node process,
+    //  which I don't know how to stop so this is just a workaround
+    if (this.username) {
+        // make sure it has a password or an oauth type
+        let hasPassword = !!this.password
+        let hasOauth = !!(this.oauth && this.oauth.type)
+        let isValid = hasPassword || hasOauth
+        return isValid
+    } else {
+        return true
+    }
+
 }
 
 var usernameValidator = [
