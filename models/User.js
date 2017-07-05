@@ -28,12 +28,8 @@ function noWhitespace(username) {
 }
 
 function hasValidLogin(username) {
-    // this is the mongoose document
-    if (this.password || (this.oauth && this.oauth.type)) {
-        return true
-    } else {
-        return false
-    }
+    // make sure it has a password or an oauth type
+    return this.password || (this.oauth && this.oauth.type)
 }
 
 var usernameValidator = [
