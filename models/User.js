@@ -27,15 +27,33 @@ function noWhitespace(username) {
     return regexp.test(username)
 }
 
+function hasValidLogin(username) {
+    // this is the mongoose document
+    if (this.password || (this.oauth && this.oauth.type)) {
+        return true
+    } else {
+        return false
+    }
+}
+
 var usernameValidator = [
     { validator: validateName, message: "Invalid username", kind: "badWords" },
-    { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
+    { validator: noWhitespace, message: "Invalid username", kind: "whitespace" },
+    { validator: hasValidLogin, message: "User must have password or oauth type", kind: "auth" }
 ]
+
+let oauthEnum = {
+    values: ['google'],
+    message: 'oauth type invalid'
+}
 
 var model = ModelCreator("User", {
     username:{type:String, set:toLower, unique:true, required:true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
-    password:{type:String, required:true},
+    password:{type:String},
+    oauth: {
+        type: { type: String, enum: oauthEnum }
+    },
     email:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     identities: [String],
     resetPasswordToken: String,
