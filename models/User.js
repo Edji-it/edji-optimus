@@ -27,14 +27,14 @@ function noWhitespace(username) {
     return regexp.test(username)
 }
 
-function hasValidLogin(username) {
-    
+function hasValidLogin(username) {    
     // I'm doing this strange if statement because, for some reason, hasValidLogin is getting called twice and
     //  `this` is different between the two calls. The first time it's the mongoose model, like you'd expect, and the
     //  first part of the call will run. The next time, it looks like it's called with `this` as the entire node process,
     //  which I don't know how to stop so this is just a workaround
     if (this.username) {
         // make sure it has a password or an oauth type
+        console.log(this)
         let hasPassword = !!this.password
         let hasOauth = !!(this.oauth && this.oauth.type)
         let isValid = hasPassword || hasOauth
@@ -61,7 +61,8 @@ var model = ModelCreator("User", {
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
     password:{type:String},
     oauth: {
-        type: { type: String, enum: oauthEnum }
+        type: { type: String, enum: oauthEnum },
+        id: String
     },
     email:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     identities: [String],

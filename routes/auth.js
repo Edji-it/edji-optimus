@@ -5,6 +5,7 @@ const passport = require('passport')
 const config = require('config')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 
+let User = require("./../models/User")
 let router = express.Router()
 
 // before getting to the routes, let's do some passport configuration - may move this somewhere else eventually
@@ -15,11 +16,14 @@ function extractProfile (profile) {
         imageUrl = profile.photos[0].value
     }
     return {
-        id: profile.id,
         fullname: profile.displayName,
+        username: profile.emails[0].value,
         email: profile.emails[0].value,
         avatar: imageUrl,
-        type: profile.provider // should always be google I think
+        auth: {
+            type: profile.provider, // should always be google I think
+            id: profile.id
+        }
     }
 }
 
@@ -30,7 +34,7 @@ function extractProfile (profile) {
 // along with the user's profile. The function must invoke `cb` with a user
 // object, which will be set at `req.user` in route handlers after
 // authentication.
-passport.use(new GoogleStrategy({
+passport.use('google', new GoogleStrategy({
     clientID: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_ID'),
     clientSecret: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_SECRET'),
     callbackURL: config.get('AUTH.GOOGLE.OAUTH2_CALLBACK'),
@@ -39,9 +43,14 @@ passport.use(new GoogleStrategy({
     // Extract the minimal profile information we need from the profile object
     // provided by Google
     console.log(profile)
-    let user = extractProfile(profile)
+    let user = User(extractProfile(profile))
+    // user.save()
+    user.validate((err) => {
+        console.log("err:", err)
+    })
+
     cb(null, user) // need to create the user and pass the user to callback
-    console.log(user)
+    console.log("user", user)
 }))
 
 // read about these: https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
