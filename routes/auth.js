@@ -20,7 +20,7 @@ function extractProfile (profile) {
         username: profile.emails[0].value,
         email: profile.emails[0].value,
         avatar: imageUrl,
-        auth: {
+        oauth: {
             type: profile.provider, // should always be google I think
             id: profile.id
         }
@@ -44,10 +44,7 @@ passport.use('google', new GoogleStrategy({
     // provided by Google
     console.log(profile)
     let user = User(extractProfile(profile))
-    // user.save()
-    user.validate((err) => {
-        console.log("err:", err)
-    })
+    user.save()
 
     cb(null, user) // need to create the user and pass the user to callback
     console.log("user", user)
