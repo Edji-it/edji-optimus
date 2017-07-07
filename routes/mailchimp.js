@@ -27,7 +27,6 @@ router.post( '/add', function(req, res) {
             }
         )
             .then((result) => {
-                console.log(result)
                 res.send(result)
             })
             .catch((err) => {
