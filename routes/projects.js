@@ -330,6 +330,22 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
     })
 })
 
+/**
+ * Sets up the options and returns a promise which will call grapple's route to delete an asset from s3
+ * @param url The url of the asset to delete (typically looks like //images.edji.it/something)
+ * @returns Promise resolved with a response body from Grapple
+ */
+let deleteFromS3 = function(url) {
+    let options = {
+        method: 'DELETE',
+        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(url)].join("/"),
+        headers: { Authorization: GRAPPLE_API.TOKEN },
+        json: true
+    }
+
+    return rp(options)
+}
+
 router.put("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res) {
     let user = req.user
     let project_id = req.params.project_id
@@ -426,15 +442,7 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
 
                 // if the old comment had a url, we need to delete that asset
                 if (modComment && modComment.url) {
-                    // here is where we call the asset delete call in grapple!!! W00T!
-                    let options = {
-                        method: 'DELETE',
-                        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(modComment.url)].join("/"),
-                        headers: { Authorization: GRAPPLE_API.TOKEN },
-                        json: true
-                    }
-
-                    rp(options)
+                    deleteFromS3(modComment.url)
                         .then((body) => { // { deleted_url: string[] }
                             return res.status(200).send({ deleted_comment: modComment })
                         })
