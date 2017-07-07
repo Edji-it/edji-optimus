@@ -336,11 +336,16 @@ router.put("/:project_id/comments/:comment_id", Middleware.authRequired, functio
     let comment_id = req.params.comment_id
     let comment_update = _.pick(req.body.comment, 'start', 'end', 'data', 'dataArray', 'url', 'author', 'text', 'loc')
 
+    // if the comment doesn't contain any valid update properties, then we can tell the user
+    if (!comment_update) {
+        return res.status(400).send({ errors: { comment: "no valid update properties on comment" }})
+    }
+
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ badRequest: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" }})
         return
     } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ badRequest: { commentId: "invalid" }})
+        res.status(400).send({ errors: { commentId: "invalid" }})
         return
     }
 
@@ -383,10 +388,10 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
     let comment_id = req.params.comment_id
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ badRequest: { projectId: "invalid" }})
+        res.status(400).send({ error: { projectId: "invalid" }})
         return
     } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ badRequest: { commentId: "invalid" }})
+        res.status(400).send({ error: { commentId: "invalid" }})
         return
     }
 
