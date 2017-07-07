@@ -383,6 +383,17 @@ router.put("/:project_id/comments/:comment_id", Middleware.authRequired, functio
                 return comm._id == comment_id
             })
 
+            // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
+            if (comment.url && comment_update.url && comment_update.url != comment.url) {
+                deleteFromS3(comment.url)
+                    .then((body) => {
+                        console.log(body)
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                    })
+            }
+
             // update the fields from the comment_update onto the comment
             Object.assign(comment, comment_update)
 
