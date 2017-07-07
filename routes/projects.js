@@ -395,7 +395,7 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
         return
     }
 
-    Project.findOneAndUpdate(
+    Q(Project.findOneAndUpdate(
         {
             _id: project_id,
             $or: [ 
@@ -412,12 +412,11 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                 }
             }
         }, {
-        }, (error, project) => { // the project that gets passed is the project before the update
+        })
+        .exec())
+        .then((project) => { // the project that gets passed is the project before the update
 
-            if (error){
-                console.error(error)
-                res.status(500).send()
-            } else if (!project) {
+            if (!project) {
                 res.status(404).send()
             } else {
                 // go through and find the comment that should have been deleted
@@ -446,8 +445,11 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                     return res.status(200).send({ deleted_comment: modComment })
                 }
             }
-        }
-    )
+        })
+        .catch((error) => {
+            console.error(error)
+            res.status(500).send()
+        })
 })
 
 router.get("/:project_code/validate", function(req, res) {
