@@ -754,9 +754,9 @@ describe("Projects", () => {
 
           // error validation
           var text = JSON.parse(res.error.text)
-          text.should.have.property("badRequest")
-          text.badRequest.should.have.property("projectId")
-          text.badRequest.projectId.should.equal("invalid")
+          text.should.have.property("errors")
+          text.errors.should.have.property("projectId")
+          text.errors.projectId.should.equal("invalid")
 
           done()
         })
@@ -773,9 +773,9 @@ describe("Projects", () => {
 
           // error validation
           var text = JSON.parse(res.error.text)
-          text.should.have.property("badRequest")
-          text.badRequest.should.have.property("commentId")
-          text.badRequest.commentId.should.equal("invalid")
+          text.should.have.property("errors")
+          text.errors.should.have.property("commentId")
+          text.errors.commentId.should.equal("invalid")
 
           done()
         })

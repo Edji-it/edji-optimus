@@ -17,14 +17,12 @@ Users can add a comment to a project
 The request body will contain the following in json form
 
 ```javascript
-req: {
-  comment: {
+comment: {
     start: number,
     end: number,
     type: string,
     text: string,
     data?: string
-  }
 }
 ```
 

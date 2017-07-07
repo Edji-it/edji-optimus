@@ -388,10 +388,10 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
     let comment_id = req.params.comment_id
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ error: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" }})
         return
     } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ error: { commentId: "invalid" }})
+        res.status(400).send({ errors: { commentId: "invalid" }})
         return
     }
 
