@@ -117,8 +117,8 @@ var model = ModelCreator("User", {
 
 model.schema.pre("save", function(next){
     
-    if (this._id && !this.isModified("password")){
-        next()
+    if (this._id && !this.isModified("password") || !this.password){
+        return next()
     }
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
@@ -127,7 +127,7 @@ model.schema.pre("save", function(next){
         }
 
         this.password = hash
-        next()
+        return next()
     })
 
 })

@@ -4,6 +4,7 @@ const express = require('express')
 const passport = require('passport')
 const config = require('config')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
+const Q = require('q')
 
 let User = require("./../models/User")
 let router = express.Router()
@@ -31,7 +32,7 @@ function extractProfile (profile) {
 //
 // OAuth 2-based strategies require a `verify` function which receives the
 // credential (`accessToken`) for accessing the Google API on the user's behalf,
-// along with the user's profile. The function must invoke `cb` with a user
+// along with the user's profile. The function must invoke `done` with a user
 // object, which will be set at `req.user` in route handlers after
 // authentication.
 passport.use('google', new GoogleStrategy({
@@ -39,26 +40,44 @@ passport.use('google', new GoogleStrategy({
     clientSecret: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_SECRET'),
     callbackURL: config.get('AUTH.GOOGLE.OAUTH2_CALLBACK'),
     accessType: 'offline'
-}, (accessToken, refreshToken, profile, cb) => {
+}, (accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
     // provided by Google
     console.log(profile)
     let user = User(extractProfile(profile))
-    user.save()
-
-    cb(null, user) // need to create the user and pass the user to callback
     console.log("user", user)
+
+    // have to manually fire findOneAndUpdate instead of relying on save because the user will not be found by id
+    // user.findOneAndUpdate(
+    //     { "oauth.type": "google", "oauth.id": user.oauth.id },
+    //     user,
+    //     { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true },
+    //     (err, user) => {
+    //         return done(err, user)
+    //     }
+    // )
+    user.save((err) => { done(err, user) })
+
+    // done(null, user) // need to create the user and pass the user to callback
 }))
 
 // read about these: https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
 passport.serializeUser((user, done) => {
   // user passed to callback above will be received here 
-    done(null, user) // should pass user._id here instead
+    done(null, user._id) // should pass user._id here instead
 })
 passport.deserializeUser((_id, done) => {
   // look the user up in the database by id and return it as second callback of done
   // _id is used as the key to get user's info from session
     done(null, _id)
+    Q(User.findById(_id).exec())
+        .then((user) => {
+            return done(null, user)
+        })
+        .catch((err) => {
+            console.error(err)
+            return done(err)
+        })
 })
 
 router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
