@@ -6,6 +6,7 @@ let mongoose = require( "mongoose")
 let Q = require("q")
 let rp = require("request-promise")
 let config = require("config")
+const _ = require("underscore")
 
 let Project = require("./../models/Project")
 let Comment = require("./../models/Comment")
@@ -13,6 +14,7 @@ let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
 let Middleware = require("./../middleware/Middleware")
 let GRAPPLE_API = config.get("EDJI_API.GRAPPLE")
+
 
 let router = express.Router()
 
@@ -328,10 +330,57 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
     })
 })
 
+router.put("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res) {
+    let user = req.user
+    let project_id = req.params.project_id
+    let comment_id = req.params.comment_id
+    let comment_update = _.pick(req.body.comment, 'start', 'end', 'data', 'dataArray', 'url', 'author', 'text', 'loc')
+
+    if (!mongoose.Types.ObjectId.isValid(project_id)) {
+        res.status(400).send({ badRequest: { projectId: "invalid" }})
+        return
+    } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
+        res.status(400).send({ badRequest: { commentId: "invalid" }})
+        return
+    }
+
+    // the project's id must match, and it must have a comment w/ correct id and user_id
+    Q(  Project.findOne({
+            _id: project_id,
+            comments: { $elemMatch: {
+                _id: comment_id,
+                user_id: user._id
+            }}
+        })
+        .exec())
+        .then((project) => {
+            if (!project) {
+                return res.status(404).send({ error: "project not found" })
+            }
+
+            let comment = project.comments.find((comm) => {
+                return comm._id == comment_id
+            })
+
+            // update the fields from the comment_update onto the comment
+            Object.assign(comment, comment_update)
+
+            // save the entire project (DON'T JUST SAVE THE COMMENT)
+            project.save()
+
+            return res.status(200).send({ comment: comment })
+
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send()
+        })
+})
+
 router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res){
-    var user = req.user
-    var project_id = req.params.project_id
-    var comment_id = req.params.comment_id
+    let user = req.user
+    let project_id = req.params.project_id
+    let comment_id = req.params.comment_id
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
         res.status(400).send({ badRequest: { projectId: "invalid" }})
