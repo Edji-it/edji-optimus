@@ -20,12 +20,16 @@ router.post( '/add', function(req, res) {
             listId = 'e29db4e848'
         }
 
-        api.post('/lists/' + listId + '/members', 
-            {
+        let data = {
                 email_address : req.body.email,
-                status : 'subscribed'
+                status : 'subscribed',
+                merge_fields: {
+                    FNAME: req.body.fname,
+                    LNAME: req.body.lname
+                }
             }
-        )
+
+        api.post('/lists/' + listId + '/members', data )
             .then((result) => {
                 res.send(result)
             })
