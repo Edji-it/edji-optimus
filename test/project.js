@@ -1,20 +1,20 @@
-var chai = require("chai")
-var chaiHttp = require("chai-http")
-var config = require("config")
-var server = config.get("Testing.url")
-var should = chai.should()
-var Q = require("q")
+const chai = require("chai")
+const chaiHttp = require("chai-http")
+const config = require("config")
+const server = config.get("Testing.url")
+const should = chai.should()
+const Q = require("q")
 
-var User = require("./../models/User")
-var data = require("./data")
-var functions = require("./functions")
+let User = require("./../models/User")
+let data = require("./data")
+let functions = require("./functions")
 
 chai.use(chaiHttp)
 
 // variables stored for use in tests
-var testProject
-var testUsers // comes with testStudent, testTeacher and testTemp
-var testComments = {}
+let testProject
+let testUsers // comes with testStudent, testTeacher and testTemp
+let testComments = {}
 
 describe("Projects", () => {
 
@@ -686,6 +686,40 @@ describe("Projects", () => {
           done()
         })
     })
+  })
+
+  describe("PUT /projects/:project_id/comments/:comment_id", () => {
+    // I like this idea of making an endpoint function for each of these tests - will probably avoid a lot of errors I've made in the past
+    let endpoint = function(project_id, comment_id) {
+      return "/" + ['projects', project_id, 'comments', comment_id].join("/")
+    }
+
+    it("should update the data property on a comment", (done) => {
+      let commentUpdate = { data: ":upside_down_face:" }
+
+      chai.request(server)
+        .put(endpoint(testProject._id, testComments.emojiComment._id))
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+          if (err) {
+            console.error(err)
+          }
+          res.should.have.status(200)
+          res.body.should.have.property("comment")
+
+          let comment = res.body.comment
+          comment.should.have.property("_id")
+          comment.should.have.property("data")
+          comment.data.should.be.equal(commentUpdate.data)
+
+          done()
+        })
+    })
+
+    // it("should receive 400 if there is not a comment in the body", (done) => {
+
+    // })
   })
 
   describe("PUT /projects/:id/user_id", () => {
