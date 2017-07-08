@@ -1,20 +1,20 @@
-var chai = require("chai")
-var chaiHttp = require("chai-http")
-var config = require("config")
-var server = config.get("Testing.url")
-var should = chai.should()
-var Q = require("q")
+const chai = require("chai")
+const chaiHttp = require("chai-http")
+const config = require("config")
+const server = config.get("Testing.url")
+const should = chai.should()
+const Q = require("q")
 
-var User = require("./../models/User")
-var data = require("./data")
-var functions = require("./functions")
+let User = require("./../models/User")
+let data = require("./data")
+let functions = require("./functions")
 
 chai.use(chaiHttp)
 
 // variables stored for use in tests
-var testProject
-var testUsers // comes with testStudent, testTeacher and testTemp
-var testComments = {}
+let testProject
+let testUsers // comes with testStudent, testTeacher and testTemp
+let testComments = {}
 
 describe("Projects", () => {
 
@@ -688,6 +688,118 @@ describe("Projects", () => {
     })
   })
 
+  describe("PUT /projects/:project_id/comments/:comment_id", () => {
+    // I like this idea of making an endpoint function for each of these tests - will probably avoid a lot of errors I've made in the past
+    let endpoint = function(project_id, comment_id) {
+      return "/" + ['projects', project_id, 'comments', comment_id].join("/")
+    }
+
+    let commentUpdate = { data: ":upside_down_face:" }
+
+    it("should update the data property on a comment", (done) => {
+      chai.request(server)
+        .put(endpoint(testProject._id, testComments.emojiComment._id))
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+
+          res.should.have.status(200)
+          res.body.should.have.property("comment")
+
+          let comment = res.body.comment
+          comment.should.have.property("_id")
+          comment.should.have.property("data")
+          comment.data.should.be.equal(commentUpdate.data)
+
+          done()
+        })
+    })
+
+    it("should receive 400 if there is not a comment in the body", (done) => {
+      chai.request(server)
+        .put(endpoint(testProject._id, testComments.emojiComment._id))
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ }) // leave the body empty here
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should receive 400 if the project id is invalid", (done) => {
+      chai.request(server)
+        .put(endpoint("fjkdlsjfidsaon", testComments.emojiComment._id))
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should receive 400 if the comment id is invalid", (done) => {
+      chai.request(server)
+        .put(endpoint(testProject._id, "fjkdlajfidnsagdnao"))
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should get a 404 if the project id does not exist", (done) => {
+      chai.request(server)
+        .put(endpoint(testUsers.testStudent.user._id, testComments.emojiComment._id)) // although this project id is valid, it will not be found
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("should get a 404 if the comment does not exist", (done) => {
+      chai.request(server)
+        .put(endpoint(testProject._id, testUsers.testStudent.user._id)) // although this comment id is valid, it will not be found
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("should get a 404 if the user's id does not correspond to the comment's id", (done) => {
+      chai.request(server)
+        .put(endpoint(testProject._id, testComments.emojiComment._id))
+        .set("Authorization", testUsers.testTeacher.token)
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("should receive a 401 if passed without an authorization header", (done) => {
+      chai.request(server)
+        .put(endpoint(testProject._id, testComments.emojiComment._id))
+        .send({ comment: commentUpdate })
+        .end((err, res) => {
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+  })
+
   describe("PUT /projects/:id/user_id", () => {
     it("should add a temp id to a project", (done) => {
       // make sure that id isn't already there
@@ -754,9 +866,9 @@ describe("Projects", () => {
 
           // error validation
           var text = JSON.parse(res.error.text)
-          text.should.have.property("badRequest")
-          text.badRequest.should.have.property("projectId")
-          text.badRequest.projectId.should.equal("invalid")
+          text.should.have.property("errors")
+          text.errors.should.have.property("projectId")
+          text.errors.projectId.should.equal("invalid")
 
           done()
         })
@@ -773,9 +885,9 @@ describe("Projects", () => {
 
           // error validation
           var text = JSON.parse(res.error.text)
-          text.should.have.property("badRequest")
-          text.badRequest.should.have.property("commentId")
-          text.badRequest.commentId.should.equal("invalid")
+          text.should.have.property("errors")
+          text.errors.should.have.property("commentId")
+          text.errors.commentId.should.equal("invalid")
 
           done()
         })
