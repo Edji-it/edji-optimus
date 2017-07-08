@@ -42,6 +42,38 @@ var model = ModelCreator("User", {
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
     avatar : String,
+    hero : {
+        /**
+         * Status
+         * - 'subscribed'   User is currently a subscribed Hero
+         * - 'canceled'     User has stopped paying their subscription
+         * - 'unsubscribed' User has never subscribed
+         */
+        status: String, 
+        /**
+         * Updates to user's hero status, as a papertrail
+         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
+         */
+        updates: [{
+            /**
+             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
+             */
+            change: String,
+            date: Date,
+            /**
+             * Stripe Subscription ID
+             * https://stripe.com/docs/api#subscription_object
+             */
+            subscriptionId: String
+        }],
+        /**
+         * Type
+         * - 'monthly'  Monthly subscriber
+         * - 'yearly'   Yearly subscriber
+         * - 'academy'  Part of an institution subsribed as an Academy 
+         */
+        type: String
+    },
     prefs: {
         recentEmoji: [ String ],
         onboarding: {
