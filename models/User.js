@@ -38,6 +38,11 @@ var heroStatuses = {
     message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
+var subscriptionType = {
+    values: ['monthly', 'yearly', 'academy', 'none'],
+    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
+}
+
 var model = ModelCreator("User", {
     username:{type:String, set:toLower, unique:true, required:true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
@@ -78,7 +83,7 @@ var model = ModelCreator("User", {
          * - 'yearly'   Yearly subscriber
          * - 'academy'  Part of an institution subsribed as an Academy 
          */
-        type: String
+        type: { type: String, enum: subscriptionType, default: 'none'}
     },
     prefs: {
         recentEmoji: [ String ],
