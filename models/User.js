@@ -32,6 +32,17 @@ var usernameValidator = [
     { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
 ]
 
+/** mongoose hook for validation against acceptable values for `types` */
+var heroStatuses = {
+    values: ['subscribed', 'unsubscribed', 'canceled'],
+    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
+}
+
+var subscriptionType = {
+    values: ['monthly', 'yearly', 'academy', 'none'],
+    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
+}
+
 var model = ModelCreator("User", {
     username:{type:String, set:toLower, unique:true, required:true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
@@ -42,6 +53,38 @@ var model = ModelCreator("User", {
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
     avatar : String,
+    hero : {
+        /**
+         * Status
+         * - 'subscribed'   User is currently a subscribed Hero
+         * - 'canceled'     User has stopped paying their subscription
+         * - 'unsubscribed' User has never subscribed
+         */
+        status: { type: String, enum: heroStatuses, default: "unsubscribed" }, 
+        /**
+         * Updates to user's hero status, as a papertrail
+         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
+         */
+        updates: [{
+            /**
+             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
+             */
+            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
+            date: Date,
+            /**
+             * Stripe Subscription ID
+             * https://stripe.com/docs/api#subscription_object
+             */
+            subscriptionId: String
+        }],
+        /**
+         * Type
+         * - 'monthly'  Monthly subscriber
+         * - 'yearly'   Yearly subscriber
+         * - 'academy'  Part of an institution subsribed as an Academy 
+         */
+        type: { type: String, enum: subscriptionType, default: 'none'}
+    },
     prefs: {
         recentEmoji: [ String ],
         onboarding: {
