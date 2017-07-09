@@ -32,6 +32,12 @@ var usernameValidator = [
     { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
 ]
 
+/** mongoose hook for validation against acceptable values for `types` */
+var heroStatuses = {
+    values: ['subscribed', 'unsubscribed', 'canceled'],
+    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
+}
+
 var model = ModelCreator("User", {
     username:{type:String, set:toLower, unique:true, required:true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
@@ -49,7 +55,7 @@ var model = ModelCreator("User", {
          * - 'canceled'     User has stopped paying their subscription
          * - 'unsubscribed' User has never subscribed
          */
-        status: String, 
+        status: { type: String, enum: heroStatuses, default: "unsubscribed" }, 
         /**
          * Updates to user's hero status, as a papertrail
          * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
@@ -58,7 +64,7 @@ var model = ModelCreator("User", {
             /**
              * Change: use applicable Status value (subscribed, canceled, unsubscribed)
              */
-            change: String,
+            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
             date: Date,
             /**
              * Stripe Subscription ID
