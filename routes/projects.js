@@ -6,6 +6,7 @@ let mongoose = require( "mongoose")
 let Q = require("q")
 let rp = require("request-promise")
 let config = require("config")
+const _ = require("underscore")
 
 let Project = require("./../models/Project")
 let Comment = require("./../models/Comment")
@@ -13,6 +14,7 @@ let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
 let Middleware = require("./../middleware/Middleware")
 let GRAPPLE_API = config.get("EDJI_API.GRAPPLE")
+
 
 let router = express.Router()
 
@@ -328,20 +330,99 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
     })
 })
 
-router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res){
-    var user = req.user
-    var project_id = req.params.project_id
-    var comment_id = req.params.comment_id
+/**
+ * Sets up the options and returns a promise which will call grapple's route to delete an asset from s3
+ * @param url The url of the asset to delete (typically looks like //images.edji.it/something)
+ * @returns Promise resolved with a response body from Grapple
+ */
+let deleteFromS3 = function(url) {
+    let options = {
+        method: 'DELETE',
+        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(url)].join("/"),
+        headers: { Authorization: GRAPPLE_API.TOKEN },
+        json: true
+    }
+
+    return rp(options)
+}
+
+router.put("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res) {
+    let user = req.user
+    let project_id = req.params.project_id
+    let comment_id = req.params.comment_id
+    let comment_update = _.pick(req.body.comment, 'start', 'end', 'data', 'dataArray', 'url', 'author', 'text', 'loc')
+
+    // if the comment doesn't contain any valid update properties, then we can tell the user
+    if (!req.body.comment) {
+        return res.status(400).send({ errors: { comment: "no valid update properties on comment" }})
+    }
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ badRequest: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" }})
         return
     } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ badRequest: { commentId: "invalid" }})
+        res.status(400).send({ errors: { commentId: "invalid" }})
         return
     }
 
-    Project.findOneAndUpdate(
+    // the project's id must match, and it must have a comment w/ correct id and user_id
+    Q(  Project.findOne({
+            _id: project_id,
+            comments: { $elemMatch: {
+                _id: comment_id,
+                user_id: user._id
+            }}
+        })
+        .exec())
+        .then((project) => {
+            if (!project) {
+                return res.status(404).send({ error: "project not found" })
+            }
+
+            let comment = project.comments.find((comm) => {
+                return comm._id == comment_id
+            })
+
+            // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
+            if (comment.url && comment_update.url && comment_update.url != comment.url) {
+                deleteFromS3(comment.url)
+                    .then((body) => {
+                        console.log(body)
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                    })
+            }
+
+            // update the fields from the comment_update onto the comment
+            Object.assign(comment, comment_update)
+
+            // save the entire project (DON'T JUST SAVE THE COMMENT)
+            project.save()
+
+            return res.status(200).send({ comment: comment })
+
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send()
+        })
+})
+
+router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res){
+    let user = req.user
+    let project_id = req.params.project_id
+    let comment_id = req.params.comment_id
+
+    if (!mongoose.Types.ObjectId.isValid(project_id)) {
+        res.status(400).send({ errors: { projectId: "invalid" }})
+        return
+    } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
+        res.status(400).send({ errors: { commentId: "invalid" }})
+        return
+    }
+
+    Q(Project.findOneAndUpdate(
         {
             _id: project_id,
             $or: [ 
@@ -358,12 +439,11 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                 }
             }
         }, {
-        }, (error, project) => { // the project that gets passed is the project before the update
+        })
+        .exec())
+        .then((project) => { // the project that gets passed is the project before the update
 
-            if (error){
-                console.error(error)
-                res.status(500).send()
-            } else if (!project) {
+            if (!project) {
                 res.status(404).send()
             } else {
                 // go through and find the comment that should have been deleted
@@ -373,15 +453,7 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
 
                 // if the old comment had a url, we need to delete that asset
                 if (modComment && modComment.url) {
-                    // here is where we call the asset delete call in grapple!!! W00T!
-                    let options = {
-                        method: 'DELETE',
-                        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(modComment.url)].join("/"),
-                        headers: { Authorization: GRAPPLE_API.TOKEN },
-                        json: true
-                    }
-
-                    rp(options)
+                    deleteFromS3(modComment.url)
                         .then((body) => { // { deleted_url: string[] }
                             return res.status(200).send({ deleted_comment: modComment })
                         })
@@ -392,8 +464,11 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                     return res.status(200).send({ deleted_comment: modComment })
                 }
             }
-        }
-    )
+        })
+        .catch((error) => {
+            console.error(error)
+            res.status(500).send()
+        })
 })
 
 router.get("/:project_code/validate", function(req, res) {
