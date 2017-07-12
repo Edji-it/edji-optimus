@@ -34,7 +34,6 @@ function hasValidLogin(username) {
     //  which I don't know how to stop so this is just a workaround
     if (this.username) {
         // make sure it has a password or an oauth type
-        console.log("user validation:",this)
         let hasPassword = !!this.password
         let hasOauth = !!(this.oauth && this.oauth.type)
         let isValid = hasPassword || hasOauth
