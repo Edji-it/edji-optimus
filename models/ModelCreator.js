@@ -27,7 +27,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     Model.prototype.save = function(options, callback) {
         if (!options) {
             options = {
-                forceSave: this._id ? true : false
+                forceSave: this._id ? false : true
             }
         }
 
