@@ -56,7 +56,7 @@ passport.use('google', new GoogleStrategy({
     //         return done(err, user)
     //     }
     // )
-    user.save((err) => { done(err, user) })
+    user.save(false, (err) => { done(err, user) })
 
     // done(null, user) // need to create the user and pass the user to callback
 }))

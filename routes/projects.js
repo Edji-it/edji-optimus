@@ -56,7 +56,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
     var model = Project(project)
 
-    model.save(function(error, result) {
+    model.save(false, function(error, result) {
         if (error) {
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
@@ -135,7 +135,7 @@ router.get("/:id", function(req, res) {
 
             // we save it afterward so that we don't obstruct returning the data
             //  if this fails, we won't have their username in the array, but oh well
-            project.save((err) => {
+            project.save(false, (err) => {
                 if (err) {
                     console.error(err)
                 }
@@ -302,7 +302,7 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(function(error, project){
+            project.save(false, function(error, project){
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {

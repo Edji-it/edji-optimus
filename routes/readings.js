@@ -120,7 +120,7 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
             if (result.owner_id != user._id) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
-            result.save((err) => {
+            result.save(false, (err) => {
                 if (err) {
                     console.error(err)
                     return res.status(500).send()

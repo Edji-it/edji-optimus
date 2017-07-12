@@ -158,10 +158,10 @@ let model = ModelCreator("User", {
 })
 
 model.schema.pre("save", function(next){
+
+    if (!this.password) { return next() } // oauth users won't have a password
     
-    if (this._id && !this.isModified("password") || !this.password){
-        return next()
-    }
+    if (this._id && !this.isModified("password") || !this.password){ return next() }
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
         if (error) {

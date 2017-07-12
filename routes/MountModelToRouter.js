@@ -64,7 +64,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
         var instanceData = req.body[name]
         var model = Model(instanceData)
 
-        model.save((error, result)=>{
+        model.save(false, (error, result)=>{
             console.log(error)
             res.json(result)
         })

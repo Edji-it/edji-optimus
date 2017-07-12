@@ -24,7 +24,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
 
     Model.prototype.forceSave = Model.prototype.save;
 
-    Model.prototype.save = function(callback){
+    Model.prototype.save = function(options, callback) {
         if (this._id) {
             Model.findByIdAndUpdate({_id:this._id}, this, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }, callback);
         } else {
