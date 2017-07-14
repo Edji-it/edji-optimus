@@ -43,20 +43,19 @@ passport.use('google', new GoogleStrategy({
 }, (accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
     // provided by Google
-    console.log(profile)
     let user = User(extractProfile(profile))
-    console.log("user", user)
-
-    // have to manually fire findOneAndUpdate instead of relying on save because the user will not be found by id
-    // user.findOneAndUpdate(
-    //     { "oauth.type": "google", "oauth.id": user.oauth.id },
-    //     user,
-    //     { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true },
-    //     (err, user) => {
-    //         return done(err, user)
-    //     }
-    // )
-    user.save(false, (err) => { done(err, user) })
+    let saveDoc = user.toPublic()
+    delete saveDoc._id
+    
+    // I probably need to query for the user to see if it exists before creating it...
+    user.save(
+        { forceSave: false, doc: saveDoc, query: { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id }},
+        (err, user) => {
+            if (err) { console.error("err:", err) }
+            else { console.log("user:", user) }
+            done(err, user)
+        }
+    )
 
     // done(null, user) // need to create the user and pass the user to callback
 }))
@@ -92,9 +91,9 @@ router.get(
 
     // Redirect back to the original page, if any
     (req, res) => {
-        const redirect = 'http://edji.it'
+        // const redirect = 'http://edji.it'
         delete req.session.oauth2return
-        res.redirect(redirect)
+        res.status(200).send({ success: true, user: req.user })
     }
 )
 

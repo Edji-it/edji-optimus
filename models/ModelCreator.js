@@ -34,7 +34,21 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         if (options.forceSave) {
             this.forceSave(callback);
         } else {
-            Model.findByIdAndUpdate({_id:this._id}, this, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }, callback);
+            let queryOptions = Object.assign({
+                query: { _id: this._id },
+                doc: this,
+                mongooseOptions: {
+                    new: true,
+                    runValidators: true,
+                    upsert: true,
+                    setDefaultsOnInsert: true
+                }
+            }, options)
+
+            console.log("using query:", queryOptions.query)
+            console.log("options:", queryOptions)
+
+            Model.findOneAndUpdate(queryOptions.query, queryOptions.doc, queryOptions.mongooseOptions, callback);
         }
     };
 
