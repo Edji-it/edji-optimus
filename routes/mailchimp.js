@@ -23,15 +23,22 @@ router.post( '/add', function(req, res) {
         let data = {
                 email_address : req.body.email,
                 status : 'subscribed',
-                merge_fields: {
-                    FNAME: req.body.fname,
-                    LNAME: req.body.lname
-                }
+                merge_fields: { }
             }
+            
+        if (req.body.fname) {
+            data.merge_fields.FNAME = req.body.fname
+        }
+        if (req.body.lname) {
+            data.merge_fields.LNAME = req.body.lname
+        }
 
         api.post('/lists/' + listId + '/members', data )
             .then((result) => {
-                res.send(result)
+                res.send({
+                    email: result.email_address,
+                    status: result.status
+                })
             })
             .catch((err) => {
                 // Mailchimp passes back a http status code!
