@@ -49,7 +49,18 @@ passport.use('google', new GoogleStrategy({
     
     // I probably need to query for the user to see if it exists before creating it...
     user.save(
-        { forceSave: false, doc: saveDoc, query: { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id }},
+        {
+            query: { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id },
+            update: {
+                $set: {
+                    username: user.username,
+
+                },
+                $push: {
+                    oauth: user.oauth[0]
+                }
+            }
+        },
         (err, user) => {
             if (err) { console.error("err:", err) }
             else { console.log("user:", user) }
