@@ -33,7 +33,7 @@ Coming soon?
         *  `text`: `string`
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
-2.  Pass good text comment
+2.  Pass good text comment with `reply_to` equal to the emoji comment's `_id`
     *  `res` should have a:
         *  `status` = `201`
         *  `comment`: `any`
@@ -46,6 +46,7 @@ Coming soon?
         *  `type`: `string` = `text`
         *  `data`: `string`
         *  `text`: `string`
+        *  `reply_to`: `string`
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
 3.  Pass an empty text comment (no `data` field)

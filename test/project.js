@@ -260,10 +260,13 @@ describe("Projects", () => {
     })
 
     it("it should create a text comment", (done) => {
+      let postComment = data.comments.textComment
+      postComment.reply_to = testComments.emojiComment._id
+
       chai.request(server)
         .post("/projects/" + testProject._id + "/comments")
         .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: data.comments.textComment })
+        .send({ comment: postComment })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
@@ -284,6 +287,7 @@ describe("Projects", () => {
           comment.should.have.property("end")
           comment.should.have.property("data")
           comment.should.have.property("text")
+          comment.should.have.property("reply_to")
           comment.should.have.property("updatedAt")
           comment.should.have.property("createdAt")
 
