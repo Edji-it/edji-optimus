@@ -20,7 +20,8 @@ var Model =  ModelCreator("Comment",{
     loc: { 
         x: Number,
         y: Number
-    }
+    },
+    reply_to: { type: mongoose.Schema.ObjectId, ref: "Comment" }
 });
 
 module.exports = Model;
