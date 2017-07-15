@@ -17,7 +17,7 @@ router.post( '/add', function(req, res) {
         if (req.body.list == 'hero') {
             listId = 'e8ff5b5e49'
         } else if (req.body.list == 'new') {
-            listId = 'e29db4e848'
+            listId = 'a4b72972f1'
         }
 
         let data = {
