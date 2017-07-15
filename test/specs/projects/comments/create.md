@@ -12,20 +12,6 @@ Users can add a comment to a project
 
 `POST`
 
-## Request Data
-
-The request body will contain the following in json form
-
-```javascript
-comment: {
-    start: number,
-    end: number,
-    type: string,
-    text: string,
-    data?: string
-}
-```
-
 ## Response Data
 
 Coming soon?

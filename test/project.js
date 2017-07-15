@@ -136,257 +136,6 @@ describe("Projects", () => {
     })
   })
 
-  describe("GET /projects/:id", () => {
-    it("it should get a project for a teacher", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTeacher.token)
-        .end((err, res) => {
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-
-          // students_ids validation
-          var project = res.body.project
-          project.should.have.property("students_ids")
-          var students_ids = project.students_ids
-          
-          students_ids.should.be.instanceof(Array)
-          students_ids.forEach((stuId) => {
-            stuId.should.not.equal(testUsers.testTeacher.user._id)
-            // stuObj.should.have.property("_id")
-            //   stuObj._id.should.not.equal(testUsers.testTeacher.user._id)
-            // stuObj.should.have.property("fullname")
-          })
-
-          done()
-        })
-    })
-
-    it("it should get a project for a student", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-          
-          // project validation
-          var project = res.body.project
-          project.should.have.property("_id")
-          project.should.have.property("teacher_id")
-          project.should.have.property("reading_id")
-          project.should.have.property("label")
-          project.should.have.property("code")
-          project.should.have.property("types")
-          project.should.have.property("temp_ids")
-          project.should.have.property("students_ids")
-          project.should.have.property("comments")
-          project.should.have.property("updatedAt")
-          project.should.have.property("createdAt")
-
-          // students_ids validation
-          var studentExists = false
-          var students_ids = project.students_ids
-          students_ids.should.be.instanceof(Array)
-          students_ids.forEach((stuId) => {
-            // stuObj.should.have.property("_id")
-            // stuObj.should.have.property("fullname")
-            if (stuId === testUsers.testStudent.user._id) { studentExists = true }
-          })
-          studentExists.should.equal(true)
-
-          done()
-        })
-    })
-
-    it("it should get a project for a temp user", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTemp.token)
-        .end((err, res) => {
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-
-          // students_ids validation
-          var studentExists = false
-          res.body.project.should.have.property("temp_ids")
-          var temp_ids = res.body.project.temp_ids
-          temp_ids.should.be.instanceof(Array)
-          temp_ids.forEach((stuId) => {
-            // stuId.should.have.property("_id")
-            // stuId.should.have.property("fullname")
-            if (stuId === testUsers.testTemp.user._id) { studentExists = true }
-          })
-          studentExists.should.equal(true)
-
-          done()
-        })
-    })
-
-    it("it should get a project by the project code", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code)
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-
-          // project validation
-          var project = res.body.project
-          project.should.have.property("_id")
-          project.should.have.property("teacher_id")
-          project.should.have.property("reading_id")
-          project.should.have.property("label")
-          project.should.have.property("code")
-          project.should.have.property("types")
-          project.should.have.property("temp_ids")
-          project.should.have.property("students_ids")
-          project.should.have.property("comments")
-          project.should.have.property("updatedAt")
-          project.should.have.property("createdAt")
-
-          done()
-        })
-    })
-
-    it("it should get a project even if the project code is capitalized", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code.toUpperCase())
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-
-          done()
-        })
-    })
-
-    it("should populate a reading_id with a full reading object", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id + "?pop=reading_id")
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-          
-          // project validation
-          var project = res.body.project
-          project.should.have.property("_id")
-          project.should.have.property("reading_id")
-          project.reading_id.should.have.property("_id")
-          project.reading_id.should.have.property("words")
-          project.reading_id.should.not.have.property("html")
-
-          done()
-        })
-    })
-
-    it("it should return 404 when project is not found by id", (done) => {
-      chai.request(server)
-        .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(404)
-
-          done()
-        })
-    })
-
-    it("it should return 404 when project is not found by code", (done) => {
-      chai.request(server)
-        .get("/projects/cody")
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(404)
-
-          done()
-        })
-    })
-
-    it("it should get a project for an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("project")
-          res.body.project.should.be.a("object")
-
-          done()
-        })
-    })
-  })
-
-  describe("GET /projects", () => {
-
-    it("it should get a student's projects", (done) => {
-      chai.request(server)
-        .get("/projects")
-        .set("Authorization", testUsers.testStudent.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.be.instanceof(Array)
-
-          // project validation
-          var projects = res.body
-          projects.length.should.be.above(0)
-          projects.forEach((project) => {
-            // make sure it's a project
-            project.should.have.property("_id")
-
-            // make sure it doesn't come with too much data
-            project.should.not.have.property("comments")
-            project.should.not.have.property("students_ids")
-            project.should.not.have.property("temp_ids")
-          })
-
-          done()
-        })
-    })
-
-    it("it should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/projects")
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(401)
-
-          done()
-        })
-    })
-
-    it("it should get a temp user's projects", (done) => {
-      chai.request(server)
-        .get("/projects")
-        .set("Authorization", testUsers.testTemp.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.be.instanceof(Array)
-
-          // project validation
-          var projects = res.body
-          projects.length.should.be.above(0)
-          projects.forEach((project) => {
-            // make sure it's a project
-            project.should.have.property("_id")
-
-            // make sure it doesn't come with too much data
-            project.should.not.have.property("comments")
-            project.should.not.have.property("students_ids")
-            project.should.not.have.property("temp_ids")
-          })
-
-          done()
-        })
-    })
-  })
-
   describe("GET /projects/:project_id/reading/:reading_id", () => {
     it("it should get all projects for a reading", (done) => {
       chai.request(server)
@@ -682,6 +431,257 @@ describe("Projects", () => {
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
+
+          done()
+        })
+    })
+  })
+
+  describe("GET /projects/:id", () => {
+    it("it should get a project for a teacher", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          // students_ids validation
+          var project = res.body.project
+          project.should.have.property("students_ids")
+          var students_ids = project.students_ids
+          
+          students_ids.should.be.instanceof(Array)
+          students_ids.forEach((stuId) => {
+            stuId.should.not.equal(testUsers.testTeacher.user._id)
+            // stuObj.should.have.property("_id")
+            //   stuObj._id.should.not.equal(testUsers.testTeacher.user._id)
+            // stuObj.should.have.property("fullname")
+          })
+
+          done()
+        })
+    })
+
+    it("it should get a project for a student", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          var project = res.body.project
+          project.should.have.property("_id")
+          project.should.have.property("teacher_id")
+          project.should.have.property("reading_id")
+          project.should.have.property("label")
+          project.should.have.property("code")
+          project.should.have.property("types")
+          project.should.have.property("temp_ids")
+          project.should.have.property("students_ids")
+          project.should.have.property("comments")
+          project.should.have.property("updatedAt")
+          project.should.have.property("createdAt")
+
+          // students_ids validation
+          var studentExists = false
+          var students_ids = project.students_ids
+          students_ids.should.be.instanceof(Array)
+          students_ids.forEach((stuId) => {
+            // stuObj.should.have.property("_id")
+            // stuObj.should.have.property("fullname")
+            if (stuId === testUsers.testStudent.user._id) { studentExists = true }
+          })
+          studentExists.should.equal(true)
+
+          done()
+        })
+    })
+
+    it("it should get a project for a temp user", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          // students_ids validation
+          var studentExists = false
+          res.body.project.should.have.property("temp_ids")
+          var temp_ids = res.body.project.temp_ids
+          temp_ids.should.be.instanceof(Array)
+          temp_ids.forEach((stuId) => {
+            // stuId.should.have.property("_id")
+            // stuId.should.have.property("fullname")
+            if (stuId === testUsers.testTemp.user._id) { studentExists = true }
+          })
+          studentExists.should.equal(true)
+
+          done()
+        })
+    })
+
+    it("it should get a project by the project code", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject.code)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          // project validation
+          var project = res.body.project
+          project.should.have.property("_id")
+          project.should.have.property("teacher_id")
+          project.should.have.property("reading_id")
+          project.should.have.property("label")
+          project.should.have.property("code")
+          project.should.have.property("types")
+          project.should.have.property("temp_ids")
+          project.should.have.property("students_ids")
+          project.should.have.property("comments")
+          project.should.have.property("updatedAt")
+          project.should.have.property("createdAt")
+
+          done()
+        })
+    })
+
+    it("it should get a project even if the project code is capitalized", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject.code.toUpperCase())
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+
+          done()
+        })
+    })
+
+    it("should populate a reading_id with a full reading object", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id + "?pop=reading_id")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          
+          // project validation
+          var project = res.body.project
+          project.should.have.property("_id")
+          project.should.have.property("reading_id")
+          project.reading_id.should.have.property("_id")
+          project.reading_id.should.have.property("words")
+          project.reading_id.should.not.have.property("html")
+
+          done()
+        })
+    })
+
+    it("it should return 404 when project is not found by id", (done) => {
+      chai.request(server)
+        .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should return 404 when project is not found by code", (done) => {
+      chai.request(server)
+        .get("/projects/cody")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should get a project for an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject._id)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("project")
+          res.body.project.should.be.a("object")
+
+          done()
+        })
+    })
+  })
+
+  describe("GET /projects", () => {
+
+    it("it should get a student's projects", (done) => {
+      chai.request(server)
+        .get("/projects")
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.be.instanceof(Array)
+
+          // project validation
+          var projects = res.body
+          projects.length.should.be.above(0)
+          projects.forEach((project) => {
+            // make sure it's a project
+            project.should.have.property("_id")
+
+            // make sure it doesn't come with too much data
+            project.should.not.have.property("comments")
+            project.should.not.have.property("students_ids")
+            project.should.not.have.property("temp_ids")
+          })
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/projects")
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+
+    it("it should get a temp user's projects", (done) => {
+      chai.request(server)
+        .get("/projects")
+        .set("Authorization", testUsers.testTemp.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.be.instanceof(Array)
+
+          // project validation
+          var projects = res.body
+          projects.length.should.be.above(0)
+          projects.forEach((project) => {
+            // make sure it's a project
+            project.should.have.property("_id")
+
+            // make sure it doesn't come with too much data
+            project.should.not.have.property("comments")
+            project.should.not.have.property("students_ids")
+            project.should.not.have.property("temp_ids")
+          })
 
           done()
         })
