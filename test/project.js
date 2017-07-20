@@ -490,8 +490,7 @@ describe("Projects", () => {
           project.should.have.property("comments")
           console.log(project.comments)
             let reply = project.comments.find((comment) => {
-              console.log("reply_to:", comment.reply_to)
-              return comment._id = testComments.textComment._id
+              return comment._id == testComments.textComment._id
             })
             reply.should.be.ok // assert that the reply exists
             console.log(reply)
