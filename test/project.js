@@ -260,8 +260,9 @@ describe("Projects", () => {
     })
 
     it("it should create a text comment", (done) => {
-      let postComment = data.comments.textComment
+      let postComment = Object.assign({}, data.comments.textComment)
       postComment.reply_to = testComments.emojiComment._id
+      postComment.should.have.property("reply_to") // for some reason, it's not saving with this property
 
       chai.request(server)
         .post("/projects/" + testProject._id + "/comments")
@@ -275,6 +276,7 @@ describe("Projects", () => {
           // comment validation
           var comment = res.body.comment
           testComments.textComment = comment
+          console.log(testComments.textComment)
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
             comment.user_id.should.equal(testUsers.testStudent.user._id)
@@ -486,6 +488,16 @@ describe("Projects", () => {
           project.should.have.property("temp_ids")
           project.should.have.property("students_ids")
           project.should.have.property("comments")
+          console.log(project.comments)
+            let reply = project.comments.find((comment) => {
+              console.log("reply_to:", comment.reply_to)
+              return comment._id = testComments.textComment._id
+            })
+            reply.should.be.ok // assert that the reply exists
+            console.log(reply)
+
+            reply.should.have.property("reply_to")
+
           project.should.have.property("updatedAt")
           project.should.have.property("createdAt")
 
