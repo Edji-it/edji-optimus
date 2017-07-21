@@ -83,7 +83,11 @@ var model = ModelCreator("User", {
          * - 'yearly'   Yearly subscriber
          * - 'academy'  Part of an institution subsribed as an Academy 
          */
-        type: { type: String, enum: subscriptionType, default: 'none'}
+        type: { type: String, enum: subscriptionType, default: 'none'},
+        /**
+         * Stripe Customer Id
+         */
+        customer_id: { type: String }
     },
     prefs: {
         recentEmoji: [ String ],
@@ -126,6 +130,7 @@ var model = ModelCreator("User", {
         delete user.resetPasswordToken
         delete user.resetPasswordExpires
         delete user.accountArchiveToken
+        delete user.hero.customer_id
         return user
     }
 })
