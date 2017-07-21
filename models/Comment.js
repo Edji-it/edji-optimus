@@ -21,7 +21,8 @@ var Model =  ModelCreator("Comment",{
         x: Number,
         y: Number
     },
-    reply_to: { type: mongoose.Schema.ObjectId, ref: "Comment" }
+    reply_to: { type: mongoose.Schema.ObjectId, ref: "Comment" },
+    replies: Array
 });
 
 module.exports = Model;
