@@ -62,28 +62,29 @@ var model = ModelCreator("User", {
          */
         status: { type: String, enum: heroStatuses, default: "unsubscribed" }, 
         /**
-         * Updates to user's hero status, as a papertrail
-         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
-         */
-        updates: [{
-            /**
-             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
-             */
-            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
-            date: Date,
-            /**
-             * Stripe Subscription ID
-             * https://stripe.com/docs/api#subscription_object
-             */
-            subscriptionId: String
-        }],
-        /**
          * Type
          * - 'monthly'  Monthly subscriber
          * - 'yearly'   Yearly subscriber
          * - 'academy'  Part of an institution subsribed as an Academy 
          */
         type: { type: String, enum: subscriptionType, default: 'none'},
+        /**
+         * Updates to user's hero status, as a papertrail
+         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
+         */
+        history: [{
+            /**
+             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
+             */
+            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
+            date: Date,
+            type: { type: String, enum: subscriptionType, default: 'none'},
+            /**
+             * Stripe Subscription ID
+             * https://stripe.com/docs/api#subscription_object
+             */
+            subscriptionId: String
+        }],
         /**
          * Stripe Customer Id
          */
