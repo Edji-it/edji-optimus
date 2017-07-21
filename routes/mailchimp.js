@@ -8,7 +8,7 @@ var apiKey = 'ce55e22d71e63881ff6cbcf93e01ca33-us14';
 try {
     var api = new Mailchimp(apiKey);
 } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
 }
 
 router.post( '/add', function(req, res) {

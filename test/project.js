@@ -330,33 +330,34 @@ describe("Projects", () => {
         })
     })
 
-    it("it should update an existing comment", (done) => {
-      var updatedComment = {}
-      Object.assign(updatedComment, testComments.emptyComment)
-      updatedComment.data = "updated"
+    // FUNCTIONALITY MOVED TO PUT CALL
+    // it("it should update an existing comment", (done) => {
+    //   var updatedComment = {}
+    //   Object.assign(updatedComment, testComments.emptyComment)
+    //   updatedComment.data = "updated"
 
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: updatedComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("comment")
+    //   chai.request(server)
+    //     .post("/projects/" + testProject._id + "/comments")
+    //     .set("Authorization", testUsers.testStudent.token)
+    //     .send({ comment: updatedComment })
+    //     .end((err, res) => {
+    //       // initial validation
+    //       res.should.have.status(200)
+    //       res.body.should.have.property("comment")
 
-          // comment validation
-          var comment = res.body.comment
-          comment.should.have.property("data")
-            comment.data.should.be.equal(updatedComment.data)
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
-            let updatedAt = new Date(comment.updatedAt).getTime()
-            let createdAt = new Date(comment.createdAt).getTime()
-            updatedAt.should.be.above(createdAt)
+    //       // comment validation
+    //       var comment = res.body.comment
+    //       comment.should.have.property("data")
+    //         comment.data.should.be.equal(updatedComment.data)
+    //       comment.should.have.property("updatedAt")
+    //       comment.should.have.property("createdAt")
+    //         let updatedAt = new Date(comment.updatedAt).getTime()
+    //         let createdAt = new Date(comment.createdAt).getTime()
+    //         updatedAt.should.be.above(createdAt)
 
-          done()
-        })
-    })
+    //       done()
+    //     })
+    // })
 
     // Need to modify things so that we can have requirements again - it was breaking projects b/c some comments don't have starts and ends
     // it("it should send validation errors for required fields", (done) => {

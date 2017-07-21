@@ -476,8 +476,6 @@ describe("Readings", () => {
           results.should.have.property("deletedProjects")
             results.deletedProjects.should.be.gt(0)
 
-          console.log(res.body)
-
           done()
         })
     })

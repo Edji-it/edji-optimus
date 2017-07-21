@@ -27,26 +27,53 @@ function noWhitespace(username) {
     return regexp.test(username)
 }
 
-var usernameValidator = [
+function hasValidLogin(username) {    
+    // I'm doing this strange if statement because, for some reason, hasValidLogin is getting called twice and
+    //  `this` is different between the two calls. The first time it's the mongoose model, like you'd expect, and the
+    //  first part of the call will run. The next time, it looks like it's called with `this` as the entire node process,
+    //  which I don't know how to stop so this is just a workaround
+    if (this.username) {
+        // make sure it has a password or an oauth type
+        let hasPassword = !!this.password
+        let hasOauth = !!(this.oauth && this.oauth.type)
+        let isValid = hasPassword || hasOauth
+        return isValid
+    } else {
+        return true
+    }
+
+}
+
+let usernameValidator = [
     { validator: validateName, message: "Invalid username", kind: "badWords" },
-    { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
+    { validator: noWhitespace, message: "Invalid username", kind: "whitespace" },
+    { validator: hasValidLogin, message: "User must have password or oauth type", kind: "auth" }
 ]
 
+let oauthEnum = {
+    values: ['google'],
+    message: 'oauth type invalid'
+}
+
 /** mongoose hook for validation against acceptable values for `types` */
-var heroStatuses = {
+let heroStatuses = {
     values: ['subscribed', 'unsubscribed', 'canceled'],
     message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
-var subscriptionType = {
+let subscriptionType = {
     values: ['monthly', 'yearly', 'academy', 'none'],
     message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
-var model = ModelCreator("User", {
+let model = ModelCreator("User", {
     username:{type:String, set:toLower, unique:true, required:true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
-    password:{type:String, required:true},
+    password:{type:String},
+    oauth: [{
+        type: { type: String, enum: oauthEnum },
+        id: String
+    }],
     email:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     identities: [String],
     resetPasswordToken: String,
@@ -131,10 +158,10 @@ var model = ModelCreator("User", {
 })
 
 model.schema.pre("save", function(next){
+
+    if (!this.password) { return next() } // oauth users won't have a password
     
-    if (this._id && !this.isModified("password")){
-        next()
-    }
+    if (this._id && !this.isModified("password") || !this.password){ return next() }
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
         if (error) {
@@ -142,7 +169,7 @@ model.schema.pre("save", function(next){
         }
 
         this.password = hash
-        next()
+        return next()
     })
 
 })

@@ -35,7 +35,7 @@ Model.schema.pre("save", function(next){
             if (!err) {
                 this_project.code = result.code
                 result.active = true
-                result.save(function(err, result) {
+                result.save(false, function(err, result) {
                     if (!err) {
                         next()
                     } else {

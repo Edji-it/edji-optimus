@@ -32,7 +32,7 @@ router.post("/", function(req, res){
 
     var model = User(userData)
 
-    model.save((error, result)=>{
+    model.save(false, (error, result)=>{
         if (error){
             if (error.name === "ValidationError") {
                 var errors = {}
@@ -152,7 +152,7 @@ router.delete("/:id", function(req, res) {
                     fullname: user.fullname
                 })
 
-                archiveUser.save((err) => {
+                archiveUser.save(false, (err) => {
                     if (err) {
                         throw new Error(err)
                     }
@@ -325,7 +325,7 @@ router.post("/recover_password", function(req, res) {
             }
         }).then(function(user) {
 
-            user.save(function(err) {
+            user.save(false, function(err) {
                 if (err) { throw new Error(err) }
             })
 
@@ -411,14 +411,14 @@ router.post("/verify", function(req, res) {
 
                 //by this point, we pretty much think the user is the real deal set that user's token and send back the thumbs up
                 dbUser.accountArchiveToken = Date.now() + 300000
-                dbUser.save((err) => {
+                dbUser.save(false, (err) => {
                     if (err) { throw new Error(err) }
                     res.status(204).send()
                 })
             })
     })
     .catch((error) => {
-        console.log(error)
+        console.error(error)
         res.status(500).send()
     })
 })
