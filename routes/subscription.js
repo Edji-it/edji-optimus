@@ -32,31 +32,40 @@ let subscribeCustomer = function(customerId, subscriptionType) {
 }
 
 let updateUserSub = function(user, subscription) {
-    let customerId = subscription.customer
-    let subscriptionType = subscription.plan.id
-    // Once customer is created we need to save customer_id
-    if (!user.hero.customer_id) {
-        user.hero.customer_id = customerId
-    }
-    
-    // Update Hero properties on User
-    // Change status
-    user.hero.status = 'subscribed'
-    // Update Subscription ID
-    user.hero.subscription_id = subscription.id
-    // Update Subscription type
-    user.type = subscriptionType
+    return new Promise((resolve, reject) => {
+        let customerId = subscription.customer
+        let subscriptionType = subscription.plan.id
+        if (!user.hero) {
+            user.hero = {}
+        }
+        // Once customer is created we need to save customer_id
+        if (!user.hero.customer_id) {
+            user.hero.customer_id = customerId
+        }
 
-    // Log subscription change
-    user.hero.history.push({
-        change: 'subscribed',
-        date: subscription.created,
-        subscription_id: subscription.id,
-        type: subscriptionType
-    })
+        // Update Hero properties on User
+        // Change status
+        user.hero.status = 'subscribed'
+        // Update Subscription ID
+        user.hero.subscription_id = subscription.id
+        // Update Subscription type
+        user.type = subscriptionType
 
-    user.save(false, (err, result) => {
-        console.log(result)
+        // Log subscription change
+        user.hero.history.push({
+            change: 'subscribed',
+            date: subscription.created,
+            subscription_id: subscription.id,
+            type: subscriptionType
+        })
+
+        user.save( (err, result) => {
+            if (result) {
+                resolve(result)
+            } else {
+                reject(err)
+            }
+        })
     })
 }
 
@@ -79,7 +88,12 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
         let handleSuccess = function(sub) {
             updateUserSub(user, sub)
-            res.status(200).send({ subscription: sub })
+            .then(value => {
+                res.status(200).send({ user: user.toPublic(), subscription: sub })
+            })
+            .catch( err => {
+                res.status(500).send({ error: 'Unable to save user object', subscription: sub })
+            })
         }
 
         // Does user exist as customer?
@@ -134,8 +148,10 @@ router.put("/", Middleware.authRequired, function(req, res) {
                 { plan: subscriptionType },
                 function(err, subscription) {
                     // asynchronously called
-
                     updateUserSub(user, subscription)
+                        .then(data => {
+                            //
+                        })
                 }
             );
         } else if (statusChange == 'unsubscribed') {
@@ -144,8 +160,10 @@ router.put("/", Middleware.authRequired, function(req, res) {
                 subscriptionId,
                 function(err, confirmation) {
                     // asynchronously called
-
                     updateUserSub(user, subscription)
+                        .then(data => {
+                                //
+                        })
                 }
             );
         } else {
