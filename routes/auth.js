@@ -18,13 +18,12 @@ function extractProfile (profile) {
     }
     return {
         fullname: profile.displayName,
-        username: profile.emails[0].value,
         email: profile.emails[0].value,
         avatar: imageUrl,
-        oauth: {
+        oauth: [{
             type: profile.provider, // should always be google I think
             id: profile.id
-        }
+        }]
     }
 }
 
@@ -39,34 +38,60 @@ passport.use('google', new GoogleStrategy({
     clientID: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_ID'),
     clientSecret: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_SECRET'),
     callbackURL: config.get('AUTH.GOOGLE.OAUTH2_CALLBACK'),
-    accessType: 'offline'
-}, (accessToken, refreshToken, profile, done) => {
+    accessType: 'offline',
+    passReqToCallback: true
+}, (req, accessToken, refreshToken, profile, done) => {
+    // console.log("request:", req)
     // Extract the minimal profile information we need from the profile object
     // provided by Google
     let user = User(extractProfile(profile))
     let saveDoc = user.toPublic()
     delete saveDoc._id
-    
-    // I probably need to query for the user to see if it exists before creating it...
-    user.save(
-        {
-            query: { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id },
-            update: {
-                $set: {
-                    username: user.username,
+    console.log(user)
+    user.validate((err) => {
+        console.error(err)
+    })
 
-                },
-                $push: {
-                    oauth: user.oauth[0]
-                }
+    const userQuery = { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id }
+    
+    // // I probably need to query for the user to see if it exists before creating it...
+    // user.save(
+    //     {
+    //         query: { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id },
+    //         update: {
+    //             $set: {
+    //                 username: user.username,
+
+    //             },
+    //             $push: {
+    //                 oauth: user.oauth[0]
+    //             }
+    //         }
+    //     },
+    //     (err, user) => {
+    //         if (err) { console.error("err:", err) }
+    //         else { console.log("user:", user) }
+    //         done(err, user)
+    //     }
+    // )
+    console.log("got all the way to querying for a user")
+    Q(User.findOne(userQuery).exec())
+        .then((dbUser) => {
+            // if the user doesn't exist, we need to create the user
+            if (!dbUser) {
+                user.save({
+                    forceSave: true
+                }, (err, res) => {
+                    done(err, res)
+                })
+            } else {
+                // still need to know what to do if the user already exists and is connecting their account
+                done(null, dbUser)
             }
-        },
-        (err, user) => {
-            if (err) { console.error("err:", err) }
-            else { console.log("user:", user) }
-            done(err, user)
-        }
-    )
+        })
+        .catch((err) => {
+            done(err)
+        })
 
     // done(null, user) // need to create the user and pass the user to callback
 }))
@@ -79,7 +104,6 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((_id, done) => {
   // look the user up in the database by id and return it as second callback of done
   // _id is used as the key to get user's info from session
-    done(null, _id)
     Q(User.findById(_id).exec())
         .then((user) => {
             return done(null, user)
