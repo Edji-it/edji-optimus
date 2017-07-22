@@ -32,14 +32,18 @@ let subscribeCustomer = function(customerId, subscriptionType) {
 }
 
 let updateUserSub = function(user, subscription) {
+    let customerId = subscription.customer
+    let subscriptionType = subscription.plan.id
     // Once customer is created we need to save customer_id
     if (!user.hero.customer_id) {
-        user.hero.customer_id = customer.id
+        user.hero.customer_id = customerId
     }
     
     // Update Hero properties on User
     // Change status
     user.hero.status = 'subscribed'
+    // Update Subscription ID
+    user.hero.subscription_id = subscription.id
     // Update Subscription type
     user.type = subscriptionType
 
@@ -47,7 +51,7 @@ let updateUserSub = function(user, subscription) {
     user.hero.history.push({
         change: 'subscribed',
         date: subscription.created,
-        subscriptionId: subscription.id,
+        subscription_id: subscription.id,
         type: subscriptionType
     })
 
@@ -104,15 +108,49 @@ router.post("/", Middleware.authRequired, function(req, res) {
                     handleError(err)
                 })
         }
-
-        // Create Stripe subscription
-        stripe.subscriptions.create({
-            customer: customer.id,
-            plan: "basic-monthly",
-        }, function(err, subscription) {
-            // asynchronously called
-        });
     }
 )
+
+
+router.put("/", Middleware.authRequired, function(req, res) {
+        /**
+         * Two options:
+         * - unsubscribe
+         * - change subscription plan
+         */
+        let user = req.user
+        let subscriptionId = user.hero.subscription_id
+        let subscriptionType = req.body.subscription_type
+        let statusChange = req.body.status
+
+        // If a Type is passed, we are changing plan
+        if (subscriptionType) {
+             stripe.subscriptions.update(
+                subscriptionId,
+                { plan: subscriptionType },
+                function(err, subscription) {
+                    // asynchronously called
+
+                    updateUserSub(user, subscription)
+                }
+            );
+        } else if (statusChange == 'unsubscribed') {
+            // Cancel subscription
+            stripe.subscriptions.del(
+                subscriptionId,
+                function(err, confirmation) {
+                    // asynchronously called
+
+                    updateUserSub(user, subscription)
+                }
+            );
+        } else {
+            // This request needs something more!
+        }
+       
+
+    }
+)
+
 
 module.exports = router

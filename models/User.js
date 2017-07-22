@@ -69,6 +69,10 @@ var model = ModelCreator("User", {
          */
         type: { type: String, enum: subscriptionType, default: 'none'},
         /**
+         * Active Subscription Id
+         */
+        subscription_id: { type: String },
+        /**
          * Updates to user's hero status, as a papertrail
          * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
          */
@@ -83,7 +87,7 @@ var model = ModelCreator("User", {
              * Stripe Subscription ID
              * https://stripe.com/docs/api#subscription_object
              */
-            subscriptionId: String
+            subscription_id: String
         }],
         /**
          * Stripe Customer Id
