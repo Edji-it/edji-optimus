@@ -134,7 +134,7 @@ router.get("/:id", function(req, res) {
             // here we're going to do a little curation for the returned project to make sure the comments come back with a replies array
             var repliesObj = []
             let size = project.comments.length
-            for (let i = 0; i < project.comments.length; i++) {
+            for (let i = 0; i < size; i++) {
                 let comment = project.comments[i]
                 if (comment.reply_to) {
                     if (!repliesObj[comment.reply_to]) {
