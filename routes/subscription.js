@@ -89,14 +89,18 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 email: user.email,
                 source: paymentToken
             }, function(err, customer) {
-                // Now we have a customer id, we can create a subscription
-                subscribeCustomer(customer.id, subscriptionType)
-                    .then((sub) => {
-                        handleSuccess(sub)
-                    })
-                    .catch((err) => {
-                        handleError(err)
-                    })
+                if (customer) {
+                    // Now we have a customer id, we can create a subscription
+                    subscribeCustomer(customer.id, subscriptionType)
+                        .then((sub) => {
+                            handleSuccess(sub)
+                        })
+                        .catch((err) => {
+                            handleError(err)
+                        })
+                } else {
+                    res.status(500).send({ error: err }) 
+                }
             });
         } else {
             // return subscribeCustomer(customerId, subscriptionType)
