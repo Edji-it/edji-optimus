@@ -66,7 +66,9 @@ Coming soon?
         *  `types`: `string[]`
         *  `temp_ids`: `string[]`
         *  `students_ids`: `string[]`
-        *  `comments`: `Comment[]`
+        *  `comments`: `Comment[]` should have a:
+            *  `replies`: `string[]`
+            *  Check that at least one reply exists and that it is correct
         *  `updatedAt`: `Date`
         *  `createdAt`: `Date`
 5.  Pass with students's credentials and uppercase project code

@@ -136,6 +136,312 @@ describe("Projects", () => {
     })
   })
 
+  describe("GET /projects/:project_id/reading/:reading_id", () => {
+    it("it should get all projects for a reading", (done) => {
+      chai.request(server)
+        .get("/projects/reading/" + testProject.reading_id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("projects")
+          res.body.projects.should.be.instanceof(Array)
+
+          // project validation
+          var projects = res.body.projects
+          projects.length.should.be.above(0)
+          projects.forEach((project) => {
+            // make sure it's a project
+            project.should.have.property("_id")
+            project.should.have.property("teacher_id")
+              project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
+
+            // TODO: front end uses these for count of comments and count of students - need to find a lighter way!
+            // // make sure it doesn't come with too much data
+            // project.should.not.have.property("comments")
+            // project.should.not.have.property("students_ids")
+            // project.should.not.have.property("temp_ids")
+          })
+
+          done()
+        })
+    })
+
+    it("it should return empty array for nonexistant reading id", (done) => {
+      chai.request(server)
+        .get("/projects/reading/" + testUsers.testStudent.user._id)
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("projects")
+          res.body.projects.should.be.instanceof(Array)
+          res.body.projects.length.should.be.equal(0)
+
+          done()
+        })
+    })
+
+    it("it should reject an invalid reading id", (done) => {
+      chai.request(server)
+        .get("/projects/reading/jfkldsaj")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .get("/projects/reading/" + testProject.reading_id)
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+  })
+
+  describe("GET /projects/:code/validate", () => {
+    it("it should validate an existing project", (done) => {
+      chai.request(server)
+        .get("/projects/" + testProject.code + "/validate")
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("_id")
+          done()
+        })
+    })
+
+    it("it should return 404 for invalid project", (done) => {
+      chai.request(server)
+        .get("/projects/demo/validate")
+        .end((err, res) => {
+          res.should.have.status(404)
+          done()
+        })
+    })
+  })
+
+  describe("POST /projects/:id/comments", () => {
+    it("it should create an emoji comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emojiComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          testComments.emojiComment = comment
+          comment.should.have.property("_id")
+          comment.should.have.property("user_id")
+            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.should.have.property("author")
+            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.should.have.property("start")
+          comment.should.have.property("end")
+          comment.should.have.property("type")
+            comment.type.should.be.equal("emoji")
+          comment.should.have.property("end")
+          comment.should.have.property("data")
+          comment.should.have.property("text")
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+
+          done()
+        })
+    })
+
+    it("it should create a text comment", (done) => {
+      let postComment = Object.assign({}, data.comments.textComment)
+      postComment.reply_to = testComments.emojiComment._id
+      postComment.should.have.property("reply_to") // for some reason, it's not saving with this property
+
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: postComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          testComments.textComment = comment
+          comment.should.have.property("_id")
+          comment.should.have.property("user_id")
+            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.should.have.property("author")
+            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.should.have.property("start")
+          comment.should.have.property("end")
+          comment.should.have.property("type")
+            comment.type.should.be.equal("text")
+          comment.should.have.property("end")
+          comment.should.have.property("data")
+          comment.should.have.property("text")
+          comment.should.have.property("reply_to")
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+
+          done()
+        })
+    })
+
+    it("it should create an empty comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(201)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          testComments.emptyComment = comment
+          comment.should.have.property("_id")
+          comment.should.have.property("user_id")
+            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.should.have.property("author")
+            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.should.have.property("start")
+          comment.should.have.property("end")
+          comment.should.have.property("type")
+            comment.type.should.be.equal("text")
+          comment.should.have.property("end")
+          comment.should.have.property("text")
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+
+          comment.should.not.have.property("data")
+
+          done()
+        })
+    })
+
+    it("it should update an existing comment", (done) => {
+      var updatedComment = {}
+      Object.assign(updatedComment, testComments.emptyComment)
+      updatedComment.data = "updated"
+
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: updatedComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("comment")
+
+          // comment validation
+          var comment = res.body.comment
+          comment.should.have.property("data")
+            comment.data.should.be.equal(updatedComment.data)
+          comment.should.have.property("updatedAt")
+          comment.should.have.property("createdAt")
+            let updatedAt = new Date(comment.updatedAt).getTime()
+            let createdAt = new Date(comment.createdAt).getTime()
+            updatedAt.should.be.above(createdAt)
+
+          done()
+        })
+    })
+
+    // Need to modify things so that we can have requirements again - it was breaking projects b/c some comments don't have starts and ends
+    // it("it should send validation errors for required fields", (done) => {
+    //   chai.request(server)
+    //     .post("/projects/" + testProject._id + "/comments")
+    //     .set("Authorization", testUsers.testStudent.token)
+    //     .send({ comment: data.comments.invalidComment })
+    //     .end((err, res) => {
+    //       // initial validation
+    //       res.should.have.status(406)
+    //       res.should.have.property("error")
+    //       res.error.should.have.property("text")
+
+    //       // error validation
+    //       var text = JSON.parse(res.error.text)
+    //       text.should.have.property("validationErrors")
+
+    //       var start = false
+    //       var end = false
+    //       var user_id = false
+
+    //       // this will fail if a comment is added, so you have to change it to the proper number
+    //       text.validationErrors.should.not.have.property("comments.3.user_id")
+
+    //       text.validationErrors.should.have.property("comments.3.start")
+    //       text.validationErrors["comments.3.start"].should.equal("required")
+
+    //       text.validationErrors.should.have.property("comments.3.end")
+    //       text.validationErrors["comments.3.end"].should.equal("required")
+
+    //       done()
+    //     })
+    // })
+
+    it("it should reject if project id is not valid", (done) => {
+      chai.request(server)
+        .post("/projects/fdjaklfdl/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should reject a call without a comment", (done) => {
+      chai.request(server)
+        .post("/projects/" + testUsers.testStudent.user._id + "/comments")
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ stupid: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("it should return 404 for project not found", (done) => {
+      chai.request(server)
+        .post("/projects/" + testUsers.testStudent.user._id + "/comments") // it won't find a project with this id, but the id is valid
+        .set("Authorization", testUsers.testStudent.token)
+        .send({ comment: data.comments.emptyComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(404)
+
+          done()
+        })
+    })
+
+    it("it should reject an unauthorized user", (done) => {
+      chai.request(server)
+        .post("/projects/" + testProject._id + "/comments")
+        .send({ comment: data.comments.emojiComment })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
+  })
+
   describe("GET /projects/:id", () => {
     it("it should get a project for a teacher", (done) => {
       chai.request(server)
@@ -180,7 +486,24 @@ describe("Projects", () => {
           project.should.have.property("types")
           project.should.have.property("temp_ids")
           project.should.have.property("students_ids")
+
+          // test comment replies
           project.should.have.property("comments")
+            let reply = project.comments.find((comment) => {
+              return comment._id == testComments.textComment._id
+            })
+            reply.should.be.ok // assert that the reply exists
+            reply.should.have.property("reply_to")
+          
+          project.comments.forEach((comment) => {
+            comment.should.have.property("replies")
+            // make sure that the reply id exists in the comment's replies array
+            if (comment._id == reply.reply_to) {
+              comment.replies.indexOf(reply._id).should.be.above(-1)
+            }
+          })
+            
+
           project.should.have.property("updatedAt")
           project.should.have.property("createdAt")
 
@@ -381,307 +704,6 @@ describe("Projects", () => {
             project.should.not.have.property("students_ids")
             project.should.not.have.property("temp_ids")
           })
-
-          done()
-        })
-    })
-  })
-
-  describe("GET /projects/:project_id/reading/:reading_id", () => {
-    it("it should get all projects for a reading", (done) => {
-      chai.request(server)
-        .get("/projects/reading/" + testProject.reading_id)
-        .set("Authorization", testUsers.testTeacher.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("projects")
-          res.body.projects.should.be.instanceof(Array)
-
-          // project validation
-          var projects = res.body.projects
-          projects.length.should.be.above(0)
-          projects.forEach((project) => {
-            // make sure it's a project
-            project.should.have.property("_id")
-            project.should.have.property("teacher_id")
-              project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
-
-            // TODO: front end uses these for count of comments and count of students - need to find a lighter way!
-            // // make sure it doesn't come with too much data
-            // project.should.not.have.property("comments")
-            // project.should.not.have.property("students_ids")
-            // project.should.not.have.property("temp_ids")
-          })
-
-          done()
-        })
-    })
-
-    it("it should return empty array for nonexistant reading id", (done) => {
-      chai.request(server)
-        .get("/projects/reading/" + testUsers.testStudent.user._id)
-        .set("Authorization", testUsers.testTeacher.token)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("projects")
-          res.body.projects.should.be.instanceof(Array)
-          res.body.projects.length.should.be.equal(0)
-
-          done()
-        })
-    })
-
-    it("it should reject an invalid reading id", (done) => {
-      chai.request(server)
-        .get("/projects/reading/jfkldsaj")
-        .set("Authorization", testUsers.testTeacher.token)
-        .end((err, res) => {
-          res.should.have.status(400)
-
-          done()
-        })
-    })
-
-    it("it should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/projects/reading/" + testProject.reading_id)
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(401)
-
-          done()
-        })
-    })
-  })
-
-  describe("GET /projects/:code/validate", () => {
-    it("it should validate an existing project", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code + "/validate")
-        .end((err, res) => {
-          res.should.have.status(200)
-          res.body.should.have.property("_id")
-          done()
-        })
-    })
-
-    it("it should return 404 for invalid project", (done) => {
-      chai.request(server)
-        .get("/projects/demo/validate")
-        .end((err, res) => {
-          res.should.have.status(404)
-          done()
-        })
-    })
-  })
-
-  describe("POST /projects/:id/comments", () => {
-    it("it should create an emoji comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: data.comments.emojiComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(201)
-          res.body.should.have.property("comment")
-
-          // comment validation
-          var comment = res.body.comment
-          testComments.emojiComment = comment
-          comment.should.have.property("_id")
-          comment.should.have.property("user_id")
-            comment.user_id.should.equal(testUsers.testStudent.user._id)
-          comment.should.have.property("author")
-            comment.author.should.equal(testUsers.testStudent.user.fullname)
-          comment.should.have.property("start")
-          comment.should.have.property("end")
-          comment.should.have.property("type")
-            comment.type.should.be.equal("emoji")
-          comment.should.have.property("end")
-          comment.should.have.property("data")
-          comment.should.have.property("text")
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
-
-          done()
-        })
-    })
-
-    it("it should create a text comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: data.comments.textComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(201)
-          res.body.should.have.property("comment")
-
-          // comment validation
-          var comment = res.body.comment
-          testComments.textComment = comment
-          comment.should.have.property("_id")
-          comment.should.have.property("user_id")
-            comment.user_id.should.equal(testUsers.testStudent.user._id)
-          comment.should.have.property("author")
-            comment.author.should.equal(testUsers.testStudent.user.fullname)
-          comment.should.have.property("start")
-          comment.should.have.property("end")
-          comment.should.have.property("type")
-            comment.type.should.be.equal("text")
-          comment.should.have.property("end")
-          comment.should.have.property("data")
-          comment.should.have.property("text")
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
-
-          done()
-        })
-    })
-
-    it("it should create an empty comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: data.comments.emptyComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(201)
-          res.body.should.have.property("comment")
-
-          // comment validation
-          var comment = res.body.comment
-          testComments.emptyComment = comment
-          comment.should.have.property("_id")
-          comment.should.have.property("user_id")
-            comment.user_id.should.equal(testUsers.testStudent.user._id)
-          comment.should.have.property("author")
-            comment.author.should.equal(testUsers.testStudent.user.fullname)
-          comment.should.have.property("start")
-          comment.should.have.property("end")
-          comment.should.have.property("type")
-            comment.type.should.be.equal("text")
-          comment.should.have.property("end")
-          comment.should.have.property("text")
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
-
-          comment.should.not.have.property("data")
-
-          done()
-        })
-    })
-
-    it("it should update an existing comment", (done) => {
-      var updatedComment = {}
-      Object.assign(updatedComment, testComments.emptyComment)
-      updatedComment.data = "updated"
-
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: updatedComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(200)
-          res.body.should.have.property("comment")
-
-          // comment validation
-          var comment = res.body.comment
-          comment.should.have.property("data")
-            comment.data.should.be.equal(updatedComment.data)
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
-            let updatedAt = new Date(comment.updatedAt).getTime()
-            let createdAt = new Date(comment.createdAt).getTime()
-            updatedAt.should.be.above(createdAt)
-
-          done()
-        })
-    })
-
-    // Need to modify things so that we can have requirements again - it was breaking projects b/c some comments don't have starts and ends
-    // it("it should send validation errors for required fields", (done) => {
-    //   chai.request(server)
-    //     .post("/projects/" + testProject._id + "/comments")
-    //     .set("Authorization", testUsers.testStudent.token)
-    //     .send({ comment: data.comments.invalidComment })
-    //     .end((err, res) => {
-    //       // initial validation
-    //       res.should.have.status(406)
-    //       res.should.have.property("error")
-    //       res.error.should.have.property("text")
-
-    //       // error validation
-    //       var text = JSON.parse(res.error.text)
-    //       text.should.have.property("validationErrors")
-
-    //       var start = false
-    //       var end = false
-    //       var user_id = false
-
-    //       // this will fail if a comment is added, so you have to change it to the proper number
-    //       text.validationErrors.should.not.have.property("comments.3.user_id")
-
-    //       text.validationErrors.should.have.property("comments.3.start")
-    //       text.validationErrors["comments.3.start"].should.equal("required")
-
-    //       text.validationErrors.should.have.property("comments.3.end")
-    //       text.validationErrors["comments.3.end"].should.equal("required")
-
-    //       done()
-    //     })
-    // })
-
-    it("it should reject if project id is not valid", (done) => {
-      chai.request(server)
-        .post("/projects/fdjaklfdl/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: data.comments.emptyComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(400)
-
-          done()
-        })
-    })
-
-    it("it should reject a call without a comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testUsers.testStudent.user._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ stupid: data.comments.emptyComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(400)
-
-          done()
-        })
-    })
-
-    it("it should return 404 for project not found", (done) => {
-      chai.request(server)
-        .post("/projects/" + testUsers.testStudent.user._id + "/comments") // it won't find a project with this id, but the id is valid
-        .set("Authorization", testUsers.testStudent.token)
-        .send({ comment: data.comments.emptyComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(404)
-
-          done()
-        })
-    })
-
-    it("it should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .send({ comment: data.comments.emojiComment })
-        .end((err, res) => {
-          // initial validation
-          res.should.have.status(401)
 
           done()
         })
