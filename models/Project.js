@@ -10,7 +10,7 @@ var Tags = require("./Tags")
 
 /** mongoose hook for validation against acceptable values for `types` */
 var typesEnum = {
-    values: ['emoji', 'text', 'audio'],
+    values: ['emoji', 'text', 'audio', 'reply'],
     message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
