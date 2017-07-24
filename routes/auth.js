@@ -41,40 +41,15 @@ passport.use('google', new GoogleStrategy({
     accessType: 'offline',
     passReqToCallback: true
 }, (req, accessToken, refreshToken, profile, done) => {
-    // console.log("request:", req)
     // Extract the minimal profile information we need from the profile object
     // provided by Google
     let user = User(extractProfile(profile))
     let saveDoc = user.toPublic()
     delete saveDoc._id
-    console.log(user)
-    user.validate((err) => {
-        console.error(err)
-    })
 
-    const userQuery = { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id }
+    // query for a user that has an oauth type and id matching the auth'd user
+    const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
     
-    // // I probably need to query for the user to see if it exists before creating it...
-    // user.save(
-    //     {
-    //         query: { "oauth.type": user.oauth.type, "oauth.id": user.oauth.id },
-    //         update: {
-    //             $set: {
-    //                 username: user.username,
-
-    //             },
-    //             $push: {
-    //                 oauth: user.oauth[0]
-    //             }
-    //         }
-    //     },
-    //     (err, user) => {
-    //         if (err) { console.error("err:", err) }
-    //         else { console.log("user:", user) }
-    //         done(err, user)
-    //     }
-    // )
-    console.log("got all the way to querying for a user")
     Q(User.findOne(userQuery).exec())
         .then((dbUser) => {
             // if the user doesn't exist, we need to create the user
