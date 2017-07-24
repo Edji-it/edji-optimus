@@ -31,7 +31,7 @@ let subscribeCustomer = function(customerId, subscriptionType) {
     })
 }
 
-let updateUserSub = function(user, subscription) {
+let updateUserSub = function(user, subscription, status) {
     return new Promise((resolve, reject) => {
         let customerId = subscription.customer
         let subscriptionType = subscription.plan.id
@@ -45,15 +45,15 @@ let updateUserSub = function(user, subscription) {
 
         // Update Hero properties on User
         // Change status
-        user.hero.status = 'subscribed'
+        user.hero.status = status
         // Update Subscription ID
         user.hero.subscription_id = subscription.id
         // Update Subscription type
-        user.type = subscriptionType
+        user.hero.type = subscriptionType
 
         // Log subscription change
         user.hero.history.push({
-            change: 'subscribed',
+            change: status,
             date: subscription.created,
             subscription_id: subscription.id,
             type: subscriptionType
@@ -87,7 +87,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
         }
 
         let handleSuccess = function(sub) {
-            updateUserSub(user, sub)
+            updateUserSub(user, sub, 'subscribed')
             .then(value => {
                 res.status(200).send({ user: user.toPublic(), subscription: sub })
             })
@@ -141,6 +141,22 @@ router.put("/", Middleware.authRequired, function(req, res) {
         let subscriptionType = req.body.subscription_type
         let statusChange = req.body.status
 
+        let handleError = function(err) {
+            console.error(err)
+            res.status(500).send({ error: err }) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
+        }
+
+        let handleSuccess = function(sub) {
+            console.log(sub)
+            updateUserSub(user, sub, statusChange)
+            .then(value => {
+                res.status(200).send({ user: user.toPublic(), subscription: sub })
+            })
+            .catch( err => {
+                res.status(500).send({ error: 'Unable to save user object', subscription: sub })
+            })
+        }
+
         // If a Type is passed, we are changing plan
         if (subscriptionType) {
              stripe.subscriptions.update(
@@ -150,7 +166,10 @@ router.put("/", Middleware.authRequired, function(req, res) {
                     // asynchronously called
                     updateUserSub(user, subscription)
                         .then(data => {
-                            //
+                            handleSuccess(subscription)
+                        })
+                        .catch((err) => {
+                            handleError(err)
                         })
                 }
             );
@@ -162,7 +181,10 @@ router.put("/", Middleware.authRequired, function(req, res) {
                     // asynchronously called
                     updateUserSub(user, subscription)
                         .then(data => {
-                                //
+                            handleSuccess(subscription)
+                        })
+                        .catch((err) => {
+                            handleError(err)
                         })
                 }
             );
