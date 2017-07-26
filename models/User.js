@@ -146,6 +146,9 @@ var model = ModelCreator("User", {
 })
 
 model.schema.pre("save", function(next){
+
+    // We should not save dynamically added properties
+    this.hero && delete this.hero.active
     
     if (this._id && !this.isModified("password")){
         next()
