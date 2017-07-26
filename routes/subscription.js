@@ -5,6 +5,11 @@ const Q = require("q")
 let router = express.Router()
 var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out of try/catch because I want it to crash the server if it doesn't work
 
+/**
+ * Adds a customer to a subscription. This is effectively charging the customer
+ * @param {string} customerId the user's Stripe customer id
+ * @param {string} subscriptionType 'monthly', 'yearly', etc... I think this is an enum enforced by Stripe
+ */
 let subscribeCustomer = function(customerId, subscriptionType) {
     // Create Stripe subscription
     return new Promise((resolve, reject) => {
@@ -86,6 +91,11 @@ let createCoupon = function(id, amount_off) {
     })
 }
 
+/**
+ * Creates and resolves with a new Stripe customer
+ * @param {string} email the user's email
+ * @param {string} paymentToken the payment token provided by Stripe's front end
+ */
 let createCustomer = function(email, paymentToken) {
     return new Promise((resolve, reject) => {
         stripe.customers.create({
@@ -155,7 +165,6 @@ router.post("/", Middleware.authRequired, function(req, res) {
             })
 
         getCustomerId.then((customerId) => {
-            // return subscribeCustomer(customerId, subscriptionType)
             return subscribeCustomer(customerId, subscriptionType)
         })
         .then((sub) => {
@@ -164,51 +173,6 @@ router.post("/", Middleware.authRequired, function(req, res) {
         .catch((err) => {
             handleError(err)
         })
-
-
-        // Does user exist as customer?
-        // if (!customerId) {
-        //     // // Create customer 
-        //     // var customer = stripe.customers.create({
-        //     //     email: user.email,
-        //     //     source: paymentToken
-        //     // }, function(err, customer) {
-        //     //     if (customer) {
-        //     //         // Now we have a customer id, we can create a subscription
-        //     //         subscribeCustomer(customer.id, subscriptionType)
-        //     //             .then((sub) => {
-        //     //                 handleSuccess(sub)
-        //     //             })
-        //     //             .catch((err) => {
-        //     //                 handleError(err)
-        //     //             })
-        //     //     } else {
-        //     //         res.status(500).send({ error: err }) 
-        //     //     }
-        //     // });
-        //     createCustomer(user.email, paymentToken)
-        //         .then((customer) => {
-        //             return subscribeCustomer(customer.id, subscriptionType)
-        //         })
-        //         .then((sub) => {
-        //             handleSuccess(sub)
-        //         })
-        //         .catch((err) => {
-        //             handleError(err)
-        //         })
-        //         .catch((err) => {
-
-        //         })
-        // } else {
-        //     // return subscribeCustomer(customerId, subscriptionType)
-        //     subscribeCustomer(customerId, subscriptionType)
-        //         .then((sub) => {
-        //             handleSuccess(sub)
-        //         })
-        //         .catch((err) => {
-        //             handleError(err)
-        //         })
-        // }
     }
 )
 
