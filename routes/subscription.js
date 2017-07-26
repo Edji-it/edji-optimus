@@ -125,6 +125,7 @@ router.get("/coupons", Middleware.authRequired, (req, res) => {
         })
 })
 
+/** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user
         // let customerId = user.hero && user.hero.customer_id
@@ -137,21 +138,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
             res.status(400).send({ error : "paymentToken is required" })
         }
 
-        let handleError = function(err) {
-            console.error(err)
-            res.status(500).send({ error: err }) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
-        }
-
-        // let handleSuccess = function(sub) {
-        //     updateUserSub(user, sub, 'subscribed')
-        //         .then(value => {
-        //             res.status(200).send({ user: user.toPublic(), subscription: sub })
-        //         })
-        //         .catch( err => {
-        //             res.status(500).send({ error: 'Unable to save user object', subscription: sub })
-        //         })
-        // }
-
+        // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
         let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
             .then((customerId) => {
                 if (customerId) {
@@ -167,16 +154,19 @@ router.post("/", Middleware.authRequired, function(req, res) {
             })
 
         getCustomerId.then((customerId) => {
+            // after getting the customer id, add the user to the Hero subscription
             return subscribeCustomer(customerId, subscriptionType)
         })
         .then((sub) => {
+            // update the user object
             return updateUserSub(user, sub, 'subscribed')
         })
         .then((updatedUser) => {
+            // send it back to the user and we're done!
             res.status(200).send({ user: updatedUser })
         })
         .catch((err) => {
-            handleError(err)
+            res.status(500).send({}) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
         })
     }
 )
