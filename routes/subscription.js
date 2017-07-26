@@ -84,7 +84,7 @@ let createCoupon = function(id, amount_off) {
             id: "HERO_LAUNCH_" + id,
             duration: 'forever', // CODE REVIEW: I think that if the user cancels this subscription they'll no longer have the discount, yes?
             currency: 'USD',
-            amount_off: amount_off
+            amount_off: Math.abs(amount_off)
         }, (err, coupon) => {
             if (err) {
                 reject(err)
@@ -100,12 +100,13 @@ let createCoupon = function(id, amount_off) {
  * @param {string} customerId the user's Stripe customer id
  * @param {string} subscriptionType 'monthly', 'yearly', etc... I think this is an enum enforced by Stripe
  */
-let subscribeCustomer = function(customerId, subscriptionType) {
+let subscribeCustomer = function(customerId, subscriptionType, coupon) {
     // Create Stripe subscription
     return new Promise((resolve, reject) => {
         stripe.subscriptions.create({
             customer: customerId,
             plan: subscriptionType,
+            coupon: coupon
         }, (err, sub) => {
             if (err) { reject(err) }
             else { resolve(sub) }
@@ -115,14 +116,18 @@ let subscribeCustomer = function(customerId, subscriptionType) {
 
 router.get("/coupons", Middleware.authRequired, (req, res) => {
     let user = req.user
-    createCoupon(user._id.toString(), 4)
-        .then((coupon) => {
-            res.status(200).send({ coupon: coupon })
-        })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send({ error: err })
-        })
+    stripe.coupons.create({
+        id: "HERO_LAUNCH_" + user._id.toString(),
+        duration: 'forever', // CODE REVIEW: I think that if the user cancels this subscription they'll no longer have the discount, yes?
+        currency: 'USD',
+        amount_off: Math.abs(400) // just want to be REALLY SURE that it never gets negative...
+    }, (err, coupon) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        } else {
+            return res.status(200).send({ coupon: coupon })
+        }
+    })
 })
 
 /** Route to subscribe to Hero!!! */
@@ -154,9 +159,15 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 }
             })
 
+        // kick off the promise chain, WOOT!
         getCustomerId.then((customerId) => {
-            // after getting the customer id, add the user to the Hero subscription
-            return subscribeCustomer(customerId, subscriptionType)
+            return createCoupon(user._id.toString(), 400)
+                .then((coupon) => {
+                    // I only used rawType here because Stripe's errors have it so it makes error handling less complex
+                    if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
+                    // after getting the customer id and coupon, add the user to the Hero subscription
+                    return subscribeCustomer(customerId, subscriptionType, coupon)
+                })
         })
         .then((sub) => {
             // update the user object that we keep
@@ -167,7 +178,17 @@ router.post("/", Middleware.authRequired, function(req, res) {
             res.status(200).send({ user: updatedUser })
         })
         .catch((err) => {
-            res.status(500).send({}) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
+            switch (err.rawType) {
+                case 'invalid_request_error':
+                    res.status(400).send({ error: err.message })
+                    break
+                case 'no_coupon_code':
+                    res.status(500).send({ error: err.message })
+                    break
+                default:
+                    console.error(err)
+                    res.status(500).send()
+            }
         })
     }
 )
