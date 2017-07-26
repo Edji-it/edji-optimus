@@ -67,11 +67,10 @@ let updateUserSub = function(user, subscription, status) {
 /**
  * Create a coupon to be used for a single user during Edji Hero launch
  * @param {string} id the id of the coupon - should be the user's id
- * @param {number} amount_off value < 5 which is subtracted from the user's payment each month
+ * @param {number} amount_off value < 500 (it's in cents) which is subtracted from the user's payment each month
  */
 let createCoupon = function(id, amount_off) {
     return new Promise((resolve, reject) => {
-        console.log(id)
         stripe.coupons.create({
             id: id,
             duration: 'forever',
@@ -82,6 +81,21 @@ let createCoupon = function(id, amount_off) {
                 reject(err)
             } else {
                 resolve(coupon)
+            }
+        })
+    })
+}
+
+let createCustomer = function(email, paymentToken) {
+    return new Promise((resolve, reject) => {
+        stripe.customers.create({
+            email: email,
+            source: paymentToken
+        }, function(err, customer) {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(customer)
             }
         })
     })
@@ -128,24 +142,37 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
         // Does user exist as customer?
         if (!customerId) {
-            // Create customer 
-            var customer = stripe.customers.create({
-                email: user.email,
-                source: paymentToken
-            }, function(err, customer) {
-                if (customer) {
-                    // Now we have a customer id, we can create a subscription
-                    subscribeCustomer(customer.id, subscriptionType)
-                        .then((sub) => {
-                            handleSuccess(sub)
-                        })
-                        .catch((err) => {
-                            handleError(err)
-                        })
-                } else {
-                    res.status(500).send({ error: err }) 
-                }
-            });
+            // // Create customer 
+            // var customer = stripe.customers.create({
+            //     email: user.email,
+            //     source: paymentToken
+            // }, function(err, customer) {
+            //     if (customer) {
+            //         // Now we have a customer id, we can create a subscription
+            //         subscribeCustomer(customer.id, subscriptionType)
+            //             .then((sub) => {
+            //                 handleSuccess(sub)
+            //             })
+            //             .catch((err) => {
+            //                 handleError(err)
+            //             })
+            //     } else {
+            //         res.status(500).send({ error: err }) 
+            //     }
+            // });
+            createCustomer(user.email, paymentToken)
+                .then((customer) => {
+                    return subscribeCustomer(customer.id, subscriptionType)
+                })
+                .then((sub) => {
+                    handleSuccess(sub)
+                })
+                .catch((err) => {
+                    handleError(err)
+                })
+                .catch((err) => {
+
+                })
         } else {
             // return subscribeCustomer(customerId, subscriptionType)
             subscribeCustomer(customerId, subscriptionType)
