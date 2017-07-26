@@ -6,7 +6,7 @@ let router = express.Router()
 var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out of try/catch because I want it to crash the server if it doesn't work
 
 /**
- * 
+ * Updates the user that we store in the database and prepares a user object to be sent out to the client
  * @param {User} user the user's mongoose doc from the database
  * @param {*} subscription subscription object from Stripe
  * @param {string} status 'subscribed' or 'unsubscribed'
@@ -81,8 +81,8 @@ let createCustomer = function(email, paymentToken) {
 let createCoupon = function(id, amount_off) {
     return new Promise((resolve, reject) => {
         stripe.coupons.create({
-            id: id,
-            duration: 'forever',
+            id: "HERO_LAUNCH_" + id,
+            duration: 'forever', // CODE REVIEW: I think that if the user cancels this subscription they'll no longer have the discount, yes?
             currency: 'USD',
             amount_off: amount_off
         }, (err, coupon) => {
@@ -128,14 +128,15 @@ router.get("/coupons", Middleware.authRequired, (req, res) => {
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user
-        // let customerId = user.hero && user.hero.customer_id
-        // Stripe encodes payment information into a token with the public key
-        let paymentToken = req.body.token
+        let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
         let subscriptionType = req.body.subscriptionType
 
         if (!paymentToken) {
             // This call requires a payment token
-            res.status(400).send({ error : "paymentToken is required" })
+            return res.status(400).send({ error : "paymentToken is required" })
+        }
+        if (!subscriptionType) {
+            return res.status(400).send({ error: "subscriptionType is required" })
         }
 
         // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
@@ -158,7 +159,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
             return subscribeCustomer(customerId, subscriptionType)
         })
         .then((sub) => {
-            // update the user object
+            // update the user object that we keep
             return updateUserSub(user, sub, 'subscribed')
         })
         .then((updatedUser) => {
