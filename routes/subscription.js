@@ -44,8 +44,8 @@ let updateUserSub = function(user, subscription, status) {
         }
 
         // Update Hero properties on User
-        // Change status
-        user.hero.status = status
+        // Remove expiration
+        user.hero.will_expire = null
         // Update Subscription ID
         user.hero.subscription_id = subscription.id
         // Update Subscription type

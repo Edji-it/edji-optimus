@@ -55,12 +55,15 @@ var model = ModelCreator("User", {
     avatar : String,
     hero : {
         /**
-         * Status
-         * - 'subscribed'   User is currently a subscribed Hero
-         * - 'canceled'     User has stopped paying their subscription
-         * - 'unsubscribed' User has never subscribed
+         * Subscription status
+         * Do not save to database, dynamically provided
          */
-        status: { type: String, enum: heroStatuses, default: "unsubscribed" }, 
+        active: { type: Boolean }, 
+        /**
+         * Will Expire
+         * - Date when user's Hero subscription will expire
+         */
+        will_expire: { type: Date },
         /**
          * Type
          * - 'monthly'  Monthly subscriber
@@ -129,6 +132,8 @@ var model = ModelCreator("User", {
         //makes copy of document
         var user = {}
         Object.assign(user, this._doc)
+
+        console.log('hero active', user.hero.active)
 
         //deletes properties which should not be passed to front end
         delete user.password

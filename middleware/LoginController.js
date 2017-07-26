@@ -41,13 +41,31 @@ var LoginController = {
         })
     }
     ,
-    generateLoginObjectForUser(user){
+    generateLoginObjectForUser: function(user){
+        user = this.addHeroStatus(user)
         return {
-            user:user.toPublic(),
+            user: user.toPublic(),
             token: this.generateTokenForUser(user)
         }
-    },
-
+    }
+    ,
+    addHeroStatus: function(user) {
+        console.log("RUN CHECK HERO STATUS")
+        if (!user.hero) {
+            user.hero = {}
+        }
+        // Check if user is expired 
+        if (user.hero && user.hero.will_expire && user.hero.will_expire < Date.now()) {
+            console.log('User\'s Hero subscription is expired!')
+            user.hero.active = false
+        } else if (user.hero && user.hero.type != 'none' && user.hero.subscription_id) {
+            user.hero.active = true
+        } else {
+            user.hero.active = false
+        }
+        return user
+    }
+    ,
     generateTokenForUser: function(user){
         var id
         if (user.type === "temp") {
@@ -79,10 +97,10 @@ var LoginController = {
      middleware:function(req, res, next){
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
+                user = LoginController.addHeroStatus(user)
                 if (user){
                     req.user = user
                 }
-
                 next()
             })
         }
