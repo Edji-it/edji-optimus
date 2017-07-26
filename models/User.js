@@ -55,35 +55,47 @@ var model = ModelCreator("User", {
     avatar : String,
     hero : {
         /**
-         * Status
-         * - 'subscribed'   User is currently a subscribed Hero
-         * - 'canceled'     User has stopped paying their subscription
-         * - 'unsubscribed' User has never subscribed
+         * Subscription status
+         * Do not save to database, dynamically provided
          */
-        status: { type: String, enum: heroStatuses, default: "unsubscribed" }, 
+        active: { type: Boolean }, 
         /**
-         * Updates to user's hero status, as a papertrail
-         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
+         * Will Expire
+         * - Date when user's Hero subscription will expire
          */
-        updates: [{
-            /**
-             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
-             */
-            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
-            date: Date,
-            /**
-             * Stripe Subscription ID
-             * https://stripe.com/docs/api#subscription_object
-             */
-            subscriptionId: String
-        }],
+        will_expire: { type: Date },
         /**
          * Type
          * - 'monthly'  Monthly subscriber
          * - 'yearly'   Yearly subscriber
          * - 'academy'  Part of an institution subsribed as an Academy 
          */
-        type: { type: String, enum: subscriptionType, default: 'none'}
+        type: { type: String, enum: subscriptionType, default: 'none'},
+        /**
+         * Active Subscription Id
+         */
+        subscription_id: { type: String },
+        /**
+         * Updates to user's hero status, as a papertrail
+         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
+         */
+        history: [{
+            /**
+             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
+             */
+            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
+            date: Date,
+            type: { type: String, enum: subscriptionType, default: 'none'},
+            /**
+             * Stripe Subscription ID
+             * https://stripe.com/docs/api#subscription_object
+             */
+            subscription_id: String
+        }],
+        /**
+         * Stripe Customer Id
+         */
+        customer_id: { type: String }
     },
     prefs: {
         recentEmoji: [ String ],
@@ -121,16 +133,22 @@ var model = ModelCreator("User", {
         var user = {}
         Object.assign(user, this._doc)
 
+        console.log('hero active', user.hero.active)
+
         //deletes properties which should not be passed to front end
         delete user.password
         delete user.resetPasswordToken
         delete user.resetPasswordExpires
         delete user.accountArchiveToken
+        delete user.hero.customer_id
         return user
     }
 })
 
 model.schema.pre("save", function(next){
+
+    // We should not save dynamically added properties
+    this.hero && delete this.hero.active
     
     if (this._id && !this.isModified("password")){
         next()
