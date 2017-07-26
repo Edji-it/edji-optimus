@@ -54,7 +54,7 @@ var LoginController = {
             user.hero = {}
         }
         // Check if user is expired 
-        if (user.hero && user.hero.will_expire && user.hero.will_expire < Date.now()) {
+        if (user.hero && user.hero.will_expire && user.hero.will_expire < new Date().getTime()) {
             user.hero.active = false
         } else if (user.hero && user.hero.type != 'none' && user.hero.subscription_id) {
             user.hero.active = true
