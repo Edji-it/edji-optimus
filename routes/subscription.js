@@ -12,7 +12,6 @@ try {
 
 let subscribeCustomer = function(customerId, subscriptionType) {
     // Create Stripe subscription
-    console.log("getting subscription")
     return new Promise((resolve, reject) => {
         console.log(
             {
@@ -24,7 +23,6 @@ let subscribeCustomer = function(customerId, subscriptionType) {
             customer: customerId,
             plan: subscriptionType,
         }, (err, sub) => {
-            console.log("got a response")
             if (err) { reject(err) }
             else { resolve(sub) }
         })
@@ -147,7 +145,6 @@ router.put("/", Middleware.authRequired, function(req, res) {
         }
 
         let handleSuccess = function(sub) {
-            console.log(sub)
             updateUserSub(user, sub, statusChange)
             .then(value => {
                 res.status(200).send({ user: user.toPublic(), subscription: sub })

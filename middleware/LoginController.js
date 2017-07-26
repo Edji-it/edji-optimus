@@ -50,13 +50,11 @@ var LoginController = {
     }
     ,
     addHeroStatus: function(user) {
-        console.log("RUN CHECK HERO STATUS")
         if (!user.hero) {
             user.hero = {}
         }
         // Check if user is expired 
         if (user.hero && user.hero.will_expire && user.hero.will_expire < Date.now()) {
-            console.log('User\'s Hero subscription is expired!')
             user.hero.active = false
         } else if (user.hero && user.hero.type != 'none' && user.hero.subscription_id) {
             user.hero.active = true
