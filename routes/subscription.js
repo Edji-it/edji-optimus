@@ -6,24 +6,6 @@ let router = express.Router()
 var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out of try/catch because I want it to crash the server if it doesn't work
 
 /**
- * Adds a customer to a subscription. This is effectively charging the customer
- * @param {string} customerId the user's Stripe customer id
- * @param {string} subscriptionType 'monthly', 'yearly', etc... I think this is an enum enforced by Stripe
- */
-let subscribeCustomer = function(customerId, subscriptionType) {
-    // Create Stripe subscription
-    return new Promise((resolve, reject) => {
-        stripe.subscriptions.create({
-            customer: customerId,
-            plan: subscriptionType,
-        }, (err, sub) => {
-            if (err) { reject(err) }
-            else { resolve(sub) }
-        })
-    })
-}
-
-/**
  * 
  * @param {User} user the user's mongoose doc from the database
  * @param {*} subscription subscription object from Stripe
@@ -59,11 +41,33 @@ let updateUserSub = function(user, subscription, status) {
             type: subscriptionType
         })
 
-        user.save( (err, result) => {
-            if (result) {
-                resolve(result)
-            } else {
+        // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
+        // so prep the user object and resolve, then save after
+        let resolveUser = user.toPublic()
+        resolveUser.hero.active = true
+        resolve(resolveUser)
+
+        user.save((err, result) => {
+            if (err) { console.error(err) }
+        })
+    })
+}
+
+/**
+ * Creates and resolves with a new Stripe customer
+ * @param {string} email the user's email
+ * @param {string} paymentToken the payment token provided by Stripe's front end
+ */
+let createCustomer = function(email, paymentToken) {
+    return new Promise((resolve, reject) => {
+        stripe.customers.create({
+            email: email,
+            source: paymentToken
+        }, function(err, customer) {
+            if (err) {
                 reject(err)
+            } else {
+                resolve(customer)
             }
         })
     })
@@ -92,21 +96,19 @@ let createCoupon = function(id, amount_off) {
 }
 
 /**
- * Creates and resolves with a new Stripe customer
- * @param {string} email the user's email
- * @param {string} paymentToken the payment token provided by Stripe's front end
+ * Adds a customer to a subscription. This is effectively charging the customer
+ * @param {string} customerId the user's Stripe customer id
+ * @param {string} subscriptionType 'monthly', 'yearly', etc... I think this is an enum enforced by Stripe
  */
-let createCustomer = function(email, paymentToken) {
+let subscribeCustomer = function(customerId, subscriptionType) {
+    // Create Stripe subscription
     return new Promise((resolve, reject) => {
-        stripe.customers.create({
-            email: email,
-            source: paymentToken
-        }, function(err, customer) {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(customer)
-            }
+        stripe.subscriptions.create({
+            customer: customerId,
+            plan: subscriptionType,
+        }, (err, sub) => {
+            if (err) { reject(err) }
+            else { resolve(sub) }
         })
     })
 }
@@ -140,15 +142,15 @@ router.post("/", Middleware.authRequired, function(req, res) {
             res.status(500).send({ error: err }) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
         }
 
-        let handleSuccess = function(sub) {
-            updateUserSub(user, sub, 'subscribed')
-                .then(value => {
-                    res.status(200).send({ user: user.toPublic(), subscription: sub })
-                })
-                .catch( err => {
-                    res.status(500).send({ error: 'Unable to save user object', subscription: sub })
-                })
-        }
+        // let handleSuccess = function(sub) {
+        //     updateUserSub(user, sub, 'subscribed')
+        //         .then(value => {
+        //             res.status(200).send({ user: user.toPublic(), subscription: sub })
+        //         })
+        //         .catch( err => {
+        //             res.status(500).send({ error: 'Unable to save user object', subscription: sub })
+        //         })
+        // }
 
         let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
             .then((customerId) => {
@@ -168,7 +170,10 @@ router.post("/", Middleware.authRequired, function(req, res) {
             return subscribeCustomer(customerId, subscriptionType)
         })
         .then((sub) => {
-            handleSuccess(sub)
+            return updateUserSub(user, sub, 'subscribed')
+        })
+        .then((updatedUser) => {
+            res.status(200).send({ user: updatedUser })
         })
         .catch((err) => {
             handleError(err)
