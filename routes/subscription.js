@@ -115,7 +115,7 @@ router.get("/coupons", Middleware.authRequired, (req, res) => {
 
 router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user
-        let customerId = user.hero && user.hero.customer_id
+        // let customerId = user.hero && user.hero.customer_id
         // Stripe encodes payment information into a token with the public key
         let paymentToken = req.body.token
         let subscriptionType = req.body.subscriptionType
@@ -140,49 +140,75 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 })
         }
 
-        // Does user exist as customer?
-        if (!customerId) {
-            // // Create customer 
-            // var customer = stripe.customers.create({
-            //     email: user.email,
-            //     source: paymentToken
-            // }, function(err, customer) {
-            //     if (customer) {
-            //         // Now we have a customer id, we can create a subscription
-            //         subscribeCustomer(customer.id, subscriptionType)
-            //             .then((sub) => {
-            //                 handleSuccess(sub)
-            //             })
-            //             .catch((err) => {
-            //                 handleError(err)
-            //             })
-            //     } else {
-            //         res.status(500).send({ error: err }) 
-            //     }
-            // });
-            createCustomer(user.email, paymentToken)
-                .then((customer) => {
-                    return subscribeCustomer(customer.id, subscriptionType)
-                })
-                .then((sub) => {
-                    handleSuccess(sub)
-                })
-                .catch((err) => {
-                    handleError(err)
-                })
-                .catch((err) => {
+        let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
+            .then((customerId) => {
+                if (customerId) {
+                    // if they've got a customer id, straight up return it
+                    return customerId
+                } else {
+                    // if they don't have a customer id, then create the customer and resolve with it's id
+                    return createCustomer(user.emai, paymentToken)
+                        .then((customer) => {
+                            return customer.id // extract the customer id and pass to next stage of promise
+                        })
+                }
+            })
 
-                })
-        } else {
+        getCustomerId.then((customerId) => {
             // return subscribeCustomer(customerId, subscriptionType)
-            subscribeCustomer(customerId, subscriptionType)
-                .then((sub) => {
-                    handleSuccess(sub)
-                })
-                .catch((err) => {
-                    handleError(err)
-                })
-        }
+            return subscribeCustomer(customerId, subscriptionType)
+        })
+        .then((sub) => {
+            handleSuccess(sub)
+        })
+        .catch((err) => {
+            handleError(err)
+        })
+
+
+        // Does user exist as customer?
+        // if (!customerId) {
+        //     // // Create customer 
+        //     // var customer = stripe.customers.create({
+        //     //     email: user.email,
+        //     //     source: paymentToken
+        //     // }, function(err, customer) {
+        //     //     if (customer) {
+        //     //         // Now we have a customer id, we can create a subscription
+        //     //         subscribeCustomer(customer.id, subscriptionType)
+        //     //             .then((sub) => {
+        //     //                 handleSuccess(sub)
+        //     //             })
+        //     //             .catch((err) => {
+        //     //                 handleError(err)
+        //     //             })
+        //     //     } else {
+        //     //         res.status(500).send({ error: err }) 
+        //     //     }
+        //     // });
+        //     createCustomer(user.email, paymentToken)
+        //         .then((customer) => {
+        //             return subscribeCustomer(customer.id, subscriptionType)
+        //         })
+        //         .then((sub) => {
+        //             handleSuccess(sub)
+        //         })
+        //         .catch((err) => {
+        //             handleError(err)
+        //         })
+        //         .catch((err) => {
+
+        //         })
+        // } else {
+        //     // return subscribeCustomer(customerId, subscriptionType)
+        //     subscribeCustomer(customerId, subscriptionType)
+        //         .then((sub) => {
+        //             handleSuccess(sub)
+        //         })
+        //         .catch((err) => {
+        //             handleError(err)
+        //         })
+        // }
     }
 )
 
