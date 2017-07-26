@@ -7,18 +7,12 @@ let router = express.Router()
 try {
     var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d");
 } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
 }
 
 let subscribeCustomer = function(customerId, subscriptionType) {
     // Create Stripe subscription
     return new Promise((resolve, reject) => {
-        console.log(
-            {
-            customer: customerId,
-            plan: subscriptionType,
-        }
-        )
         stripe.subscriptions.create({
             customer: customerId,
             plan: subscriptionType,
@@ -29,6 +23,12 @@ let subscribeCustomer = function(customerId, subscriptionType) {
     })
 }
 
+/**
+ * 
+ * @param {User} user the user's mongoose doc from the database
+ * @param {*} subscription subscription object from Stripe
+ * @param {string} status 'subscribed' or 'unsubscribed'
+ */
 let updateUserSub = function(user, subscription, status) {
     return new Promise((resolve, reject) => {
         let customerId = subscription.customer
@@ -69,6 +69,10 @@ let updateUserSub = function(user, subscription, status) {
     })
 }
 
+// let createCoupon = function() {
+
+// }
+
 router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user
         let customerId = user.hero && user.hero.customer_id
@@ -88,12 +92,12 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
         let handleSuccess = function(sub) {
             updateUserSub(user, sub, 'subscribed')
-            .then(value => {
-                res.status(200).send({ user: user.toPublic(), subscription: sub })
-            })
-            .catch( err => {
-                res.status(500).send({ error: 'Unable to save user object', subscription: sub })
-            })
+                .then(value => {
+                    res.status(200).send({ user: user.toPublic(), subscription: sub })
+                })
+                .catch( err => {
+                    res.status(500).send({ error: 'Unable to save user object', subscription: sub })
+                })
         }
 
         // Does user exist as customer?
