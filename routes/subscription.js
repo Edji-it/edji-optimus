@@ -3,12 +3,7 @@ const Middleware = require("./../middleware/Middleware")
 const Q = require("q")
 
 let router = express.Router()
-
-try {
-    var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d");
-} catch (error) {
-    console.error(error.message);
-}
+var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out of try/catch because I want it to crash the server if it doesn't work
 
 let subscribeCustomer = function(customerId, subscriptionType) {
     // Create Stripe subscription
@@ -69,9 +64,40 @@ let updateUserSub = function(user, subscription, status) {
     })
 }
 
-// let createCoupon = function() {
+/**
+ * Create a coupon to be used for a single user during Edji Hero launch
+ * @param {string} id the id of the coupon - should be the user's id
+ * @param {number} amount_off value < 5 which is subtracted from the user's payment each month
+ */
+let createCoupon = function(id, amount_off) {
+    return new Promise((resolve, reject) => {
+        console.log(id)
+        stripe.coupons.create({
+            id: id,
+            duration: 'forever',
+            currency: 'USD',
+            amount_off: amount_off
+        }, (err, coupon) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(coupon)
+            }
+        })
+    })
+}
 
-// }
+router.get("/coupons", Middleware.authRequired, (req, res) => {
+    let user = req.user
+    createCoupon(user._id.toString(), 4)
+        .then((coupon) => {
+            res.status(200).send({ coupon: coupon })
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send({ error: err })
+        })
+})
 
 router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user

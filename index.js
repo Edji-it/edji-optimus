@@ -65,7 +65,7 @@ app.use("/tempusers", tempusers)
 app.use("/readings", readings)
 app.use("/projects", projects)
 app.use("/mailchimp", mailchimp)
-app.use("/subscription", subscription)
+app.use("/subscriptions", subscription)
 
 var port = process.env.PORT || 3354
 
