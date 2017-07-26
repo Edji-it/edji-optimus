@@ -43,7 +43,11 @@ let updateUserSub = function(user, subscription, status) {
 
         // Update Hero properties on User
         // Remove expiration
-        user.hero.will_expire = null
+        if (status == 'unsubscribed') {
+            user.hero.will_expire = subscription.current_period_end
+        } else {
+            user.hero.will_expire = null
+        }
         // Update Subscription ID
         user.hero.subscription_id = subscription.id
         // Update Subscription type
