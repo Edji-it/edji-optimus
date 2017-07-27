@@ -41,6 +41,8 @@ let updateUserSub = function(user, subscription, status) {
             type: subscriptionType
         })
 
+        // user.hero.subscription_name = 'hero_launch_special'
+
         // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
         // so prep the user object and resolve, then save after
         let resolveUser = user.toPublic()
@@ -113,22 +115,6 @@ let subscribeCustomer = function(customerId, subscriptionType, coupon) {
         })
     })
 }
-
-router.get("/coupons", Middleware.authRequired, (req, res) => {
-    let user = req.user
-    stripe.coupons.create({
-        id: "HERO_LAUNCH_" + user._id.toString(),
-        duration: 'forever', // CODE REVIEW: I think that if the user cancels this subscription they'll no longer have the discount, yes?
-        currency: 'USD',
-        amount_off: Math.abs(400) // just want to be REALLY SURE that it never gets negative...
-    }, (err, coupon) => {
-        if (err) {
-            return res.status(500).send({ error: err })
-        } else {
-            return res.status(200).send({ coupon: coupon })
-        }
-    })
-})
 
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {

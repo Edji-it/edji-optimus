@@ -16,7 +16,7 @@ var readings = require("./routes/readings")
 var comments = require("./routes/comments")
 var projects = require("./routes/projects")
 var mailchimp = require("./routes/mailchimp")
-var subscription = require("./routes/subscription")
+var subscriptions = require("./routes/subscriptions")
 
 var app = express()
 app.use(bodyParser.json({limit: '20mb'}))
@@ -65,7 +65,7 @@ app.use("/tempusers", tempusers)
 app.use("/readings", readings)
 app.use("/projects", projects)
 app.use("/mailchimp", mailchimp)
-app.use("/subscriptions", subscription)
+app.use("/subscriptions", subscriptions)
 
 var port = process.env.PORT || 3354
 
