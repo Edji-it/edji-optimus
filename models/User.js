@@ -70,12 +70,13 @@ var model = ModelCreator("User", {
          * - 'yearly'   Yearly subscriber
          * - 'academy'  Part of an institution subsribed as an Academy 
          */
-        type: { type: String, enum: subscriptionType, default: 'none'},
+        subscription_type: { type: String, enum: subscriptionType, default: 'none'},
         /**
          * Active Subscription Id
          */
         subscription_id: { type: String },
         subscription_label: String,
+        subscription_cost: Number,
         /**
          * Updates to user's hero status, as a papertrail
          * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }

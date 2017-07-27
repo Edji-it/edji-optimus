@@ -13,6 +13,7 @@ var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out o
  */
 let updateUserSub = function(user, subscription, status) {
     return new Promise((resolve, reject) => {
+        console.log(subscription)
         let customerId = subscription.customer
         let subscriptionType = subscription.plan.id
         if (!user.hero) {
@@ -32,6 +33,15 @@ let updateUserSub = function(user, subscription, status) {
         user.hero.subscription_id = subscription.id
         // Update Subscription type
         user.hero.type = subscriptionType
+        
+        // get the coupon id, if it exists
+        let couponId = subscription.discount && subscription.discount.coupon && subscription.discount.coupon.id
+        if (couponId) {
+            let subLabel = couponId.substr(0, couponId.indexOf("__")) // this extracts everything before the double underscore in the id
+            user.hero.subscription_label = subLabel
+        } else {
+            user.hero.subscription_label = "PLAIN_HERO"
+        }
 
         // Log subscription change
         user.hero.history.push({
@@ -40,8 +50,6 @@ let updateUserSub = function(user, subscription, status) {
             subscription_id: subscription.id,
             type: subscriptionType
         })
-
-        user.hero.subscription_label = 'hero_launch_special'
 
         // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
         // so prep the user object and resolve, then save after
@@ -83,7 +91,7 @@ let createCustomer = function(email, paymentToken) {
 let createCoupon = function(id, amount_off) {
     return new Promise((resolve, reject) => {
         stripe.coupons.create({
-            id: "HERO_LAUNCH_" + id,
+            id: "HERO_LAUNCH__" + id,
             duration: 'forever', // CODE REVIEW: I think that if the user cancels this subscription they'll no longer have the discount, yes?
             currency: 'USD',
             amount_off: Math.abs(amount_off)
