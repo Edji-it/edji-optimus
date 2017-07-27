@@ -152,7 +152,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
                     // I only used rawType here because Stripe's errors have it so it makes error handling less complex
                     if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
                     // after getting the customer id and coupon, add the user to the Hero subscription
-                    return subscribeCustomer(customerId, subscriptionType, coupon)
+                    return subscribeCustomer(customerId, subscriptionType, coupon.id)
                 })
         })
         .then((sub) => {
