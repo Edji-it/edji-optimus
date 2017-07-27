@@ -41,7 +41,7 @@ let updateUserSub = function(user, subscription, status) {
             type: subscriptionType
         })
 
-        // user.hero.subscription_name = 'hero_launch_special'
+        user.hero.subscription_name = 'hero_launch_special'
 
         // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
         // so prep the user object and resolve, then save after
