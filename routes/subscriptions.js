@@ -121,6 +121,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user
         let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
         let subscriptionType = req.body.subscriptionType
+        let couponCode = req.body.couponCode
 
         if (!paymentToken) {
             // This call requires a payment token
@@ -147,13 +148,17 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
         // kick off the promise chain, WOOT!
         getCustomerId.then((customerId) => {
-            return createCoupon(user._id.toString(), 400)
-                .then((coupon) => {
-                    // I only used rawType here because Stripe's errors have it so it makes error handling less complex
-                    if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
-                    // after getting the customer id and coupon, add the user to the Hero subscription
-                    return subscribeCustomer(customerId, subscriptionType, coupon.id)
-                })
+            if (couponCode) { // we skip out on creating the coupon if the customer already gave us a coupon code
+                return subscribeCustomer(customerId, subscriptionType, couponCode)
+            } else {
+                return createCoupon(user._id.toString(), 400)
+                    .then((coupon) => {
+                        // I only used rawType here because Stripe's errors have it so it makes error handling less complex
+                        if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
+                        // after getting the customer id and coupon, add the user to the Hero subscription
+                        return subscribeCustomer(customerId, subscriptionType, coupon.id)
+                    })
+            }
         })
         .then((sub) => {
             // update the user object that we keep

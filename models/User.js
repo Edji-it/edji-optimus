@@ -134,8 +134,6 @@ var model = ModelCreator("User", {
         var user = {}
         Object.assign(user, this._doc)
 
-        console.log('hero active', user.hero.active)
-
         //deletes properties which should not be passed to front end
         delete user.password
         delete user.resetPasswordToken
