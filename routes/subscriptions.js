@@ -9,11 +9,10 @@ var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out o
  * Updates the user that we store in the database and prepares a user object to be sent out to the client
  * @param {User} user the user's mongoose doc from the database
  * @param {*} subscription subscription object from Stripe
- * @param {string} status 'subscribed' or 'unsubscribed'
+ * @param {boolean} subscribed determines whether or not to set will_expire on the user - true means they subscribed
  */
-let updateUserSub = function(user, subscription, status) {
+let updateUserSub = function(user, subscription, subscribed) {
     return new Promise((resolve, reject) => {
-        console.log(subscription)
         let customerId = subscription.customer
         let subscriptionType = subscription.plan.id
         if (!user.hero) {
@@ -24,9 +23,9 @@ let updateUserSub = function(user, subscription, status) {
             user.hero.customer_id = customerId
         }
 
-        // Update Hero properties on User
-        // Remove expiration
-        if (status == 'unsubscribed') {
+        // // Update Hero properties on User
+        // // Remove expiration
+        if (!subscribed) {
             user.hero.will_expire = Date(subscription.current_period_end)
         }
         // Update Subscription ID
@@ -45,10 +44,16 @@ let updateUserSub = function(user, subscription, status) {
 
         // Log subscription change
         user.hero.history.push({
-            change: status,
+            change: subscribed ? "subscribed" : "unsubscribed",
             date: subscription.created,
             subscription_id: subscription.id,
             type: subscriptionType
+        })
+
+        user.save((err, result) => {
+            if (err) {
+                console.error(err)
+            }
         })
 
         // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
@@ -56,10 +61,6 @@ let updateUserSub = function(user, subscription, status) {
         let resolveUser = user.toPublic()
         resolveUser.hero.active = true
         resolve(resolveUser)
-
-        user.save((err, result) => {
-            if (err) { console.error(err) }
-        })
     })
 }
 
@@ -142,6 +143,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
         // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
         let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
             .then((customerId) => {
+                console.log("I have a customer id!", customerId)
                 if (customerId) {
                     // if they've got a customer id, straight up return it
                     return customerId
@@ -170,7 +172,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
         })
         .then((sub) => {
             // update the user object that we keep
-            return updateUserSub(user, sub, 'subscribed')
+            return updateUserSub(user, sub, true)
         })
         .then((updatedUser) => {
             // send it back to the user and we're done!

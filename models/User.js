@@ -97,7 +97,7 @@ var model = ModelCreator("User", {
         /**
          * Stripe Customer Id
          */
-        customer_id: { type: String }
+        customer_id: String 
     },
     prefs: {
         recentEmoji: [ String ],
@@ -140,7 +140,6 @@ var model = ModelCreator("User", {
         delete user.resetPasswordToken
         delete user.resetPasswordExpires
         delete user.accountArchiveToken
-        delete user.hero.customer_id
         return user
     }
 })

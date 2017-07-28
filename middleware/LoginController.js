@@ -50,6 +50,7 @@ var LoginController = {
     }
     ,
     addHeroStatus: function(user) {
+        console.log("hero i received from the database!", user.hero)
         if (!user.hero) {
             user.hero = {}
         }
