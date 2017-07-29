@@ -186,7 +186,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
             if (couponCode) { // we skip out on creating the coupon if the customer already gave us a coupon code
                 return subscribeCustomer(customerId, subscriptionType, couponCode)
             } else {
-                return createCoupon(user._id.toString(), 500 - numHeroUsers)
+                return createCoupon(user._id.toString(), 449 - numHeroUsers)
                     .then((coupon) => {
                         // I only used rawType here because Stripe's errors have it so it makes error handling less complex
                         if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
