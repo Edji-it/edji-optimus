@@ -142,82 +142,81 @@ router.get("/test", Middleware.authRequired, function(req, res) {
 
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
-        let user = req.user
-        let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
-        let subscriptionType = req.body.subscriptionType
-        let couponCode = req.body.couponCode
+    let user = req.user
+    let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
+    let subscriptionType = req.body.subscriptionType
+    let couponCode = req.body.couponCode
 
-        if (!paymentToken) {
-            // This call requires a payment token
-            return res.status(400).send({ error : "paymentToken is required" })
-        }
-        if (!subscriptionType) {
-            return res.status(400).send({ error: "subscriptionType is required" })
-        }
-
-        // array of promises to be executed by Q
-        let promises = []
-
-        // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
-        let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
-            .then((customerId) => {
-                if (customerId) {
-                    // if they've got a customer id, straight up return it
-                    return customerId
-                } else {
-                    // if they don't have a customer id, then create the customer and resolve with it's id
-                    return createCustomer(user.emai, paymentToken)
-                        .then((customer) => {
-                            return customer.id // extract the customer id and pass to next stage of promise
-                        })
-                }
-            })
-        
-        // resolves with the count of hero users
-        let getHeroUserCount = Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
-
-        promises.push(getCustomerId, getHeroUserCount)
-
-        // kick off the promise chain, WOOT!
-        Q.all(promises).then((results) => {
-            let customerId = results[0]
-            let numHeroUsers = results[1]
-
-            if (couponCode === 'HERO_LAUNCH') {
-                return createCoupon(couponCode + "__" + user._id.toString(), 449 - numHeroUsers)
-                    .then((coupon) => {
-                        // I only used rawType here because Stripe's errors have it so it makes error handling less complex
-                        if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
-                        // after getting the customer id and coupon, add the user to the Hero subscription
-                        return subscribeCustomer(customerId, subscriptionType, coupon.id)
-                    })
-            } else { // we skip out on creating the coupon if the customer already gave us a coupon code
-                return subscribeCustomer(customerId, subscriptionType, couponCode)
-            }
-        })
-        .then((sub) => {
-            // update the user object that we keep
-            return updateUserSub(user, sub, true)
-        })
-        .then((updatedUser) => {
-            // send it back to the user and we're done!
-            res.status(200).send({ user: updatedUser })
-        })
-        .catch((err) => {
-            switch (err.rawType) {
-                case 'invalid_request_error':
-                    res.status(400).send({ error: err.message })
-                    break
-                case 'no_coupon_code':
-                    res.status(500).send({ error: err.message })
-                    break
-                default:
-                    console.error(err)
-                    res.status(500).send()
-            }
-        })
+    if (!paymentToken) {
+        // This call requires a payment token
+        return res.status(400).send({ error : "paymentToken is required" })
     }
-)
+    if (!subscriptionType) {
+        return res.status(400).send({ error: "subscriptionType is required" })
+    }
+
+    // array of promises to be executed by Q
+    let promises = []
+
+    // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
+    let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
+        .then((customerId) => {
+            if (customerId) {
+                // if they've got a customer id, straight up return it
+                return customerId
+            } else {
+                // if they don't have a customer id, then create the customer and resolve with it's id
+                return createCustomer(user.emai, paymentToken)
+                    .then((customer) => {
+                        return customer.id // extract the customer id and pass to next stage of promise
+                    })
+            }
+        })
+    
+    // resolves with the count of hero users
+    let getHeroUserCount = Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
+
+    promises.push(getCustomerId, getHeroUserCount)
+
+    // kick off the promise chain, WOOT!
+    Q.all(promises).then((results) => {
+        let customerId = results[0]
+        let numHeroUsers = results[1]
+
+        if (couponCode === 'HERO_LAUNCH') {
+            return createCoupon(couponCode + "__" + user._id.toString(), 449 - numHeroUsers)
+                .then((coupon) => {
+                    // I only used rawType here because Stripe's errors have it so it makes error handling less complex
+                    if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
+                    // after getting the customer id and coupon, add the user to the Hero subscription
+                    return subscribeCustomer(customerId, subscriptionType, coupon.id)
+                })
+        } else { // we skip out on creating the coupon if the customer already gave us a coupon code
+            return subscribeCustomer(customerId, subscriptionType, couponCode)
+        }
+    })
+    .then((sub) => {
+        // update the user object that we keep
+        return updateUserSub(user, sub, true)
+    })
+    .then((updatedUser) => {
+        // send it back to the user and we're done!
+        res.status(200).send({ user: updatedUser })
+    })
+    .catch((err) => {
+        switch (err.rawType) {
+            case 'invalid_request_error':
+                res.status(400).send({ error: err.message })
+                break
+            case 'no_coupon_code':
+                res.status(500).send({ error: err.message })
+                break
+            default:
+                console.error(err)
+                res.status(500).send()
+        }
+    })
+})
 
 
 router.put("/", Middleware.authRequired, function(req, res) {
