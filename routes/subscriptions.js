@@ -1,11 +1,14 @@
 const express = require('express')
 const Middleware = require("./../middleware/Middleware")
 const Q = require("q")
+const config = require("config")
 
 let User = require("./../models/User")
 
 let router = express.Router()
-var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out of try/catch because I want it to crash the server if it doesn't work
+
+const STRIPE_KEY = process.env.STRIPE_API_TOKEN || config.get('STRIPE_API.TOKEN')
+let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I want it to crash the server if it doesn't work
 
 /**
  * Updates the user that we store in the database and prepares a user object to be sent out to the client
