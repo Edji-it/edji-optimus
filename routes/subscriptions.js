@@ -2,6 +2,8 @@ const express = require('express')
 const Middleware = require("./../middleware/Middleware")
 const Q = require("q")
 
+let User = require("./../models/User")
+
 let router = express.Router()
 var stripe = require("stripe")("sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d") // took out of try/catch because I want it to crash the server if it doesn't work
 
@@ -125,6 +127,19 @@ let subscribeCustomer = function(customerId, subscriptionType, coupon) {
     })
 }
 
+router.get("/test", Middleware.authRequired, function(req, res) {
+    let user = req.user
+    Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
+        .then((result) => {
+            console.log(result)
+            res.status(200).send({ count: result })
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send({ error: err })
+        })
+})
+
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
         let user = req.user
@@ -139,6 +154,9 @@ router.post("/", Middleware.authRequired, function(req, res) {
         if (!subscriptionType) {
             return res.status(400).send({ error: "subscriptionType is required" })
         }
+
+        // array of promises to be executed by Q
+        let promises = []
 
         // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
         let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
@@ -155,13 +173,21 @@ router.post("/", Middleware.authRequired, function(req, res) {
                         })
                 }
             })
+        
+        // resolves with the count of hero users
+        let getHeroUserCount = Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
+
+        promises.push(getCustomerId, getHeroUserCount)
 
         // kick off the promise chain, WOOT!
-        getCustomerId.then((customerId) => {
+        Q.all(promises).then((results) => {
+            let customerId = results[0]
+            let numHeroUsers = results[1]
+
             if (couponCode) { // we skip out on creating the coupon if the customer already gave us a coupon code
                 return subscribeCustomer(customerId, subscriptionType, couponCode)
             } else {
-                return createCoupon(user._id.toString(), 400)
+                return createCoupon(user._id.toString(), 500 - numHeroUsers)
                     .then((coupon) => {
                         // I only used rawType here because Stripe's errors have it so it makes error handling less complex
                         if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
