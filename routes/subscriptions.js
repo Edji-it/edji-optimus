@@ -235,7 +235,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
 
         let handleError = function(err) {
             console.error(err)
-            res.status(500).send({ error: err }) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
+            res.status(500).send({ }) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
         }
 
         let handleSuccess = function(sub) {
