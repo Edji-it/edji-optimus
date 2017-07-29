@@ -487,7 +487,7 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     res.status(200).send({ file_locations: fileLocations })
 })
 
-router.get("/hero/count", (req, res) => {
+router.get("/heroes/count", (req, res) => {
     Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
         .then((count) => {
             if (!count) {
