@@ -91,10 +91,10 @@ let createCustomer = function(email, paymentToken) {
  * @param {string} id the id of the coupon - should be the user's id
  * @param {number} amount_off value < 500 (it's in cents) which is subtracted from the user's payment each month
  */
-let createCoupon = function(id, amount_off) {
+let createCoupon = function(coupon_id, amount_off) {
     return new Promise((resolve, reject) => {
         stripe.coupons.create({
-            id: "HERO_LAUNCH__" + id,
+            id: coupon_id,
             duration: 'forever', // CODE REVIEW: I think that if the user cancels this subscription they'll no longer have the discount, yes?
             currency: 'USD',
             amount_off: Math.abs(amount_off)
@@ -183,16 +183,16 @@ router.post("/", Middleware.authRequired, function(req, res) {
             let customerId = results[0]
             let numHeroUsers = results[1]
 
-            if (couponCode) { // we skip out on creating the coupon if the customer already gave us a coupon code
-                return subscribeCustomer(customerId, subscriptionType, couponCode)
-            } else {
-                return createCoupon(user._id.toString(), 449 - numHeroUsers)
+            if (couponCode === 'HERO_LAUNCH') {
+                return createCoupon(couponCode + "__" + user._id.toString(), 449 - numHeroUsers)
                     .then((coupon) => {
                         // I only used rawType here because Stripe's errors have it so it makes error handling less complex
                         if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
                         // after getting the customer id and coupon, add the user to the Hero subscription
                         return subscribeCustomer(customerId, subscriptionType, coupon.id)
                     })
+            } else { // we skip out on creating the coupon if the customer already gave us a coupon code
+                return subscribeCustomer(customerId, subscriptionType, couponCode)
             }
         })
         .then((sub) => {
