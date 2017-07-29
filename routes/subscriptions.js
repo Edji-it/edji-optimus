@@ -161,7 +161,6 @@ router.post("/", Middleware.authRequired, function(req, res) {
         // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
         let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
             .then((customerId) => {
-                console.log("I have a customer id!", customerId)
                 if (customerId) {
                     // if they've got a customer id, straight up return it
                     return customerId
@@ -262,7 +261,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
                             handleError(err)
                         })
                 }
-            );
+            )
         } else if (statusChange == 'unsubscribed') {
             // Cancel subscription
             stripe.subscriptions.del(
@@ -277,7 +276,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
                             handleError(err)
                         })
                 }
-            );
+            )
         } else {
             // This request needs something more!
         }
