@@ -66,7 +66,6 @@ describe("Subscriptions", () => {
             update.change.should.be.equal("subscribed")
           update.should.have.property("date")
             let histDate = new Date(update.date).valueOf()
-            console.log(histDate)
             histDate.should.be.above(Date.now() - 1000 * 60)
 
           done()
