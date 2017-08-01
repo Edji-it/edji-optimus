@@ -18,6 +18,7 @@ let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I wa
  */
 let updateUserSub = function(user, subscription, subscribed) {
     return new Promise((resolve, reject) => {
+        console.log(subscription.plan.id)
         let customerId = subscription.customer
         let subscriptionType = subscription.plan.id
         if (!user.hero) {
@@ -48,9 +49,9 @@ let updateUserSub = function(user, subscription, subscribed) {
         }
 
         // Log subscription change
-        user.hero.history.push({
+        user.hero.history.unshift({
             change: subscribed ? "subscribed" : "unsubscribed",
-            date: subscription.created,
+            date: Date(subscription.created),
             subscription_id: subscription.id,
             type: subscriptionType
         })
