@@ -87,7 +87,7 @@ var model = ModelCreator("User", {
              */
             change: { type: String, enum: heroStatuses, default: "unsubscribed" },
             date: Date,
-            type: { type: String, enum: subscriptionType, default: 'none'},
+            subscription_type: { type: String, enum: subscriptionType, default: 'none'},
             /**
              * Stripe Subscription ID
              * https://stripe.com/docs/api#subscription_object

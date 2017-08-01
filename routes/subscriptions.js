@@ -56,7 +56,7 @@ let updateUserSub = function(user, subscription, subscribed) {
             change: subscribed ? "subscribed" : "unsubscribed",
             date: Date(subscription.created),
             subscription_id: subscription.id,
-            type: subscriptionType
+            subscription_type: subscriptionType
         })
 
         user.save((err, result) => {
