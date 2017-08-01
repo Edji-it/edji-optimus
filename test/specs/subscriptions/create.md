@@ -41,6 +41,17 @@ res: {
             *  `subscription_type` =  `monthly`
             *  `subscription_label` = `PLAIN_HERO`
             *  `subscription_id`: `string`
+            *  `history`:
+                *  should be an array of:
+                    *  `subscription_id`: `string`
+                    *  `subscription_type`: `string`
+                    *  `change`: `string`
+                    *  `date`: `Date`
+                *  `history[0]` should have:
+                    *  `subscription_id` = `res.user.hero.subscription_id`
+                    *  `subscription_type` = `monthly`
+                    *  `change` = `subscribed`
+                    *  `date` > `Date.now() - 1000 * 60`
         *  `user.hero` should NOT have:
             *  `will_expire`: `Date`
 2.  Pass with `subscriptionType` = `monthly`, `paymentToken` = `tok_visa`, `couponCode` = `TEST__2017` and no coupon code, and a user who's never signed up before
