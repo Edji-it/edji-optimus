@@ -52,7 +52,24 @@ describe("Subscriptions", () => {
             hero.subscription_label.should.be.equal("PLAIN_HERO")
           hero.should.have.property("active")
             hero.active.should.be.equal(true)
-            done()
+          
+          hero.should.have.property("history")
+            hero.history.should.be.instanceOf(Array)
+            hero.history.length.should.be.above(0)
+
+          let update = hero.history[0]
+          update.should.have.property("subscription_id")
+            update.subscription_id.should.be.equal(hero.subscription_id)
+          update.should.have.property("subscription_type")
+            update.subscription_type.should.be.equal("monthly")
+          update.should.have.property("change")
+            update.change.should.be.equal("subscribed")
+          update.should.have.property("date")
+            let histDate = new Date(update.date).valueOf()
+            console.log(histDate)
+            histDate.should.be.above(Date.now() - 1000 * 60)
+
+          done()
         })
     })
   })
