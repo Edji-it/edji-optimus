@@ -268,7 +268,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
             // Cancel subscription
             stripe.subscriptions.del(
                 subscriptionId,
-                function(err, confirmation) {
+                function(err, subscription) {
                     // asynchronously called
                     updateUserSub(user, subscription)
                         .then(data => {
