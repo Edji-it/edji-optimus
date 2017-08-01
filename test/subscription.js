@@ -44,10 +44,12 @@ describe("Subscriptions", () => {
           res.body.user.should.have.property("hero")
 
           let hero = res.body.user.hero
+          hero.should.have.property("subscription_id")
+          hero.should.not.have.property("will_expire")
           hero.should.have.property("subscription_type")
             hero.subscription_type.should.be.equal("monthly")
           hero.should.have.property("subscription_label")
-            hero.subscription_label.should.be.equal("monthly")
+            hero.subscription_label.should.be.equal("PLAIN_HERO")
           hero.should.have.property("active")
             hero.active.should.be.equal(true)
             done()
