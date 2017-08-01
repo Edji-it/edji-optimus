@@ -33,11 +33,14 @@ let updateUserSub = function(user, subscription, subscribed) {
         // // Remove expiration
         if (!subscribed) {
             user.hero.will_expire = Date(subscription.current_period_end)
+        } else {
+            delete user.hero.will_expire
         }
+
         // Update Subscription ID
         user.hero.subscription_id = subscription.id
         // Update Subscription type
-        user.hero.type = subscriptionType
+        user.hero.subscription_type = subscriptionType
         
         // get the coupon id, if it exists
         let couponId = subscription.discount && subscription.discount.coupon && subscription.discount.coupon.id
