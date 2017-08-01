@@ -130,19 +130,6 @@ let subscribeCustomer = function(customerId, subscriptionType, coupon) {
     })
 }
 
-router.get("/test", Middleware.authRequired, function(req, res) {
-    let user = req.user
-    Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
-        .then((result) => {
-            console.log(result)
-            res.status(200).send({ count: result })
-        })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send({ error: err })
-        })
-})
-
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
     let user = req.user
