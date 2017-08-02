@@ -14,13 +14,13 @@ The request body will contain the following in json form
 
 ```javascript
 req: {
-  paymentToken: string,
+  token: string,
   subscriptionType: string,
   couponCode?: string
 }
 ```
 
-`paymentToken` corresponds to the user's payment in Stripe. It gets passed to Stripe.
+`token` corresponds to the user's payment in Stripe. It gets passed to Stripe.
 `subscriptionType` is the plan (in Stripe) the user is subscribing to
 `couponCode` (optional) is the code for the Stripe coupon
 
@@ -34,7 +34,7 @@ res: {
 
 ## Test Cases
 
-1.  Pass with `subscriptionType` = `monthly`, `paymentToken` = `tok_visa` and no coupon code, and a user who's never signed up before
+1.  Pass with `subscriptionType` = `monthly`, `token` = `tok_visa` and no coupon code, and a user who's never signed up before
     *  `res` should have:
         *  `user.hero` should have:
             *  `active` = `true`
@@ -54,7 +54,7 @@ res: {
                     *  `date` > `Date.now() - 1000 * 60`
         *  `user.hero` should NOT have:
             *  `will_expire`: `Date`
-2.  Pass with `subscriptionType` = `monthly`, `paymentToken` = `tok_visa`, `couponCode` = `TEST__2017` and no coupon code, and a user who's never signed up before
+2.  Pass with `subscriptionType` = `monthly`, `token` = `tok_visa`, `couponCode` = `TEST__2017` and no coupon code, and a user who's never signed up before
     *  `res` should have:
         *  `user.hero` should have:
             *  `active` = `true`
@@ -64,5 +64,5 @@ res: {
         *  `user.hero` should NOT have:
             *  `will_expire`: `Date`
 3.  Pass without `subscriptionType` --> receive `400`
-4.  Pass without `paymentToken` --> receive `400`
+4.  Pass without `token` --> receive `400`
 5.  Pass without `Authorization` header --> receive `401`

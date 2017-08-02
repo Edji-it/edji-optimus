@@ -102,5 +102,51 @@ describe("Subscriptions", () => {
           done()
         })
     })
+    
+    it("should reject a call without subscriptionType", (done) => {
+      chai.request(server)
+        .post("/subscriptions")
+        .send({
+          token: "tok_visa",
+          couponCode: "TEST__2017"
+        })
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should reject a call without token", (done) => {
+      chai.request(server)
+        .post("/subscriptions")
+        .send({
+          subscriptionType: "monthly",
+          couponCode: "TEST__2017"
+        })
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          res.should.have.status(400)
+
+          done()
+        })
+    })
+
+    it("should not allow a user without an auth token", (done) => {
+      chai.request(server)
+        .post("/subscriptions")
+        .send({
+          token: "tok_visa",
+          subscriptionType: "monthly",
+          couponCode: "TEST__2017"
+        })
+        .end((err, res) => {
+          // initial validation
+          res.should.have.status(401)
+
+          done()
+        })
+    })
   })
 })
