@@ -36,7 +36,7 @@ describe("Subscriptions", () => {
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
           if (err) {
-            done(err)
+            return done(err)
           }
           // initial validation
           res.should.have.status(200)
@@ -67,6 +67,37 @@ describe("Subscriptions", () => {
           update.should.have.property("date")
             let histDate = new Date(update.date).valueOf()
             histDate.should.be.above(Date.now() - 1000 * 60)
+
+          done()
+        })
+    })
+    
+    it("should register a user with a coupon code", (done) => {
+      chai.request(server)
+        .post("/subscriptions")
+        .send({
+          token: "tok_visa",
+          subscriptionType: "monthly",
+          couponCode: "TEST__2017"
+        })
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+          if (err) {
+            return done(err)
+          }
+
+          // initial validation
+          res.should.have.status(200)
+          res.body.should.have.property("user")
+          res.body.user.should.have.property("hero")
+
+          let hero = res.body.user.hero
+          hero.should.have.property("subscription_id")
+          hero.should.not.have.property("will_expire")
+          hero.should.have.property("subscription_type")
+            hero.subscription_type.should.be.equal("monthly")
+          hero.should.have.property("subscription_label")
+            hero.subscription_label.should.be.equal("TEST")
 
           done()
         })

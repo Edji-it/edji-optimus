@@ -18,7 +18,6 @@ let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I wa
  */
 let updateUserSub = function(user, subscription, subscribed) {
     return new Promise((resolve, reject) => {
-        console.log(subscription.plan.id)
         let customerId = subscription.customer
         let subscriptionType = subscription.plan.id
         if (!user.hero) {
@@ -119,6 +118,7 @@ let createCoupon = function(coupon_id, amount_off) {
  * Adds a customer to a subscription. This is effectively charging the customer
  * @param {string} customerId the user's Stripe customer id
  * @param {string} subscriptionType 'monthly', 'yearly', etc... I think this is an enum enforced by Stripe
+ * @param {string} coupon the id for the coupon you are adding to the subscription
  */
 let subscribeCustomer = function(customerId, subscriptionType, coupon) {
     // Create Stripe subscription
