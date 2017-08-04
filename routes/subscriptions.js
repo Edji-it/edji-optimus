@@ -316,6 +316,10 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
     let user = req.user
     let subscription_id = req.params.subscription_id
 
+    if (!subscription_id) {
+        return res.status(400).send({ error: "subscription id required" })
+    }
+
     cancelSubscription(subscription_id)
         .then((sub) => {
             return updateUserSub(user, sub, false)
