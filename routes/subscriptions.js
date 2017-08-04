@@ -152,6 +152,22 @@ let updateSubscription = function(subscriptionId, update) {
     })
 }
 
+/**
+ * Cancel's a user's subscription through Stripe
+ * @param {string} subscriptionId the id for the subscription to delete
+ */
+let cancelSubscription = function(subscriptionId) {
+    return new Promise((resolve, reject) => {
+        stripe.subscriptions.del(
+            subscriptionId,
+            function(err, sub) {
+                if (err) { reject(err) }
+                else { resolve(sub) }
+            }
+        )
+    })
+}
+
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
     let user = req.user
@@ -296,12 +312,32 @@ router.put("/", Middleware.authRequired, function(req, res) {
     }
 )
 
-// router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
-//     let user = req.user
-//     let subscription_id = req.params.subscription_id
+router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
+    let user = req.user
+    let subscription_id = req.params.subscription_id
 
-
-// })
+    cancelSubscription(subscription_id)
+        .then((sub) => {
+            return updateUserSub(user, sub, false)
+        })
+        .then((updatedUser) => {
+            // send it back to the user and we're done!
+            res.status(200).send({ user: updatedUser })
+        })
+        .catch((err) => {
+            switch (err.rawType) {
+                case 'invalid_request_error':
+                    res.status(400).send({ error: err.message })
+                    break
+                case 'no_coupon_code':
+                    res.status(500).send({ error: err.message })
+                    break
+                default:
+                    console.error(err)
+                    res.status(500).send()
+            }
+        })
+})
 
 
 module.exports = router
