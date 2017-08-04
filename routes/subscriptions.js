@@ -134,6 +134,24 @@ let subscribeCustomer = function(customerId, subscriptionType, coupon) {
     })
 }
 
+/**
+ * Update a Stripe subscription and resolve with that subscription
+ * @param {string} subscriptionId the subscription's id
+ * @param {*} update an object containing the property to update and the updated values
+ */
+let updateSubscription = function(subscriptionId, update) {
+    return new Promise((resolve, reject) => {
+        stripe.subscriptions.update(
+            update,
+            { plan: subscriptionType },
+            function(err, subscription) {
+                if (err) { reject(err) }
+                else { resolve(subscription) }
+            }
+        )
+    })
+}
+
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
     let user = req.user
@@ -226,7 +244,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
 
         let handleError = function(err) {
             console.error(err)
-            res.status(500).send({ }) // CODE REVIEW: DON'T RETURN THE ERROR TO THE CLIENT!!
+            res.status(500).send({ })
         }
 
         let handleSuccess = function(sub) {
@@ -277,6 +295,13 @@ router.put("/", Middleware.authRequired, function(req, res) {
 
     }
 )
+
+// router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
+//     let user = req.user
+//     let subscription_id = req.params.subscription_id
+
+
+// })
 
 
 module.exports = router
