@@ -75,7 +75,9 @@ describe("Subscriptions", () => {
 
           let hero = res.body.user.hero
           hero.should.have.property("subscription_id")
-          hero.should.not.have.property("will_expire")
+          if (hero.will_expire) {
+            hero.will_expire.should.be.equal(null)
+          }
           hero.should.have.property("subscription_type")
             hero.subscription_type.should.be.equal("monthly")
           hero.should.have.property("subscription_label")
@@ -125,7 +127,9 @@ describe("Subscriptions", () => {
 
           let hero = res.body.user.hero
           hero.should.have.property("subscription_id")
-          hero.should.not.have.property("will_expire")
+          if (hero.will_expire) {
+            hero.will_expire.should.be.equal(null)
+          }
           hero.should.have.property("subscription_type")
             hero.subscription_type.should.be.equal("monthly")
           hero.should.have.property("subscription_label")
