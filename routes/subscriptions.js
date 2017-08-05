@@ -315,10 +315,19 @@ router.put("/", Middleware.authRequired, function(req, res) {
 router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
     let user = req.user
     let subscription_id = req.params.subscription_id
+    let history = user.hero && user.hero.history
 
     if (!subscription_id) {
         return res.status(400).send({ error: "subscription id required" })
+    } else if (!history || history.length < 1) {
+        return res.status(400).send({ error: "user has no subscription history" })
     }
+
+    let subEvent = history.find((event) => {
+        return event.subscription_id === subscription_id
+    })
+
+    if (!subEvent) { return res.status(404).send({ error: "user has no such subscription event" }) }
 
     cancelSubscription(subscription_id)
         .then((sub) => {
