@@ -33,7 +33,6 @@ Let a user delete his/her Stripe subscription
                     *  `subscription_type`: `string`
                     *  `change` = `unsubscribed`
                     *  `date` > `Date.now() - 1000 * 60`
-4.  Pass with `Authorization` header and invalid `subscription_id` --> receive `400`
-5.  Pass with `Authorization` and non-existant `subscription_id` --> receive `404`
-6.  Pass with `Authorization` header that has a different user's token --> receive `404`
-7.  Pass without `Authorization` header --> receive `401`
+2.  Pass with `Authorization` and non-existant `subscription_id` --> receive `404`
+3.  Pass with `Authorization` header that has a different user's token --> receive `404`
+4.  Pass without `Authorization` header --> receive `401`

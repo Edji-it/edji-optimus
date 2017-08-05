@@ -232,5 +232,41 @@ describe("Subscriptions", () => {
           done()
         })
     })
+
+    it("should reject an invalid subscription id", (done) => {
+      chai.request(server)
+        .del("/subscriptions/not_a_token")
+        .set("Authorization", testUsers.testTeacher.token)
+        .end((err, res) => {
+
+          res.should.have.status(404)
+          done()
+        })
+    })
+
+    it("should return 404 if the subscription's owner attempts to delete it", (done) => {
+      let eventToDelete = testSubEvents[0]
+
+      chai.request(server)
+        .del("/subscriptions/" + eventToDelete.subscription_id)
+        .set("Authorization", testUsers.testStudent.token)
+        .end((err, res) => {
+
+          res.should.have.status(404)
+          done()
+        })
+    })
+
+    it("should reject a request without an Authorization token", (done) => {
+      let eventToDelete = testSubEvents[0]
+
+      chai.request(server)
+        .del("/subscriptions/" + eventToDelete.subscription_id)
+        .end((err, res) => {
+
+          res.should.have.status(401)
+          done()
+        })
+    })
   })
 })

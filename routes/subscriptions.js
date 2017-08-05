@@ -319,8 +319,8 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
 
     if (!subscription_id) {
         return res.status(400).send({ error: "subscription id required" })
-    } else if (!history || history.length < 1) {
-        return res.status(400).send({ error: "user has no subscription history" })
+    } else if (!history || history.length < 1) { // this would mean the user doesn't have that subscription in their history
+        return res.status(404).send()
     }
 
     let subEvent = history.find((event) => {
@@ -329,8 +329,10 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
 
     if (!subEvent) { return res.status(404).send({ error: "user has no such subscription event" }) }
 
+    // cancel the subscription with Stripe
     cancelSubscription(subscription_id)
         .then((sub) => {
+            // update the user and save
             return updateUserSub(user, sub, false)
         })
         .then((updatedUser) => {
@@ -339,7 +341,7 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
         })
         .catch((err) => {
             switch (err.rawType) {
-                case 'invalid_request_error':
+                case 'invalid_request_error': //  this is the error Stripe will throw with 400s
                     res.status(400).send({ error: err.message })
                     break
                 case 'no_coupon_code':
