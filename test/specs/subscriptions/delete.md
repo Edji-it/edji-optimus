@@ -30,7 +30,7 @@ Let a user delete his/her Stripe subscription
             *  `history`:
                 *  `history[0]` should have:
                     *  `subscription_id` = `res.user.hero.subscription_id`
-                    *  `subscription_type` = `monthly`
+                    *  `subscription_type`: `string`
                     *  `change` = `unsubscribed`
                     *  `date` > `Date.now() - 1000 * 60`
 4.  Pass with `Authorization` header and invalid `subscription_id` --> receive `400`
