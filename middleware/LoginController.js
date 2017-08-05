@@ -16,23 +16,19 @@ var LoginController = {
 
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username.toLowerCase()}, function (err, dbUser) {
-
-                if(!dbUser) {
-                    reject("User does not exist")
-                    return
-                }
                 if (err) {
                     reject(err)
+                    return
+                } else if(!dbUser) {
+                    reject("User does not exist")
                     return
                 }
 
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
                         resolve(me.generateLoginObjectForUser(dbUser))
-
                     }
                     else {
-                        //res.status("400")
                         reject("Wrong Credentials")
                     }
                 })
