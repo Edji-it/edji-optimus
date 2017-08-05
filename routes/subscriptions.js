@@ -212,7 +212,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
         let numHeroUsers = results[1]
 
         if (couponCode === 'HERO_LAUNCH') {
-            let amountOff = 6000 - (numHeroUsers * 3) // $60 - $0.03 cents for each new hero user
+            let amountOff = 5900 - (numHeroUsers * 3) // $60 - $0.03 cents for each new hero user
 
             return createCoupon(couponCode + "__" + user._id.toString(), amountOff)
                 .then((coupon) => {
