@@ -219,15 +219,16 @@ describe("Subscriptions", () => {
             hero.history.length.should.be.above(0)
 
           let event = hero.history[0]
-          eventToDelete.should.have.property("subscription_id")
-            eventToDelete.subscription_id.should.be.equal(eventToDelete.subscription_id)
-          eventToDelete.should.have.property("subscription_type")
-          eventToDelete.should.have.property("change")
-            eventToDelete.change.should.be.equal("unsubscribed")
-          eventToDelete.should.have.property("date")
-            let histDate = new Date(eventToDelete.date).valueOf()
+          event.should.have.property("subscription_id")
+            event.subscription_id.should.be.equal(event.subscription_id)
+          event.should.have.property("subscription_type")
+          event.should.have.property("change")
+            event.change.should.be.equal("unsubscribed")
+          event.should.have.property("date")
+            let histDate = new Date(event.date).valueOf()
             histDate.should.be.above(Date.now() - 1000 * 60)
 
+          testSubEvents.splice(0,1) // remove this from the array of subscriptions that need to be deleted
           done()
         })
     })

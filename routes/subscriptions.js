@@ -34,7 +34,6 @@ let updateUserSub = function(user, subscription, subscribed) {
             user.hero.will_expire = Date(subscription.current_period_end)
         } else {
             user.hero.will_expire = null
-            console.log("they are subscribing!", user.hero.will_expire)
         }
 
         // Update Subscription ID
