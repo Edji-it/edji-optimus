@@ -15,7 +15,19 @@ chai.use(chaiHttp)
 let testProject
 let testUsers // comes with testStudent, testTeacher and testTemp
 let testComments = {}
-let testSubEvent
+let testSubEvents = [] // ANY TIME a test creates a subscription, it needs to be pushed in here. Also, I'm only ever using the teacher token here.
+
+let deleteSubscription = function(subscriptionId, userToken) {
+  return new Promise((resolve, reject) => {
+    chai.request(server)
+      .del("/subscriptions/" + subscriptionId)
+      .set("Authorization", userToken)
+      .end((err, res) => {
+        if (err) { reject(err) }
+        else { resolve(res) }
+      })
+  })
+}
 
 describe("Subscriptions", () => {
 
@@ -24,6 +36,23 @@ describe("Subscriptions", () => {
       testUsers = users
       done()
     })
+  })
+
+  after((done) => {
+    let promises = []
+    // we need to clean up all of the subscriptions we created
+    for(let i = 0; i < testSubEvents.length; i++) {
+      promises.push(deleteSubscription(testSubEvents[i].subscription_id, testUsers.testTeacher.token))
+    }
+
+    Q.all(promises)
+      .then((responses) => {
+        console.log("deleted " + responses.length + " more subscription")
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
   })
 
   describe("POST /subscriptions", () => {
@@ -58,16 +87,17 @@ describe("Subscriptions", () => {
             hero.history.should.be.instanceOf(Array)
             hero.history.length.should.be.above(0)
 
-          // assign testSubEvent so that we can use it in later tests
-          testSubEvent = hero.history[0]
-          testSubEvent.should.have.property("subscription_id")
-            testSubEvent.subscription_id.should.be.equal(hero.subscription_id)
-          testSubEvent.should.have.property("subscription_type")
-            testSubEvent.subscription_type.should.be.equal("monthly")
-          testSubEvent.should.have.property("change")
-            testSubEvent.change.should.be.equal("subscribed")
-          testSubEvent.should.have.property("date")
-            let histDate = new Date(testSubEvent.date).valueOf()
+          // assign update so that we can use it in later tests
+          let update = hero.history[0]
+          testSubEvents.push(update)
+          update.should.have.property("subscription_id")
+            update.subscription_id.should.be.equal(hero.subscription_id)
+          update.should.have.property("subscription_type")
+            update.subscription_type.should.be.equal("monthly")
+          update.should.have.property("change")
+            update.change.should.be.equal("subscribed")
+          update.should.have.property("date")
+            let histDate = new Date(update.date).valueOf()
             histDate.should.be.above(Date.now() - 1000 * 60)
 
           done()
@@ -100,6 +130,12 @@ describe("Subscriptions", () => {
             hero.subscription_type.should.be.equal("monthly")
           hero.should.have.property("subscription_label")
             hero.subscription_label.should.be.equal("TEST")
+
+          hero.should.have.property("history")
+            hero.history.should.be.instanceOf(Array)
+            hero.history.length.should.be.above(0)
+          
+          testSubEvents.push(hero.history[0])
 
           done()
         })
@@ -154,8 +190,10 @@ describe("Subscriptions", () => {
 
   describe("DELETE /subscriptions/:id", () => {
     it("should delete a user's subscription", (done) => {
+      let eventToDelete = testSubEvents[0]
+
       chai.request(server)
-        .del("/subscriptions/" + testSubEvent.subscription_id)
+        .del("/subscriptions/" + eventToDelete.subscription_id)
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
 
@@ -165,7 +203,7 @@ describe("Subscriptions", () => {
 
           let hero = res.body.user.hero
           hero.should.have.property("subscription_id")
-            hero.subscription_id.should.be.equal(testSubEvent.subscription_id)
+            hero.subscription_id.should.be.equal(eventToDelete.subscription_id)
           hero.should.have.property("will_expire")
           hero.should.have.property("subscription_type")
           hero.should.have.property("subscription_label")
@@ -177,13 +215,13 @@ describe("Subscriptions", () => {
             hero.history.length.should.be.above(0)
 
           let event = hero.history[0]
-          testSubEvent.should.have.property("subscription_id")
-            testSubEvent.subscription_id.should.be.equal(testSubEvent.subscription_id)
-          testSubEvent.should.have.property("subscription_type")
-          testSubEvent.should.have.property("change")
-            testSubEvent.change.should.be.equal("unsubscribed")
-          testSubEvent.should.have.property("date")
-            let histDate = new Date(testSubEvent.date).valueOf()
+          eventToDelete.should.have.property("subscription_id")
+            eventToDelete.subscription_id.should.be.equal(eventToDelete.subscription_id)
+          eventToDelete.should.have.property("subscription_type")
+          eventToDelete.should.have.property("change")
+            eventToDelete.change.should.be.equal("unsubscribed")
+          eventToDelete.should.have.property("date")
+            let histDate = new Date(eventToDelete.date).valueOf()
             histDate.should.be.above(Date.now() - 1000 * 60)
 
           done()
