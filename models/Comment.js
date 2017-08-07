@@ -22,7 +22,8 @@ var Model =  ModelCreator("Comment",{
         y: Number
     },
     reply_to: { type: mongoose.Schema.ObjectId, ref: "Comment" },
-    replies: Array
+    replies: Array,
+    questionId: String
 });
 
 module.exports = Model;
