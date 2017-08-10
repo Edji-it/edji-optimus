@@ -168,6 +168,23 @@ let cancelSubscription = function(subscriptionId) {
     })
 }
 
+// all of the math here is done in cents
+const fullPrice = 6000
+const startingPrice = 100
+const priceIncrement = 3
+
+// resolves with the count of hero users
+let getHeroUserCount = Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
+
+let calculateAmountOff = function() {
+    return getHeroUserCount
+        .then((count) => {
+            let startingAmountOff = fullPrice - startingPrice
+            let currentAmountOff = startingAmountOff - count * priceIncrement
+            return currentAmountOff
+        })
+}
+
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
     let user = req.user
@@ -200,20 +217,15 @@ router.post("/", Middleware.authRequired, function(req, res) {
                     })
             }
         })
-    
-    // resolves with the count of hero users
-    let getHeroUserCount = Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
 
-    promises.push(getCustomerId, getHeroUserCount)
+    promises.push(getCustomerId, calculateAmountOff())
 
     // kick off the promise chain, WOOT!
     Q.all(promises).then((results) => {
         let customerId = results[0]
-        let numHeroUsers = results[1]
+        let amountOff = results[1]
 
         if (couponCode === 'HERO_LAUNCH') {
-            let amountOff = 5900 - (numHeroUsers * 3) // $60 - $0.03 cents for each new hero user
-
             return createCoupon(couponCode + "__" + user._id.toString(), amountOff)
                 .then((coupon) => {
                     // I only used rawType here because Stripe's errors have it so it makes error handling less complex
@@ -354,6 +366,22 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
                     res.status(500).send()
             }
         })
+})
+
+// gets the current cost of the coupon
+router.get("/coupons/:coupon_id", (req, res) => {
+    let couponId = req.params.coupon_id
+    if (!couponId === 'HERO_LAUNCH') {
+        return res.status(404).send({ error: "coupon code not found" })
+    }
+
+    calculateAmountOff().then((amountOff) => {
+        return res.status(200).send({ cost: fullPrice - amountOff })
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+    })
 })
 
 
