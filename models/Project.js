@@ -18,6 +18,7 @@ var Model = ModelCreator("Project", {
     reading_id:{type:String, required:true, ref:"Reading"},
     teacher_id:{type:String, required:true, ref:"User"},
     comments:[Comment.schema],
+    answers:[Comment.schema],
     students_ids:[{ type: String, ref: "User" }],
     temp_ids: [{ type: String, ref: "TempUser" }],
     label:{type:String, required:true},
