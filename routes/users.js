@@ -491,10 +491,10 @@ router.get("/heroes/count", (req, res) => {
     Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
         .then((count) => {
             if (!count) {
-                return res.status(500).send({ error: "couldn't get count for some reason" })
-            } else {
-                return res.status(200).send({ count: count })
+                count = 0
             }
+            
+            return res.status(200).send({ count: count })
         })
         .catch((err) => {
             console.error(err)
