@@ -173,11 +173,8 @@ const fullPrice = 6000
 const startingPrice = 100
 const priceIncrement = 3
 
-// resolves with the count of hero users
-let getHeroUserCount = Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
-
 let calculateAmountOff = function() {
-    return getHeroUserCount
+    return Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
         .then((count) => {
             let startingAmountOff = fullPrice - startingPrice
             let currentAmountOff = startingAmountOff - count * priceIncrement
