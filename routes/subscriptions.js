@@ -365,6 +365,10 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
         })
 })
 
+// this is the utc of the last database request
+let lastQueryTime
+let lastCost
+
 // gets the current cost of the coupon
 router.get("/coupons/:coupon_id", (req, res) => {
     let couponId = req.params.coupon_id
@@ -372,8 +376,15 @@ router.get("/coupons/:coupon_id", (req, res) => {
         return res.status(404).send({ error: "coupon code not found" })
     }
 
+    // here we check if the current time is after the last query + 2000
+    if (!lastQueryTime || Date.now() > lastQueryTime + 2000) {
+        return res.status(200).send({ cost: lastCost })
+    }
+
     calculateAmountOff().then((amountOff) => {
-        return res.status(200).send({ cost: fullPrice - amountOff })
+        lastCost = fullPrice - amountOff
+        lastQueryTime = Date.now()
+        return res.status(200).send({ cost: lastCost })
     })
     .catch((err) => {
         console.error(err)
