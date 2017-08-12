@@ -15,7 +15,7 @@
     "EDJI_API": {
         "GRAPPLE": {
             "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",
-            "DOMAIN": "https://grapple-dev.edjiit"
+            "DOMAIN": "https://grapple-dev.edji.it"
         }
     },
     "STRIPE_API": {
