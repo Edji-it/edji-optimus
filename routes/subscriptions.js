@@ -377,7 +377,7 @@ router.get("/coupons/:coupon_id", (req, res) => {
     }
 
     // here we check if the current time is after the last query + 2000
-    if (!lastQueryTime || Date.now() > lastQueryTime + 2000) {
+    if (lastQueryTime && Date.now() - lastQueryTime < 2000) {
         return res.status(200).send({ cost: lastCost })
     }
 
