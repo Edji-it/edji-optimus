@@ -16,6 +16,8 @@ router.post( '/add', function(req, res) {
 
         if (req.body.list == 'hero') {
             listId = 'e8ff5b5e49'
+        } else if (req.body.list == 'hero-subscribed') {
+            listId = '6780e536a5'
         } else if (req.body.list == 'new') {
             listId = 'a4b72972f1'
         }
