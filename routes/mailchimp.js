@@ -37,14 +37,19 @@ router.post( '/add', function(req, res) {
 
         api.post('/lists/' + listId + '/members', data )
             .then((result) => {
-                res.send({
+                return res.send({
                     email: result.email_address,
                     status: result.status
                 })
             })
             .catch((err) => {
                 // Mailchimp passes back a http status code!
-                res.status(err.status).send(err)
+                if (err.errors) {
+                    console.error("errors:", err.errors)
+                } else {
+                    console.error(err)
+                }
+                return res.status(err.status).send(err)
             })
     }
 )
