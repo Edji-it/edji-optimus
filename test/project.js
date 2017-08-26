@@ -206,7 +206,7 @@ describe("Projects", () => {
   })
 
   describe("GET /projects/:code/validate", () => {
-    it("it should validate an existing project", (done) => {
+    it("should validate an existing project", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code + "/validate")
         .end((err, res) => {
@@ -216,7 +216,17 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 for invalid project", (done) => {
+    it("should validate an existing project with incorrect capitalization", (done) => {
+      chai.request(server)
+      .get("/projects/" + testProject.code.toUpperCase() + "/validate")
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.have.property("_id")
+        done()
+      })
+    })
+
+    it("should return 404 for invalid project", (done) => {
       chai.request(server)
         .get("/projects/demo/validate")
         .end((err, res) => {

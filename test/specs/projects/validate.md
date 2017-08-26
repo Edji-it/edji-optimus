@@ -20,8 +20,9 @@ _id: string
 
 ## Test Cases
 
-1.  Pass with valid project code
+1.  Pass with valid project code - all lower case
     *  `res` should have
         *  `status` = `200`
         *  `_id`: `string`
-2.  Pass with invalid project code --> receive `404`
+2.  Pass with valid project code but incorrect letter cases --> receive `200`
+3.  Pass with invalid project code --> receive `404`
