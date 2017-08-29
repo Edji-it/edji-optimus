@@ -91,8 +91,8 @@ var LoginController = {
      middleware:function(req, res, next){
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
-                user = LoginController.addHeroStatus(user)
                 if (user){
+                    user = LoginController.addHeroStatus(user)
                     req.user = user
                 }
                 next()
