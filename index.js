@@ -8,6 +8,7 @@ var bodyParser = require("body-parser")
 var User = require("./models/User")
 var LoginController = require("./middleware/LoginController")
 var util = require('util')
+const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
 //routers
 var users = require("./routes/users")
@@ -19,6 +20,7 @@ var mailchimp = require("./routes/mailchimp")
 var subscriptions = require("./routes/subscriptions")
 
 var app = express()
+app.use(responseTime())
 app.use(bodyParser.json({limit: '20mb'}))
 
 var server = require('http').createServer(app)
