@@ -36,7 +36,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         } else {
             let queryOptions = Object.assign({
                 query: { _id: this._id },
-                doc: this,
+                update: this,
                 mongooseOptions: {
                     new: true,
                     runValidators: true,

@@ -100,7 +100,7 @@ router.get("/:id", function(req, res) {
     }
 
     Q(Project.findOne(findParams)
-            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id") // populate the reading_id if it was provided to query
+            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id questions") // populate the reading_id if it was provided to query
             .exec()
         )
         .then((project) => {
@@ -134,7 +134,7 @@ router.get("/:id", function(req, res) {
             // here we're going to do a little curation for the returned project to make sure the comments come back with a replies array
             var repliesObj = []
             let size = project.comments.length
-            for (let i = 0; i < project.comments.length; i++) {
+            for (let i = 0; i < size; i++) {
                 let comment = project.comments[i]
                 if (comment.reply_to) {
                     if (!repliesObj[comment.reply_to]) {
@@ -484,6 +484,200 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
                         })
                 } else {
                     return res.status(200).send({ deleted_comment: modComment })
+                }
+            }
+        })
+        .catch((error) => {
+            console.error(error)
+            res.status(500).send()
+        })
+})
+
+router.post("/:id/answers", Middleware.authRequired, function(req, res) {
+    var _id = req.params.id
+    var user = req.user
+
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+        res.status(400).send()
+        return
+    }
+
+    if (!req.body.answer) {
+        res.status(400).send({ validationErrors: { answer: "required" }})
+        return
+    }
+    
+    if (!req.body.answer.user_id) { req.body.answer.user_id = user._id }
+    if (!req.body.answer.author) { req.body.answer.author = user.fullname }
+    var answer = Comment(req.body.answer)
+
+    // find the project id 
+    Project.findById({_id}, function(err, project){
+        if (err) {
+            console.error(err)
+            res.status(500).send()
+            return
+        } else if (!project) {
+            res.status(404).send()
+            return
+        } else {
+            var currentAnswer = project.answers.id(answer._id) // if the answer already has an id, it already exists
+            
+            var successStatus // 200 if updating, 201 if creating
+            if (currentAnswer){
+                // Preserve "createdAt"
+                answer.createdAt = currentAnswer.createdAt
+                Object.assign(currentAnswer, answer)
+                successStatus = 200
+            }
+            else{
+                project.answers.push(answer)
+                successStatus = 201
+            }
+
+            project.save(function(error, project){
+                if (error) {
+                    // constructs object with list of model-defined errors to send to user
+                    if (error.name === "ValidationError") {
+                        var errors = {}
+
+                        for (var property in error.errors) {
+                            if (error.errors[property].kind === "user defined") {
+                                errors[property] = error.errors[property].properties.kind
+                            } else {
+                                errors[property] = error.errors[property].kind
+                            }
+                        }
+
+                        res.status(406).send({ validationErrors: errors })
+                        return
+                    } else {
+                        res.status(500).send(error)
+                        return
+                    }
+                } else { res.status(successStatus).send({ answer: project.answers.id(answer._id) }) }
+                    
+            })
+        }
+    })
+})
+
+router.put("/:project_id/answers/:answer_id", Middleware.authRequired, function(req, res) {
+    let user = req.user
+    let project_id = req.params.project_id
+    let answer_id = req.params.answer_id
+    let answer_update = _.pick(req.body.answer, 'start', 'end', 'data', 'dataArray', 'url', 'author', 'text', 'loc')
+
+    // if the answer doesn't contain any valid update properties, then we can tell the user
+    if (!req.body.answer) {
+        return res.status(400).send({ errors: { answer: "no valid update properties on answer" }})
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(project_id)) {
+        res.status(400).send({ errors: { projectId: "invalid" }})
+        return
+    } else if (!mongoose.Types.ObjectId.isValid(answer_id)) {
+        res.status(400).send({ errors: { answerId: "invalid" }})
+        return
+    }
+
+    // the project's id must match, and it must have a answer w/ correct id and user_id
+    Q(  Project.findOne({
+            _id: project_id,
+            answers: { $elemMatch: {
+                _id: answer_id,
+                user_id: user._id
+            }}
+        })
+        .exec())
+        .then((project) => {
+            if (!project) {
+                return res.status(404).send({ error: "project not found" })
+            }
+
+            let answer = project.answers.find((answer) => {
+                return answer._id == answer_id
+            })
+
+            // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
+            if (answer.url && answer_update.url && answer_update.url != answer.url) {
+                deleteFromS3(answer.url)
+                    .then((body) => {
+                        console.log(body)
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                    })
+            }
+
+            // update the fields from the answer_update onto the answer
+            Object.assign(answer, answer_update)
+
+            // save the entire project (DON'T JUST SAVE THE ANSWER)
+            project.save()
+
+            return res.status(200).send({ answer: answer })
+
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send()
+        })
+})
+
+router.delete("/:project_id/answers/:answer_id", Middleware.authRequired, function(req, res){
+    let user = req.user
+    let project_id = req.params.project_id
+    let answer_id = req.params.answer_id
+
+    if (!mongoose.Types.ObjectId.isValid(project_id)) {
+        res.status(400).send({ errors: { projectId: "invalid" }})
+        return
+    } else if (!mongoose.Types.ObjectId.isValid(answer_id)) {
+        res.status(400).send({ errors: { answerId: "invalid" }})
+        return
+    }
+
+    Q(Project.findOneAndUpdate(
+        {
+            _id: project_id,
+            $or: [ 
+                { teacher_id: user._id }, // this lets teachers delete a student's answer
+                { answers: { $elemMatch: { // this is likely a student deleting their own answer
+                    _id: answer_id,
+                    user_id: user._id
+                }}}
+            ]
+        }, {
+            $pull: {
+                answers: {
+                    _id: answer_id
+                }
+            }
+        }, {
+        })
+        .exec())
+        .then((project) => { // the project that gets passed is the project before the update
+
+            if (!project) {
+                res.status(404).send()
+            } else {
+                // go through and find the answer that should have been deleted
+                modAnswer = project.answers.find((answer) => {
+                    return answer._id == answer_id
+                })
+
+                // if the old answer had a url, we need to delete that asset
+                if (modAnswer && modAnswer.url) {
+                    deleteFromS3(modAnswer.url)
+                        .then((body) => { // { deleted_url: string[] }
+                            return res.status(200).send({ deleted_answer: modAnswer })
+                        })
+                        .catch((err) => {
+                            return res.status(err.statusCode).send(err)
+                        })
+                } else {
+                    return res.status(200).send({ deleted_answer: modAnswer })
                 }
             }
         })

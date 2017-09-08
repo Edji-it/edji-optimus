@@ -22,7 +22,10 @@
     "EDJI_API": {
         "GRAPPLE": {
             "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",
-            "DOMAIN": "https://grapple-dev.edjiit"
+            "DOMAIN": "https://grapple-dev.edji.it"
         }
+    },
+    "STRIPE_API": {
+        "TOKEN": "sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d"
     }
 }

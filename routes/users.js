@@ -32,7 +32,10 @@ router.post("/", function(req, res){
 
     var model = User(userData)
 
+    console.log('before save')
+
     model.save(false, (error, result)=>{
+        console.log('in save')
         if (error){
             if (error.name === "ValidationError") {
                 var errors = {}
@@ -485,6 +488,21 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     user.save()
 
     res.status(200).send({ file_locations: fileLocations })
+})
+
+router.get("/heroes/count", (req, res) => {
+    Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
+        .then((count) => {
+            if (!count) {
+                count = 0
+            }
+            
+            return res.status(200).send({ count: count })
+        })
+        .catch((err) => {
+            console.error(err)
+            return res.status(500).send()
+        })
 })
 
 module.exports = router

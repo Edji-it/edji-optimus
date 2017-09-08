@@ -43,7 +43,8 @@ let readings = require("./routes/readings")
 let comments = require("./routes/comments")
 let projects = require("./routes/projects")
 let auth = require("./routes/auth")
-var mailchimp = require("./routes/mailchimp")
+let mailchimp = require("./routes/mailchimp")
+let subscriptions = require("./routes/subscriptions")
 
 // attach routes to the app
 app.use("/users", users)
@@ -52,6 +53,7 @@ app.use("/readings", readings)
 app.use("/projects", projects)
 app.use("/auth", auth)
 app.use("/mailchimp", mailchimp)
+app.use("/subscriptions", subscriptions)
 
 let port = process.env.PORT || 3354
 

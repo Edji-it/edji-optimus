@@ -276,7 +276,6 @@ describe("Projects", () => {
           // comment validation
           var comment = res.body.comment
           testComments.textComment = comment
-          console.log(testComments.textComment)
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
             comment.user_id.should.equal(testUsers.testStudent.user._id)
@@ -488,12 +487,22 @@ describe("Projects", () => {
           project.should.have.property("types")
           project.should.have.property("temp_ids")
           project.should.have.property("students_ids")
+
+          // test comment replies
           project.should.have.property("comments")
             let reply = project.comments.find((comment) => {
               return comment._id == testComments.textComment._id
             })
             reply.should.be.ok // assert that the reply exists
             reply.should.have.property("reply_to")
+          
+          project.comments.forEach((comment) => {
+            comment.should.have.property("replies")
+            // make sure that the reply id exists in the comment's replies array
+            if (comment._id == reply.reply_to) {
+              comment.replies.indexOf(reply._id).should.be.above(-1)
+            }
+          })
             
 
           project.should.have.property("updatedAt")

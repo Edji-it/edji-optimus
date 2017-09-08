@@ -16,23 +16,19 @@ var LoginController = {
 
         return Q.Promise(function(resolve, reject) {
             User.findOne({username: user.username.toLowerCase()}, function (err, dbUser) {
-
-                if(!dbUser) {
-                    reject("User does not exist")
-                    return
-                }
                 if (err) {
                     reject(err)
+                    return
+                } else if(!dbUser) {
+                    reject("User does not exist")
                     return
                 }
 
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
                         resolve(me.generateLoginObjectForUser(dbUser))
-
                     }
                     else {
-                        //res.status("400")
                         reject("Wrong Credentials")
                     }
                 })
@@ -41,13 +37,29 @@ var LoginController = {
         })
     }
     ,
-    generateLoginObjectForUser(user){
+    generateLoginObjectForUser: function(user){
+        user = this.addHeroStatus(user)
         return {
-            user:user.toPublic(),
+            user: user.toPublic(),
             token: this.generateTokenForUser(user)
         }
-    },
-
+    }
+    ,
+    addHeroStatus: function(user) {
+        if (!user.hero) {
+            user.hero = {}
+        }
+        // Check if user is expired 
+        if (user.hero && user.hero.will_expire && user.hero.will_expire < new Date().getTime()) {
+            user.hero.active = false
+        } else if (user.hero && user.hero.type != 'none' && user.hero.subscription_id) {
+            user.hero.active = true
+        } else {
+            user.hero.active = false
+        }
+        return user
+    }
+    ,
     generateTokenForUser: function(user){
         var id
         if (user.type === "temp") {
@@ -79,10 +91,10 @@ var LoginController = {
      middleware:function(req, res, next){
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
+                user = LoginController.addHeroStatus(user)
                 if (user){
                     req.user = user
                 }
-
                 next()
             })
         }
