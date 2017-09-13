@@ -32,11 +32,9 @@ router.post("/", function(req, res){
 
     var model = User(userData)
 
-    console.log('before save')
-
     model.save(false, (error, result)=>{
-        console.log('in save')
         if (error){
+            console.log(error)
             if (error.name === "ValidationError") {
                 var errors = {}
 
@@ -48,18 +46,15 @@ router.post("/", function(req, res){
                     }
                 }
 
-                res.status(406).send({ validationErrors: errors })
-                return
+                return res.status(406).send({ validationErrors: errors })
             } else if (error.code === 11000) {
-                res.status(409).send()
-                return
+                return res.status(409).send()
             } else {
                 console.error(error)
-                res.status(500).send()
-                return
+                return res.status(500).send()
             }
         } else {
-            res.status(201).json(LoginController.generateLoginObjectForUser(result))
+            return res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
     })
 
@@ -70,8 +65,7 @@ router.put("/", middleware.authRequired, function(req, res){
     let user = req.user
 
     if (!userData) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
     
     // New object for acceptable updatable attribute
@@ -90,10 +84,9 @@ router.put("/", middleware.authRequired, function(req, res){
     .then((user) => {
         // send 404 if the user doesn't exist
         if (!user) {
-            res.status(400).send()
-            return
+            return res.status(400).send()
         } else {
-            res.status(200).send({ user: user.toPublic() })
+            return res.status(200).send({ user: user.toPublic() })
         }
     })
     .catch((error) => {
@@ -110,10 +103,10 @@ router.put("/", middleware.authRequired, function(req, res){
 
                 res.status(406).send({ validationErrors: errors })
         } else if (error.code === 11000) {
-            res.status(409).send()
+            return res.status(409).send()
         } else {
             console.error(error)
-            res.status(500).send()
+            return res.status(500).send()
         }
     })
 })
@@ -134,15 +127,13 @@ router.delete("/:id", function(req, res) {
     var user = req.user
 
     if (!user || id != user._id) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     Q(User.findById(user._id).exec())
         .then((dbUser) => {
             if (!dbUser) {
-                res.status(400).send()
-                return
+                return res.status(400).send()
             }
 
             if (dbUser.accountArchiveToken && dbUser.accountArchiveToken > Date.now()) {
@@ -161,16 +152,16 @@ router.delete("/:id", function(req, res) {
                     }
                     dbUser.remove((err, doc) => {
                         if (err) { console.error(err) }
-                        res.status(204).send()
+                        return res.status(204).send()
                     })
                 })
             } else {
-                res.status(400).send()
+                return res.status(400).send()
             }
         })
         .catch((err) => {
             console.error(err)
-            res.status(500).send()
+            return res.status(500).send()
         })
 })
 

@@ -27,29 +27,29 @@ function noWhitespace(username) {
     return regexp.test(username)
 }
 
-function hasValidLogin(username) {    
-    // I'm doing this strange if statement because, for some reason, hasValidLogin is getting called twice and
-    //  `this` is different between the two calls. The first time it's the mongoose model, like you'd expect, and the
-    //  first part of the call will run. The next time, it looks like it's called with `this` as the entire node process,
-    //  which I don't know how to stop so this is just a workaround
-    //  So, by checking if there is a fullname, which is required, we make sure that `this` is the Mongoose model
-    if (this.fullname) {
-        // make sure it has a password or an oauth type
-        let hasPassword = !!this.password
-        let hasUsername = !!this.username
-        let hasOauth = !!(this.oauth && this.oauth.type)
-        let isValid = (hasPassword && hasUsername) || hasOauth
-        return isValid
-    } else {
-        return true
-    }
-
-}
+// function hasValidLogin(username) {    
+//     // I'm doing this strange if statement because, for some reason, hasValidLogin is getting called twice and
+//     //  `this` is different between the two calls. The first time it's the mongoose model, like you'd expect, and the
+//     //  first part of the call will run. The next time, it looks like it's called with `this` as the entire node process,
+//     //  which I don't know how to stop so this is just a workaround
+//     //  So, by checking if there is a fullname, which is required, we make sure that `this` is the Mongoose model
+//     console.log(this)
+//     if (this.fullname) {
+//         // make sure it has a password or an oauth type
+//         let hasPassword = !!this.password
+//         let hasUsername = !!this.username
+//         let hasOauth = !!(this.oauth && this.oauth.type)
+//         let isValid = (hasPassword && hasUsername) || hasOauth
+//         return isValid
+//     } else {
+//         return true
+//     }
+// }
 
 let usernameValidator = [
     { validator: validateName, message: "Invalid username", kind: "badWords" },
-    { validator: noWhitespace, message: "Invalid username", kind: "whitespace" },
-    { validator: hasValidLogin, message: "User must have password or oauth type", kind: "auth" }
+    { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
+    // { validator: hasValidLogin, message: "User must have password or oauth type", kind: "auth" }
 ]
 
 let oauthEnum = {
@@ -159,6 +159,7 @@ let model = ModelCreator("User", {
     }
     
 }, function(schema) {
+    // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
         //makes copy of document
         var user = {}
@@ -191,6 +192,21 @@ model.schema.pre("save", function(next){
         return next()
     })
 
+})
+
+// add custom validator to make sure user has either oauth type or username/password
+model.schema.pre('validate', function(next) {
+    // make sure it has a password or an oauth type
+    let hasPassword = !!this.password
+    let hasUsername = !!this.username
+    let hasOauth = !!(this.oauth && this.oauth.type)
+    let isValid = (hasPassword && hasUsername) || hasOauth
+    if (!isValid) {
+        // this is a mongoose method which provides the error to the mongoose error aggrigator
+        this.invalidate('auth', 'User must provide credentials (oauth or username/password)', null, 'auth')
+    }
+
+    next()
 })
 
 module.exports = model
