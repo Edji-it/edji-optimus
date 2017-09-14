@@ -200,7 +200,6 @@ describe("Subscriptions", () => {
         .del("/subscriptions/" + eventToDelete.subscription_id)
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
-
           res.should.have.status(200)
           res.body.should.have.property("user")
           res.body.user.should.have.property("hero")
