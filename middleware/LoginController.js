@@ -1,14 +1,13 @@
-/**
- * Created by bvfergus on 3/6/16.
- */
+const jwt = require("jsonwebtoken")
+const User = require("./../models/User")
+const TempUser = require("./../models/TempUser")
+const bcrypt = require("bcryptjs")
+const Q = require("q")
 
-var jwt = require("jsonwebtoken")
-var User = require("./../models/User")
-var TempUser = require("./../models/TempUser")
-var bcrypt = require("bcryptjs")
-var Q = require("q")
+const Passport = require('./../passport')
+
 //TODO: need something more secret than this
-var secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
+const secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
 var LoginController = {
     login:function(user){
         var me = this
@@ -91,6 +90,7 @@ var LoginController = {
                 next()
             })
         } else {
+
             next()
         }
     }

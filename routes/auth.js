@@ -10,7 +10,7 @@ let User = require("./../models/User")
 let Passport = require("./../passport")
 let router = express.Router()
 
-router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
+router.get('/google', Passport.authenticate('google', { scope: ['email', 'profile'] }))
 
 router.get(
     // OAuth 2 callback url. Use this url to configure your OAuth client in the
@@ -18,7 +18,7 @@ router.get(
     '/google/callback',
 
     // Finish OAuth 2 flow using Passport.js
-    passport.authenticate('google'),
+    Passport.authenticate('google'),
 
     // Redirect back to the original page, if any
     (req, res) => {
