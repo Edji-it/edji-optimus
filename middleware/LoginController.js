@@ -81,7 +81,7 @@ var LoginController = {
             callback("Token invalid")
         }
     },
-    middleware:function(req, res, next){
+    middleware:function(req, res, next) {
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
                 user = LoginController.addHeroStatus(user)
@@ -90,8 +90,7 @@ var LoginController = {
                 }
                 next()
             })
-        }
-         else{
+        } else {
             next()
         }
     }
