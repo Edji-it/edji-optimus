@@ -61,8 +61,6 @@ passport.use('google', new GoogleStrategy({
       .catch((err) => {
           done(err)
       })
-
-  // done(null, user) // need to create the user and pass the user to callback
 }))
 
 // read about these: https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
