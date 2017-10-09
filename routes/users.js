@@ -505,45 +505,37 @@ router.get("/heroes/count", (req, res) => {
 /**
  * Adds a user id to a user's "following" array
  */
-router.post("/follow/:id", middleware.authRequired, function(req, res) {
+router.put("/following", middleware.authRequired, function(req, res) {
     let user = req.user
-    let _id = req.params.id
+    let body = req.body
 
-    if (mongoose.Types.ObjectId.isValid(_id)) { 
-        console.log("Follow valid id!")
+    let user_id = body.user_id
+    let follow = body.action == "follow"
+
+    if (mongoose.Types.ObjectId.isValid(user_id)) { 
         if (!user.following) {
             user.following = []
         }
-        // Add id to user's Following
-        if (user.following.indexOf(_id) < 0) {
-            user.following.push(_id)
-            console.log(user.following)
-            user.save()
+        if (follow) {
+            // Add id to user's Following
+            if (user.following.indexOf(user_id) < 0) {
+                user.following.push(user_id)
+                user.save()
+            } else {
+                res.status(400).send({ error: "Invalid user, unable to follow"})
+            }   
+        } else {
+            // Remove id to user's Following
+            let followIndex = user.following.indexOf(user_id)
+            if (followIndex > -1) {
+                user.following.splice(followIndex, 1)
+                user.save()
+            } else {
+                res.status(400).send({ error: "Invalid user, unable to follow"})
+            }
         }
     }
 
-    return res.status(200).send({ user: user.toPublic() })
-})
-
-/**
- * Remove a user id from a user's "following" array
- */
-router.post("/unfollow/:id", middleware.authRequired, function(req, res) {
-    let user = req.user
-    let _id = req.params.id
-
-    if (mongoose.Types.ObjectId.isValid(_id)) { 
-        if (!user.following) {
-            user.following = []
-        }
-        // Remove id to user's Following
-        let followIndex = user.following.indexOf(_id)
-        if (followIndex > -1) {
-            user.following.splice(followIndex, 1)
-            user.save()
-        }
-    }
-    
     return res.status(200).send({ user: user.toPublic() })
 })
 
