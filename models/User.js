@@ -99,6 +99,9 @@ var model = ModelCreator("User", {
          */
         customer_id: String 
     },
+    following: [
+        {type: String, required: true, ref: "User"}
+    ],
     prefs: {
         recentEmoji: [ String ],
         onboarding: {

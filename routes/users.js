@@ -502,4 +502,49 @@ router.get("/heroes/count", (req, res) => {
         })
 })
 
+/**
+ * Adds a user id to a user's "following" array
+ */
+router.post("/follow/:id", middleware.authRequired, function(req, res) {
+    let user = req.user
+    let _id = req.params.id
+
+    if (mongoose.Types.ObjectId.isValid(_id)) { 
+        console.log("Follow valid id!")
+        if (!user.following) {
+            user.following = []
+        }
+        // Add id to user's Following
+        if (user.following.indexOf(_id) < 0) {
+            user.following.push(_id)
+            console.log(user.following)
+            user.save()
+        }
+    }
+
+    return res.status(200).send({ user: user.toPublic() })
+})
+
+/**
+ * Remove a user id from a user's "following" array
+ */
+router.post("/unfollow/:id", middleware.authRequired, function(req, res) {
+    let user = req.user
+    let _id = req.params.id
+
+    if (mongoose.Types.ObjectId.isValid(_id)) { 
+        if (!user.following) {
+            user.following = []
+        }
+        // Remove id to user's Following
+        let followIndex = user.following.indexOf(_id)
+        if (followIndex > -1) {
+            user.following.splice(followIndex, 1)
+            user.save()
+        }
+    }
+    
+    return res.status(200).send({ user: user.toPublic() })
+})
+
 module.exports = router
