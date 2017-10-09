@@ -13,8 +13,6 @@ let Middleware = require("./../middleware/Middleware")
 
 var router = express.Router()
 
-MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
-
 router.post("/", Middleware.authRequired, function(req, res) {
     let reading = req.body.reading
     let user = req.user
@@ -329,14 +327,17 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 
 // Get all Readings from users that requesting user follows
 router.get("/feed", Middleware.authRequired, function(req, res) {
+
     var followedUsers = req.user.following
+    var ownerQuery = []
+
+    for (var i = 0; i < followedUsers.length; i++) {
+        ownerQuery.push({ "owner_id" : followedUsers[i], public: true })
+    }
 
     Q(
         Reading.find({
-        $or: [
-            { owner_id: "59db87b2c615e73b14ccd51c", public: true },
-            { owner_id: "59bd8ff45239f3001105dba8", public: true }
-        ]
+        $or: ownerQuery
         })
         .sort({createdAt: -1})
         .limit(10)
@@ -375,5 +376,7 @@ router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res)
         }
     })
 })
+
+MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
 
 module.exports = router
