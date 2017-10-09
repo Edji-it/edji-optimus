@@ -327,6 +327,31 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         })
 })
 
+// Get all Readings from users that requesting user follows
+router.get("/feed", Middleware.authRequired, function(req, res) {
+    var followedUsers = req.user.following
+
+    Q(
+        Reading.find({
+        $or: [
+            { owner_id: "59db87b2c615e73b14ccd51c", public: true },
+            { owner_id: "59bd8ff45239f3001105dba8", public: true }
+        ]
+        })
+        .sort({createdAt: -1})
+        .limit(10)
+        .populate('owner_id','fullname username')
+        .exec()
+    ).then((results) => {
+        console.log(results)
+        res.status(200).send({results})
+    })
+    .catch((err) => {
+        console.log(err)
+        res.status(500).send()
+    })
+})
+
 //allows teachers to recommend reading to community library
 router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
     var reading_id = req.params.reading_id
