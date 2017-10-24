@@ -20,16 +20,7 @@ app.use(bodyParser.json({limit: '20mb'}))
 // this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
 
-// Configure the session and session storage.
-const sessionConfig = {
-    resave: false,
-    saveUninitialized: false,
-    secret: "uXp7igLyn3C^z;fvjZ6mVXMMojuFtqRmvNwfn6Ne",
-    signed: true
-}
-
 app.use(passport.initialize())
-app.use(session(sessionConfig))
 
 app.use(LoginController.middleware)
 

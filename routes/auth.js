@@ -18,7 +18,8 @@ router.get(
     '/google/callback',
 
     // Finish OAuth 2 flow using Passport.js
-    Passport.authenticate('google'),
+    //  session set to false so we can create user and pass back jwt without using separate session
+    Passport.authenticate('google', { session: false }),
 
     // Redirect back to the original page, if any
     (req, res) => {

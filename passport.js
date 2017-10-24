@@ -63,22 +63,22 @@ passport.use('google', new GoogleStrategy({
       })
 }))
 
-// read about these: https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
-passport.serializeUser((user, done) => {
-// user passed to callback above will be received here 
-  done(null, user._id) // should pass user._id here instead
-})
-passport.deserializeUser((_id, done) => {
-// look the user up in the database by id and return it as second callback of done
-// _id is used as the key to get user's info from session
-  Q(User.findById(_id).exec())
-      .then((user) => {
-          return done(null, user)
-      })
-      .catch((err) => {
-          console.error(err)
-          return done(err)
-      })
-})
+// // read about these: https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
+// passport.serializeUser((user, done) => {
+// // user passed to callback above will be received here 
+//   done(null, user._id) // should pass user._id here instead
+// })
+// passport.deserializeUser((_id, done) => {
+// // look the user up in the database by id and return it as second callback of done
+// // _id is used as the key to get user's info from session
+//   Q(User.findById(_id).exec())
+//       .then((user) => {
+//           return done(null, user)
+//       })
+//       .catch((err) => {
+//           console.error(err)
+//           return done(err)
+//       })
+// })
 
 module.exports = passport

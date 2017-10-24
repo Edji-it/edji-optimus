@@ -71,11 +71,11 @@ var LoginController = {
         return jwt.verify(token, secret)
     },
     decodeTokenToUser:function(token, callback){
-        var obj = this.decodeToken(token)
-        if (obj.type === "temp"){
-            TempUser.findById(obj.id, callback)
-        } else if (obj) {
-            User.findById(obj.id, callback)
+        var decodedJWT = this.decodeToken(token)
+        if (decodedJWT.type === "temp"){
+            TempUser.findById(decodedJWT.id, callback)
+        } else if (decodedJWT) {
+            User.findById(decodedJWT.id, callback)
         } else {
             callback("Token invalid")
         }
