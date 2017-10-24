@@ -4,6 +4,7 @@ const express = require('express')
 const passport = require('passport')
 const config = require('config')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
+const LoginController = require('./../middleware/LoginController')
 const Q = require('q')
 
 let User = require("./../models/User")
@@ -25,7 +26,8 @@ router.get(
     (req, res) => {
         // const redirect = 'http://edji.it'
         // delete req.session.oauth2return
-        res.status(200).send({ success: true, user: req.user })
+
+        res.status(200).send( LoginController.generateLoginObjectForUser(req.user) )
     }
 )
 
