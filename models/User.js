@@ -179,8 +179,9 @@ model.schema.pre('validate', function(next) {
     // make sure it has a password or an oauth type
     let hasPassword = !!this.password
     let hasUsername = !!this.username
-    let hasOauth = !!(this.oauth && this.oauth.type)
+    let hasOauth = !!(this.oauth && this.oauth.length > 0)
     let isValid = (hasPassword && hasUsername) || hasOauth
+
     if (!isValid) {
         // this is a mongoose method which provides the error to the mongoose error aggrigator
         this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
