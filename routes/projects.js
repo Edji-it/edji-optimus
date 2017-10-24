@@ -150,7 +150,9 @@ router.get("/:id", function(req, res) {
                 let comment = project.comments.find((comment) => {
                     return comment._id == reply_to_id
                 })
-                comment.replies = repliesObj[reply_to_id]
+                if (comment) {
+                    comment.replies = repliesObj[reply_to_id]
+                }
             }
 
             res.status(200).send({ project: project })
