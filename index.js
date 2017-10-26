@@ -10,7 +10,6 @@ const LoginController = require("./middleware/LoginController")
 const middleware = require("./middleware/Middleware")
 const util = require('util')
 const config = require('config')
-const session = require('express-session')
 const passport = require('passport') // passport gets configured elsewhere
 
 // configure express
