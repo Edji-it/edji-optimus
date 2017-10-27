@@ -54,7 +54,9 @@ let model = ModelCreator("User", {
     password:{type:String},
     oauth: [{
         type: { type: String, enum: oauthEnum },
-        id: String
+        id: String,
+        singleUseToken: String,
+        singleUseTokenExpiration: Date
     }],
     email:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     identities: [String],
