@@ -47,7 +47,6 @@ describe("Subscriptions", () => {
 
     Q.all(promises)
       .then((responses) => {
-        console.log("deleted " + responses.length + " more subscription")
         done()
       })
       .catch((err) => {

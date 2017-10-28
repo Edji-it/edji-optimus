@@ -166,7 +166,7 @@ model.schema.pre("save", function(next){
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
         if (error) {
-            console.log(error)
+            console.error(error)
             next(error)
         }
 

@@ -64,8 +64,6 @@ passport.use('google', new GoogleStrategy({
             }
             else if (!dbUser) {
                 // here we know it's a new user, and we need to create them!!
-                console.log('no user found with that id!!')
-                console.log(user)
                 user.save(
                     { forceSave: true },
                     (err, newUser) => {
@@ -82,69 +80,6 @@ passport.use('google', new GoogleStrategy({
             }
         }
     )
-  
-
-//   // TODO: still need to know what to do if the user already exists and is connecting their account
-//   Q(User.findOne(userQuery).exec())
-//       .then((dbUser) => {
-//           // if the user doesn't exist, we need to create the user
-//           if (!dbUser) {
-//               user.save({
-//                   forceSave: true
-//               }, (err, res) => {
-//                   done(err, res)
-//               })
-//           } else {
-
-//             console.log(dbUser)
-
-//             let singleUseToken = bcrypt.hashSync(profile.id, 4) // important to use syncronus hashing here
-//             let singleUseTokenExpiration =  Date.now() + (1000 * 60)
-
-//             User.findOneAndUpdate(
-//                 userQuery,
-//                 {
-//                     $set: {
-//                         'oauth.$.singleUseToken': singleUseToken,
-//                         'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration
-//                     }
-//                 },
-//                 {
-//                     new: true,
-//                     runValidators: true
-//                 },
-//                 (err, doc) => {
-//                     console.log('got the update back!')
-//                     if (err) {
-//                         console.error(err)
-//                         done(err)
-//                     } else {
-//                         console.log('updatedUser', doc)
-//                         done(null, doc)
-//                     }
-//                 }
-//             )
-
-//             // dbUser.save({
-//             //     query: {
-//             //         _id: user._id,
-//             //         'oauth.type': 'google'
-//             //     }
-//             //     // update: {
-//             //     //     $set: {
-//             //     //         'oauth.$.singleUseToken': singleUseToken,
-//             //     //         'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration
-//             //     //     }
-//             //     // }
-//             // }, (err, doc) => {
-//             //     if (err) { done(err) }
-//             //     else { done(null, doc) }
-//             // })
-//           }
-//       })
-//       .catch((err) => {
-//           done(err)
-//       })
 }))
 
 module.exports = passport

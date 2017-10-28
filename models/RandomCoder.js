@@ -5,10 +5,8 @@ var saveThatCode = function(code) {
     return new Promise(function(resolve, reject) {
         code.save(function(err, result) {
             if (err) {
-                console.log("Duplicate!");
                 return resolve();
             } else {
-                console.log("New! " + result.code);
                 return resolve();
             }
         })

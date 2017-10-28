@@ -45,9 +45,6 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
                 }
             }, options)
 
-            console.log("using query:", queryOptions.query)
-            console.log("options:", queryOptions)
-
             Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback);
         }
     };

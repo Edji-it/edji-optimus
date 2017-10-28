@@ -34,7 +34,7 @@ router.post("/", function(req, res){
 
     model.save(false, (error, result)=>{
         if (error){
-            console.log(error)
+            console.error(error)
             if (error.name === "ValidationError") {
                 var errors = {}
 
@@ -352,7 +352,7 @@ router.post("/recover_password", function(req, res) {
                 if (err) {
                     throw new Error(err)
                 } else {
-                    // console.log(info)
+                    // we don't really care - if there's not an error, everything happened correctly
                 }
             })
             res.status(204).send()

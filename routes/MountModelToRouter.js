@@ -19,7 +19,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
     options.list &&
     router.get("/", function(req, res){
         Model.find({}, function(error, results){
-            error && console.log(error)
+            error && console.error(error)
             results && res.json(results)
         })
     })
@@ -48,7 +48,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
     options.delete &&
     router.delete("/:id", function (req, res){
         Model.remove({"_id":req.params.id}, function(error){
-            error && console.log(error)
+            error && console.error(error)
             // delete the result we got back
             !error && res.json( {success:true} )
         })
@@ -65,7 +65,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
         var model = Model(instanceData)
 
         model.save(false, (error, result)=>{
-            console.log(error)
+            console.error(error)
             res.json(result)
         })
 
