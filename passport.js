@@ -42,6 +42,7 @@ passport.use('google', new GoogleStrategy({
     // Extract the minimal profile information we need from the profile object
     // provided by Google and turn that into a User object
     let user = User(extractProfile(profile))
+    console.log(user)
 
     // query for a user that has an oauth type and id matching the auth'd user
     const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
@@ -51,8 +52,8 @@ passport.use('google', new GoogleStrategy({
         userQuery,
         {
             $set: {
-                'oauth.$.singleUseToken': user.singleUseToken,
-                'oauth.$.singleUseTokenExpiration': user.singleUseTokenExpiration
+                'oauth.$.singleUseToken': user.oauth[0].singleUseToken,
+                'oauth.$.singleUseTokenExpiration': user.oauth[0].singleUseTokenExpiration
             }
         }, {
             new: true,
