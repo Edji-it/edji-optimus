@@ -30,7 +30,7 @@ describe("Projects", () => {
   })
 
   describe("POST /projects", () => {
-    it("it should create a new project", (done) => {
+    it("should create a new project", (done) => {
       chai.request(server)
         .post("/projects")
         .set("Authorization", testUsers.testTeacher.token)
@@ -60,7 +60,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject a request without a project", (done) => {
+    it("should reject a request without a project", (done) => {
       chai.request(server)
         .post("/projects")
         .set("Authorization", testUsers.testTeacher.token)
@@ -80,7 +80,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 'required' errors for all missing fields that are required", (done) => {
+    it("should return 'required' errors for all missing fields that are required", (done) => {
       chai.request(server)
         .post("/projects")
         .set("Authorization", testUsers.testTeacher.token)
@@ -103,7 +103,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should catch invalid types in `types` array", (done) => {
+    it("should catch invalid types in `types` array", (done) => {
       chai.request(server)
         .post("/projects")
         .set("Authorization", testUsers.testTeacher.token)
@@ -123,7 +123,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .post("/projects")
         .send({ project: data.projects.newProject })
@@ -137,7 +137,7 @@ describe("Projects", () => {
   })
 
   describe("GET /projects/:project_id/reading/:reading_id", () => {
-    it("it should get all projects for a reading", (done) => {
+    it("should get all projects for a reading", (done) => {
       chai.request(server)
         .get("/projects/reading/" + testProject.reading_id)
         .set("Authorization", testUsers.testTeacher.token)
@@ -167,7 +167,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return empty array for nonexistant reading id", (done) => {
+    it("should return empty array for nonexistant reading id", (done) => {
       chai.request(server)
         .get("/projects/reading/" + testUsers.testStudent.user._id)
         .set("Authorization", testUsers.testTeacher.token)
@@ -182,7 +182,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an invalid reading id", (done) => {
+    it("should reject an invalid reading id", (done) => {
       chai.request(server)
         .get("/projects/reading/jfkldsaj")
         .set("Authorization", testUsers.testTeacher.token)
@@ -193,7 +193,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .get("/projects/reading/" + testProject.reading_id)
         .end((err, res) => {
@@ -237,7 +237,7 @@ describe("Projects", () => {
   })
 
   describe("POST /projects/:id/comments", () => {
-    it("it should create an emoji comment", (done) => {
+    it("should create an emoji comment", (done) => {
       chai.request(server)
         .post("/projects/" + testProject._id + "/comments")
         .set("Authorization", testUsers.testStudent.token)
@@ -269,7 +269,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should create a text comment", (done) => {
+    it("should create a text comment", (done) => {
       let postComment = Object.assign({}, data.comments.textComment)
       postComment.reply_to = testComments.emojiComment._id
       postComment.should.have.property("reply_to") // for some reason, it's not saving with this property
@@ -306,7 +306,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should create an empty comment", (done) => {
+    it("should create an empty comment", (done) => {
       chai.request(server)
         .post("/projects/" + testProject._id + "/comments")
         .set("Authorization", testUsers.testStudent.token)
@@ -340,7 +340,7 @@ describe("Projects", () => {
     })
 
     // FUNCTIONALITY MOVED TO PUT CALL
-    // it("it should update an existing comment", (done) => {
+    // it("should update an existing comment", (done) => {
     //   var updatedComment = {}
     //   Object.assign(updatedComment, testComments.emptyComment)
     //   updatedComment.data = "updated"
@@ -369,7 +369,7 @@ describe("Projects", () => {
     // })
 
     // Need to modify things so that we can have requirements again - it was breaking projects b/c some comments don't have starts and ends
-    // it("it should send validation errors for required fields", (done) => {
+    // it("should send validation errors for required fields", (done) => {
     //   chai.request(server)
     //     .post("/projects/" + testProject._id + "/comments")
     //     .set("Authorization", testUsers.testStudent.token)
@@ -401,7 +401,7 @@ describe("Projects", () => {
     //     })
     // })
 
-    it("it should reject if project id is not valid", (done) => {
+    it("should reject if project id is not valid", (done) => {
       chai.request(server)
         .post("/projects/fdjaklfdl/comments")
         .set("Authorization", testUsers.testStudent.token)
@@ -414,7 +414,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject a call without a comment", (done) => {
+    it("should reject a call without a comment", (done) => {
       chai.request(server)
         .post("/projects/" + testUsers.testStudent.user._id + "/comments")
         .set("Authorization", testUsers.testStudent.token)
@@ -427,7 +427,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 for project not found", (done) => {
+    it("should return 404 for project not found", (done) => {
       chai.request(server)
         .post("/projects/" + testUsers.testStudent.user._id + "/comments") // it won't find a project with this id, but the id is valid
         .set("Authorization", testUsers.testStudent.token)
@@ -440,7 +440,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .post("/projects/" + testProject._id + "/comments")
         .send({ comment: data.comments.emojiComment })
@@ -454,7 +454,7 @@ describe("Projects", () => {
   })
 
   describe("GET /projects/:id", () => {
-    it("it should get a project for a teacher", (done) => {
+    it("should get a project for a teacher", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
@@ -479,7 +479,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should get a project for a student", (done) => {
+    it("should get a project for a student", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testUsers.testStudent.token)
@@ -533,7 +533,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should get a project for a temp user", (done) => {
+    it("should get a project for a temp user", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTemp.token)
@@ -557,7 +557,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should get a project by the project code", (done) => {
+    it("should get a project by the project code", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code)
         .set("Authorization", testUsers.testStudent.token)
@@ -584,7 +584,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should get a project even if the project code is capitalized", (done) => {
+    it("should get a project even if the project code is capitalized", (done) => {
       chai.request(server)
         .get("/projects/" + testProject.code.toUpperCase())
         .set("Authorization", testUsers.testStudent.token)
@@ -617,7 +617,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 when project is not found by id", (done) => {
+    it("should return 404 when project is not found by id", (done) => {
       chai.request(server)
         .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
         .set("Authorization", testUsers.testStudent.token)
@@ -629,7 +629,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 when project is not found by code", (done) => {
+    it("should return 404 when project is not found by code", (done) => {
       chai.request(server)
         .get("/projects/cody")
         .set("Authorization", testUsers.testStudent.token)
@@ -641,7 +641,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should get a project for an unauthorized user", (done) => {
+    it("should get a project for an unauthorized user", (done) => {
       chai.request(server)
         .get("/projects/" + testProject._id)
         .end((err, res) => {
@@ -657,7 +657,7 @@ describe("Projects", () => {
 
   describe("GET /projects", () => {
 
-    it("it should get a student's projects", (done) => {
+    it("should get a student's projects", (done) => {
       chai.request(server)
         .get("/projects")
         .set("Authorization", testUsers.testStudent.token)
@@ -683,7 +683,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .get("/projects")
         .end((err, res) => {
@@ -694,7 +694,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should get a temp user's projects", (done) => {
+    it("should get a temp user's projects", (done) => {
       chai.request(server)
         .get("/projects")
         .set("Authorization", testUsers.testTemp.token)
@@ -888,7 +888,7 @@ describe("Projects", () => {
   })
 
   describe("DELETE /projects/:project_id/comments/:comment_id", () => {
-    it("it should reject an invalid project id", (done) => {
+    it("should reject an invalid project id", (done) => {
       chai.request(server)
         .del("/projects/jkfdjaklfd/comments/" + testComments.emojiComment._id)
         .set("Authorization", testUsers.testStudent.token)
@@ -907,7 +907,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an invalid comment id", (done) => {
+    it("should reject an invalid comment id", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/fjdklja")
         .set("Authorization", testUsers.testStudent.token)
@@ -926,7 +926,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject a delete attempt from a user who is not the owner", (done) => {
+    it("should reject a delete attempt from a user who is not the owner", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
         .set("Authorization", testUsers.testTemp.token)
@@ -937,7 +937,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 for non existant project", (done) => {
+    it("should return 404 for non existant project", (done) => {
       chai.request(server)
         .del("/projects/" + testUsers.testTeacher.user._id + "/comments/" + testComments.emojiComment._id)
         .set("Authorization", testUsers.testStudent.token)
@@ -947,7 +947,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
         .end((err, res) => {
@@ -957,7 +957,7 @@ describe("Projects", () => {
     })
 
     // this should come LAST in the comments tests because it actually deletes the comment
-    it("it should delete a comment for the comment owner", (done) => {
+    it("should delete a comment for the comment owner", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
         .set("Authorization", testUsers.testStudent.token) // this must be equal to the id of the user who created the comment
@@ -969,7 +969,7 @@ describe("Projects", () => {
     })
 
     // this should come LAST in the comments tests because it actually deletes the comment
-    it("it should delete a comment for the project owner", (done) => {
+    it("should delete a comment for the project owner", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id + "/comments/" + testComments.textComment._id)
         .set("Authorization", testUsers.testTeacher.token) // this must be equal to the id of the user who created the comment
@@ -982,7 +982,7 @@ describe("Projects", () => {
   })
 
   describe("PUT /projects/:id", () => {
-    it("it should successfully update heat vision", (done) => {
+    it("should successfully update heat vision", (done) => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
@@ -1001,7 +1001,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject a call without a project", (done) => {
+    it("should reject a call without a project", (done) => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
@@ -1013,7 +1013,7 @@ describe("Projects", () => {
       })
     })
 
-    it("it should reject an invalid id", (done) => {
+    it("should reject an invalid id", (done) => {
       chai.request(server)
         .put("/projects/brennen")
         .set("Authorization", testUsers.testTeacher.token)
@@ -1026,7 +1026,7 @@ describe("Projects", () => {
       })
     })
 
-    it("it should return 404 for a non-existant id", (done) => {
+    it("should return 404 for a non-existant id", (done) => {
       chai.request(server)
         .put("/projects/" + testUsers.testTeacher.user._id) // this id shouldn't exist in projects
         .set("Authorization", testUsers.testTeacher.token)
@@ -1039,7 +1039,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should not allow the update of fields which don't exist", (done) => {
+    it("should not allow the update of fields which don't exist", (done) => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
@@ -1057,7 +1057,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 if the auth token does not match the owner's", (done) => {
+    it("should return 404 if the auth token does not match the owner's", (done) => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testStudent.token)
@@ -1070,7 +1070,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should reject an unauthorized user", (done) => {
+    it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .send({ project: { heat_vision: true }})
@@ -1085,7 +1085,7 @@ describe("Projects", () => {
 
 
   describe("DELETE /projects", () => {
-    it("it should reject an invalid project id", (done) => {
+    it("should reject an invalid project id", (done) => {
       chai.request(server)
         .del("/projects/fjdsklajfd")
         .set("Authorization", testUsers.testTeacher.token)
@@ -1095,7 +1095,7 @@ describe("Projects", () => {
         })
     })
 
-    it("it should return 404 for project that does not exist", (done) => {
+    it("should return 404 for project that does not exist", (done) => {
       chai.request(server)
         .del("/projects/" + testUsers.testTeacher.user._id) // this is a teacher's id, and will not be a project
         .set("Authorization", testUsers.testTeacher.token)
@@ -1106,7 +1106,7 @@ describe("Projects", () => {
     })
 
     // this test has to be the very last test in the /projects suite! It deletes the created test project
-    it("it should delete a project", (done) => {
+    it("should delete a project", (done) => {
       chai.request(server)
         .del("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
