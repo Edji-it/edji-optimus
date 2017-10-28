@@ -65,6 +65,7 @@ passport.use('google', new GoogleStrategy({
             else if (!dbUser) {
                 // here we know it's a new user, and we need to create them!!
                 console.log('no user found with that id!!')
+                console.log(user)
                 user.save(
                     { forceSave: true },
                     (err, newUser) => {

@@ -49,7 +49,7 @@ let subscriptionType = {
 }
 
 let model = ModelCreator("User", {
-    username:{type:String, set:toLower, unique:true, validate: usernameValidator},
+    username:{type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
     password:{type:String},
     oauth: [{

@@ -25,7 +25,6 @@ router.get(
     // Redirect back to the original page, if any
     (req, res) => {
         // const redirect = 'http://edji.it'
-        // delete req.session.oauth2return
 
         res.status(200).send( LoginController.generateLoginObjectForUser(req.user) )
     }
