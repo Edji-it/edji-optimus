@@ -8,7 +8,7 @@ let User = require("./models/User")
 
 function extractProfile (profile) {
     let imageUrl = ''
-    let singleUseToken = bcrypt.hashSync(profile.id, 4) // important to use syncronus hashing here
+    let singleUseToken = bcrypt.hashSync(profile.id + Date.now().toString(), 4) // important to use syncronus hashing here
     if (profile.photos && profile.photos.length) {
         imageUrl = profile.photos[0].value
     }
