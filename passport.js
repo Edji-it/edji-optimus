@@ -42,17 +42,11 @@ passport.use('google', new GoogleStrategy({
     // Extract the minimal profile information we need from the profile object
     // provided by Google and turn that into a User object
     let user = User(extractProfile(profile))
-    let saveDoc = user.toPublic()
-    delete saveDoc._id
 
     // query for a user that has an oauth type and id matching the auth'd user
     const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
 
-
-    // let singleUseToken = bcrypt.hashSync(profile.id, 4) // important to use syncronus hashing here
-    // let singleUseTokenExpiration =  Date.now() + (1000 * 60)
-
-    // using the user's id given by oauth, try and look them up
+    // using the user's id given by oauth, try and look them up and update the single use token and expiration
     User.findOneAndUpdate(
         userQuery,
         {
@@ -60,12 +54,10 @@ passport.use('google', new GoogleStrategy({
                 'oauth.$.singleUseToken': user.singleUseToken,
                 'oauth.$.singleUseTokenExpiration': user.singleUseTokenExpiration
             }
-        },
-        {
+        }, {
             new: true,
             runValidators: true
-        },
-        (err, dbUser) => {
+        }, (err, dbUser) => {
             if (err) {
                 console.error(err)
                 return done(err)
