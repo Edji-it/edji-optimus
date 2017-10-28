@@ -631,7 +631,7 @@ describe("Projects", () => {
 
     it("should return 404 when project is not found by code", (done) => {
       chai.request(server)
-        .get("/projects/cody")
+        .get("/projects/jlfdoifwenfdja")
         .set("Authorization", testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
