@@ -14,7 +14,7 @@ var users = {
     username: Date.now().toString(),
     fullname: "newApiTestUser",
     password: "codycodycody",
-    email: "cody@cody.cod",
+    email: Date.now().toString() + "@cody.cod",
     identities: ["teacher", "business"],
     avatar: "//image-dev.edji.it/avatar/test.png"
   },

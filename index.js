@@ -11,9 +11,11 @@ const middleware = require("./middleware/Middleware")
 const util = require('util')
 const config = require('config')
 const passport = require('passport') // passport gets configured elsewhere
+const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
 // configure express
 var app = express()
+app.use(responseTime())
 app.use(bodyParser.json({limit: '20mb'}))
 
 // this is required for sockets... which are no longer here... but we left it in anyhow
