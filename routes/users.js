@@ -122,6 +122,33 @@ router.get("/:id", middleware.authRequired, function(req, res) {
     return res.status(200).send({ user: user.toPublic() })
 })
 
+router.get("/", (req, res) => {
+    if (req.query.oauth_token && req.query.oauth_type) {
+        let token = req.query.oauth_token
+        let type = req.query.oauth_type
+        console.log(token, type)
+        Q(User.findOne({
+                'oauth.singleUseToken': token,
+                'oauth.singleUseTokenExpiration': { $gte: Date.now() },
+                'oauth.type': type
+            })
+            .exec())
+            .then((user) => {
+                if (!user) {
+                    return res.status(404).send()
+                } else {
+                    res.status(200).send(LoginController.generateLoginObjectForUser(user))
+                }
+
+            })
+            .catch((err) => {
+                console.error(err)
+                return res.status(500).send()
+            })
+        
+    }
+})
+
 router.delete("/:id", function(req, res) {
     var id = req.params.id
     var user = req.user
