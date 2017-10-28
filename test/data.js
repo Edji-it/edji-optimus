@@ -73,7 +73,7 @@ var readings = {
     words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}]
   },
   testReading: {
-    _id: "58be15b2ab0b2900111652cc"
+    _id: "59bd93285239f3001105dbab"
   },
   updateReading: { // this reading contains properties acceptable to update by PUT /readings/:id
     html: "<p>This is definitely new content</p>",
