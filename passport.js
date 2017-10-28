@@ -40,7 +40,7 @@ passport.use('google', new GoogleStrategy({
     passReqToCallback: true
 }, (req, accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
-    // provided by Google
+    // provided by Google and turn that into a User object
     let user = User(extractProfile(profile))
     let saveDoc = user.toPublic()
     delete saveDoc._id
@@ -49,29 +49,43 @@ passport.use('google', new GoogleStrategy({
     const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
 
 
-    let singleUseToken = bcrypt.hashSync(profile.id, 4) // important to use syncronus hashing here
-    let singleUseTokenExpiration =  Date.now() + (1000 * 60)
+    // let singleUseToken = bcrypt.hashSync(profile.id, 4) // important to use syncronus hashing here
+    // let singleUseTokenExpiration =  Date.now() + (1000 * 60)
 
+    // using the user's id given by oauth, try and look them up
     User.findOneAndUpdate(
         userQuery,
         {
             $set: {
-                'oauth.$.singleUseToken': singleUseToken,
-                'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration
+                'oauth.$.singleUseToken': user.singleUseToken,
+                'oauth.$.singleUseTokenExpiration': user.singleUseTokenExpiration
             }
         },
         {
             new: true,
             runValidators: true
         },
-        (err, doc) => {
-            console.log('got the update back!')
+        (err, dbUser) => {
             if (err) {
                 console.error(err)
-                done(err)
+                return done(err)
+            }
+            else if (!dbUser) {
+                // here we know it's a new user, and we need to create them!!
+                console.log('no user found with that id!!')
+                user.save(
+                    { forceSave: true },
+                    (err, newUser) => {
+                        if (err) {
+                            console.error(err)
+                            return done(err)
+                        } else {
+                            return done(null, newUser)
+                        }
+                    }
+                )
             } else {
-                console.log('updatedUser', doc)
-                done(null, doc)
+                return done(null, dbUser)
             }
         }
     )
