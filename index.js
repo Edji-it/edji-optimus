@@ -2,74 +2,52 @@
  * Created by bvfergus on 3/5/16.
  */
 
-var express = require("express")
-var mongoose = require("mongoose")
-var bodyParser = require("body-parser")
-var User = require("./models/User")
-var LoginController = require("./middleware/LoginController")
-var util = require('util')
+const express = require("express")
+const mongoose = require("mongoose")
+const bodyParser = require("body-parser")
+const User = require("./models/User")
+const LoginController = require("./middleware/LoginController")
+const middleware = require("./middleware/Middleware")
+const util = require('util')
+const config = require('config')
+const passport = require('passport') // passport gets configured elsewhere
 const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
-//routers
-var users = require("./routes/users")
-var tempusers = require("./routes/tempusers")
-var readings = require("./routes/readings")
-var comments = require("./routes/comments")
-var projects = require("./routes/projects")
-var mailchimp = require("./routes/mailchimp")
-var subscriptions = require("./routes/subscriptions")
-
+// configure express
 var app = express()
 app.use(responseTime())
 app.use(bodyParser.json({limit: '20mb'}))
 
+// this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
+
+app.use(passport.initialize())
 
 app.use(LoginController.middleware)
 
 // Access allowed for development
-app.use(function (req, res, next) {
-    // Website you wish to allow to connect
-    // res.setHeader('Access-Control-Allow-Origin', '*')
-    var oneof = false
-    if(req.headers.origin) {
-        res.header('Access-Control-Allow-Origin', req.headers.origin)
-        res.header('Access-Control-Allow-Credentials', true)
-        oneof = true
-    }
-    if(req.headers['access-control-request-method']) {
-        res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method'])
-        oneof = true
-    }
+app.use(middleware.headerManagement)
 
-    if (req.headers['access-control-request-headers']) {
-        res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'])
-        oneof = true
-    } 
-    // else {
-    //     // Request headers you wish to allow
-    //     res.header('Access-Control-Allow-Headers', 'authorization, content-type, accept, origin')
-    // }
+//routers
+let users = require("./routes/users")
+let tempusers = require("./routes/tempusers")
+let readings = require("./routes/readings")
+let comments = require("./routes/comments")
+let projects = require("./routes/projects")
+let auth = require("./routes/auth")
+let mailchimp = require("./routes/mailchimp")
+let subscriptions = require("./routes/subscriptions")
 
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true)
-
-    // Pass to next layer of middleware
-    next()
-})
-
+// attach routes to the app
 app.use("/users", users)
 app.use("/tempusers", tempusers)
 app.use("/readings", readings)
 app.use("/projects", projects)
+app.use("/auth", auth)
 app.use("/mailchimp", mailchimp)
 app.use("/subscriptions", subscriptions)
 
-var port = process.env.PORT || 3354
+let port = process.env.PORT || 3354
 
 server.listen(port, () => {
     console.log("Server connected at " + port)

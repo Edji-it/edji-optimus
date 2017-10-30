@@ -1,16 +1,14 @@
-/**
- * Created by bvfergus on 3/6/16.
- */
+const jwt = require("jsonwebtoken")
+const User = require("./../models/User")
+const TempUser = require("./../models/TempUser")
+const bcrypt = require("bcryptjs")
+const Q = require("q")
 
-var jwt = require("jsonwebtoken")
-var User = require("./../models/User")
-var TempUser = require("./../models/TempUser")
-var bcrypt = require("bcryptjs")
-var Q = require("q")
+const Passport = require('./../passport')
+
 //TODO: need something more secret than this
-var secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
+const secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
 var LoginController = {
-
     login:function(user){
         var me = this
 
@@ -35,16 +33,14 @@ var LoginController = {
 
             })
         })
-    }
-    ,
+    },
     generateLoginObjectForUser: function(user){
         user = this.addHeroStatus(user)
         return {
             user: user.toPublic(),
             token: this.generateTokenForUser(user)
         }
-    }
-    ,
+    },
     addHeroStatus: function(user) {
         if (!user.hero) {
             user.hero = {}
@@ -58,8 +54,7 @@ var LoginController = {
             user.hero.active = false
         }
         return user
-    }
-    ,
+    },
     generateTokenForUser: function(user){
         var id
         if (user.type === "temp") {
@@ -72,23 +67,20 @@ var LoginController = {
             return null
         }
     },
-
-     decodeToken:function(token){
+    decodeToken:function(token){
         return jwt.verify(token, secret)
-     },
-
-     decodeTokenToUser:function(token, callback){
-        var obj = this.decodeToken(token)
-        if (obj.type === "temp"){
-            TempUser.findById(obj.id, callback)
-        } else if (obj) {
-            User.findById(obj.id, callback)
+    },
+    decodeTokenToUser:function(token, callback){
+        var decodedJWT = this.decodeToken(token)
+        if (decodedJWT.type === "temp"){
+            TempUser.findById(decodedJWT.id, callback)
+        } else if (decodedJWT) {
+            User.findById(decodedJWT.id, callback)
         } else {
             callback("Token invalid")
         }
     },
-
-     middleware:function(req, res, next){
+    middleware:function(req, res, next) {
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
                 if (user){
@@ -97,8 +89,8 @@ var LoginController = {
                 }
                 next()
             })
-        }
-         else{
+        } else {
+
             next()
         }
     }

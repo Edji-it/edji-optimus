@@ -56,7 +56,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 
     var model = Project(project)
 
-    model.save(function(error, result) {
+    model.save(false, function(error, result) {
         if (error) {
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
@@ -159,7 +159,7 @@ router.get("/:id", function(req, res) {
 
             // we save it afterward so that we don't obstruct returning the data
             //  if this fails, we won't have their username in the array, but oh well
-            project.save((err) => {
+            project.save(false, (err) => {
                 if (err) {
                     console.error(err)
                 }
@@ -275,7 +275,7 @@ router.get("/reading/:reading_id", Middleware.authRequired, function(req, res){
         { sort: { createdAt: -1 } },
         (error, projects) => {
             if (error) {
-                console.log(error)
+                console.error(error)
                 res.status(500).send()
             } else {
                 res.status(200).send({ projects: projects })
@@ -326,7 +326,7 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(function(error, project){
+            project.save(false, function(error, project){
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
@@ -411,7 +411,7 @@ router.put("/:project_id/comments/:comment_id", Middleware.authRequired, functio
             if (comment.url && comment_update.url && comment_update.url != comment.url) {
                 deleteFromS3(comment.url)
                     .then((body) => {
-                        console.log(body)
+                        // do nothing here because we successfully deleted the object
                     })
                     .catch((err) => {
                         console.error(err)
@@ -605,7 +605,7 @@ router.put("/:project_id/answers/:answer_id", Middleware.authRequired, function(
             if (answer.url && answer_update.url && answer_update.url != answer.url) {
                 deleteFromS3(answer.url)
                     .then((body) => {
-                        console.log(body)
+                        // do nothing here because we successfully deleted the comment
                     })
                     .catch((err) => {
                         console.error(err)
@@ -700,7 +700,7 @@ router.get("/:project_code/validate", function(req, res) {
         }
     })
     .catch(function(err) {
-        console.log(err)
+        console.error(err)
         res.status(500).send()
     })
 })

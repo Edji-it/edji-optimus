@@ -47,7 +47,6 @@ describe("Subscriptions", () => {
 
     Q.all(promises)
       .then((responses) => {
-        console.log("deleted " + responses.length + " more subscription")
         done()
       })
       .catch((err) => {
@@ -200,7 +199,6 @@ describe("Subscriptions", () => {
         .del("/subscriptions/" + eventToDelete.subscription_id)
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
-
           res.should.have.status(200)
           res.body.should.have.property("user")
           res.body.user.should.have.property("hero")

@@ -27,26 +27,37 @@ function noWhitespace(username) {
     return regexp.test(username)
 }
 
-var usernameValidator = [
+let usernameValidator = [
     { validator: validateName, message: "Invalid username", kind: "badWords" },
     { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
 ]
 
+let oauthEnum = {
+    values: ['google'],
+    message: 'oauth type invalid'
+}
+
 /** mongoose hook for validation against acceptable values for `types` */
-var heroStatuses = {
+let heroStatuses = {
     values: ['subscribed', 'unsubscribed', 'canceled'],
     message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
-var subscriptionType = {
+let subscriptionType = {
     values: ['monthly', 'yearly', 'academy', 'none'],
     message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
-var model = ModelCreator("User", {
-    username:{type:String, set:toLower, unique:true, required:true, validate: usernameValidator},
+let model = ModelCreator("User", {
+    username:{type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator},
     fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
-    password:{type:String, required:true},
+    password:{type:String},
+    oauth: [{
+        type: { type: String, enum: oauthEnum },
+        id: String,
+        singleUseToken: String,
+        singleUseTokenExpiration: Date
+    }],
     email:{type:String, set:toLower, unique:true, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     identities: [String],
     resetPasswordToken: String,
@@ -130,6 +141,7 @@ var model = ModelCreator("User", {
     }
     
 }, function(schema) {
+    // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
         //makes copy of document
         var user = {}
@@ -146,22 +158,38 @@ var model = ModelCreator("User", {
 
 model.schema.pre("save", function(next){
 
+    if (!this.password) { return next() } // oauth users won't have a password
     // We should not save dynamically added properties
     this.hero && delete this.hero.active
     
-    if (this._id && !this.isModified("password")){
-        next()
-    }
+    if (this._id && !this.isModified("password") || !this.password){ return next() }
 
     bcrypt.hash(this.password, 10, (error, hash)=>{
         if (error) {
-            console.log(error)
+            console.error(error)
+            next(error)
         }
 
         this.password = hash
-        next()
+        return next()
     })
 
+})
+
+// add custom validator to make sure user has either oauth type or username/password
+model.schema.pre('validate', function(next) {
+    // make sure it has a password or an oauth type
+    let hasPassword = !!this.password
+    let hasUsername = !!this.username
+    let hasOauth = !!(this.oauth && this.oauth.length > 0)
+    let isValid = (hasPassword && hasUsername) || hasOauth
+
+    if (!isValid) {
+        // this is a mongoose method which provides the error to the mongoose error aggrigator
+        this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
+    }
+
+    next()
 })
 
 module.exports = model

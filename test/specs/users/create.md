@@ -52,7 +52,14 @@ Note: Validation of this call without certain properties should be overlapped by
     *  `res` should have a:
         *  `status` = `409`
         *  `errors`: `any` should have a `username`
-4.  Pass without email --> receive `400`
+4.  Pass without email, fullname, username or password
+    *  `res` should have a:
+        *  `status` = `406`
+        *  `errors`: `any` should have a:
+            *  `validationErrors`: `any` should have a:
+                *  `fullname`: `string` = `required`
+                *  `email`: `string` = `required`
+                *  `auth`: `string`
 
 ### Temp User Conversion Registration
 

@@ -58,7 +58,7 @@ let updateUserSub = function(user, subscription, subscribed) {
             subscription_type: subscriptionType
         })
 
-        user.save((err, result) => {
+        user.save(false, (err, result) => {
             if (err) {
                 console.error(err)
             }
@@ -338,7 +338,7 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
         return event.subscription_id === subscription_id
     })
 
-    if (!subEvent) { return res.status(404).send({ error: "user has no such subscription event" }) }
+    if (!subEvent) { return res.status(404).send({ error: "user has no such subscription event", user: user }) }
 
     // cancel the subscription with Stripe
     cancelSubscription(subscription_id)

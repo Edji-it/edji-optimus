@@ -125,13 +125,8 @@ describe("Users", () => {
                         text.validationErrors.fullname.should.be.a("string")
                         text.validationErrors.fullname.should.be.equal("required")
 
-                        text.validationErrors.should.have.property("username")
-                        text.validationErrors.username.should.be.a("string")
-                        text.validationErrors.username.should.be.equal("required")
-
-                        text.validationErrors.should.have.property("password")
-                        text.validationErrors.password.should.be.a("string")
-                        text.validationErrors.password.should.be.equal("required")
+                        text.validationErrors.should.have.property("auth")
+                        text.validationErrors.auth.should.be.a("string")
                         done()
                     })
             })

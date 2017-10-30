@@ -24,11 +24,28 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
 
     Model.prototype.forceSave = Model.prototype.save;
 
-    Model.prototype.save = function(callback){
-        if (this._id) {
-            Model.findByIdAndUpdate({_id:this._id}, this, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }, callback);
-        } else {
+    Model.prototype.save = function(options, callback) {
+        if (!options) {
+            options = {
+                forceSave: this._id ? false : true
+            }
+        }
+
+        if (options.forceSave) {
             this.forceSave(callback);
+        } else {
+            let queryOptions = Object.assign({
+                query: { _id: this._id },
+                update: this,
+                mongooseOptions: {
+                    new: true,
+                    runValidators: true,
+                    upsert: true,
+                    setDefaultsOnInsert: true
+                }
+            }, options)
+
+            Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback);
         }
     };
 

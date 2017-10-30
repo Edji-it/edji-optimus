@@ -120,8 +120,7 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
             if (result.owner_id != user._id) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
-            result.save((err) => {
-                console.log("got saved result")
+            result.save(false, (err) => {
                 if (err) {
                     console.error(err)
                     return res.status(500).send()
@@ -131,7 +130,6 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
             })
         })
         .catch((err) => {
-            console.log("error caught while looking up the reading")
             console.error(err)
             return res.status(500).send()
         })
@@ -250,7 +248,7 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
             res.status(200).send({readings})
         })
         .catch((err) => {
-            console.log(err)
+            console.error(err)
             res.status(500).send()
         })
 })
@@ -322,7 +320,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
             res.status(200).send({readings})
         })
         .catch((err) => {
-            console.log(err)
+            console.error(err)
             res.status(500).send()
         })
 })
@@ -333,7 +331,7 @@ router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res)
     var user = req.user
 
     Reading.findById(reading_id, function(error, reading) {
-        error && console.log(error)
+        error && console.error(error)
 
         if (reading) {
             if (!reading.promoter_ids) { //update older readings
