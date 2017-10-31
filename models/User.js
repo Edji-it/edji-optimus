@@ -8,7 +8,7 @@ var Filter = require("bad-words"),
     filter = new Filter()
 
 // tests email against regex
-var emailRe = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+var emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 var validateEmail = function(email) {
     return emailRe.test(email)
 }
