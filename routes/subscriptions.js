@@ -168,18 +168,13 @@ let cancelSubscription = function(subscriptionId) {
     })
 }
 
-// all of the math here is done in cents
-const fullPrice = 6000
-const startingPrice = 100
-const priceIncrement = 3
-
 let calculateAmountOff = function() {
-    return Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
-        .then((count) => {
-            let startingAmountOff = fullPrice - startingPrice
-            let currentAmountOff = startingAmountOff - count * priceIncrement
-            return currentAmountOff
-        })
+    // all of the math here is done in cents
+    const fullPrice = 6000
+    const currentPrice = 500
+    let currentAmountOff = fullPrice - currentPrice
+
+    return Promise.resolve(currentAmountOff)
 }
 
 /** Route to subscribe to Hero!!! */
