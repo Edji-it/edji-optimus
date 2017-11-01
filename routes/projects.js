@@ -424,7 +424,9 @@ router.put("/:project_id/comments/:comment_id", Middleware.authRequired, functio
             Object.assign(comment, comment_update)
 
             // save the entire project (DON'T JUST SAVE THE COMMENT)
-            project.save()
+            project.save(false, (err, doc) => {
+                console.log(doc)
+            })
 
             return res.status(200).send({ comment: comment })
 
