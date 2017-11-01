@@ -168,12 +168,12 @@ let cancelSubscription = function(subscriptionId) {
     })
 }
 
+const fullPrice = 6000
+const currentPrice = 500
+
 let calculateAmountOff = function() {
     // all of the math here is done in cents
-    const fullPrice = 6000
-    const currentPrice = 500
     let currentAmountOff = fullPrice - currentPrice
-
     return Promise.resolve(currentAmountOff)
 }
 
