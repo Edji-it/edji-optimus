@@ -621,7 +621,10 @@ router.put("/:project_id/answers/:answer_id", Middleware.authRequired, function(
             Object.assign(answer, answer_update)
 
             // save the entire project (DON'T JUST SAVE THE ANSWER)
-            project.save()
+            project.save(false, (err, doc) => {
+                if (err) { console.error(err) }
+                else { /** do nothing b/c it worked */ }
+            })
 
             return res.status(200).send({ answer: answer })
 

@@ -325,28 +325,28 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         })
 })
 
-//allows teachers to recommend reading to community library
-router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
-    var reading_id = req.params.reading_id
-    var user = req.user
+// //allows teachers to recommend reading to community library
+// router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
+//     var reading_id = req.params.reading_id
+//     var user = req.user
 
-    Reading.findById(reading_id, function(error, reading) {
-        error && console.error(error)
+//     Reading.findById(reading_id, function(error, reading) {
+//         error && console.error(error)
 
-        if (reading) {
-            if (!reading.promoter_ids) { //update older readings
-                reading.promoter_ids = []
-            } else if (reading.promoter_ids.indexOf(user._id) >= 0) {
-                res.status(304).send()
-                return
-            }
+//         if (reading) {
+//             if (!reading.promoter_ids) { //update older readings
+//                 reading.promoter_ids = []
+//             } else if (reading.promoter_ids.indexOf(user._id) >= 0) {
+//                 res.status(304).send()
+//                 return
+//             }
 
-            reading.promoter_ids.push(user._id)
+//             reading.promoter_ids.push(user._id)
 
-            reading.save()
-            res.status(204).send()
-        }
-    })
-})
+//             reading.save()
+//             res.status(204).send()
+//         }
+//     })
+// })
 
 module.exports = router

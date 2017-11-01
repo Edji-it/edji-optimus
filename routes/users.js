@@ -292,7 +292,10 @@ router.post("/reset_password", function(req, res) {
                 Q(User.findById(user._id).exec())
                     .then((userRes) => {
                         userRes.password = newPassword
-                        userRes.save()
+                        userRes.save(false, (err, doc) => {
+                            if (err) { console.error(err) }
+                            else { /** do nothing b/c it worked */ }
+                        })
                         res.json(LoginController.generateLoginObjectForUser(userRes))
                     })
                     .catch((error) => {
@@ -317,7 +320,10 @@ router.post("/reset_password", function(req, res) {
                 }
 
                 user.password = newPassword
-                user.save()
+                user.save(false, (err, doc) => {
+                    if (err) { console.error(err) }
+                    else { /** do nothing b/c it worked */ }
+                })
                 res.json(LoginController.generateLoginObjectForUser(user))
             }).catch(function(e) {
                 console.error(e)
@@ -514,7 +520,10 @@ router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => 
     user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
 
     // make sure to save the user without the asset which will be deleted
-    user.save()
+    user.save(false, (err, doc) => {
+        if (err) { console.error(err) }
+        else { /** do nothing b/c it worked */ }
+    })
 
     res.status(200).send({ file_locations: fileLocations })
 })
