@@ -389,14 +389,16 @@ router.put("/:project_id/comments/:comment_id", Middleware.authRequired, functio
         return
     }
 
+    let query = {
+        _id: project_id,
+        comments: { $elemMatch: {
+            _id: comment_id,
+            user_id: user._id
+        }}
+    }
+
     // the project's id must match, and it must have a comment w/ correct id and user_id
-    Q(  Project.findOne({
-            _id: project_id,
-            comments: { $elemMatch: {
-                _id: comment_id,
-                user_id: user._id
-            }}
-        })
+    Q(  Project.findOne(query)
         .exec())
         .then((project) => {
             if (!project) {
