@@ -542,7 +542,7 @@ router.post("/:id/answers", Middleware.authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(function(error, project){
+            project.save(false, (error, project) => {
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
