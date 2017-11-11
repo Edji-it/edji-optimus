@@ -29,11 +29,13 @@ router.get(
                 return obj.type == 'google'
             }).singleUseToken
         )
-        const redirect = config.get('CLIENT_URL') + '/oauth/google?token=' + oauthToken
+        // should be changed to use req.baseUrl
+        const redirect = req.protocol + ":" + config.get('CLIENT_URL') + '/#/oauth/google?token=' + oauthToken
 
         // res.status(200).send( LoginController.generateLoginObjectForUser(req.user) )
-        res.status(200).send({ token: redirect})
-        // res.redirect(redirect)
+        // res.status(200).send({ token: redirect})
+        res.redirect(redirect)
+        
 
     }
 )
