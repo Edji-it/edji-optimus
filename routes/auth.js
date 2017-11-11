@@ -24,9 +24,17 @@ router.get(
 
     // Redirect back to the original page, if any
     (req, res) => {
-        // const redirect = 'http://edji.it'
+        const oauthToken = encodeURIComponent(
+            req.user.oauth.find((obj) => {
+                return obj.type == 'google'
+            }).singleUseToken
+        )
+        const redirect = config.get('CLIENT_URL') + '/oauth/google?token=' + oauthToken
 
-        res.status(200).send( LoginController.generateLoginObjectForUser(req.user) )
+        // res.status(200).send( LoginController.generateLoginObjectForUser(req.user) )
+        res.status(200).send({ token: redirect})
+        // res.redirect(redirect)
+
     }
 )
 
