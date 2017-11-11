@@ -138,9 +138,10 @@ let oauthSingleUseQuery = function(token, type) {
     )
 }
 
+// this route doesn't currently have tests, which is bad... but I don't know how to test oauth
 router.get("/", (req, res) => {
     let userQuery
-    if (req.query.oauth_token && req.query.oauth_type) {
+    if (req.query.oauth_type && req.query.oauth_token) {
         userQuery = oauthSingleUseQuery(req.query.oauth_token, req.query.oauth_type)
     } else {
         return res.status(400).send()

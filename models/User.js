@@ -152,6 +152,7 @@ let model = ModelCreator("User", {
         delete user.resetPasswordToken
         delete user.resetPasswordExpires
         delete user.accountArchiveToken
+        delete user.oauth
         return user
     }
 })
