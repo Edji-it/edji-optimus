@@ -75,14 +75,20 @@ var LoginController = {
         if (decodedJWT.type === "temp"){
             TempUser.findById(decodedJWT.id, callback)
         } else if (decodedJWT) {
-            User.findById(decodedJWT.id, callback)
+            // set their last action time! Whoo this is so exciting!
+            User.findByIdAndUpdate(
+                decodedJWT.id,
+                { $set: { lastActionTime: Date.now() }},
+                { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
+                callback
+            )
         } else {
             callback("Token invalid")
         }
     },
     middleware:function(req, res, next) {
         if (req.headers.authorization){
-            LoginController.decodeTokenToUser(req.headers.authorization, function(error, user){
+            LoginController.decodeTokenToUser(req.headers.authorization, function(error, user) {
                 if (user){
                     user = LoginController.addHeroStatus(user)
                     req.user = user

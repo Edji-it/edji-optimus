@@ -63,6 +63,7 @@ let model = ModelCreator("User", {
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
+    lastActionTime: Date,
     avatar : String,
     hero : {
         /**
