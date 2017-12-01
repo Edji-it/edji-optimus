@@ -63,7 +63,7 @@ let model = ModelCreator("User", {
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
-    lastActionTime: Date,
+    lastActionTime: Date, // the time the user last hit the server with an Authorization token
     avatar : String,
     hero : {
         /**

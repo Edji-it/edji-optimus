@@ -255,7 +255,7 @@ router.put("/convert/:temp_id", middleware.authRequired, function(req, res) {
 })
 
 router.post("/login", function(req, res){
-    var user = req.body.user
+    var user = req.body.user // note this is coming from the request's body, not the req.user
 
     if (!user || !user.username || !user.password) {
         res.status(400).send()

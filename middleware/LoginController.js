@@ -13,7 +13,7 @@ var LoginController = {
         var me = this
 
         return Q.Promise(function(resolve, reject) {
-            User.findOne({username: user.username.toLowerCase()}, function (err, dbUser) {
+            User.findOne({username: user.username.toLowerCase().trim()}, function (err, dbUser) {
                 if (err) {
                     reject(err)
                     return
