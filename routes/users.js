@@ -69,7 +69,7 @@ router.put("/", middleware.authRequired, function(req, res){
     }
     
     // New object for acceptable updatable attribute
-    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media', 'avatar')
+    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media', 'avatar', 'identities')
 
     let queryModel
     if (user.type == "temp") {
