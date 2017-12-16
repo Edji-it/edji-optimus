@@ -45,6 +45,8 @@ Note: Validation of this call without certain properties should be overlapped by
         *  `status` = `406`
         *  `errors`: `any` should have a:
             *  `validationErrors`: `any` should have a:
+                *  `fullname`: `string` = `badWords`
+                *  `username`: `string` = `badWords`
                 *  `email`: `string` = `emailRegex`
 3.  Pass duplicate username
     *  `res` should have a:
