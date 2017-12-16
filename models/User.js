@@ -13,11 +13,6 @@ var validateEmail = function(email) {
     return emailRe.test(email)
 }
 
-// var nameRe = /(?:([^a-zA-Z0-9\s]))/g
-var validateName = function(name) {
-    return filter.clean(name) === name
-}
-
 function toLower(str) {
     return str.toLowerCase()
 }
@@ -28,7 +23,6 @@ function noWhitespace(username) {
 }
 
 let usernameValidator = [
-    { validator: validateName, message: "Invalid username", kind: "badWords" },
     { validator: noWhitespace, message: "Invalid username", kind: "whitespace" }
 ]
 
@@ -50,7 +44,7 @@ let subscriptionType = {
 
 let model = ModelCreator("User", {
     username:{type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator},
-    fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
+    fullname:{type:String, required:true},
     password:{type:String},
     oauth: [{
         type: { type: String, enum: oauthEnum },

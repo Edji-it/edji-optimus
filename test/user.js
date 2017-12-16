@@ -72,7 +72,7 @@ describe("Users", () => {
                     })
             })
 
-            it("should catch profane names, usernames and invalid emails", (done) => {
+            it("should catch invalid emails", (done) => {
                 chai.request(server)
                     .post("/users")
                     .send({ user: data.users.badUser })
@@ -90,14 +90,6 @@ describe("Users", () => {
                         text.validationErrors.should.have.property("email")
                         text.validationErrors.email.should.be.a("string")
                         text.validationErrors.email.should.equal("emailRegex")
-
-                        text.validationErrors.should.have.property("fullname")
-                        text.validationErrors.fullname.should.be.a("string")
-                        text.validationErrors.fullname.should.be.equal("badWords")
-
-                        text.validationErrors.should.have.property("username")
-                        text.validationErrors.username.should.be.a("string")
-                        text.validationErrors.username.should.be.equal("badWords")
                         done()
                     })
             })
@@ -297,7 +289,7 @@ describe("Users", () => {
                 })
         })
 
-        it("should catch profane names and invalid emails", (done) => {
+        it("should catch invalid emails", (done) => {
             chai.request(server)
                 .put("/users")
                 .set("Authorization", testUsers.testStudent.token)
@@ -316,10 +308,6 @@ describe("Users", () => {
                     text.validationErrors.should.have.property("email")
                     text.validationErrors.email.should.be.a("string")
                     text.validationErrors.email.should.equal("emailRegex")
-
-                    text.validationErrors.should.have.property("fullname")
-                    text.validationErrors.fullname.should.be.a("string")
-                    text.validationErrors.fullname.should.be.equal("badWords")
                     
                     done()
                 })
