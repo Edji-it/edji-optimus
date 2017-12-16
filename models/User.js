@@ -4,8 +4,6 @@
 var ModelCreator = require("./ModelCreator")
 var mongoose = require("mongoose")
 var bcrypt = require("bcryptjs")
-var Filter = require("bad-words"),
-    filter = new Filter()
 
 // tests email against regex
 var emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
@@ -15,7 +13,40 @@ var validateEmail = function(email) {
 
 // var nameRe = /(?:([^a-zA-Z0-9\s]))/g
 var validateName = function(name) {
-    return filter.clean(name) === name
+    // needs to return true for good names
+    let listOfWordsItCantContainAtAll = [
+        'fuck',
+        'cunt',
+        'nigger',
+        'bitch',
+        'bastard',
+        'bugger',
+        'bloody',
+        'penis',
+        'vagina',
+        'blowjob',
+        'pussy',
+        'titties',
+        'titty',
+        'asshole',
+        'nipple',
+        'damn',
+        'dammit',
+        'twot',
+        'faggot',
+        'kike',
+        'hymie',
+        'canabis',
+        'cocaine',
+        'heroin',
+        'marajuana',
+        'opium',
+        'xanax'
+    ]
+
+    return !listOfWordsItCantContainAtAll.find((word) => {
+        return name.indexOf(word) > -1
+    })
 }
 
 function toLower(str) {
