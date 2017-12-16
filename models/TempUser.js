@@ -2,14 +2,45 @@
  * Temporary User Model
  */
 var ModelCreator = require("./ModelCreator");
-var Filter = require("bad-words"),
-    filter = new Filter();
 
 //the same code exists in the User object
 var nameRe = /(?:([^a-zA-Z0-9\s]))/g;
 var validateName = function(name) {
-    return !nameRe.test(name) && filter.clean(name) === name;
-};
+    // needs to return true for good names
+    let listOfWordsItCantContainAtAll = [
+        'fuck',
+        'cunt',
+        'nigger',
+        'bitch',
+        'bastard',
+        'bugger',
+        'bloody',
+        'penis',
+        'vagina',
+        'blowjob',
+        'pussy',
+        'titties',
+        'titty',
+        'asshole',
+        'nipple',
+        'damn',
+        'dammit',
+        'twot',
+        'faggot',
+        'kike',
+        'hymie',
+        'canabis',
+        'cocaine',
+        'heroin',
+        'marajuana',
+        'opium',
+        'xanax'
+    ]
+
+    return !listOfWordsItCantContainAtAll.find((word) => {
+        return name.indexOf(word) > -1
+    })
+}
 
 var model = ModelCreator("TempUser", {
     fullname: {type: String, required: true, validate: [validateName, "Invalid username"]},
