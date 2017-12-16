@@ -103,7 +103,27 @@ router.put("/", middleware.authRequired, function(req, res){
 
                 res.status(406).send({ validationErrors: errors })
         } else if (error.code === 11000) {
-            return res.status(409).send()
+            // this is going to be a little hacky
+            // we need to have all the possible duplicate indexes handled manually, unfortunately, since it doesn't give us the index
+            let path
+            if (error.message.indexOf('username') > -1) {
+                path = 'username'
+            } else if (error.message.indexOf('email') > -1) {
+                path = 'email'
+            }
+            
+            let message
+            if (path) {
+                message = 'duplicate key error for field: ' + path
+            } else {
+                message = 'error in determining duplicate path'
+                console.error('a duplicate error was returned, but it could not be identified.', err)
+            }
+            
+            return res.status(409).send({
+                message: message,
+                field: path
+            })
         } else {
             console.error(error)
             return res.status(500).send()
