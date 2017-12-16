@@ -44,8 +44,8 @@ var users = {
     }
   },
   badUser: {
-    username: "shit",
-    fullname: "shit",
+    username: "fuck",
+    fullname: "twot",
     email: "wrong@wrong",
     password: "whatever"
   },
