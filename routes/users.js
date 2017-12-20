@@ -34,7 +34,6 @@ router.post("/", function(req, res){
 
     model.save(false, (error, result)=>{
         if (error){
-            console.error(error)
             if (error.name === "ValidationError") {
                 var errors = {}
 
