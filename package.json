@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./index.js",
     "dev": "NODE_ENV=local nodemon ./index.js localhost 3354",
+    "dev:win": "set NODE_ENV=local && nodemon ./index.js localhost 3354",
     "test": "NODE_ENV=test mocha --timeout 4000",
     "test:dev": "NODE_ENV=dev mocha --timeout 4000",
     "test:projects": "NODE_ENV=test mocha --timeout 4000 --grep Projects",
