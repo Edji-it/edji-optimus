@@ -4,7 +4,7 @@
   "description": "Node backend for Edji.",
   "scripts": {
     "start": "node ./index.js",
-    "dev": "nodemon ./index.js localhost 3354",
+    "dev": "NODE_ENV=local nodemon ./index.js localhost 3354",
     "test": "NODE_ENV=test mocha --timeout 4000",
     "test:dev": "NODE_ENV=dev mocha --timeout 4000",
     "test:projects": "NODE_ENV=test mocha --timeout 4000 --grep Projects",

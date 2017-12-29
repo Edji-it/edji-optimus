@@ -28,5 +28,5 @@
     "STRIPE_API": {
         "TOKEN": "sk_test_q0LZhd3CQZgkD0Q4ZVMf9n9d"
     },
-    "CLIENT_URL": "//localhost:3375"
+    "CLIENT_URL": "//dev.edji.it"
 }
