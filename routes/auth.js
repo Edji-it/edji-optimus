@@ -33,6 +33,8 @@ router.get(
         // should be changed to use req.baseUrl
         const redirect = req.protocol + ":" + config.get('CLIENT_URL') + '/#/oauth/google?token=' + oauthToken
 
+        console.log('redirecting to', redirect)
+
         res.redirect(redirect)
         
 
