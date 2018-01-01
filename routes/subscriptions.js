@@ -168,15 +168,6 @@ let cancelSubscription = function(subscriptionId) {
     })
 }
 
-const fullPrice = 6000
-const currentPrice = 6000
-
-let calculateAmountOff = function() {
-    // all of the math here is done in cents
-    let currentAmountOff = fullPrice - currentPrice
-    return Promise.resolve(currentAmountOff)
-}
-
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
     let user = req.user
@@ -209,25 +200,10 @@ router.post("/", Middleware.authRequired, function(req, res) {
                     })
             }
         })
-
-    promises.push(getCustomerId, calculateAmountOff())
-
-    // kick off the promise chain, WOOT!
-    Q.all(promises).then((results) => {
-        let customerId = results[0]
-        let amountOff = results[1]
-
-        if (couponCode === 'HERO_LAUNCH') {
-            return createCoupon(couponCode + "__" + user._id.toString(), amountOff)
-                .then((coupon) => {
-                    // I only used rawType here because Stripe's errors have it so it makes error handling less complex
-                    if (!coupon) { throw { message: "No coupon code generated", rawType: "no_coupon_code" } }
-                    // after getting the customer id and coupon, add the user to the Hero subscription
-                    return subscribeCustomer(customerId, subscriptionType, coupon.id)
-                })
-        } else { // we skip out on creating the coupon if the customer already gave us a coupon code
-            return subscribeCustomer(customerId, subscriptionType, couponCode)
-        }
+    
+    getCustomerId.then((customerId) => {
+        // add a subscription for the customer
+        return subscribeCustomer(customerId, subscriptionType, couponCode)
     })
     .then((sub) => {
         // update the user object that we keep
@@ -359,33 +335,5 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
             }
         })
 })
-
-// this is the utc of the last database request
-let lastQueryTime
-let lastCost
-
-// gets the current cost of the coupon
-router.get("/coupons/:coupon_id", (req, res) => {
-    let couponId = req.params.coupon_id
-    if (!couponId === 'HERO_LAUNCH') {
-        return res.status(404).send({ error: "coupon code not found" })
-    }
-
-    // here we check if the current time is after the last query + 2000
-    if (lastQueryTime && Date.now() - lastQueryTime < 2000) {
-        return res.status(200).send({ cost: lastCost })
-    }
-
-    calculateAmountOff().then((amountOff) => {
-        lastCost = fullPrice - amountOff
-        lastQueryTime = Date.now()
-        return res.status(200).send({ cost: lastCost })
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
-})
-
 
 module.exports = router
