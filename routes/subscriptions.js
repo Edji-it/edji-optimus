@@ -169,7 +169,7 @@ let cancelSubscription = function(subscriptionId) {
 }
 
 const fullPrice = 6000
-const currentPrice = 500
+const currentPrice = 6000
 
 let calculateAmountOff = function() {
     // all of the math here is done in cents
