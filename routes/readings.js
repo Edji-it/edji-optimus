@@ -13,8 +13,6 @@ let Middleware = require("./../middleware/Middleware")
 
 var router = express.Router()
 
-MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
-
 router.post("/", Middleware.authRequired, function(req, res) {
     let reading = req.body.reading
     let user = req.user
@@ -325,13 +323,41 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         })
 })
 
+// Get all Readings from users that requesting user follows
+router.get("/feed", Middleware.authRequired, function(req, res) {
+
+    var followedUsers = req.user.following
+    var ownerQuery = []
+
+    for (var i = 0; i < followedUsers.length; i++) {
+        ownerQuery.push({ "owner_id" : followedUsers[i], public: true })
+    }
+
+    Q(
+        Reading.find({
+        $or: ownerQuery
+        })
+        .sort({createdAt: -1})
+        .limit(10)
+        .populate('owner_id','fullname username')
+        .exec()
+    ).then((results) => {
+        console.log(results)
+        res.status(200).send({results})
+    })
+    .catch((err) => {
+        console.log(err)
+        res.status(500).send()
+    })
+})
+
 // //allows teachers to recommend reading to community library
 // router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
 //     var reading_id = req.params.reading_id
 //     var user = req.user
 
 //     Reading.findById(reading_id, function(error, reading) {
-//         error && console.error(error)
+//         error && console.log(error)
 
 //         if (reading) {
 //             if (!reading.promoter_ids) { //update older readings
@@ -348,5 +374,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 //         }
 //     })
 // })
+
+MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
 
 module.exports = router

@@ -569,4 +569,41 @@ router.get("/heroes/count", (req, res) => {
         })
 })
 
+/**
+ * Adds a user id to a user's "following" array
+ */
+router.put("/following", middleware.authRequired, function(req, res) {
+    let user = req.user
+    let body = req.body
+
+    let user_id = body.user_id
+    let follow = body.action == "follow"
+
+    if (mongoose.Types.ObjectId.isValid(user_id)) { 
+        if (!user.following) {
+            user.following = []
+        }
+        if (follow) {
+            // Add id to user's Following
+            if (user.following.indexOf(user_id) < 0) {
+                user.following.push(user_id)
+                user.save()
+            } else {
+                res.status(400).send({ error: "Invalid user, unable to follow"})
+            }   
+        } else {
+            // Remove id to user's Following
+            let followIndex = user.following.indexOf(user_id)
+            if (followIndex > -1) {
+                user.following.splice(followIndex, 1)
+                user.save()
+            } else {
+                res.status(400).send({ error: "Invalid user, unable to follow"})
+            }
+        }
+    }
+
+    return res.status(200).send({ user: user.toPublic() })
+})
+
 module.exports = router
