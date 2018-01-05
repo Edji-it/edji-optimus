@@ -1,3 +1,5 @@
+import { error } from "util";
+
 /**
  * Created by bvfergus on 3/5/16.
  */
@@ -324,9 +326,72 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 })
 
 // Get all Readings from users that requesting user follows
-router.get("/feed", Middleware.authRequired, function(req, res) {
+router.get("/feed", function(req, res) {
 
-    var followedUsers = req.user.following
+    // allowable parameters
+    let allowedTypes = [
+        'public',
+        'following'
+    ]
+    let allowedSubjects = [
+        // nothing here yet!
+    ]
+
+    // query parameter setting
+    let type = req.query.type || 'public'
+    let size = req.query.size || 15
+    let start = req.query.start || 0
+    let grade = req.query.grade
+    let subjects = req.query.subjects || []
+
+    // query parameter validation
+    let errors = []
+
+    if (allowedTypes.indexOf(type) < 0) {
+        errors.push({
+            parameter: 'type',
+            message: 'supplied type not allowed',
+            value: type
+        })
+    }
+
+    if (size < 0 || size > 100) {
+        errors.push({
+            parameter: 'size',
+            message: 'supplied size out of bounds',
+            value: size
+        })
+    }
+
+    if (start < 0) {
+        errors.push({
+            parameter: 'start',
+            message: 'supplied start out of bounds',
+            value: start
+        })
+    }
+
+    let disallowedSubjects = []
+    for (let sub in subjects) {
+        if (allowedSubjects.indexOf(sub) < 0) {
+            disallowedSubjects.push(sub)
+        }
+    }
+
+    if (disallowedSubjects.length > 0) {
+        for (let sub in disallowedSubjects) {
+            errors.push({
+                parameter: 'subjects',
+                message: 'supplied subjects contains value not allowed in subjects field',
+                value: sub
+            })
+        }
+    }
+
+    // stop execution if there are any errors
+    if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
+
+    var followedUsers = req.user.following || []
     var ownerQuery = []
 
     for (var i = 0; i < followedUsers.length; i++) {
@@ -346,7 +411,7 @@ router.get("/feed", Middleware.authRequired, function(req, res) {
         res.status(200).send({results})
     })
     .catch((err) => {
-        console.log(err)
+        console.error(err)
         res.status(500).send()
     })
 })

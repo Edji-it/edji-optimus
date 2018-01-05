@@ -37,7 +37,7 @@ Future values:
 
 `number` corresponding to which grade levels to return. Should eventually be made an array of length 2 for a range of grade levels.
 
-### subject
+### subjects
 
 `string` indicating which subject to search in. Should eventually be made an array of subjects to search.
 
@@ -78,37 +78,44 @@ Test cases still need to be written
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `size`
-        *  `message`: `string` (should say something like "the requested size was too large")
-5.  `GET` call to `/readings/feed?start=1`
+        *  `message`: `string` (should say something like "the requested size out of bounds")
+5.  `GET` call to `/readings/feed?size=-1`
+    *  `res` should have a `status` = `400`
+    *  `res` should have `errors`
+    *  `res.errors.length` should be `> 0`
+    *  `res.errors[0]` should have:
+        *  `property`: `string` = `size`
+        *  `message`: `string` (should say something like "the requested size out of bounds")
+6.  `GET` call to `/readings/feed?start=1`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings[0]._id` should be equal to `res.readings[1]._id` from test case 1
-6.  `GET` call to `/readings/feed?start=-1`
+7.  `GET` call to `/readings/feed?start=-1`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `start`
         *  `message`: `string` (should say something like "the requested start was less than 0")
-7.  `GET` call to `/readings/feed?grade=1`
+8.  `GET` call to `/readings/feed?grade=1`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings[0].grade_level` should be equal to 1
-8.  `GET` call to `/readings/feed?grade=-1`
+9.  `GET` call to `/readings/feed?grade=-1`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `grade`
         *  `message`: `string` (should say something like "the requested grade was out of bounds")
-9.  `GET` call to `/readings/feed?grade=20`
+10.  `GET` call to `/readings/feed?grade=20`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `grade`
         *  `message`: `string` (should say something like "the requested grade was out of bounds")
-10.  `GET` call to `/readings/feed?type=following`
+11.  `GET` call to `/readings/feed?type=following`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings.length` should be `> 0`
