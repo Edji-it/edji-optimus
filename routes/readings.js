@@ -1,5 +1,3 @@
-import { error } from "util";
-
 /**
  * Created by bvfergus on 3/5/16.
  */
@@ -327,6 +325,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 
 // Get all Readings from users that requesting user follows
 router.get("/feed", function(req, res) {
+    let user = req.user
 
     // allowable parameters
     let allowedTypes = [
@@ -371,6 +370,14 @@ router.get("/feed", function(req, res) {
         })
     }
 
+    if (grade && (grade < 0 || grade > 13)) {
+        errors.push({
+            parameter: 'grade',
+            message: 'supplied grade out of bounds',
+            value: grade
+        })
+    }
+
     let disallowedSubjects = []
     for (let sub in subjects) {
         if (allowedSubjects.indexOf(sub) < 0) {
@@ -391,19 +398,67 @@ router.get("/feed", function(req, res) {
     // stop execution if there are any errors
     if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
 
-    var followedUsers = req.user.following || []
-    var ownerQuery = []
-
-    for (var i = 0; i < followedUsers.length; i++) {
-        ownerQuery.push({ "owner_id" : followedUsers[i], public: true })
+    let followedUsers
+    if (user && user.following) {
+        followedUsers = user.following
+    } else {
+        followedUsers = []
     }
 
+    // now build us a query
+    let readingQuery = {
+        $or: [], // these will be deleted if left empty
+        $and: []
+    }
+
+    switch (type) {
+        case 'public':
+            readingQuery.public = true
+            break
+        case 'following':
+            let len = followedUsers.length
+            for (let i = 0; i < len; i++) {
+                readingQuery.$or.push({ "owner_id" : followedUsers[i] })
+            }
+            break
+    }
+
+    // set grade level if it is given
+    grade && (readingQuery.grade_level = grade)
+    if (subjects.length > 0) {
+        for (let sub in subjects) {
+            readingQuery.$or.push({ subject: sub })
+        }
+    }
+
+    // either of these will throw an error if they're left empty
+    if (readingQuery.$or.length < 1) {
+        delete readingQuery.$or
+    }
+    if (readingQuery.$and.length < 1) {
+        delete readingQuery.$and
+    }
+
+    let fieldsToReturn = [
+        'title',
+        'owner_id',
+        'teacher_ids',
+        'public',
+        'promoter_ids',
+        'source',
+        'cover_img',
+        'tags',
+        'draft',
+        'version_id'
+    ]
+
     Q(
-        Reading.find({
-        $or: ownerQuery
-        })
+        Reading.find(
+            readingQuery,
+            fieldsToReturn.join(' '),
+            { skip: start, limit: size }
+        )
         .sort({createdAt: -1})
-        .limit(10)
         .populate('owner_id','fullname username')
         .exec()
     ).then((results) => {

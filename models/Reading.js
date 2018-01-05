@@ -9,7 +9,6 @@ let Tags = require("./Tags")
 
 module.exports = ModelCreator("Reading", {
     html:{type: String, required: true},
-    preppedHtml: String, // depricated
     words: {type: [], required: true},
     title:{type: String, required: true},
     owner_id: {type: String, required: true, ref: "User"},
