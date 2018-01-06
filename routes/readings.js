@@ -357,7 +357,7 @@ let validateSearchParams = function(query) {
                 message: 'supplied size not a number',
                 value: query.size
             })
-        } else if (size < 0 || size > 100) { // check that it's in range
+        } else if (query.size < 0 || query.size > 100) { // check that it's in range
             errors.push({
                 parameter: 'size',
                 message: 'supplied size out of bounds [0, 100]',
@@ -395,7 +395,7 @@ let validateSearchParams = function(query) {
             if (typeof grade_value !== 'number') {
                 errors.push({
                     parameter: 'grades',
-                    message: 'supplied grade not a number',
+                    message: 'supplied grades not a number',
                     value: grade_value
                 })
             }
@@ -403,10 +403,18 @@ let validateSearchParams = function(query) {
             else if (grade_value < 0 || grade_value > 13) {
                 errors.push({
                     parameter: 'grades',
-                    message: 'supplied grade out of bounds [0, 13]',
+                    message: 'supplied grades out of bounds [0, 13]',
                     value: grade_value
                 })
             }
+        }
+
+        if (query.grades.length > 2) {
+            errors.push({
+                parameter: 'grades',
+                message: 'supplied more than two values for grades',
+                value: query.grades
+            })
         }
     }
 
@@ -460,6 +468,8 @@ router.get("/feed", function(req, res) {
         followedUsers = []
     }
 
+    let readingQuery = {}
+
     switch (query.type) {
         case 'public':
             readingQuery.public = true
@@ -472,21 +482,10 @@ router.get("/feed", function(req, res) {
             break
     }
 
-    // // set grade level if it is given
-    // query.grade && (readingQuery.grade_level = grade)
-    // if (subjects.length > 0) {
-    //     for (let sub in subjects) {
-    //         readingQuery.$or.push({ subject: sub })
-    //     }
-    // }
-
-    // if (query.grades && query.grades.length > 0) {
-    //     readingQuery.grade_levels = {
-    //         $or: [
-    //             { $gte: Math.min(...query.grades) }
-    //         ]
-    //     }
-    // }
+    // set grade level if it is given
+    if (query.grades && query.grades.length > 0) {
+        readingQuery.grade_levels = { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }
+    }
 
     let fieldsToReturn = [
         'title',
@@ -498,21 +497,23 @@ router.get("/feed", function(req, res) {
         'cover_img',
         'tags',
         'draft',
-        'version_id'
+        'version_id',
+        'createdAt',
+        'updatedAt'
     ]
+
+    console.log("query:", readingQuery)
 
     Q(
         Reading.find(
             readingQuery,
             fieldsToReturn.join(' '),
-            { skip: start, limit: size }
+            { skip: query.start, limit: query.size }
         )
         .sort({createdAt: -1})
-        .populate('owner_id','fullname username')
         .exec()
     ).then((results) => {
-        console.log(results)
-        res.status(200).send({results})
+        res.status(200).send({ readings: results })
     })
     .catch((err) => {
         console.error(err)
