@@ -31,7 +31,7 @@ Future values:
 
 ### start
 
-`number` of results to start at. You'll be returned the results from Start to Start + Size. Can be used for pagination. Range is [0, inf)
+`number` of results to start at. You'll be returned the results from Start to Start + Size. Can be used for pagination. Range is [0, 1000].
 
 ### grade
 
@@ -96,26 +96,33 @@ Test cases still need to be written
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `start`
-        *  `message`: `string` (should say something like "the requested start was less than 0")
-8.  `GET` call to `/readings/feed?grade=1`
+        *  `message`: `string` (should say something like "the requested start was out of bounds")
+8.  `GET` call to `/readings/feed?start=1100`
+    *  `res` should have a `status` = `400`
+    *  `res` should have `errors`
+    *  `res.errors.length` should be `> 0`
+    *  `res.errors[0]` should have:
+        *  `property`: `string` = `start`
+        *  `message`: `string` (should say something like "the requested start was out of bounds")
+9.  `GET` call to `/readings/feed?grade=1`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings[0].grade_level` should be equal to 1
-9.  `GET` call to `/readings/feed?grade=-1`
+10.  `GET` call to `/readings/feed?grade=-1`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `grade`
         *  `message`: `string` (should say something like "the requested grade was out of bounds")
-10.  `GET` call to `/readings/feed?grade=20`
+11.  `GET` call to `/readings/feed?grade=20`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `grade`
         *  `message`: `string` (should say something like "the requested grade was out of bounds")
-11.  `GET` call to `/readings/feed?type=following`
+12.  `GET` call to `/readings/feed?type=following`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings.length` should be `> 0`
