@@ -323,10 +323,11 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         })
 })
 
-// Get all Readings from users that requesting user follows
-router.get("/feed", function(req, res) {
-    let user = req.user
-
+/**
+ * Pass in query parameters and receive an array of errors if there is an error, and false if no errors
+ * @param {any} query The query parameters from the req object
+ */
+let validateSearchParams = function(query) {
     // allowable parameters
     let allowedTypes = [
         'public',
@@ -336,50 +337,87 @@ router.get("/feed", function(req, res) {
         // nothing here yet!
     ]
 
-    // query parameter setting
-    let type = req.query.type || 'public'
-    let size = req.query.size || 15
-    let start = req.query.start || 0
-    let grade = req.query.grade
-    let subjects = req.query.subjects || []
-
     // query parameter validation
     let errors = []
 
-    if (allowedTypes.indexOf(type) < 0) {
+    // type parameter
+    if (allowedTypes.indexOf(query.type) < 0) {
         errors.push({
             parameter: 'type',
             message: 'supplied type not allowed',
-            value: type
+            value: query.type
         })
     }
 
-    if (size < 0 || size > 100) {
-        errors.push({
-            parameter: 'size',
-            message: 'supplied size out of bounds',
-            value: size
-        })
+    // size parameter
+    if (query.size) {
+        if (typeof query.size !== 'number') { // make sure it's a number
+            errors.push({
+                parameter: 'size',
+                message: 'supplied size not a number',
+                value: query.size
+            })
+        } else if (size < 0 || size > 100) { // check that it's in range
+            errors.push({
+                parameter: 'size',
+                message: 'supplied size out of bounds [0, 100]',
+                value: query.size
+            })
+        }
     }
 
-    if (start < 0) {
-        errors.push({
-            parameter: 'start',
-            message: 'supplied start out of bounds',
-            value: start
-        })
+    // start parameter
+    if (query.start) {
+        if (typeof query.start !== 'number') { // make sure it's a number
+            errors.push({
+                parameter: 'start',
+                message: 'supplied start not a number',
+                value: query.start
+            })
+        } else if (start < 0 || start > 1000) { // check value of start
+            errors.push({
+                parameter: 'start',
+                message: 'supplied start out of bounds [0, 1000]',
+                value: query.start
+            })
+        }
     }
 
-    if (grade && (grade < 0 || grade > 13)) {
-        errors.push({
-            parameter: 'grade',
-            message: 'supplied grade out of bounds',
-            value: grade
-        })
+    // grades parameter
+    if (query.grades) {
+        // if it's not an array already, make it one
+        if (!Array.isArray(query.grades)) {
+            query.grades = [query.grades, query.grades]
+        }
+
+        for(let grade_value in query.grades) {
+            // check the types of all values in grades array
+            if (typeof grade_value !== 'number') {
+                errors.push({
+                    parameter: 'grades',
+                    message: 'supplied grade not a number',
+                    value: grade_value
+                })
+            }
+            // check the range of all values in grades array
+            else if (grade_value < 0 || grade_value > 13) {
+                errors.push({
+                    parameter: 'grades',
+                    message: 'supplied grade out of bounds [0, 13]',
+                    value: grade_value
+                })
+            }
+        }
+    }
+
+    // subjects parameter
+    //  make sure subjects is an array
+    if (!Array.isArray(query.subjects)) {
+        query.subjects = [query.subjects]
     }
 
     let disallowedSubjects = []
-    for (let sub in subjects) {
+    for (let sub in query.subjects) {
         if (allowedSubjects.indexOf(sub) < 0) {
             disallowedSubjects.push(sub)
         }
@@ -395,6 +433,23 @@ router.get("/feed", function(req, res) {
         }
     }
 
+    return errors.length > 0 ? errors : false
+}
+
+// Get all Readings from users that requesting user follows
+router.get("/feed", function(req, res) {
+    let user = req.user
+
+    let query = {}
+
+    // query parameter default setting
+    query.type = req.query.type || 'public'
+    query.size = req.query.size || 15
+    query.start = req.query.start || 0
+    query.grades = req.query.grades
+    query.subjects = req.query.subjects || []
+
+    let errors = validateSearchParams(query)
     // stop execution if there are any errors
     if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
 
@@ -405,13 +460,7 @@ router.get("/feed", function(req, res) {
         followedUsers = []
     }
 
-    // now build us a query
-    let readingQuery = {
-        $or: [], // these will be deleted if left empty
-        $and: []
-    }
-
-    switch (type) {
+    switch (query.type) {
         case 'public':
             readingQuery.public = true
             break
@@ -423,21 +472,21 @@ router.get("/feed", function(req, res) {
             break
     }
 
-    // set grade level if it is given
-    grade && (readingQuery.grade_level = grade)
-    if (subjects.length > 0) {
-        for (let sub in subjects) {
-            readingQuery.$or.push({ subject: sub })
-        }
-    }
+    // // set grade level if it is given
+    // query.grade && (readingQuery.grade_level = grade)
+    // if (subjects.length > 0) {
+    //     for (let sub in subjects) {
+    //         readingQuery.$or.push({ subject: sub })
+    //     }
+    // }
 
-    // either of these will throw an error if they're left empty
-    if (readingQuery.$or.length < 1) {
-        delete readingQuery.$or
-    }
-    if (readingQuery.$and.length < 1) {
-        delete readingQuery.$and
-    }
+    // if (query.grades && query.grades.length > 0) {
+    //     readingQuery.grade_levels = {
+    //         $or: [
+    //             { $gte: Math.min(...query.grades) }
+    //         ]
+    //     }
+    // }
 
     let fieldsToReturn = [
         'title',
