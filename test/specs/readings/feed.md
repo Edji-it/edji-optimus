@@ -35,7 +35,7 @@ Future values:
 
 ### grade
 
-`number` corresponding to which grade levels to return. Should eventually be made an array of length 2 for a range of grade levels.
+`number` corresponding to which grade levels to return. Can be either one value or an array of two values, which indicate a range. Acceptable range [0,13].
 
 ### subjects
 
@@ -107,22 +107,26 @@ Test cases still need to be written
 9.  `GET` call to `/readings/feed?grade=1`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
-    *  `res.readings[0].grade_level` should be equal to 1
-10.  `GET` call to `/readings/feed?grade=-1`
+    *  Each reading in `readings` array should have a `grade_levels` array which contains the value 1
+10.  `GET` call to `/readings/feed?grade[]=1&grade[]=5`
+    *  `res` should have `status` = `200`
+    *  `res` should have `readings`
+    *  Each reading in `readings` array should have a `grade_levels` array which contains a value in the range [1,5]
+11.  `GET` call to `/readings/feed?grade=-1`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `grade`
         *  `message`: `string` (should say something like "the requested grade was out of bounds")
-11.  `GET` call to `/readings/feed?grade=20`
+12.  `GET` call to `/readings/feed?grade=20`
     *  `res` should have a `status` = `400`
     *  `res` should have `errors`
     *  `res.errors.length` should be `> 0`
     *  `res.errors[0]` should have:
         *  `property`: `string` = `grade`
         *  `message`: `string` (should say something like "the requested grade was out of bounds")
-12.  `GET` call to `/readings/feed?type=following`
+13.  `GET` call to `/readings/feed?type=following`
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings.length` should be `> 0`
