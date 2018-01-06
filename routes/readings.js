@@ -325,6 +325,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 
 /**
  * Pass in query parameters and receive an array of errors if there is an error, and false if no errors
+ *  it also makes a few changes to clean the data on the query parameters supplied
  * @param {any} query The query parameters from the req object
  */
 let validateSearchParams = function(query) {
@@ -390,21 +391,22 @@ let validateSearchParams = function(query) {
             query.grades = [query.grades, query.grades]
         }
 
-        for(let grade_value in query.grades) {
-            // check the types of all values in grades array
-            if (typeof grade_value !== 'number') {
+        for(let i = 0; i < query.grades.length; i++) {
+            try {
+                query.grades[i] = parseInt(query.grades[i])
+            } catch (e) {
                 errors.push({
                     parameter: 'grades',
                     message: 'supplied grades not a number',
-                    value: grade_value
+                    value: query.grades[i]
                 })
             }
-            // check the range of all values in grades array
-            else if (grade_value < 0 || grade_value > 13) {
+
+            if (query.grades[i] < 0 || query.grades[i] > 13) {
                 errors.push({
                     parameter: 'grades',
                     message: 'supplied grades out of bounds [0, 13]',
-                    value: grade_value
+                    value: query.grades[i]
                 })
             }
         }
@@ -455,6 +457,7 @@ router.get("/feed", function(req, res) {
     query.size = req.query.size || 15
     query.start = req.query.start || 0
     query.grades = req.query.grades
+    console.log(query.grades, typeof query.grades[0])
     query.subjects = req.query.subjects || []
 
     let errors = validateSearchParams(query)
@@ -513,11 +516,11 @@ router.get("/feed", function(req, res) {
         .sort({createdAt: -1})
         .exec()
     ).then((results) => {
-        res.status(200).send({ readings: results })
+        return res.status(200).send({ readings: results })
     })
     .catch((err) => {
         console.error(err)
-        res.status(500).send()
+        return res.status(500).send()
     })
 })
 
