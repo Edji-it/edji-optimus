@@ -328,14 +328,17 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
  *  it also makes a few changes to clean the data on the query parameters supplied
  * @param {any} query The query parameters from the req object
  */
-let validateSearchParams = function(query) {
+let validateAndCleanSearchParams = function(query) {
     // allowable parameters
     let allowedTypes = [
-        'public',
         'following'
     ]
     let allowedSubjects = [
         // nothing here yet!
+    ]
+    let allowedPopulations = [
+        'owner_id',
+        'word_preview'
     ]
 
     // query parameter validation
@@ -453,43 +456,61 @@ router.get("/feed", function(req, res) {
     let query = {}
 
     // query parameter default setting
-    query.type = req.query.type || 'public'
+    query.type = req.query.type || 'following' // default should be changed once a more public-friendly results set is available
     query.size = req.query.size || 15
     query.start = req.query.start || 0
     query.grades = req.query.grades
-    console.log(query.grades, typeof query.grades[0])
     query.subjects = req.query.subjects || []
+    query.pop = req.query.pop || []
 
-    let errors = validateSearchParams(query)
+    let errors = validateAndCleanSearchParams(query)
     // stop execution if there are any errors
     if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
 
-    let followedUsers
-    if (user && user.following) {
-        followedUsers = user.following
-    } else {
-        followedUsers = []
+    let readingQuery = {
+        $and: []
     }
 
-    let readingQuery = {}
-
-    switch (query.type) {
-        case 'public':
-            readingQuery.public = true
-            break
+    switch (query.type) { // there will eventually be more here for types
         case 'following':
+            let followedUsers
+            if (user && user.following && user.following.length > 0) {
+                followedUsers = user.following
+            } else {
+                // they won't have any readings with matching owner_ids if they aren't following anyone
+                return res.status(200).send({ readings: [] })
+            }
+
+            let typeQuery = {
+                public: true,
+                $or: []
+            }
+
             let len = followedUsers.length
             for (let i = 0; i < len; i++) {
-                readingQuery.$or.push({ "owner_id" : followedUsers[i] })
+                typeQuery.$or.push({ "owner_id" : followedUsers[i] })
             }
+            readingQuery.$and.push(typeQuery)
+            break
+        default:
+            let error = {
+                parameter: 'type',
+                message: 'unknown type parameter',
+                value: query.type
+            }
+            console.error(error)
+            return res.status(500).send({ errors: [error] })
             break
     }
 
-    // set grade level if it is given
+    // filter down on grade level if it is given
     if (query.grades && query.grades.length > 0) {
-        readingQuery.grade_levels = { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }
+        readingQuery.$and.push({ grade_levels: { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }})
     }
 
+
+    // this projection will be sent to Mongo to immediately follow up the query
+    let projection = {}
     let fieldsToReturn = [
         'title',
         'owner_id',
@@ -497,6 +518,8 @@ router.get("/feed", function(req, res) {
         'public',
         'promoter_ids',
         'source',
+        'subjects',
+        'grade_levels',
         'cover_img',
         'tags',
         'draft',
@@ -504,18 +527,24 @@ router.get("/feed", function(req, res) {
         'createdAt',
         'updatedAt'
     ]
-
-    console.log("query:", readingQuery)
+    // first, set up all of the fields that will be returned unaltered
+    let len = fieldsToReturn.length
+    for(let i = 0; i < len; i++) {
+        projection[fieldsToReturn[i]] = true
+    }
+    // set up the words preview if the endpoint wants words
+    query.pop.words && (projection.words = { $slice: ["$words", 10] })
 
     Q(
         Reading.find(
             readingQuery,
-            fieldsToReturn.join(' '),
-            { skip: query.start, limit: query.size }
+            projection
         )
+        .populate('owner_id', 'fullname username')
         .sort({createdAt: -1})
         .exec()
     ).then((results) => {
+        // return res.status(200).send({ readings: results, query: readingQuery, proj: projection })
         return res.status(200).send({ readings: results })
     })
     .catch((err) => {

@@ -14,7 +14,6 @@ module.exports = ModelCreator("Reading", {
     owner_id: {type: String, required: true, ref: "User"},
     teacher_ids: [String],
     public: Boolean,
-    comments: [Comment.schema],
     questions: [Question.schema],
     promoter_ids: [String],
     source: String,

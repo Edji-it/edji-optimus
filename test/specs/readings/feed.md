@@ -8,6 +8,10 @@ Provide a generalized search for the Readings collection with specific query opt
 
 `GET`
 
+## Credentials
+
+This endpoint uses credentials to determine access to readings and which readings to return.
+
 ## Query Parameters
 
 List of available query parameters and their acceptable values
@@ -16,8 +20,7 @@ List of available query parameters and their acceptable values
 
 `string` with possible values:
 
-- public (default) - a list of public readings
-- following - uses the logged in user's following list to find readings published by those authors
+- following (default) - uses the logged in user's following list to find readings published by those authors
 
 Future values:
 
@@ -35,13 +38,19 @@ Future values:
 
 ### grade
 
-`number` corresponding to which grade levels to return. Can be either one value or an array of two values, which indicate a range. Acceptable range [0,13].
+`number` or `number[]` corresponding to which grade levels to return. Can be either one value or an array of two values, which indicate a range. Acceptable range [0,13].
 
 ### subjects
 
-`string` indicating which subject to search in. Should eventually be made an array of subjects to search.
+`string[]` indicating which subject to search in. Should eventually be made an array of subjects to search.
 
 Test cases still need to be written
+
+### pop
+
+`string` or `string[]` indicating which fields to sub-populate on the returned readings
+
+Accepted values: `words`, `owner`
 
 ## Test Cases
 
