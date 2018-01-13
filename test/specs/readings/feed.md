@@ -54,7 +54,7 @@ Accepted values: `words`, `owner`
 
 ## Test Cases
 
-1.  `GET` call to `/readings/feed`
+1.  `GET` call to `/readings/feed` with authorized user
     *  `res` should have `status` = `200`
     *  `res` should have `readings`
     *  `res.readings` should be an `array`

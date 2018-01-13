@@ -488,7 +488,7 @@ router.get("/feed", function(req, res) {
 
             let len = followedUsers.length
             for (let i = 0; i < len; i++) {
-                typeQuery.$or.push({ "owner_id" : followedUsers[i] })
+                typeQuery.$or.push({ "owner_id" : followedUsers[i].toString() })
             }
             readingQuery.$and.push(typeQuery)
             break
@@ -536,15 +536,18 @@ router.get("/feed", function(req, res) {
     query.pop.words && (projection.words = { $slice: ["$words", 10] })
 
     Q(
-        Reading.find(
-            readingQuery,
-            projection
-        )
-        .populate('owner_id', 'fullname username')
-        .sort({createdAt: -1})
+        // Reading.find(
+        //     readingQuery,
+        //     projection
+        // )
+        Reading.aggregate([
+            { $match: readingQuery }
+        ])
+        // .populate('owner_id', 'fullname username')
+        // .sort({createdAt: -1})
         .exec()
     ).then((results) => {
-        // return res.status(200).send({ readings: results, query: readingQuery, proj: projection })
+        // return res.status(200).send({ readings: results, query: { $match: readingQuery }, proj: projection })
         return res.status(200).send({ readings: results })
     })
     .catch((err) => {
