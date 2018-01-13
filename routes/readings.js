@@ -355,13 +355,19 @@ let validateAndCleanSearchParams = function(query) {
 
     // size parameter
     if (query.size) {
-        if (typeof query.size !== 'number') { // make sure it's a number
+        let sizeOk = true
+        try {
+            query.size = parseInt(query.size)
+        } catch (e) {
+            sizeOk = false
             errors.push({
                 parameter: 'size',
-                message: 'supplied size not a number',
+                message: 'supplied size not recognized as an integer',
                 value: query.size
             })
-        } else if (query.size < 0 || query.size > 100) { // check that it's in range
+        }
+        
+        if (sizeOk && (query.size < 0 || query.size > 100)) { // check that it's in range
             errors.push({
                 parameter: 'size',
                 message: 'supplied size out of bounds [0, 100]',
@@ -372,13 +378,19 @@ let validateAndCleanSearchParams = function(query) {
 
     // start parameter
     if (query.start) {
-        if (typeof query.start !== 'number') { // make sure it's a number
+        let startOk = true
+        try {
+            query.start = parseInt(query.start)
+        } catch (e) {
+            startOk = false
             errors.push({
                 parameter: 'start',
-                message: 'supplied start not a number',
+                message: 'supplied start not recognized as an integer',
                 value: query.start
             })
-        } else if (start < 0 || start > 1000) { // check value of start
+        }
+
+        if ( startOk && (query.start < 0 || query.start > 1000)) { // check value of start
             errors.push({
                 parameter: 'start',
                 message: 'supplied start out of bounds [0, 1000]',
@@ -393,11 +405,13 @@ let validateAndCleanSearchParams = function(query) {
         if (!Array.isArray(query.grades)) {
             query.grades = [query.grades, query.grades]
         }
+        let gradesOk = true
 
         for(let i = 0; i < query.grades.length; i++) {
             try {
                 query.grades[i] = parseInt(query.grades[i])
             } catch (e) {
+                gradesOk = false
                 errors.push({
                     parameter: 'grades',
                     message: 'supplied grades not a number',
@@ -405,7 +419,7 @@ let validateAndCleanSearchParams = function(query) {
                 })
             }
 
-            if (query.grades[i] < 0 || query.grades[i] > 13) {
+            if (gradesOk && (query.grades[i] < 0 || query.grades[i] > 13)) {
                 errors.push({
                     parameter: 'grades',
                     message: 'supplied grades out of bounds [0, 13]',
@@ -559,7 +573,10 @@ router.get("/feed", function(req, res) {
         // )
         Reading.aggregate([
             { $match: readingQuery },
-            { $project: projection }
+            { $project: projection },
+            { $skip: query.start },
+            { $limit: query.size },
+
         ])
         // .populate('owner_id', 'fullname username')
         // .sort({createdAt: -1})
