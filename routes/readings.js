@@ -564,7 +564,25 @@ router.get("/feed", function(req, res) {
         projection[fieldsToReturn[i]] = true
     }
     // set up the words preview if the endpoint wants words
-    query.populate.indexOf('words_preview') > -1 && (projection.words_preview = { $slice: ["$words", 200] })
+    let populationList = [
+        {
+            parameter: 'words_preview',
+            project: { $slice: ["$words", 200] }
+        },
+        {
+            parameter: 'owner',
+            project: {
+
+            }
+        }
+    ]
+
+    // add all of the requested populations to the $project function
+    for(let pop of query.populate) {
+        projection[pop] = populationList.find((obj) => {
+            return obj.parameter === pop
+        }).project
+    }
 
     Q(
         // Reading.find(
