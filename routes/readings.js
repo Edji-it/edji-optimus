@@ -488,7 +488,7 @@ router.get("/feed", function(req, res) {
 
             let len = followedUsers.length
             for (let i = 0; i < len; i++) {
-                typeQuery.$or.push({ "owner_id" : followedUsers[i].toString() })
+                typeQuery.$or.push({ "owner_id" : followedUsers[i] })
             }
             readingQuery.$and.push(typeQuery)
             break
@@ -533,7 +533,7 @@ router.get("/feed", function(req, res) {
         projection[fieldsToReturn[i]] = true
     }
     // set up the words preview if the endpoint wants words
-    query.pop.words && (projection.words = { $slice: ["$words", 10] })
+    query.pop.words_preview && (projection.words_preview = { $slice: ["$words", 10] })
 
     Q(
         // Reading.find(
@@ -541,7 +541,8 @@ router.get("/feed", function(req, res) {
         //     projection
         // )
         Reading.aggregate([
-            { $match: readingQuery }
+            { $match: readingQuery },
+            { $project: projection }
         ])
         // .populate('owner_id', 'fullname username')
         // .sort({createdAt: -1})
