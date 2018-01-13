@@ -46,11 +46,11 @@ Future values:
 
 Test cases still need to be written
 
-### pop
+### populate
 
 `string` or `string[]` indicating which fields to sub-populate on the returned readings
 
-Accepted values: `words`, `owner`
+Accepted values: `words_preview`, `owner`
 
 ## Test Cases
 

@@ -337,8 +337,8 @@ let validateAndCleanSearchParams = function(query) {
         // nothing here yet!
     ]
     let allowedPopulations = [
-        'owner_id',
-        'word_preview'
+        'owner',
+        'words_preview'
     ]
 
     // query parameter validation
@@ -423,6 +423,23 @@ let validateAndCleanSearchParams = function(query) {
         }
     }
 
+    if (query.populate) {
+        // if it's a string we'll make it the first element of an array
+        if (!Array.isArray(query.populate)) {
+            query.populate = [query.populate]
+        }
+
+        query.populate.forEach((property) => {
+            if (allowedPopulations.indexOf(property) < 0) {
+                errors.push({
+                    parameter: 'populate',
+                    message: 'supplied populate value is not allowed',
+                    value: property
+                })
+            }
+        })
+    }
+
     // subjects parameter
     //  make sure subjects is an array
     if (!Array.isArray(query.subjects)) {
@@ -461,7 +478,7 @@ router.get("/feed", function(req, res) {
     query.start = req.query.start || 0
     query.grades = req.query.grades
     query.subjects = req.query.subjects || []
-    query.pop = req.query.pop || []
+    query.populate = req.query.populate || []
 
     let errors = validateAndCleanSearchParams(query)
     // stop execution if there are any errors
@@ -533,7 +550,7 @@ router.get("/feed", function(req, res) {
         projection[fieldsToReturn[i]] = true
     }
     // set up the words preview if the endpoint wants words
-    query.pop.words_preview && (projection.words_preview = { $slice: ["$words", 10] })
+    query.populate.indexOf('words_preview') > -1 && (projection.words_preview = { $slice: ["$words", 200] })
 
     Q(
         // Reading.find(
