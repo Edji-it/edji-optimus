@@ -484,6 +484,10 @@ let validateAndCleanSearchParams = function(query) {
 router.get("/feed", function(req, res) {
     let user = req.user
 
+    // the aggregation pipeline we'll be building throughout this route
+    let pipeline = []
+
+    // the query parameters passed in from req.query
     let query = {}
 
     // query parameter default setting
@@ -539,7 +543,9 @@ router.get("/feed", function(req, res) {
         readingQuery.$and.push({ grade_levels: { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }})
     }
 
-
+    // finished creating readingQuery, it's the first step of the pipeline
+    pipeline.push({ $match: readingQuery })
+    
     // this projection will be sent to Mongo to immediately follow up the query
     let projection = {}
     let fieldsToReturn = [
@@ -563,43 +569,33 @@ router.get("/feed", function(req, res) {
     for(let i = 0; i < len; i++) {
         projection[fieldsToReturn[i]] = true
     }
-    // set up the words preview if the endpoint wants words
-    let populationList = [
-        {
-            parameter: 'words_preview',
-            project: { $slice: ["$words", 200] }
-        },
-        {
-            parameter: 'owner',
-            project: {
+    query.populate.indexOf('words_preview') > -1 && ( projection.words_preview = { $slice: ["$words", 200] } )
 
-            }
-        }
-    ]
+    // finished with initial projection
+    pipeline.push({ $project: projection })
 
-    // add all of the requested populations to the $project function
-    for(let pop of query.populate) {
-        projection[pop] = populationList.find((obj) => {
-            return obj.parameter === pop
-        }).project
-    }
+    pipeline.push(
+        { $skip: query.start },
+        { $limit: query.size }
+    )
 
     Q(
         // Reading.find(
         //     readingQuery,
         //     projection
         // )
-        Reading.aggregate([
-            { $match: readingQuery },
-            { $project: projection },
-            { $skip: query.start },
-            { $limit: query.size },
-
-        ])
+        Reading.aggregate(pipeline)
         // .populate('owner_id', 'fullname username')
         // .sort({createdAt: -1})
         .exec()
     ).then((results) => {
+        if (query.populate.indexOf('owner') > -1) {
+            return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar' }))
+        } else {
+            return results
+        }
+    })
+    .then((results) => {
         // return res.status(200).send({ readings: results, query: { $match: readingQuery }, proj: projection })
         return res.status(200).send({ readings: results })
     })

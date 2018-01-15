@@ -21,4 +21,11 @@ module.exports = ModelCreator("Reading", {
     tags: [Tags.schema],
     draft: { type: Boolean },
     version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true }
+}, (schema) => {
+    schema.virtual('owner', {
+        ref: 'User',
+        localField: 'owner_id',
+        foreignField: '_id',
+        justOne: true
+    })
 })
