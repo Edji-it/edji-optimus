@@ -576,13 +576,7 @@ router.get("/feed", function(req, res) {
     )
 
     Q(
-        // Reading.find(
-        //     readingQuery,
-        //     projection
-        // )
         Reading.aggregate(pipeline)
-        // .populate('owner_id', 'fullname username')
-        // .sort({createdAt: -1})
         .exec()
     ).then((results) => {
         if (query.populate.indexOf('owner') > -1) {
