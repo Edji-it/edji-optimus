@@ -331,6 +331,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 let validateAndCleanSearchParams = function(query) {
     // allowable parameters
     let allowedTypes = [
+        'global',
         'following'
     ]
     let allowedSubjects = [
@@ -491,7 +492,7 @@ router.get("/feed", function(req, res) {
     let query = {}
 
     // query parameter default setting
-    query.type = req.query.type || 'following' // default should be changed once a more public-friendly results set is available
+    query.type = req.query.type || 'global' // default should be changed once a more public-friendly results set is available
     query.size = req.query.size || 15
     query.start = req.query.start || 0
     query.grades = req.query.grades
@@ -586,8 +587,8 @@ router.get("/feed", function(req, res) {
         }
     })
     .then((results) => {
-        // return res.status(200).send({ readings: results, query: { $match: readingQuery }, proj: projection })
-        return res.status(200).send({ readings: results })
+        return res.status(200).send({ readings: results, pipeline: pipeline })
+        // return res.status(200).send({ readings: results })
     })
     .catch((err) => {
         console.error(err)
