@@ -20,13 +20,14 @@ List of available query parameters and their acceptable values
 
 `string` with possible values:
 
-- following (default) - uses the logged in user's following list to find readings published by those authors
+-   global (default) - gets a list of most recently published readings which are public
+-   following - uses the logged in user's following list to find readings published by those authors
 
 Future values:
 
-- popular - a list of the most copied or liked readings
-- owned - a list of the readings published by the current user
-- private - a list of the user's published readings which are private
+-   popular - a list of the most copied or liked readings
+-   owned - a list of the readings published by the current user
+-   private - a list of the user's published readings which are private
 
 ### size
 
@@ -50,7 +51,9 @@ Test cases still need to be written
 
 `string` or `string[]` indicating which fields to sub-populate on the returned readings
 
-Accepted values: `words_preview`, `owner`
+Accepted values:
+-   words_preview - the first 200 words in the reading
+-   owner - populates display information for the reading's owner
 
 ## Test Cases
 

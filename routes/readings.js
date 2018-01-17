@@ -527,14 +527,9 @@ router.get("/feed", function(req, res) {
             }
             readingQuery.$and.push(typeQuery)
             break
+        case 'global':
         default:
-            let error = {
-                parameter: 'type',
-                message: 'unknown type parameter',
-                value: query.type
-            }
-            console.error(error)
-            return res.status(500).send({ errors: [error] })
+            readingQuery.$and.push({ public: true })
             break
     }
 
