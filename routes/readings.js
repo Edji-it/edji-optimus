@@ -571,7 +571,8 @@ router.get("/feed", function(req, res) {
 
     pipeline.push(
         { $skip: query.start },
-        { $limit: query.size }
+        { $limit: query.size },
+        { $sort: { createdAt: -1 }}
     )
 
     Q(
