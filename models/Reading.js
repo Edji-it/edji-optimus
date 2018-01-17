@@ -20,6 +20,8 @@ module.exports = ModelCreator("Reading", {
     cover_img: String,
     tags: [Tags.schema],
     draft: { type: Boolean },
+    grade_levels: [Number],
+    subjects: [String],
     version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true }
 }, (schema) => {
     schema.virtual('owner', {
