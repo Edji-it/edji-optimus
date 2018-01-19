@@ -574,32 +574,32 @@ router.get("/heroes/count", (req, res) => {
  */
 router.put("/following", middleware.authRequired, function(req, res) {
     let user = req.user
-    let body = req.body
+    let user_id = req.body.user_id
+    let follow = req.body.action == "follow"
 
-    let user_id = body.user_id
-    let follow = body.action == "follow"
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+        return res.status(400).send({ error: "invalid user_id property" })
+    }
 
-    if (mongoose.Types.ObjectId.isValid(user_id)) { 
-        if (!user.following) {
-            user.following = []
-        }
-        if (follow) {
-            // Add id to user's Following
-            if (user.following.indexOf(user_id) < 0) {
-                user.following.push(user_id)
-                user.save()
-            } else {
-                res.status(400).send({ error: "Invalid user, unable to follow"})
-            }   
+    if (!user.following) {
+        user.following = []
+    }
+    if (follow) {
+        // Add id to user's Following
+        if (user.following.indexOf(user_id) < 0) {
+            user.following.push(user_id)
+            user.forceSave()
         } else {
-            // Remove id to user's Following
-            let followIndex = user.following.indexOf(user_id)
-            if (followIndex > -1) {
-                user.following.splice(followIndex, 1)
-                user.save()
-            } else {
-                res.status(400).send({ error: "Invalid user, unable to follow"})
-            }
+            return res.status(400).send({ error: "Invalid user, unable to follow"})
+        }   
+    } else {
+        // Remove id to user's Following
+        let followIndex = user.following.indexOf(user_id)
+        if (followIndex > -1) {
+            user.following.splice(followIndex, 1)
+            user.forceSave()
+        } else {
+            return res.status(400).send({ error: "Invalid user, unable to follow"})
         }
     }
 
