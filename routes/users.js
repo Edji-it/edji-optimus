@@ -584,6 +584,7 @@ router.put("/following", middleware.authRequired, function(req, res) {
     if (!user.following) {
         user.following = []
     }
+
     if (follow) {
         // Add id to user's Following
         if (user.following.indexOf(user_id) < 0) {
@@ -603,7 +604,18 @@ router.put("/following", middleware.authRequired, function(req, res) {
         }
     }
 
-    return res.status(200).send({ user: user.toPublic() })
+    let followIndex = user.following.indexOf(user_id)
+    if (follow && user.following.indexOf(user_id) < 0) {
+        user.following.push(user_id)
+    } else if (!follow && user.following.indexOf(user_id > -1)) {
+        user.following.splice(followIndex, 1)
+    } else {
+        return res.status(400).send({ error: "Invalid user, unable to follow" })
+    }
+
+    user.save(false, (err, result) => {
+        return res.status(200).send({ user: result.toPublic() })
+    })
 })
 
 module.exports = router
