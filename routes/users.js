@@ -581,6 +581,10 @@ router.put("/following", middleware.authRequired, function(req, res) {
         return res.status(400).send({ error: "invalid user_id property" })
     }
 
+    if (user_id == user._id) {
+        return res.status(400).send({ error: "you cannot follow yourself" })
+    }
+
     if (!user.following) {
         user.following = []
     }
