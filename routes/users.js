@@ -585,14 +585,23 @@ router.put("/following", middleware.authRequired, function(req, res) {
         return res.status(400).send({ error: "you cannot follow yourself" })
     }
 
+    if (!action) {
+        return res.status(400).send({ error: "no action specified" })
+    }
+
+    if (!user_id) {
+        return res.status(400).send({ error: "no user_id specified" })
+    }
+
     if (!user.following) {
         user.following = []
     }
 
     let followIndex = user.following.indexOf(user_id)
-    if (follow && user.following.indexOf(user_id) < 0) {
+    let error = { error: "invalid user, unable to follow" }
+    if (follow && followIndex < 0) {
         user.following.push(user_id)
-    } else if (!follow && user.following.indexOf(user_id > -1)) {
+    } else if (!follow && followIndex > -1) {
         user.following.splice(followIndex, 1)
     } else {
         return res.status(400).send({ error: "Invalid user, unable to follow" })
