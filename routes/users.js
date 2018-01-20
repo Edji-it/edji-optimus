@@ -585,7 +585,7 @@ router.put("/following", middleware.authRequired, function(req, res) {
         return res.status(400).send({ error: "you cannot follow yourself" })
     }
 
-    if (!action) {
+    if (!req.body.action) {
         return res.status(400).send({ error: "no action specified" })
     }
 
