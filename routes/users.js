@@ -618,6 +618,9 @@ router.put("/following", middleware.authRequired, function(req, res) {
     }
 
     user.save(false, (err, result) => {
+        if (err) {
+            return res.status(500).send()
+        }
         return res.status(200).send({ user: result.toPublic() })
     })
 })
