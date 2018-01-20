@@ -89,7 +89,7 @@ let model = ModelCreator("User", {
         singleUseToken: String,
         singleUseTokenExpiration: Date
     }],
-    email:{type:String, set:toLower, required:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
+    email:{type:String, set:toLower, required:true, unique:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
     identities: [String],
     resetPasswordToken: String,
     resetPasswordExpires: Date,
