@@ -597,10 +597,9 @@ router.put("/following", middleware.authRequired, function(req, res) {
         user.following = []
     }
 
-    let followIndex = user.following.indexOf(user_id)
-    let error = { error: "invalid user, unable to follow" }
-    if (follow && followIndex < 0) {
-        if (followIndex < 0) {
+    let followingMatch = user.following.find((value) => { return value.equals(user_id) })
+    if (follow) {
+        if (!followingMatch) {
             user.following.push(user_id)
         } else {
             return res.status(400).send({
@@ -609,8 +608,8 @@ router.put("/following", middleware.authRequired, function(req, res) {
             })
         }
     } else {
-        if (followIndex < -1) {
-            user.following.splice(followIndex, 1)
+        if (followingMatch) {
+            user.following.splice(user.following.indexOf(followingMatch), 1)
         } else {
             return res.status(400).send({
                 error: "requested user was not yet followed",
@@ -621,7 +620,7 @@ router.put("/following", middleware.authRequired, function(req, res) {
 
     user.save(false, (err, result) => {
         if (err) {
-            return res.status(500).send()
+            return res.status(500).send({ error: err })
         }
         return res.status(200).send({ user: result.toPublic() })
     })
