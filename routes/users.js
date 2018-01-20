@@ -600,11 +600,23 @@ router.put("/following", middleware.authRequired, function(req, res) {
     let followIndex = user.following.indexOf(user_id)
     let error = { error: "invalid user, unable to follow" }
     if (follow && followIndex < 0) {
-        user.following.push(user_id)
-    } else if (!follow && followIndex > -1) {
-        user.following.splice(followIndex, 1)
+        if (followIndex < 0) {
+            user.following.push(user_id)
+        } else {
+            return res.status(400).send({
+                error: "requested user is already followed",
+                action: req.body.action
+            })
+        }
     } else {
-        return res.status(400).send({ error: "Invalid user, unable to follow" })
+        if (followIndex < -1) {
+            user.following.splice(followIndex, 1)
+        } else {
+            return res.status(400).send({
+                error: "requested user was not yet followed",
+                action: req.body.action
+            })
+        }
     }
 
     user.save(false, (err, result) => {
