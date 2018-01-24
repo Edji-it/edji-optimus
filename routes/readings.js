@@ -30,7 +30,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
     if (!reading.owner_id || reading.owner_id != user._id || !reading.version_id) { reading.version_id = mongoose.Types.ObjectId() }
 
     // going to just always set owner_id for now. don't see any reason that the front end would set it
-    reading.owner_id = mongoose.Types.ObjectId(user._id)
+    reading.owner_id = user._id
 
     // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
     // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
