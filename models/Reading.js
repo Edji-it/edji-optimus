@@ -11,7 +11,7 @@ module.exports = ModelCreator("Reading", {
     html:{type: String, required: true},
     words: {type: [], required: true},
     title:{type: String, required: true},
-    owner_id: {type: String, required: true, ref: "User"},
+    owner_id: {type: mongoose.Schema.ObjectId, required: true, ref: "User"},
     teacher_ids: [String],
     public: Boolean,
     questions: [Question.schema],
