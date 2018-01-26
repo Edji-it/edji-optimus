@@ -136,6 +136,39 @@ router.put("/", middleware.authRequired, function(req, res){
     })
 })
 
+/**
+ * Search route for followers
+ */
+router.get("/followers", middleware.authRequired, (req, res) => {
+    let user = req.user
+
+    let allowedTypes = [ 'popular' ]
+
+    let type = req.query.type || 'popular'
+
+    if (allowedTypes.indexOf(type) < 0) {
+        return res.status(400).send({ errors: [{
+            parameter: 'type',
+            message: 'type does not match any allowed type values',
+            value: type
+        }]})
+    }
+
+    Q(User.aggregate([
+        { $match: { following: { $exists: true }}},
+        { $unwind: "$following" },
+        { $group: { _id: "$_id", len: { $sum: 1 }}},
+        { $limit: 5 }
+    ]))
+    .then((users) => {
+        return res.status(200).send({ users: users })
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+    })
+})
+
 router.get("/:id", middleware.authRequired, function(req, res) {
     let user = req.user
     let _id = req.params.id
@@ -572,7 +605,7 @@ router.get("/heroes/count", (req, res) => {
 /**
  * Adds a user id to a user's "following" array
  */
-router.put("/following", middleware.authRequired, function(req, res) {
+router.put("/followers", middleware.authRequired, function(req, res) {
     let user = req.user
     let user_id = req.body.user_id
     let follow = req.body.action == "follow"
