@@ -168,6 +168,22 @@ let cancelSubscription = function(subscriptionId) {
     })
 }
 
+/**
+ * Looks up a Stripe coupon and returns it
+ * @param {string} couponId The id of the coupon
+ */
+let getCoupon = function(couponId) {
+    return new Promise((resolve, reject) => {
+        stripe.coupons.retrieve(
+            couponId,
+            function(err, coupon) {
+                if (err) { reject(err) }
+                else { resolve(coupon) }
+            }
+        )
+    })
+}
+
 /** Route to subscribe to Hero!!! */
 router.post("/", Middleware.authRequired, function(req, res) {
     let user = req.user
@@ -242,7 +258,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
 
         let handleError = function(err) {
             console.error(err)
-            res.status(500).send({ })
+            return res.status(500).send({ })
         }
 
         let handleSuccess = function(sub) {
@@ -334,6 +350,27 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
                     res.status(500).send()
             }
         })
+})
+
+// find and validate a coupon code submitted by a user
+router.get("/coupons/:coupon_id", Middleware.authRequired, (req, res) => {
+    let couponId = req.params.coupon_id
+    if (!couponId) { return res.status(400).send({ error: "no coupon id supplied" }) }
+
+    getCoupon(couponId)
+    .then((coupon) => {
+        return res.status(200).send({ status: "coupon_found" })
+    })
+    .catch((err) => {
+        switch (err.statusCode) {
+            case 404:
+                return res.status(404).send({ error: "coupon not found" })
+                break
+            default:
+                console.error(err)
+                return res.status(500).send({ error: "server encountered unknown error from Stripe api" })
+        }
+    })
 })
 
 module.exports = router
