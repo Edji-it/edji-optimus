@@ -157,7 +157,8 @@ router.get("/followers", middleware.authRequired, (req, res) => {
     Q(User.aggregate([
         { $match: { following: { $exists: true }}},
         { $unwind: "$following" },
-        { $group: { _id: "$_id", len: { $sum: 1 }}},
+        { $group: { _id: "$following", len: { $sum: 1 }}},
+        { $sort: { len: -1 }},
         { $limit: 5 }
     ]))
     .then((users) => {
