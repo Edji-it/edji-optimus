@@ -12,7 +12,7 @@ Provide an endpoint which will add a user's id to a requestor's `following` arra
 
 Needs Authorization token
 
-`/users/followers`
+`/users/following`
 
 ## Expected Parameters
 

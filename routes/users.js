@@ -139,7 +139,7 @@ router.put("/", middleware.authRequired, function(req, res){
 /**
  * Search route for followers
  */
-router.get("/followers", middleware.authRequired, (req, res) => {
+router.get("/following", middleware.authRequired, (req, res) => {
     let user = req.user
 
     let allowedTypes = [ 'popular' ]
@@ -606,7 +606,7 @@ router.get("/heroes/count", (req, res) => {
 /**
  * Adds a user id to a user's "following" array
  */
-router.put("/followers", middleware.authRequired, function(req, res) {
+router.put("/following", middleware.authRequired, function(req, res) {
     let user = req.user
     let user_id = req.body.user_id
     let follow = req.body.action == "follow"
