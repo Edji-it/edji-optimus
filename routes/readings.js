@@ -569,7 +569,7 @@ router.get("/feed", function(req, res) {
         projection[fieldsToReturn[i]] = true
     }
 
-    projection.has_questions = { $gt: [ { $size: "$questions" }, 0 ] }
+    projection.heroic = { $gt: [ { $size: "$questions" }, 0 ] }
     query.populate.indexOf('words_preview') > -1 && ( projection.words_preview = { $slice: ["$words", 200] } )
 
     // finished with initial projection
