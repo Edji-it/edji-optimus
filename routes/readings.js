@@ -539,6 +539,9 @@ router.get("/feed", function(req, res) {
         readingQuery.$and.push({ grade_levels: { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }})
     }
 
+    // don't get readings that belong to the requesting user
+    readingQuery.$and.push({ owner_id: { $ne: user._id }})
+
     // finished creating readingQuery, it's the first step of the pipeline
     pipeline.push({ $match: readingQuery })
     
