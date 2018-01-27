@@ -540,7 +540,7 @@ router.get("/feed", function(req, res) {
     }
 
     // don't get readings that belong to the requesting user
-    readingQuery.$and.push({ owner_id: { $ne: user._id }})
+    user && readingQuery.$and.push({ owner_id: { $ne: user._id }})
 
     // finished creating readingQuery, it's the first step of the pipeline
     pipeline.push({ $match: readingQuery })
@@ -568,6 +568,14 @@ router.get("/feed", function(req, res) {
     for(let i = 0; i < len; i++) {
         projection[fieldsToReturn[i]] = true
     }
+
+    projection.heroic = { $cond: {
+        if: {
+            $gte: [ { $size: "$questions" }, 0 ]
+        },
+        then: true,
+        else: false
+    }}
     query.populate.indexOf('words_preview') > -1 && ( projection.words_preview = { $slice: ["$words", 200] } )
 
     // finished with initial projection
