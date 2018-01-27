@@ -9,18 +9,25 @@ let Tags = require("./Tags")
 
 module.exports = ModelCreator("Reading", {
     html:{type: String, required: true},
-    preppedHtml: String, // depricated
     words: {type: [], required: true},
     title:{type: String, required: true},
-    owner_id: {type: String, required: true, ref: "User"},
+    owner_id: {type: mongoose.Schema.ObjectId, required: true, ref: "User"},
     teacher_ids: [String],
     public: Boolean,
-    comments: [Comment.schema],
     questions: [Question.schema],
     promoter_ids: [String],
     source: String,
     cover_img: String,
     tags: [Tags.schema],
     draft: { type: Boolean },
+    grade_levels: [Number],
+    subjects: [String],
     version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true }
+}, (schema) => {
+    schema.virtual('owner', {
+        ref: 'User',
+        localField: 'owner_id',
+        foreignField: '_id',
+        justOne: true
+    })
 })

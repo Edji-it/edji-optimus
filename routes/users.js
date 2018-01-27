@@ -136,6 +136,40 @@ router.put("/", middleware.authRequired, function(req, res){
     })
 })
 
+/**
+ * Search route for followers
+ */
+router.get("/following", middleware.authRequired, (req, res) => {
+    let user = req.user
+
+    let allowedTypes = [ 'popular' ]
+
+    let type = req.query.type || 'popular'
+
+    if (allowedTypes.indexOf(type) < 0) {
+        return res.status(400).send({ errors: [{
+            parameter: 'type',
+            message: 'type does not match any allowed type values',
+            value: type
+        }]})
+    }
+
+    Q(User.aggregate([
+        { $match: { following: { $exists: true }}},
+        { $unwind: "$following" },
+        { $group: { _id: "$following", len: { $sum: 1 }}},
+        { $sort: { len: -1 }},
+        { $limit: 5 }
+    ]))
+    .then((users) => {
+        return res.status(200).send({ users: users })
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+    })
+})
+
 router.get("/:id", middleware.authRequired, function(req, res) {
     let user = req.user
     let _id = req.params.id
@@ -567,6 +601,63 @@ router.get("/heroes/count", (req, res) => {
             console.error(err)
             return res.status(500).send()
         })
+})
+
+/**
+ * Adds a user id to a user's "following" array
+ */
+router.put("/following", middleware.authRequired, function(req, res) {
+    let user = req.user
+    let user_id = req.body.user_id
+    let follow = req.body.action == "follow"
+
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+        return res.status(400).send({ error: "invalid user_id property" })
+    }
+
+    if (user_id == user._id) {
+        return res.status(400).send({ error: "you cannot follow yourself" })
+    }
+
+    if (!req.body.action) {
+        return res.status(400).send({ error: "no action specified" })
+    }
+
+    if (!user_id) {
+        return res.status(400).send({ error: "no user_id specified" })
+    }
+
+    if (!user.following) {
+        user.following = []
+    }
+
+    let followingMatch = user.following.find((value) => { return value.equals(user_id) })
+    if (follow) {
+        if (!followingMatch) {
+            user.following.push(user_id)
+        } else {
+            return res.status(400).send({
+                error: "requested user is already followed",
+                action: req.body.action
+            })
+        }
+    } else {
+        if (followingMatch) {
+            user.following.splice(user.following.indexOf(followingMatch), 1)
+        } else {
+            return res.status(400).send({
+                error: "requested user was not yet followed",
+                action: req.body.action
+            })
+        }
+    }
+
+    user.save(false, (err, result) => {
+        if (err) {
+            return res.status(500).send({ error: err })
+        }
+        return res.status(200).send({ user: result.toPublic() })
+    })
 })
 
 module.exports = router

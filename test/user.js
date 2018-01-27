@@ -54,6 +54,8 @@ describe("Users", () => {
                         var token = res.body.token
                         token.should.be.a("string")
                         token.should.not.equal("")
+
+                        testUsers.newUser = res.body
                         
                         done()
                     })
@@ -503,4 +505,35 @@ describe("Users", () => {
                 })
         })
     })
+
+    // describe("PUT /user/following", () => {
+    //     let user_id = testUsers.testTeacher.user._id
+
+    //     before((done) => {
+    //         chai.request(server)
+    //         .put("/users/following")
+    //         .set("Authorization", testUsers.newUser.token)
+    //         .send({ action: "unfollow", user_id: user_id })
+    //         .end((err, res) => {
+    //             // there might be an error here or it might succeed, either way we only need to reset it so that the new user is not following testTeacher
+    //             done()
+    //         })
+    //     })
+
+
+    //     it("should follow a user", (done) => {
+    //         chai.request(server)
+    //         .put("/users/following")
+    //         .set("Authorization", testUsers.newUser.token)
+    //         .send({ action: "unfollow", user_id: user_id })
+    //         .end((err, res) => {
+    //             res.should.have.status(200)
+    //             res.body.should.have.property("user")
+    //             res.body.user.should.have.property("following")
+    //             res.body.user.following.should.be.instanceOf(Array)
+    //             res.body.user.following.indexOf(user_id).should.be.above(-1)
+    //             done()
+    //         })
+    //     })
+    // })
 })

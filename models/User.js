@@ -142,6 +142,7 @@ let model = ModelCreator("User", {
          */
         customer_id: String 
     },
+    following: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     prefs: {
         recentEmoji: [ String ],
         onboarding: {

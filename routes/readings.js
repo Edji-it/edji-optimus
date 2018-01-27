@@ -13,8 +13,6 @@ let Middleware = require("./../middleware/Middleware")
 
 var router = express.Router()
 
-MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
-
 router.post("/", Middleware.authRequired, function(req, res) {
     let reading = req.body.reading
     let user = req.user
@@ -325,13 +323,291 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
         })
 })
 
+/**
+ * Pass in query parameters and receive an array of errors if there is an error, and false if no errors
+ *  it also makes a few changes to clean the data on the query parameters supplied
+ * @param {any} query The query parameters from the req object
+ */
+let validateAndCleanSearchParams = function(query) {
+    // allowable parameters
+    let allowedTypes = [
+        'global',
+        'following'
+    ]
+    let allowedSubjects = [
+        // nothing here yet!
+    ]
+    let allowedPopulations = [
+        'owner',
+        'words_preview'
+    ]
+
+    // query parameter validation
+    let errors = []
+
+    // type parameter
+    if (allowedTypes.indexOf(query.type) < 0) {
+        errors.push({
+            parameter: 'type',
+            message: 'supplied type not allowed',
+            value: query.type
+        })
+    }
+
+    // size parameter
+    if (query.size) {
+        let sizeOk = true
+        try {
+            query.size = parseInt(query.size)
+        } catch (e) {
+            sizeOk = false
+            errors.push({
+                parameter: 'size',
+                message: 'supplied size not recognized as an integer',
+                value: query.size
+            })
+        }
+        
+        if (sizeOk && (query.size < 0 || query.size > 100)) { // check that it's in range
+            errors.push({
+                parameter: 'size',
+                message: 'supplied size out of bounds [0, 100]',
+                value: query.size
+            })
+        }
+    }
+
+    // start parameter
+    if (query.start) {
+        let startOk = true
+        try {
+            query.start = parseInt(query.start)
+        } catch (e) {
+            startOk = false
+            errors.push({
+                parameter: 'start',
+                message: 'supplied start not recognized as an integer',
+                value: query.start
+            })
+        }
+
+        if ( startOk && (query.start < 0 || query.start > 1000)) { // check value of start
+            errors.push({
+                parameter: 'start',
+                message: 'supplied start out of bounds [0, 1000]',
+                value: query.start
+            })
+        }
+    }
+
+    // grades parameter
+    if (query.grades) {
+        // if it's not an array already, make it one
+        if (!Array.isArray(query.grades)) {
+            query.grades = [query.grades, query.grades]
+        }
+        let gradesOk = true
+
+        for(let i = 0; i < query.grades.length; i++) {
+            try {
+                query.grades[i] = parseInt(query.grades[i])
+            } catch (e) {
+                gradesOk = false
+                errors.push({
+                    parameter: 'grades',
+                    message: 'supplied grades not a number',
+                    value: query.grades[i]
+                })
+            }
+
+            if (gradesOk && (query.grades[i] < 0 || query.grades[i] > 13)) {
+                errors.push({
+                    parameter: 'grades',
+                    message: 'supplied grades out of bounds [0, 13]',
+                    value: query.grades[i]
+                })
+            }
+        }
+
+        if (query.grades.length > 2) {
+            errors.push({
+                parameter: 'grades',
+                message: 'supplied more than two values for grades',
+                value: query.grades
+            })
+        }
+    }
+
+    if (query.populate) {
+        // if it's a string we'll make it the first element of an array
+        if (!Array.isArray(query.populate)) {
+            query.populate = [query.populate]
+        }
+
+        query.populate.forEach((property) => {
+            if (allowedPopulations.indexOf(property) < 0) {
+                errors.push({
+                    parameter: 'populate',
+                    message: 'supplied populate value is not allowed',
+                    value: property
+                })
+            }
+        })
+    }
+
+    // subjects parameter
+    //  make sure subjects is an array
+    if (!Array.isArray(query.subjects)) {
+        query.subjects = [query.subjects]
+    }
+
+    let disallowedSubjects = []
+    for (let sub in query.subjects) {
+        if (allowedSubjects.indexOf(sub) < 0) {
+            disallowedSubjects.push(sub)
+        }
+    }
+
+    if (disallowedSubjects.length > 0) {
+        for (let sub in disallowedSubjects) {
+            errors.push({
+                parameter: 'subjects',
+                message: 'supplied subjects contains value not allowed in subjects field',
+                value: sub
+            })
+        }
+    }
+
+    return errors.length > 0 ? errors : false
+}
+
+// Get all Readings from users that requesting user follows
+router.get("/feed", function(req, res) {
+    let user = req.user
+
+    // the aggregation pipeline we'll be building throughout this route
+    let pipeline = []
+
+    // the query parameters passed in from req.query
+    let query = {}
+
+    // query parameter default setting
+    query.type = req.query.type || 'global' // default should be changed once a more public-friendly results set is available
+    query.size = req.query.size || 15
+    query.start = req.query.start || 0
+    query.grades = req.query.grades
+    query.subjects = req.query.subjects || []
+    query.populate = req.query.populate || []
+
+    let errors = validateAndCleanSearchParams(query)
+    // stop execution if there are any errors
+    if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
+
+    let readingQuery = {
+        $and: []
+    }
+
+    switch (query.type) { // there will eventually be more here for types
+        case 'following':
+            let followedUsers
+            if (user && user.following && user.following.length > 0) {
+                followedUsers = user.following
+            } else {
+                // they won't have any readings with matching owner_ids if they aren't following anyone
+                return res.status(200).send({ readings: [] })
+            }
+
+            let typeQuery = {
+                public: true,
+                $or: []
+            }
+
+            let len = followedUsers.length
+            for (let i = 0; i < len; i++) {
+                typeQuery.$or.push({ "owner_id" : followedUsers[i] })
+            }
+            readingQuery.$and.push(typeQuery)
+            break
+        case 'global':
+        default:
+            readingQuery.$and.push({ public: true })
+            break
+    }
+
+    // filter down on grade level if it is given
+    if (query.grades && query.grades.length > 0) {
+        readingQuery.$and.push({ grade_levels: { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }})
+    }
+
+    // don't get readings that belong to the requesting user
+    user && readingQuery.$and.push({ owner_id: { $ne: user._id }})
+
+    // finished creating readingQuery, it's the first step of the pipeline
+    pipeline.push({ $match: readingQuery })
+    
+    // this projection will be sent to Mongo to immediately follow up the query
+    let projection = {}
+    let fieldsToReturn = [
+        'title',
+        'owner_id',
+        'teacher_ids',
+        'public',
+        'promoter_ids',
+        'source',
+        'subjects',
+        'grade_levels',
+        'cover_img',
+        'tags',
+        'draft',
+        'version_id',
+        'createdAt',
+        'updatedAt'
+    ]
+    // first, set up all of the fields that will be returned unaltered
+    let len = fieldsToReturn.length
+    for(let i = 0; i < len; i++) {
+        projection[fieldsToReturn[i]] = true
+    }
+
+    projection.heroic = { $gt: [ { $size: "$questions" }, 0 ] }
+    query.populate.indexOf('words_preview') > -1 && ( projection.words_preview = { $slice: ["$words", 200] } )
+
+    // finished with initial projection
+    pipeline.push({ $project: projection })
+
+    pipeline.push(
+        { $skip: query.start },
+        { $limit: query.size },
+        { $sort: { createdAt: -1 }}
+    )
+
+    Q(
+        Reading.aggregate(pipeline)
+        .exec()
+    ).then((results) => {
+        if (query.populate.indexOf('owner') > -1) {
+            return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar' }))
+        } else {
+            return results
+        }
+    })
+    .then((results) => {
+        // return res.status(200).send({ readings: results, pipeline: pipeline })
+        return res.status(200).send({ readings: results })
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+    })
+})
+
 // //allows teachers to recommend reading to community library
 // router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
 //     var reading_id = req.params.reading_id
 //     var user = req.user
 
 //     Reading.findById(reading_id, function(error, reading) {
-//         error && console.error(error)
+//         error && console.log(error)
 
 //         if (reading) {
 //             if (!reading.promoter_ids) { //update older readings
@@ -348,5 +624,7 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
 //         }
 //     })
 // })
+
+MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
 
 module.exports = router
