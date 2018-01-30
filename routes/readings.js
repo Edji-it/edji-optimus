@@ -115,7 +115,7 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
     Q(Reading.findById(reading_id).exec())
         .then((result) => {
             if (!result) { return res.status(404).send() }
-            if (result.owner_id != user._id) { return res.status(401).send() }
+            if (!user._id.equals(result.owner_id)) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
             result.save(false, (err) => {
@@ -242,7 +242,7 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
             if (readings.length < 1) { return res.status(404).send() }
 
             // check the first reading's owner_id to see if it matches the user._id
-            if (readings[0].owner_id != user._id) { return res.status(401).send() }
+            if (!user._id.equals(readings[0].owner_id)) { return res.status(401).send() }
             res.status(200).send({readings})
         })
         .catch((err) => {
