@@ -15,8 +15,8 @@ var typesEnum = {
 }
 
 var Model = ModelCreator("Project", {
-    reading_id:{type:String, required:true, ref:"Reading"},
-    teacher_id:{type:String, required:true, ref:"User"},
+    reading_id:{type: String, required:true, ref:"Reading"},
+    teacher_id:{type: String, required:true, ref:"User"},
     comments:[Comment.schema],
     answers:[Comment.schema],
     students_ids:[{ type: String, ref: "User" }],
@@ -26,6 +26,13 @@ var Model = ModelCreator("Project", {
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
     tags: [Tags.schema],
     heat_vision: Boolean
+}, (schema) => {
+    schema.virtual('teacher', {
+        ref: 'User',
+        localField: 'teacher_id',
+        foreignField: '_id',
+        justOne: true
+    })
 })
 
 Model.schema.pre("save", function(next){

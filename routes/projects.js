@@ -101,9 +101,12 @@ router.get("/:id", function(req, res) {
 
     Q(Project.findOne(findParams)
             .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id questions") // populate the reading_id if it was provided to query
-            .populate('teacher_id','fullname username')
+            // .populate('teacher','fullname username')
             .exec()
         )
+        .then((project) => {
+            return Q(Project.populate(project, { path: 'teacher', select: 'fullname username' }))
+        })
         .then((project) => {
 
             if (!project) {
@@ -115,7 +118,7 @@ router.get("/:id", function(req, res) {
             //  we add them to the temp_ids or students_ids array
             if (user) {
                 // don't add the teacher to the students array of their own project
-                if (!user._id.equals(project.teacher_id._id)) {
+                if (!user._id.equals(project.teacher_id)) {
                     if (user.type && user.type === "temp") {
                         // only add the user's id if it's not already in the project
                         if (project.temp_ids.indexOf(req.user._id) < 0) {
