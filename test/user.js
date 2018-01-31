@@ -68,8 +68,7 @@ describe("Users", () => {
                     .send({ user: data.users.duplicateUser })
                     .end((err, res) => {
                         //initial validation
-                        res.should.have.status(409)
-                        res.should.have.property("error")
+                        res.should.have.status(406)
                         done()
                     })
             })
