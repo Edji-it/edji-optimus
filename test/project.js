@@ -228,7 +228,7 @@ describe("Projects", () => {
 
     it("should return 404 for invalid project", (done) => {
       chai.request(server)
-        .get("/projects/demo/validate")
+        .get("/projects/jkfioenwqofnvoil/validate")
         .end((err, res) => {
           res.should.have.status(404)
           done()

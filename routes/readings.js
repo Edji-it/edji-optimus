@@ -27,7 +27,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
     //  if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
     //  all we have to do is give it the version id, because later we'll create the ReadingVersion based on this id
     let makeNewVersionId = false
-    if (!reading.owner_id || reading.owner_id != user._id || !reading.version_id) { reading.version_id = mongoose.Types.ObjectId() }
+    if (!reading.owner_id || !user._id.equals(reading.owner_id) || !reading.version_id) { reading.version_id = mongoose.Types.ObjectId() }
 
     // going to just always set owner_id for now. don't see any reason that the front end would set it
     reading.owner_id = user._id
