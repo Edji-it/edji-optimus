@@ -115,7 +115,7 @@ router.get("/:id", function(req, res) {
             //  we add them to the temp_ids or students_ids array
             if (user) {
                 // don't add the teacher to the students array of their own project
-                if (user._id != project.teacher_id) {
+                if (user._id != project.teacher_id._id) {
                     if (user.type && user.type === "temp") {
                         // only add the user's id if it's not already in the project
                         if (project.temp_ids.indexOf(req.user._id) < 0) {
