@@ -214,7 +214,9 @@ router.put("/:id", Middleware.authRequired, function(req, res) {
         return
     }
 
-    Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, project, {
+    let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags'])
+
+    Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
         new: true, runValidators: true, setDefaultsOnInsert: true
     }).exec())
     .then((project) => {
@@ -223,7 +225,7 @@ router.put("/:id", Middleware.authRequired, function(req, res) {
             res.status(404).send()
             return
         } else {
-            res.status(200).send({project: project})
+            res.status(200).send({ project: project })
         }
     })
     .catch((err) => {
