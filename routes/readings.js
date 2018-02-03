@@ -293,6 +293,8 @@ router.get("/all/projects", Middleware.authRequired, function(req, res) {
                 teacher_ids: "$reading.teacher_ids",
                 "public": "$reading.public",
                 source: "$reading.source",
+                subjects: "$reading.subjects",
+                grade_levels: "$reading.grade_levels",
                 cover_img: "$reading.cover_img",
                 draft: "$reading.draft",
                 version_id: "$reading.version_id",
