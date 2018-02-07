@@ -506,7 +506,7 @@ router.get("/feed", function(req, res) {
     if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
 
     let readingQuery = {
-        $and: []
+        $and: [{ draft: { $ne: true }}]
     }
 
     switch (query.type) { // there will eventually be more here for types
