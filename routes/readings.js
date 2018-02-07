@@ -580,7 +580,7 @@ router.get("/feed", function(req, res) {
     pipeline.push(
         { $skip: query.start },
         { $limit: query.size },
-        { $sort: { createdAt: -1 }}
+        { $sort: { updatedAt: -1 }}
     )
 
     Q(
