@@ -588,10 +588,17 @@ router.get("/feed", function(req, res) {
         .exec()
     ).then((results) => {
         if (query.populate.indexOf('owner') > -1) {
-            return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar' }))
+            return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar identities' }))
         } else {
             return results
         }
+    })
+    .then((results) => {
+        // only return teachers' readings for now
+        return results.filter((reading) => {
+            let identities = reading.owner.identities
+            return identities && identities.indexOf('teacher') > -1
+        })
     })
     .then((results) => {
         // return res.status(200).send({ readings: results, pipeline: pipeline })
