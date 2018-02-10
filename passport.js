@@ -68,7 +68,7 @@ passport.use('google', new GoogleStrategy({
                     { forceSave: true },
                     (err, newUser) => {
                         if (err) {
-                            return done({ error: err })
+                            return done({ error: err, type: "oauth", code: "err_duplicate_user" })
                         } else {
                             return done(null, newUser)
                         }

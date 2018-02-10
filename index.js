@@ -50,11 +50,20 @@ app.use("/subscriptions", subscriptions)
 
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
+// handler for oauth errors
 app.use((err, req, res, next) => {
-    if (err) {
-        console.error('i got an error yo')
+    if (err && err.type && err.type == 'oauth') {
+        switch (err.code) {
+            case "err_duplicate_user":
+                const redirect = req.protocol + ":" + config.get('CLIENT_URL') + "/#/oauth/google?error=duplicate_user"
+                res.redirect(redirect)
+                break
+            default:
+                next(err)
+        }
+    } else {
+        next(err)
     }
-    next(err)
 })
 
 let port = process.env.PORT || 3354
