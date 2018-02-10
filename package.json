@@ -38,6 +38,7 @@
     "hashids": "^1.1.0",
     "jsonwebtoken": "^5.7.0",
     "mailchimp-api-v3": "^1.7.0",
+    "method-override": "^2.3.10",
     "mongoose": "4.7.6",
     "mongoose-simple-random": "^0.3.3",
     "nodemailer": "^2.6.4",

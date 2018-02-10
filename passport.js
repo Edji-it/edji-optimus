@@ -68,8 +68,7 @@ passport.use('google', new GoogleStrategy({
                     { forceSave: true },
                     (err, newUser) => {
                         if (err) {
-                            console.error(err)
-                            return done(err)
+                            return done({ error: err })
                         } else {
                             return done(null, newUser)
                         }

@@ -3,8 +3,9 @@
  */
 
 const express = require("express")
-const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
+const methodOverride = require("method-override")
+const mongoose = require("mongoose")
 const User = require("./models/User")
 const LoginController = require("./middleware/LoginController")
 const middleware = require("./middleware/Middleware")
@@ -46,6 +47,15 @@ app.use("/projects", projects)
 app.use("/auth", auth)
 app.use("/mailchimp", mailchimp)
 app.use("/subscriptions", subscriptions)
+
+// error handlers should come last!
+app.use(methodOverride()) // this passes the errors through middleware
+app.use((err, req, res, next) => {
+    if (err) {
+        console.error('i got an error yo')
+    }
+    next(err)
+})
 
 let port = process.env.PORT || 3354
 
