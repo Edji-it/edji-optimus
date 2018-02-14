@@ -587,11 +587,11 @@ router.get("/feed", function(req, res) {
         Reading.aggregate(pipeline)
         .exec()
     ).then((results) => {
-        if (query.populate.indexOf('owner') > -1) {
-            return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar identities' }))
-        } else {
-            return results
-        }
+        // if (query.populate.indexOf('owner') > -1) {
+        return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar identities' }))
+        // } else {
+        //     return results
+        // }
     })
     .then((results) => {
         // only return teachers' readings for now
