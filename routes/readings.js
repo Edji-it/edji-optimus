@@ -578,8 +578,8 @@ router.get("/feed", function(req, res) {
     pipeline.push({ $project: projection })
 
     pipeline.push(
-        { $skip: query.start },
         { $sort: { updatedAt: -1 }},
+        { $skip: query.start },
         { $limit: query.size }
     )
 
