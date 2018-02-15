@@ -507,8 +507,7 @@ router.get("/feed", function(req, res) {
 
     let readingQuery = {
         $and: [
-            { draft: { $ne: true }},
-            { owner_id: { $exists: true } }
+            { draft: { $ne: true }}
         ]
     }
 
@@ -596,8 +595,12 @@ router.get("/feed", function(req, res) {
     .then((results) => {
         // only return teachers' readings for now
         return results.filter((reading) => {
-            let identities = reading.owner.identities
-            return identities && identities.indexOf('teacher') > -1
+            if (reading.owner) {
+                let identities = reading.owner.identities
+                return identities && identities.indexOf('teacher') > -1
+            } else {
+                return false
+            }
         })
     })
     .then((results) => {
