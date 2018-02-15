@@ -506,7 +506,10 @@ router.get("/feed", function(req, res) {
     if (errors.length > 0) { return res.status(400).send({ errors: errors }) }
 
     let readingQuery = {
-        $and: [{ draft: { $ne: true }}]
+        $and: [
+            { draft: { $ne: true }},
+            { owner_id: { $exists: true } }
+        ]
     }
 
     switch (query.type) { // there will eventually be more here for types
