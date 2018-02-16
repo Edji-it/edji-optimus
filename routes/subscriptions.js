@@ -9,6 +9,7 @@ let router = express.Router()
 
 const STRIPE_KEY = process.env.STRIPE_API_TOKEN || config.get('STRIPE_API.TOKEN')
 let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I want it to crash the server if it doesn't work
+const FULL_PRICE = 6000 // in cents this is $60
 
 /**
  * Updates the user that we store in the database and prepares a user object to be sent out to the client
@@ -79,10 +80,13 @@ let updateUserSub = function(user, subscription, subscribed) {
  */
 let createCustomer = function(email, paymentToken) {
     return new Promise((resolve, reject) => {
-        stripe.customers.create({
-            email: email,
-            source: paymentToken
-        }, function(err, customer) {
+        let customer = {
+            email: email
+        }
+        if (paymentToken) {
+            customer.source = paymentToken
+        }
+        stripe.customers.create(customer, function(err, customer) {
             if (err) {
                 reject(err)
             } else {
@@ -191,7 +195,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
     let subscriptionType = req.body.subscriptionType
     let couponCode = req.body.couponCode
 
-    if (!paymentToken) {
+    if (!paymentToken && !couponCode) {
         // This call requires a payment token
         return res.status(400).send({ error : "paymentToken is required" })
     }
@@ -210,7 +214,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 return customerId
             } else {
                 // if they don't have a customer id, then create the customer and resolve with it's id
-                return createCustomer(user.emai, paymentToken)
+                return createCustomer(user.email, paymentToken)
                     .then((customer) => {
                         return customer.id // extract the customer id and pass to next stage of promise
                     })
@@ -359,7 +363,28 @@ router.get("/coupons/:coupon_id", Middleware.authRequired, (req, res) => {
 
     getCoupon(couponId)
     .then((coupon) => {
-        return res.status(200).send({ status: "coupon_found" })
+        // Example valid coupon response:
+        // {    id: 'TEST100',
+        //         object: 'coupon',
+        //         amount_off: null,
+        //         created: 1518741162,
+        //         currency: null,
+        //         duration: 'forever',
+        //         duration_in_months: null,
+        //         livemode: false,
+        //         max_redemptions: null,
+        //         metadata: {},
+        //         percent_off: 100,
+        //         redeem_by: null,
+        //         times_redeemed: 0,
+        //         valid: true 
+        //     }
+        if (coupon.amount_off != null && coupon.percent_off == null) {
+            let percentOff = Math.round(((FULL_PRICE - coupon.amount_off) * 100) / FULL_PRICE)
+            return res.status(200).send({ status: "coupon_found", percent_off: percentOff })
+        } else {
+            return res.status(200).send({ status: "coupon_found", percent_off: coupon.percent_off })
+        }
     })
     .catch((err) => {
         switch (err.statusCode) {
