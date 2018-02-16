@@ -9,6 +9,7 @@ let router = express.Router()
 
 const STRIPE_KEY = process.env.STRIPE_API_TOKEN || config.get('STRIPE_API.TOKEN')
 let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I want it to crash the server if it doesn't work
+const FULL_PRICE = 6000 // in cents this is $60
 
 /**
  * Updates the user that we store in the database and prepares a user object to be sent out to the client
@@ -375,7 +376,12 @@ router.get("/coupons/:coupon_id", Middleware.authRequired, (req, res) => {
         //         times_redeemed: 0,
         //         valid: true 
         //     }
-        return res.status(200).send({ status: "coupon_found", percent_off: coupon["percent_off"] })
+        if (coupon.amount_off == null && coupon.percent_off != null) {
+            let percentOff = Math.round(((FULL_PRICE - coupon.amount_off) * 100) / FULL_PRICE)
+            return res.status(200).send({ status: "coupon_found", percent_off: percentOff })
+        } else {
+            return res.status(200).send({ status: "coupon_found", percent_off: coupon.percent_off })
+        }
     })
     .catch((err) => {
         switch (err.statusCode) {
