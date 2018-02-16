@@ -80,10 +80,13 @@ let updateUserSub = function(user, subscription, subscribed) {
  */
 let createCustomer = function(email, paymentToken) {
     return new Promise((resolve, reject) => {
-        stripe.customers.create({
-            email: email,
-            source: paymentToken
-        }, function(err, customer) {
+        let customer = {
+            email: email
+        }
+        if (paymentToken) {
+            customer.source = paymentToken
+        }
+        stripe.customers.create(customer, function(err, customer) {
             if (err) {
                 reject(err)
             } else {
@@ -192,7 +195,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
     let subscriptionType = req.body.subscriptionType
     let couponCode = req.body.couponCode
 
-    if (!paymentToken) {
+    if (!paymentToken && !couponCode) {
         // This call requires a payment token
         return res.status(400).send({ error : "paymentToken is required" })
     }
@@ -211,7 +214,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
                 return customerId
             } else {
                 // if they don't have a customer id, then create the customer and resolve with it's id
-                return createCustomer(user.emai, paymentToken)
+                return createCustomer(user.email, paymentToken)
                     .then((customer) => {
                         return customer.id // extract the customer id and pass to next stage of promise
                     })
@@ -376,7 +379,7 @@ router.get("/coupons/:coupon_id", Middleware.authRequired, (req, res) => {
         //         times_redeemed: 0,
         //         valid: true 
         //     }
-        if (coupon.amount_off == null && coupon.percent_off != null) {
+        if (coupon.amount_off != null && coupon.percent_off == null) {
             let percentOff = Math.round(((FULL_PRICE - coupon.amount_off) * 100) / FULL_PRICE)
             return res.status(200).send({ status: "coupon_found", percent_off: percentOff })
         } else {
