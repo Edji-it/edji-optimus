@@ -359,7 +359,23 @@ router.get("/coupons/:coupon_id", Middleware.authRequired, (req, res) => {
 
     getCoupon(couponId)
     .then((coupon) => {
-        return res.status(200).send({ status: "coupon_found" })
+        // Example valid coupon response:
+        // {    id: 'TEST100',
+        //         object: 'coupon',
+        //         amount_off: null,
+        //         created: 1518741162,
+        //         currency: null,
+        //         duration: 'forever',
+        //         duration_in_months: null,
+        //         livemode: false,
+        //         max_redemptions: null,
+        //         metadata: {},
+        //         percent_off: 100,
+        //         redeem_by: null,
+        //         times_redeemed: 0,
+        //         valid: true 
+        //     }
+        return res.status(200).send({ status: "coupon_found", percent_off: coupon["percent_off"] })
     })
     .catch((err) => {
         switch (err.statusCode) {

@@ -104,6 +104,7 @@ router.get("/:id", function(req, res) {
             .exec()
         )
         .then((project) => {
+            console.log(project.teacher_id)
             return Q(Project.populate(project, { path: 'teacher', select: 'fullname username' }))
         })
         .then((project) => {
