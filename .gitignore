@@ -2,7 +2,6 @@
 node_modules/
 .vscode/
 .env
-tsconfig.json
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
