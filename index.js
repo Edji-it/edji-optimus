@@ -1,7 +1,7 @@
-/**
- * Created by bvfergus on 3/5/16.
- */
+// sets up local environment with .env file
+require('dotenv').config()
 
+// package imports
 const express = require("express")
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
@@ -10,9 +10,10 @@ const User = require("./models/User")
 const LoginController = require("./middleware/LoginController")
 const middleware = require("./middleware/Middleware")
 const util = require('util')
-const config = require('config')
 const passport = require('passport') // passport gets configured elsewhere
 const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
+
+const config = require('./config') // make sure that the config is set up
 
 // configure express
 var app = express()
@@ -55,7 +56,7 @@ app.use((err, req, res, next) => {
     if (err && err.type && err.type == 'oauth') {
         switch (err.code) {
             case "err_duplicate_user":
-                const redirect = req.protocol + ":" + config.get('CLIENT_URL') + "/#/oauth/google?error=duplicate_user"
+                const redirect = req.protocol + ":" + process.env.CLIENT_URL + "/#/oauth/google?error=duplicate_user"
                 res.redirect(redirect)
                 break
             default:
