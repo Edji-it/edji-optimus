@@ -30,24 +30,28 @@ app.use(LoginController.middleware)
 // Access allowed for development
 app.use(middleware.headerManagement)
 
-//routers
-let users = require("./routes/users")
-let tempusers = require("./routes/tempusers")
-let readings = require("./routes/readings")
-let comments = require("./routes/comments")
-let projects = require("./routes/projects")
-let auth = require("./routes/auth")
-let mailchimp = require("./routes/mailchimp")
-let subscriptions = require("./routes/subscriptions")
+// //routers
+// let users = require("./routes/users")
+// let tempusers = require("./routes/tempusers")
+// let readings = require("./routes/readings")
+// let comments = require("./routes/comments")
+// let projects = require("./routes/projects")
+// let auth = require("./routes/auth")
+// let mailchimp = require("./routes/mailchimp")
+// let subscriptions = require("./routes/subscriptions")
 
-// attach routes to the app
-app.use("/users", users)
-app.use("/tempusers", tempusers)
-app.use("/readings", readings)
-app.use("/projects", projects)
-app.use("/auth", auth)
-app.use("/mailchimp", mailchimp)
-app.use("/subscriptions", subscriptions)
+// // attach routes to the app
+// app.use("/users", users)
+// app.use("/tempusers", tempusers)
+// app.use("/readings", readings)
+// app.use("/projects", projects)
+// app.use("/auth", auth)
+// app.use("/mailchimp", mailchimp)
+// app.use("/subscriptions", subscriptions)
+
+// attach the router
+app.use(require('./routes'))
+
 
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
