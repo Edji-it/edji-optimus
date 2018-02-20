@@ -63,6 +63,7 @@ res: {
             *  `subscription_id`: `string`
         *  `user.hero` should NOT have:
             *  `will_expire`: `Date`
-3.  Pass without `subscriptionType` --> receive `400`
-4.  Pass without `token` --> receive `400`
+3.  Pass without `token` --> receive `200`
+    Note: this can be updated later to require a coupon code for 100% off, if there is no token
+4.  Pass without `subscriptionType` --> receive `400`
 5.  Pass without `Authorization` header --> receive `401`
