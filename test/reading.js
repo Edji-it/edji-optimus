@@ -1,7 +1,7 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
 var config = require("config")
-var server = config.get("Testing.url")
+var server = "http://localhost:3354"
 var should = chai.should()
 var Q = require("q")
 
