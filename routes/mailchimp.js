@@ -3,7 +3,6 @@ const express = require('express')
 let router = express.Router()
 
 var Mailchimp = require('mailchimp-api-v3')
-var apiKey = 'ce55e22d71e63881ff6cbcf93e01ca33-us14';
 
 try {
     var api = new Mailchimp(apiKey);

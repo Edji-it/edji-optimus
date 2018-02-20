@@ -1,5 +1,4 @@
 const passport = require('passport')
-const config = require('config')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Q = require('q')
 const bcrypt = require('bcryptjs')

@@ -8,6 +8,7 @@ const serviceSchema = joi.object({
   OAUTH2_GOOGLE_CLIENT_ID: joi.string().required(),
   OAUTH2_GOOGLE_CLIENT_SECRET: joi.string().required(),
   STRIPE_API_TOKEN: joi.string().required(),
+  MAILCHIMP_API_TOKEN: joi.string().required(),
   EDJI_GRAPPLE_DOMAIN: joi.string().required(),
   EDJI_GRAPPLE_TOKEN: joi.string().required()
 })
@@ -40,6 +41,9 @@ const config = {
       DOMAIN: serviceVars.EDJI_GRAPPLE_TOKEN,
       TOKEN: serviceVars.EDJI_GRAPPLE_TOKEN
     }
+  },
+  MAILCHIMP: {
+    TOKEN: serviceVars.MAILCHIMP_API_TOKEN
   }
 }
 

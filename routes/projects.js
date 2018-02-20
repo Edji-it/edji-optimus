@@ -5,7 +5,6 @@ let express = require( "express")
 let mongoose = require( "mongoose")
 let Q = require("q")
 let rp = require("request-promise")
-let config = require("config")
 const _ = require("underscore")
 
 let Project = require("./../models/Project")

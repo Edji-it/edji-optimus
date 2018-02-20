@@ -10,7 +10,6 @@ const bcrypt = require("bcryptjs")
 const Q = require("q")
 const _ = require("underscore")
 const queryString = require("querystring")
-const config = require("config")
 
 let User = require("./../models/User")
 let Comment = require("./../models/Comment")

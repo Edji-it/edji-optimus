@@ -2,7 +2,6 @@
 
 const express = require('express')
 const passport = require('passport')
-const config = require('config')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const LoginController = require('./../middleware/LoginController')
 const Q = require('q')

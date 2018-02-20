@@ -1,7 +1,6 @@
 const express = require('express')
 const Middleware = require("./../middleware/Middleware")
 const Q = require("q")
-const config = require("config")
 
 let User = require("./../models/User")
 
