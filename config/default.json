@@ -1,11 +1,5 @@
 {
     "Testing": {
         "url": "http://optimus-dev.edji.it"
-    },
-    "EDJI_API": {
-        "GRAPPLE": {
-            "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",
-            "DOMAIN": "https://grapple-dev.edji.it"
-        }
     }
 }
