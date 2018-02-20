@@ -2,14 +2,14 @@
 const router = require('express').Router()
 
 // import the old routes
-let users = require("./old/users")
-let tempusers = require("./old/tempusers")
-let readings = require("./old/readings")
-let comments = require("./old/comments")
-let projects = require("./old/projects")
-let auth = require("./old/auth")
-let mailchimp = require("./old/mailchimp")
-let subscriptions = require("./old/subscriptions")
+let users = require("./users")
+let tempusers = require("./tempusers")
+let readings = require("./readings")
+let comments = require("./comments")
+let projects = require("./projects")
+let auth = require("./auth")
+let mailchimp = require("./mailchimp")
+let subscriptions = require("./subscriptions")
 
 // attach old routes to the router
 router.use("/users", users)

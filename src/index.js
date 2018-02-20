@@ -49,7 +49,10 @@ app.use(middleware.headerManagement)
 // app.use("/mailchimp", mailchimp)
 // app.use("/subscriptions", subscriptions)
 
-// attach the router
+// attach the new routes
+app.use('/api', require('./api'))
+
+// attach the old routes
 app.use(require('./routes'))
 
 
