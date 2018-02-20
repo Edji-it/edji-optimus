@@ -7,7 +7,7 @@ let User = require("./../models/User")
 
 let router = express.Router()
 
-const STRIPE_KEY = process.env.STRIPE_API_TOKEN || config.get('STRIPE_API.TOKEN')
+const STRIPE_KEY = process.env.STRIPE_API_TOKEN
 let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I want it to crash the server if it doesn't work
 const FULL_PRICE = 6000 // in cents this is $60
 
