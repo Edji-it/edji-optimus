@@ -25,7 +25,7 @@
   "author": "Edji",
   "license": "",
   "engines": {
-    "node": "^8.1.0"
+    "node": "^8.9.4"
   },
   "dependencies": {
     "bcryptjs": "^2.3.0",
