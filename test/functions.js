@@ -1,15 +1,11 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
-var server = require("./../index")
+var server = "http://localhost:3354"
 
 chai.use(chaiHttp)
 
 var Q = require("q")
 
-var User = require("./../models/User")
-var Code = require("./../models/SessionCode")
-var Project = require("./../models/Project")
-var TempUser = require("./../models/TempUser")
 var data = require("./data")
 
 var loginUser = function(credentials) {

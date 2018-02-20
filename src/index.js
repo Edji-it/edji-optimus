@@ -13,7 +13,7 @@ const util = require('util')
 const passport = require('passport') // passport gets configured elsewhere
 const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
-const config = require('./config') // make sure that the config is set up
+const config = require('./../config') // make sure that the config is set up
 
 // configure express
 var app = express()

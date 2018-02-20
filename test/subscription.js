@@ -4,7 +4,6 @@ let server = "http://localhost:3354"
 let should = chai.should()
 let Q = require("q")
 
-let User = require("./../models/User")
 let data = require("./data")
 let functions = require("./functions")
 

@@ -4,7 +4,6 @@ var server = "http://localhost:3354"
 var should = chai.should()
 var Q = require("q")
 
-var User = require("./../models/User")
 var data = require("./data")
 var functions = require("./functions")
 

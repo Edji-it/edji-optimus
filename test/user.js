@@ -5,8 +5,6 @@ const should = chai.should()
 const Q = require("q")
 const uuid = require("uuid")
 
-// var server = require("./../index")
-var User = require("./../models/User")
 var data = require("./data")
 var functions = require("./functions")
 
