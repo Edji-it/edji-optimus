@@ -1,14 +1,4 @@
 {
-    "Database": {
-        "message":"Wiring up the Dev DB",
-        "host":"mongodb://edjiuser:edjiuser1@ds161999-a0.mlab.com:61999,ds161999-a1.mlab.com:61999/edji-prod?replicaSet=rs-ds161999",
-        "user":"edjiuser",
-        "password":"edjiuser1"
-    },
-    "Mandrill": {
-        "host": "localhost:3375",
-        "apiKey": "wMtMJaiBpAHZ8-PsPIxY2A"
-    },
     "Testing": {
         "url": "http://optimus-dev.edji.it"
     },

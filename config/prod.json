@@ -5,10 +5,6 @@
         "user":"edjiuser",
         "password":"FHXmrMY3DBTauYReDsy"
     },
-    "Mandrill": {
-        "host": "edji.it",
-        "apiKey": "wSJ57j95VAnZrzXQep81NQ"
-    },
     "EDJI_API": {
         "GRAPPLE": {
             "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",

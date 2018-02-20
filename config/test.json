@@ -1,8 +1,4 @@
 {
-    "Mandrill": {
-        "host": "localhost:9000",
-        "apiKey": "wMtMJaiBpAHZ8-PsPIxY2A"
-    },
     "Testing": {
         "url": "http://localhost:3354"
     }
