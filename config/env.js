@@ -7,7 +7,8 @@ const envSchema = joi.object({
   PORT: joi.number()
     .required(),
   CLIENT_URL: joi.string()
-    .required()
+    .required(),
+  OPTIMUS_URL: joi.string().required()
 })
 
 const { error, value: envVars } = envSchema.validate(process.env, { allowUnknown: true })

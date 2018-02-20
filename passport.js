@@ -33,9 +33,9 @@ function extractProfile (profile) {
 // object, which will be set at `req.user` in route handlers after
 // authentication.
 passport.use('google', new GoogleStrategy({
-    clientID: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_ID'),
-    clientSecret: config.get('AUTH.GOOGLE.OAUTH2_CLIENT_SECRET'),
-    callbackURL: config.get('AUTH.GOOGLE.OAUTH2_CALLBACK'),
+    clientID: process.env.OAUTH2_GOOGLE_CLIENT_ID,
+    clientSecret: process.env.OAUTH2_GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.OPTIMUS_URL + "/auth/google/callback", // might need to make this https specifically - don't know yet
     accessType: 'offline',
     passReqToCallback: true
 }, (req, accessToken, refreshToken, profile, done) => {

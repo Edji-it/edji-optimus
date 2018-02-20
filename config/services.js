@@ -4,7 +4,9 @@ const serviceSchema = joi.object({
   MONGO_HOST: joi.string().required(),
   MONGO_USER: joi.string().required(),
   MONGO_PWD: joi.string().required(),
-  MANDRILL_API_KEY: joi.string().required()
+  MANDRILL_API_KEY: joi.string().required(),
+  OAUTH2_GOOGLE_CLIENT_ID: joi.string().required(),
+  OAUTH2_GOOGLE_CLIENT_SECRET: joi.string().required()
 })
 
 const { error, value: serviceVars } = serviceSchema.validate(process.env, { allowUnknown: true })
@@ -20,6 +22,12 @@ const config = {
   },
   MANDRILL: {
     API_KEY: serviceVars.MANDRILL_API_KEY
+  },
+  OAUTH: {
+    GOOGLE: {
+      CLIENT_ID: serviceVars.OAUTH2_GOOGLE_CLIENT_ID,
+      CLIENT_SECRET: serviceVars.OAUTH2_GOOGLE_CLIENT_SECRET
+    }
   }
 }
 

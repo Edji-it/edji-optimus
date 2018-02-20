@@ -4,11 +4,5 @@
             "TOKEN": "fwyv2u9wfkRefHwNEro&eQCmsXsq78)R",
             "DOMAIN": "https://grapple.edji.it"
         }
-    },
-    "CLIENT_URL": "//edji.it",
-    "AUTH": {
-        "GOOGLE": {
-            "OAUTH2_CALLBACK": "https://optimus.edji.it/auth/google/callback"
-        }
     }
 }
