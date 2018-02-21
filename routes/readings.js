@@ -507,7 +507,8 @@ router.get("/feed", function(req, res) {
 
     let readingQuery = {
         $and: [
-            { draft: { $ne: true }}
+            { draft: { $ne: true }},
+            { parent_id: { $exists: false } }
         ]
     }
 
