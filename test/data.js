@@ -1,13 +1,11 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
-var server = require("./../index")
+var server = "http://localhost:3354"
 // var should = chai.should()
 
 chai.use(chaiHttp)
 
 var Q = require("q")
-
-var User = require("./../models/User")
 
 var users = {
   newUser:{

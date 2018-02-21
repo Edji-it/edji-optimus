@@ -1,13 +1,11 @@
 var mongoose = require("mongoose")
-var config = require("config")
-var dbConfig = config.get("Database")
 
 var connect = function(mongooseInstance) {
     //sets up database connection based on current NODE_ENV
-    console.log(dbConfig.message)
-    mongooseInstance.connect(dbConfig.host, { 
-        user:dbConfig.user, 
-        password:dbConfig.password,
+    console.log('wiring up the database for ' + process.env.NODE_ENV)
+    mongooseInstance.connect(process.env.MONGO_HOST, { 
+        user: process.env.MONGO_USER, 
+        password: process.env.MONGO_PWD,
         server: {
             socketOptions: {
                 socketTimeoutMS: 120000,

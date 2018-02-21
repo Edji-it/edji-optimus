@@ -50,7 +50,7 @@ git config heroku.remote prod
 
 ## Testing
 
-Testing is automatid with Mocha, and run with Yarn scripts.
+Testing is automated with Mocha, and run with Yarn scripts.
 
 Run the entire test suite
 ```bash

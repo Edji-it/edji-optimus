@@ -10,8 +10,6 @@ const bcrypt = require("bcryptjs")
 const Q = require("q")
 const _ = require("underscore")
 const queryString = require("querystring")
-const config = require("config")
-const mandrillConfig = config.get("Mandrill")
 
 let User = require("./../models/User")
 let Comment = require("./../models/Comment")
@@ -430,7 +428,7 @@ router.post("/recover_password", function(req, res) {
             //TODO automatically set prod/test keys
             var transport = nodemailer.createTransport(mandrillTransport({
                 auth: {
-                    apiKey: mandrillConfig.apiKey
+                    apiKey: process.env.MANDRILL_API_KEY
                 }
             }))
 
@@ -445,7 +443,7 @@ router.post("/recover_password", function(req, res) {
                 subject: 'Password Recovery - Edji',
                 html: `
                     <p>Hello ${user.fullname},</p>
-                    <p>You (or someone else) requested a password reset on your Edji account. Please click the link to <a href="http://${mandrillConfig.host}/#/reset-password?${query}">reset your password</a></p>
+                    <p>You (or someone else) requested a password reset on your Edji account. Please click the link to <a href="http:${process.env.CLIENT_URL}/#/reset-password?${query}">reset your password</a></p>
                     <hr>
                     <p>If you did not request a password reset, please ignore this email.</p>
                     <br>

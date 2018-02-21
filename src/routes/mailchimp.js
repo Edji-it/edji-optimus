@@ -2,14 +2,9 @@ const express = require('express')
 
 let router = express.Router()
 
-var Mailchimp = require('mailchimp-api-v3')
-var apiKey = 'ce55e22d71e63881ff6cbcf93e01ca33-us14';
+const Mailchimp = require('mailchimp-api-v3')
+let api = new Mailchimp(process.env.MAILCHIMP_API_TOKEN)
 
-try {
-    var api = new Mailchimp(apiKey);
-} catch (error) {
-    console.error(error.message);
-}
 
 router.post( '/add', function(req, res) {
         let listId

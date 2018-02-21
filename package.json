@@ -3,9 +3,9 @@
   "version": "1.1.3",
   "description": "Node backend for Edji.",
   "scripts": {
-    "start": "node ./index.js",
-    "dev": "NODE_ENV=local nodemon ./index.js localhost 3354",
-    "dev:win": "set NODE_ENV=local && nodemon ./index.js localhost 3354",
+    "start": "node ./src/index.js",
+    "dev": "NODE_ENV=local nodemon ./src/index.js localhost 3354",
+    "dev:win": "set NODE_ENV=local && nodemon ./src/index.js localhost 3354",
     "test": "NODE_ENV=test mocha --timeout 4000",
     "test:dev": "NODE_ENV=dev mocha --timeout 4000",
     "test:projects": "NODE_ENV=test mocha --timeout 4000 --grep Projects",
@@ -25,17 +25,18 @@
   "author": "Edji",
   "license": "",
   "engines": {
-    "node": "^8.1.0"
+    "node": "^8.9.4"
   },
   "dependencies": {
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.15.0",
-    "config": "^1.24.0",
     "crypto": "0.0.3",
+    "dotenv": "^5.0.0",
     "express": "^4.13.4",
     "express-session": "^1.15.3",
     "forever": "^0.15.1",
     "hashids": "^1.1.0",
+    "joi": "^13.1.2",
     "jsonwebtoken": "^5.7.0",
     "mailchimp-api-v3": "^1.7.0",
     "method-override": "^2.3.10",

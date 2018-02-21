@@ -1,11 +1,9 @@
 const chai = require("chai")
 const chaiHttp = require("chai-http")
-const config = require("config")
-const server = config.get("Testing.url")
+const server = "http://localhost:3354"
 const should = chai.should()
 const Q = require("q")
 
-let User = require("./../models/User")
 let data = require("./data")
 let functions = require("./functions")
 

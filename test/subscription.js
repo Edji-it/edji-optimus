@@ -1,11 +1,9 @@
 let chai = require("chai")
 let chaiHttp = require("chai-http")
-let config = require("config")
-let server = config.get("Testing.url")
+let server = "http://localhost:3354"
 let should = chai.should()
 let Q = require("q")
 
-let User = require("./../models/User")
 let data = require("./data")
 let functions = require("./functions")
 
@@ -159,7 +157,8 @@ describe("Subscriptions", () => {
         })
     })
 
-    it("should reject a call without token", (done) => {
+    // this test needs to be re-written after the subscriptions tests are refactored
+    it("should accept a call without token", (done) => { // to allow users to sign up with a 100% off code
       chai.request(server)
         .post("/subscriptions")
         .send({
@@ -168,7 +167,7 @@ describe("Subscriptions", () => {
         })
         .set("Authorization", testUsers.testTeacher.token)
         .end((err, res) => {
-          res.should.have.status(400)
+          res.should.have.status(200)
 
           done()
         })

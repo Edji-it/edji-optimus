@@ -2,7 +2,6 @@
 
 const express = require('express')
 const passport = require('passport')
-const config = require('config')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const LoginController = require('./../middleware/LoginController')
 const Q = require('q')
@@ -31,7 +30,7 @@ router.get(
         )
         
         // should be changed to use req.baseUrl
-        const redirect = req.protocol + ":" + config.get('CLIENT_URL') + '/#/oauth/google?token=' + oauthToken
+        const redirect = req.protocol + ":" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
 
         res.redirect(redirect)
         

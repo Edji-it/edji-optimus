@@ -1,8 +1,0 @@
-{
-  "CLIENT_URL": "//dev.edji.it",
-  "AUTH": {
-    "GOOGLE": {
-        "OAUTH2_CALLBACK": "https://optimus-dev.edji.it/auth/google/callback"
-    }
-  }
-}

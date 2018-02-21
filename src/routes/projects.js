@@ -5,7 +5,6 @@ let express = require( "express")
 let mongoose = require( "mongoose")
 let Q = require("q")
 let rp = require("request-promise")
-let config = require("config")
 const _ = require("underscore")
 
 let Project = require("./../models/Project")
@@ -13,7 +12,6 @@ let Comment = require("./../models/Comment")
 let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
 let Middleware = require("./../middleware/Middleware")
-let GRAPPLE_API = config.get("EDJI_API.GRAPPLE")
 
 
 let router = express.Router()
@@ -367,8 +365,8 @@ router.post("/:id/comments", Middleware.authRequired, function(req, res) {
 let deleteFromS3 = function(url) {
     let options = {
         method: 'DELETE',
-        uri: [GRAPPLE_API.DOMAIN, "v1", "s3", encodeURIComponent(url)].join("/"),
-        headers: { Authorization: GRAPPLE_API.TOKEN },
+        uri: [process.env.EDJI_GRAPPLE_DOMAIN, "v1", "s3", encodeURIComponent(url)].join("/"),
+        headers: { Authorization: process.env.EDJI_GRAPPLE_TOKEN },
         json: true
     }
 
