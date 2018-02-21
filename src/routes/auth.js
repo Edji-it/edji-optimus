@@ -30,7 +30,7 @@ router.get(
         )
         
         // should be changed to use req.baseUrl
-        const redirect = "https:" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
+        const redirect = req.protocol + ":" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
 
         res.redirect(redirect)
         
