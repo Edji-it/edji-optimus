@@ -602,10 +602,11 @@ router.get("/feed", function(req, res) {
         'draft': true,
         'version_id': true,
         'createdAt': true,
-        'updatedAt': true
+        'updatedAt': true,
+        'heroic': { $gt: [ { $size: "$questions" }, 0 ] } // see if the reading makes use of hero features,
     }
 
-    projection.heroic = { $gt: [ { $size: "$questions" }, 0 ] }
+    // if the words_preview is requested, calculate this into the projection
     query.populate.indexOf('words_preview') > -1 && ( projection.words_preview = { $slice: ["$words", 200] } )
 
     // finished with initial projection
@@ -613,8 +614,9 @@ router.get("/feed", function(req, res) {
     pipeline.push({ $unwind: '$owner' }) // owner will come back as an array, so we'll unwind it
     pipeline.push({ $match: { 'owner.identities': 'teacher' }}) // only return readings with teacher identitiy
 
+    // pagination factors
     pipeline.push(
-        { $sort: { updatedAt: -1 }}, // sort by newly updated first
+        { $sort: { updatedAt: -1 }}, // sort by newly updated first - HAS TO BE CALLED BEFORE SKIP AND LIMIT
         { $skip: query.start }, // skip number of readings for pagination
         { $limit: query.size } // limit number returned for pagination
     )
@@ -623,21 +625,6 @@ router.get("/feed", function(req, res) {
         Reading.aggregate(pipeline)
         .exec()
     )
-    // .then((results) => {
-    //     // populate the owner and some sub-properties on every request
-    //     return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar identities' }))
-    // })
-    // .then((results) => {
-    //     // only return teachers' readings for now
-    //     return results.filter((reading) => {
-    //         if (reading.owner) {
-    //             let identities = reading.owner.identities
-    //             return identities && identities.indexOf('teacher') > -1
-    //         } else {
-    //             return false
-    //         }
-    //     })
-    // })
     .then((results) => {
         // return res.status(200).send({ readings: results, pipeline: pipeline })
         return res.status(200).send({ readings: results })
