@@ -611,11 +611,12 @@ router.get("/feed", function(req, res) {
     // finished with initial projection
     pipeline.push({ $project: projection })
     pipeline.push({ $unwind: '$owner' }) // owner will come back as an array, so we'll unwind it
+    pipeline.push({ $match: { 'owner.identities': 'teacher' }}) // only return readings with teacher identitiy
 
     pipeline.push(
-        { $sort: { updatedAt: -1 }},
-        { $skip: query.start },
-        { $limit: query.size }
+        { $sort: { updatedAt: -1 }}, // sort by newly updated first
+        { $skip: query.start }, // skip number of readings for pagination
+        { $limit: query.size } // limit number returned for pagination
     )
 
     Q(
