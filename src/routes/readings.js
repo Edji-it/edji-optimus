@@ -559,30 +559,6 @@ router.get("/feed", function(req, res) {
         }
     })
     
-    // // this projection will be sent to Mongo to immediately follow up the query
-    // let projection = {}
-    // let fieldsToReturn = [
-    //     'title',
-    //     'owner_id',
-    //     'teacher_ids',
-    //     'public',
-    //     'owner',
-    //     'promoter_ids',
-    //     'source',
-    //     'subjects',
-    //     'grade_levels',
-    //     'cover_img',
-    //     'tags',
-    //     'draft',
-    //     'version_id',
-    //     'createdAt',
-    //     'updatedAt'
-    // ]
-    // // first, set up all of the fields that will be returned unaltered
-    // let len = fieldsToReturn.length
-    // for(let i = 0; i < len; i++) {
-    //     projection[fieldsToReturn[i]] = true
-    // }
     projection = {
         'title': true,
         'owner_id': true,
