@@ -549,29 +549,60 @@ router.get("/feed", function(req, res) {
 
     // finished creating readingQuery, it's the first step of the pipeline
     pipeline.push({ $match: readingQuery })
+
+    pipeline.push({
+        $lookup: {
+            from: 'users',
+            localField: 'owner_id',
+            foreignField: '_id',
+            as: 'owner'
+        }
+    })
     
-    // this projection will be sent to Mongo to immediately follow up the query
-    let projection = {}
-    let fieldsToReturn = [
-        'title',
-        'owner_id',
-        'teacher_ids',
-        'public',
-        'promoter_ids',
-        'source',
-        'subjects',
-        'grade_levels',
-        'cover_img',
-        'tags',
-        'draft',
-        'version_id',
-        'createdAt',
-        'updatedAt'
-    ]
-    // first, set up all of the fields that will be returned unaltered
-    let len = fieldsToReturn.length
-    for(let i = 0; i < len; i++) {
-        projection[fieldsToReturn[i]] = true
+    // // this projection will be sent to Mongo to immediately follow up the query
+    // let projection = {}
+    // let fieldsToReturn = [
+    //     'title',
+    //     'owner_id',
+    //     'teacher_ids',
+    //     'public',
+    //     'owner',
+    //     'promoter_ids',
+    //     'source',
+    //     'subjects',
+    //     'grade_levels',
+    //     'cover_img',
+    //     'tags',
+    //     'draft',
+    //     'version_id',
+    //     'createdAt',
+    //     'updatedAt'
+    // ]
+    // // first, set up all of the fields that will be returned unaltered
+    // let len = fieldsToReturn.length
+    // for(let i = 0; i < len; i++) {
+    //     projection[fieldsToReturn[i]] = true
+    // }
+    projection = {
+        'title': true,
+        'owner_id': true,
+        'teacher_ids': true,
+        'public': true,
+        'owner._id': true,
+        'owner.fullname': true,
+        'owner.username': true,
+        'owner.avatar': true,
+        'owner.identities': true,
+        'promoter_ids': true,
+        'source': true,
+        'subjects': true,
+        'grade_levels': true,
+        'cover_img': true,
+        'tags': true,
+        'draft': true,
+        'version_id': true,
+        'createdAt': true,
+        'updatedAt': true
     }
 
     projection.heroic = { $gt: [ { $size: "$questions" }, 0 ] }
@@ -579,6 +610,7 @@ router.get("/feed", function(req, res) {
 
     // finished with initial projection
     pipeline.push({ $project: projection })
+    pipeline.push({ $unwind: '$owner' }) // owner will come back as an array, so we'll unwind it
 
     pipeline.push(
         { $sort: { updatedAt: -1 }},
@@ -589,21 +621,22 @@ router.get("/feed", function(req, res) {
     Q(
         Reading.aggregate(pipeline)
         .exec()
-    ).then((results) => {
-        // populate the owner and some sub-properties on every request
-        return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar identities' }))
-    })
-    .then((results) => {
-        // only return teachers' readings for now
-        return results.filter((reading) => {
-            if (reading.owner) {
-                let identities = reading.owner.identities
-                return identities && identities.indexOf('teacher') > -1
-            } else {
-                return false
-            }
-        })
-    })
+    )
+    // .then((results) => {
+    //     // populate the owner and some sub-properties on every request
+    //     return Q(Reading.populate(results, { path: 'owner', select: 'fullname username avatar identities' }))
+    // })
+    // .then((results) => {
+    //     // only return teachers' readings for now
+    //     return results.filter((reading) => {
+    //         if (reading.owner) {
+    //             let identities = reading.owner.identities
+    //             return identities && identities.indexOf('teacher') > -1
+    //         } else {
+    //             return false
+    //         }
+    //     })
+    // })
     .then((results) => {
         // return res.status(200).send({ readings: results, pipeline: pipeline })
         return res.status(200).send({ readings: results })
