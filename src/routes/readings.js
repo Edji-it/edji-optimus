@@ -33,6 +33,29 @@ router.get("/", Middleware.authRequired, function(req, res) {
         return res.status(400).send({ error: query.error })
     }
 
+    let baseReadingProjection = {
+        _id: "$reading._id",
+        title: "$reading.title",
+        owner_id: "$reading.owner_id",
+        teacher_ids: "$reading.teacher_ids",
+        "public": "$reading.public",
+        source: "$reading.source",
+        subjects: "$reading.subjects",
+        grade_levels: "$reading.grade_levels",
+        cover_img: "$reading.cover_img",
+        draft: "$reading.draft",
+        version_id: "$reading.version_id",
+        createdAt: "$reading.createdAt",
+        updatedAt: "$reading.updatedAt",
+        versionCount: 1
+    }
+
+    let baseProjectProjection = {
+        teacher_id: true, reading_id: true, label: true, code: true, types: true, createdAt: true, updatedAt: true,
+        comment_count: { $size: { $ifNull: [ "$comments", [] ]}},
+        student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", [] ]}}, { $size: { $ifNull: ["$temp_ids", [] ]}}] }
+    }
+
     let dbQuery
     if (query.value.pop.indexOf("projects") > -1) {
         dbQuery = ReadingVersion.aggregate([
@@ -58,22 +81,20 @@ router.get("/", Middleware.authRequired, function(req, res) {
                 as: "reading"
             }},
             { $unwind: "$reading"},
-            { $project: {
-                _id: "$reading._id",
-                title: "$reading.title",
-                owner_id: "$reading.owner_id",
-                teacher_ids: "$reading.teacher_ids",
-                "public": "$reading.public",
-                source: "$reading.source",
-                subjects: "$reading.subjects",
-                grade_levels: "$reading.grade_levels",
-                cover_img: "$reading.cover_img",
-                draft: "$reading.draft",
-                version_id: "$reading.version_id",
-                createdAt: "$reading.createdAt",
-                updatedAt: "$reading.updatedAt",
-                versionCount: 1
-            }}
+            { $project: baseReadingProjection },
+            { $lookup: {
+                from: "projects",
+                localField: "_id",
+                foreignField: "reading_id",
+                as: "projects"
+            }},
+            { $project: Object.assign(
+                {},
+                baseReadingProjection,
+                {
+                    
+                }
+            )}
         ])
     } else {
         dbQuery = Q(Reading.find({
@@ -99,7 +120,6 @@ router.get("/", Middleware.authRequired, function(req, res) {
         .exec())
     }
 
-    console.log("query", dbQuery)
     dbQuery.then((readings) => {
         return res.status(200).send(readings)
     })
