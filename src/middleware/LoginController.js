@@ -7,7 +7,8 @@ const Q = require("q")
 const Passport = require('./../passport')
 
 //TODO: need something more secret than this
-const secret = "fjdskajf;ghert2304tgjf;asjf03qyta'jgh9ndb";
+const secret = process.env.OPTIMUS_PW_SECRET
+
 var LoginController = {
     login:function(user){
         var me = this
