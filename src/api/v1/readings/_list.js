@@ -4,17 +4,21 @@ const joi = require('joi')
 // project imports
 const ReadingVersion = require('./../../../models/ReadingVersion')
 
+/**
+ * Validates query parameters against a query and returns with an object that either does or does not have an `error` property
+ * @param {any} requestQuery The req.query passed to the route handler by express
+ */
 const validateQuery = function(requestQuery) {
   // the values allowable in the query string
-  const queryValues = joi.string().valid([
+  const popValues = joi.string().valid([
     'projects'
   ])
 
   // define the query schema with joi
   const querySchema = joi.object({
       pop: joi.alternatives().try(
-          joi.array().items(queryValues),
-          queryValues
+          joi.array().items(popValues),
+          popValues
       )
       .default([]),
       start: joi.number().min(0).max(1000).default(0),
@@ -25,7 +29,10 @@ const validateQuery = function(requestQuery) {
   return joi.validate(requestQuery, querySchema)
 }
 
-
+/**
+ * Gets all of the most recent version of a user's readings and is meant to be expandable by other aggregation pipelines
+ * @param {string} userId The user id for which you are searching for readings
+ */
 const baseAggregation = function(userId) {
   return [
     { $match: { owner_id: userId }},
@@ -69,6 +76,10 @@ const baseAggregation = function(userId) {
   ]
 }
 
+/**
+ * Adds a lookup for readings to the base aggregation
+ * @param {string} userId The user's id
+ */
 const populateProjectAggregation = function(userId) {
   let aggregation = baseAggregation(userId)
   aggregation.push({
@@ -107,6 +118,12 @@ const populateProjectAggregation = function(userId) {
   return aggregation
 }
 
+/**
+ * Adds pagination steps to an existing aggregation pipeline
+ * @param {Array} pipeline The aggregation array which should be paginated
+ * @param {number} skip The index of results at which the results should begin returning
+ * @param {number} limit The maximum number of readings to return
+ */
 const paginate = function(pipeline, skip, limit) {
   return pipeline.concat([
     { $sort: { updatedAt: -1 }},
