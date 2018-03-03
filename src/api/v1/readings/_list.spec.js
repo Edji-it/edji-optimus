@@ -9,7 +9,16 @@ describe('_list', () => {
   it('should have the required properties', () => {
     helpers.should.be.instanceof(Object)
     helpers.should.not.have.property('nothing')
-    helpers.should.have.property('validateQuery')
+
+    const propertiesToCheck = [
+      'validateQuery',
+      'baseAggregation',
+      'populateProjectAggregation'
+    ]
+
+    for(key of Object.keys(helpers)) {
+      propertiesToCheck.indexOf(key).should.be.above(-1)
+    }
   })
 
   describe('validateQuery', () => {

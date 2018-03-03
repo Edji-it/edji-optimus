@@ -26,5 +26,4 @@ module.exports = function(req, res) {
     console.error
     return res.status(500).send()
   })
-
 }
