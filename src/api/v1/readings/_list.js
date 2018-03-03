@@ -20,7 +20,7 @@ const validateQuery = function(requestQuery) {
   })
 
   // run validation with joi
-  return joi.valid(requestQuery, querySchema)
+  return joi.validate(requestQuery, querySchema)
 }
 
 module.exports = {
