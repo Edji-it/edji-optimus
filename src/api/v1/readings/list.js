@@ -13,17 +13,24 @@ module.exports = function(req, res) {
   }
 
   let dbQuery
+  let aggregation
   if (query.value.pop.indexOf("projects") > -1) {
-    dbQuery = ReadingVersion.aggregate(helpers.populateProjectAggregation(user._id))
+    aggregation = helpers.populateProjectAggregation(user._id)
+    aggregation = helpers.paginate(aggregation, 0, 10)
+    dbQuery = ReadingVersion.aggregate(aggregation)
   } else {
     dbQuery = ReadingVersion.aggregate(helpers.baseAggregation(user._id))
   }
 
-  dbQuery.then((readings) => {
-    return res.status(200).send(readings)
+  dbQuery.then((results) => {
+    results = results[0] // because it's an aggregation, they come back in an array so we take the first element
+    return res.status(200).send({
+      readings: results.readings,
+      total: results.total
+    })
   })
   .catch((err) => {
-    console.error
+    console.error(err)
     return res.status(500).send()
   })
 }

@@ -67,7 +67,7 @@ const baseAggregation = function(userId) {
   ]
 }
 
-let populateProjectAggregation = function(userId) {
+const populateProjectAggregation = function(userId) {
   let aggregation = baseAggregation(userId)
   aggregation.push({
     $lookup: {
@@ -103,10 +103,26 @@ let populateProjectAggregation = function(userId) {
     }
   })
   return aggregation
-} 
+}
+
+const paginate = function(pipeline, skip, limit) {
+  return pipeline.concat([
+    { $sort: { updatedAt: -1 }},
+    { $group: {
+      _id: null,
+      total: { $sum: 1 },
+      readings: { $push: "$$ROOT" }
+    }},
+    { $project: {
+      total: true,
+      readings: { $slice: ["$readings", skip, limit] }
+    }}
+  ])
+}
 
 module.exports = {
   validateQuery: validateQuery,
   baseAggregation: baseAggregation,
-  populateProjectAggregation: populateProjectAggregation
+  populateProjectAggregation: populateProjectAggregation,
+  paginate: paginate
 }

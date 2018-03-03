@@ -13,7 +13,8 @@ describe('_list', () => {
     const propertiesToCheck = [
       'validateQuery',
       'baseAggregation',
-      'populateProjectAggregation'
+      'populateProjectAggregation',
+      'paginate'
     ]
 
     for(key of Object.keys(helpers)) {
