@@ -606,7 +606,7 @@ router.get("/feed", function(req, res) {
     .then((results) => {
         // return res.status(200).send({ readings: results, pipeline: pipeline })
         return res.status(200).send({ readings: results })
-    })
+    }) 
     .catch((err) => {
         console.error(err)
         return res.status(500).send()
