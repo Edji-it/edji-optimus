@@ -16,7 +16,9 @@ const validateQuery = function(requestQuery) {
           joi.array().items(queryValues),
           queryValues
       )
-      .default([])
+      .default([]),
+      start: joi.number().default(0),
+      size: joi.number().default(15)
   })
 
   // run validation with joi
