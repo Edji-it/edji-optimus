@@ -23,6 +23,7 @@ describe('_list', () => {
   })
 
   describe('validateQuery', () => {
+    // initial validation
     it('should be a function', () => {
       ( typeof helpers.validateQuery ).should.be.equal('function')
     })
@@ -42,6 +43,8 @@ describe('_list', () => {
       query.should.have.property('error')
       should.exist(query.error)
     })
+
+    // pop value validation
     it('should accept all valid pop parameters in an array', () => {
       let query = helpers.validateQuery({
         pop: ['projects'] // additional parameters should be added here
@@ -73,6 +76,66 @@ describe('_list', () => {
     it('should throw an error if passed an invalid pop value as a string', () => {
       let query = helpers.validateQuery({
         pop: 'notprojects'
+      })
+      query.should.have.property('error')
+      should.exist(query.error)
+    })
+
+    // start property validation
+    it('should accept a valid start value', () => {
+      let query = helpers.validateQuery({
+        start: 5
+      })
+      query.should.have.property('error')
+      should.not.exist(query.error)
+    })
+    it('should reject a non-number start value', () => {
+      let query = helpers.validateQuery({
+        start: 'notvalid'
+      })
+      query.should.have.property('error')
+      should.exist(query.error)
+    })
+    it('should reject a start value above the maximum', () => {
+      let query = helpers.validateQuery({
+        start: 2000
+      })
+      query.should.have.property('error')
+      should.exist(query.error)
+    })
+    it('should reject a start value below the minimum', () => {
+      let query = helpers.validateQuery({
+        start: -1
+      })
+      query.should.have.property('error')
+      should.exist(query.error)
+    })
+
+    // size property validation
+    it('should accept a valid size value', () => {
+      let query = helpers.validateQuery({
+        size: 5
+      })
+      query.should.have.property('error')
+      should.not.exist(query.error)
+    })
+    it('should reject a non-number size value', () => {
+      let query = helpers.validateQuery({
+        start: 'notvalid'
+      })
+      query.should.have.property('error')
+      should.exist(query.error)
+    })
+    it('should reject a size value above the maximum', () => {
+      let query = helpers.validateQuery({
+        size: 51
+      })
+      query.should.have.property('error')
+      should.exist(query.error)
+    })
+    it('should reject a size value below the minimum', () => {
+      let query = helpers.validateQuery({
+        size: -1
       })
       query.should.have.property('error')
       should.exist(query.error)
