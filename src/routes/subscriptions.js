@@ -43,12 +43,7 @@ let updateUserSub = function(user, subscription, subscribed) {
         
         // get the coupon id, if it exists
         let couponId = subscription.discount && subscription.discount.coupon && subscription.discount.coupon.id
-        if (couponId) {
-            let subLabel = couponId.substr(0, couponId.indexOf("__")) // this extracts everything before the double underscore in the id
-            user.hero.subscription_label = subLabel
-        } else {
-            user.hero.subscription_label = "PLAIN_HERO"
-        }
+        user.hero.subscription_label = "PLAIN_HERO"
 
         // Log subscription change
         user.hero.history.unshift({

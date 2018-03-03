@@ -3,6 +3,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy
 const Q = require('q')
 const bcrypt = require('bcryptjs')
 
+const GOOGLE_CALLBACK_URL = process.env.OPTIMUS_URL + "/auth/google/callback"
+
 let User = require("./models/User")
 
 function extractProfile (profile) {
@@ -34,7 +36,7 @@ function extractProfile (profile) {
 passport.use('google', new GoogleStrategy({
     clientID: process.env.OAUTH2_GOOGLE_CLIENT_ID,
     clientSecret: process.env.OAUTH2_GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.OPTIMUS_URL + "/auth/google/callback", // might need to make this https specifically - don't know yet
+    callbackURL: GOOGLE_CALLBACK_URL,
     accessType: 'offline',
     passReqToCallback: true
 }, (req, accessToken, refreshToken, profile, done) => {
