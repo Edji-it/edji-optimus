@@ -15,11 +15,19 @@ module.exports = function(req, res) {
   let dbQuery
   let aggregation
   if (query.value.pop.indexOf("projects") > -1) {
-    aggregation = helpers.populateProjectAggregation(user._id)
-    aggregation = helpers.paginate(aggregation, 0, 10)
+    aggregation = helpers.paginate(
+      helpers.populateProjectAggregation(user._id),
+      0,
+      10
+    )
     dbQuery = ReadingVersion.aggregate(aggregation)
   } else {
-    dbQuery = ReadingVersion.aggregate(helpers.baseAggregation(user._id))
+    aggregation = helpers.paginate(
+      helpers.baseAggregation(user._id),
+      0,
+      10
+    )
+    dbQuery = ReadingVersion.aggregate(aggregation)
   }
 
   dbQuery.then((results) => {
