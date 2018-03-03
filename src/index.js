@@ -8,7 +8,7 @@ const methodOverride = require("method-override")
 const mongoose = require("mongoose")
 const User = require("./models/User")
 const LoginController = require("./middleware/LoginController")
-const middleware = require("./middleware/Middleware")
+const headerManagement = require('./middleware/header-management')
 const util = require('util')
 const passport = require('passport') // passport gets configured elsewhere
 const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
@@ -28,7 +28,7 @@ app.use(passport.initialize())
 app.use(LoginController.middleware)
 
 // Access allowed for development
-app.use(middleware.headerManagement)
+app.use(headerManagement)
 
 // //routers
 // let users = require("./routes/users")

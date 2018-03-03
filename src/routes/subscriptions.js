@@ -1,5 +1,5 @@
 const express = require('express')
-const Middleware = require("./../middleware/Middleware")
+const authRequired = require('./../middleware/auth-required')
 const Q = require("q")
 
 let User = require("./../models/User")
@@ -183,7 +183,7 @@ let getCoupon = function(couponId) {
 }
 
 /** Route to subscribe to Hero!!! */
-router.post("/", Middleware.authRequired, function(req, res) {
+router.post("/", authRequired, function(req, res) {
     let user = req.user
     let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
     let subscriptionType = req.body.subscriptionType
@@ -243,7 +243,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 })
 
 
-router.put("/", Middleware.authRequired, function(req, res) {
+router.put("/", authRequired, function(req, res) {
         /**
          * Two options:
          * - unsubscribe
@@ -308,7 +308,7 @@ router.put("/", Middleware.authRequired, function(req, res) {
     }
 )
 
-router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
+router.delete("/:subscription_id", authRequired, (req, res) => {
     let user = req.user
     let subscription_id = req.params.subscription_id
     let history = user.hero && user.hero.history
@@ -351,7 +351,7 @@ router.delete("/:subscription_id", Middleware.authRequired, (req, res) => {
 })
 
 // find and validate a coupon code submitted by a user
-router.get("/coupons/:coupon_id", Middleware.authRequired, (req, res) => {
+router.get("/coupons/:coupon_id", authRequired, (req, res) => {
     let couponId = req.params.coupon_id
     if (!couponId) { return res.status(400).send({ error: "no coupon id supplied" }) }
 

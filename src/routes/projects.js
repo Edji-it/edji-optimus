@@ -11,14 +11,14 @@ let Project = require("./../models/Project")
 let Comment = require("./../models/Comment")
 let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
-let Middleware = require("./../middleware/Middleware")
+const authRequired = require('./../middleware/auth-required')
 
 
 let router = express.Router()
 
 MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false})
 
-router.get("/", Middleware.authRequired, function(req, res){
+router.get("/", authRequired, function(req, res){
 
     var user = req.user
 
@@ -39,7 +39,7 @@ router.get("/", Middleware.authRequired, function(req, res){
     .populate('reading_id','title')
 })
 
-router.post("/", Middleware.authRequired, function(req, res) {
+router.post("/", authRequired, function(req, res) {
     var project = req.body.project
 
     if (!project) {
@@ -173,7 +173,7 @@ router.get("/:id", function(req, res) {
 })
 
 // currently only works for teacher deleting a project
-router.delete("/:id", Middleware.authRequired, function(req, res) {
+router.delete("/:id", authRequired, function(req, res) {
     var id = req.params.id
     var user = req.user
 
@@ -197,7 +197,7 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
     })
 })
 
-router.put("/:id", Middleware.authRequired, function(req, res) {
+router.put("/:id", authRequired, function(req, res) {
     let user = req.user
     let id = req.params.id
     let project = req.body.project
@@ -232,7 +232,7 @@ router.put("/:id", Middleware.authRequired, function(req, res) {
     })
 })
 
-router.put("/:id/user_id", Middleware.authRequired, function(req, res) {
+router.put("/:id/user_id", authRequired, function(req, res) {
     let user = req.user
     let id = req.params.id
 
@@ -262,7 +262,7 @@ router.put("/:id/user_id", Middleware.authRequired, function(req, res) {
 })
 
 // get projects for a single reading id
-router.get("/reading/:reading_id", Middleware.authRequired, function(req, res){
+router.get("/reading/:reading_id", authRequired, function(req, res){
     var reading_id = req.params.reading_id
     var user = req.user
 
@@ -287,7 +287,7 @@ router.get("/reading/:reading_id", Middleware.authRequired, function(req, res){
     )
 })
 
-router.post("/:id/comments", Middleware.authRequired, function(req, res) {
+router.post("/:id/comments", authRequired, function(req, res) {
     var _id = req.params.id
     var user = req.user
 
@@ -373,7 +373,7 @@ let deleteFromS3 = function(url) {
     return rp(options)
 }
 
-router.put("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res) {
+router.put("/:project_id/comments/:comment_id", authRequired, function(req, res) {
     let user = req.user
     let project_id = req.params.project_id
     let comment_id = req.params.comment_id
@@ -441,7 +441,7 @@ router.put("/:project_id/comments/:comment_id", Middleware.authRequired, functio
         })
 })
 
-router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, function(req, res){
+router.delete("/:project_id/comments/:comment_id", authRequired, function(req, res){
     let user = req.user
     let project_id = req.params.project_id
     let comment_id = req.params.comment_id
@@ -503,7 +503,7 @@ router.delete("/:project_id/comments/:comment_id", Middleware.authRequired, func
         })
 })
 
-router.post("/:id/answers", Middleware.authRequired, function(req, res) {
+router.post("/:id/answers", authRequired, function(req, res) {
     var _id = req.params.id
     var user = req.user
 
@@ -572,7 +572,7 @@ router.post("/:id/answers", Middleware.authRequired, function(req, res) {
     })
 })
 
-router.put("/:project_id/answers/:answer_id", Middleware.authRequired, function(req, res) {
+router.put("/:project_id/answers/:answer_id", authRequired, function(req, res) {
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id
@@ -638,7 +638,7 @@ router.put("/:project_id/answers/:answer_id", Middleware.authRequired, function(
         })
 })
 
-router.delete("/:project_id/answers/:answer_id", Middleware.authRequired, function(req, res){
+router.delete("/:project_id/answers/:answer_id", authRequired, function(req, res){
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id

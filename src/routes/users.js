@@ -17,7 +17,7 @@ let TempUser = require("./../models/TempUser")
 let Project = require("./../models/Project")
 let ArchivedUser = require("./../models/ArchivedUser")
 let LoginController = require("./../middleware/LoginController")
-let middleware = require("./../middleware/Middleware")
+const authRequired = require('./../middleware/auth-required')
 let MountModelToRouter = require("./MountModelToRouter")
 
 let router = express.Router()
@@ -83,7 +83,7 @@ let duplicateFieldErrorHandler = function(error) {
     }
 }
 
-router.put("/", middleware.authRequired, function(req, res){
+router.put("/", authRequired, function(req, res){
     let userData = req.body.user
     let user = req.user
 
@@ -137,7 +137,7 @@ router.put("/", middleware.authRequired, function(req, res){
 /**
  * Search route for followers
  */
-router.get("/following", middleware.authRequired, (req, res) => {
+router.get("/following", authRequired, (req, res) => {
     let user = req.user
 
     let allowedTypes = [ 'popular' ]
@@ -168,7 +168,7 @@ router.get("/following", middleware.authRequired, (req, res) => {
     })
 })
 
-router.get("/:id", middleware.authRequired, function(req, res) {
+router.get("/:id", authRequired, function(req, res) {
     let user = req.user
     let _id = req.params.id
 
@@ -263,7 +263,7 @@ router.delete("/:id", function(req, res) {
 
 
 //------------DO NOT MODIFY THIS ROUTE WITHOUT TALKING TO CORBIN------------//
-router.put("/convert/:temp_id", middleware.authRequired, function(req, res) {
+router.put("/convert/:temp_id", authRequired, function(req, res) {
     let user = req.user
     let temp_id = req.params.temp_id
 
@@ -547,7 +547,7 @@ let getAssetFileLocations = function(asset, type) {
     }
 }
 
-router.delete('/assets/:type/:asset_id', middleware.authRequired, (req, res) => {
+router.delete('/assets/:type/:asset_id', authRequired, (req, res) => {
     let user = req.user
     let assetId = req.params.asset_id
     let type = req.params.type
@@ -604,7 +604,7 @@ router.get("/heroes/count", (req, res) => {
 /**
  * Adds a user id to a user's "following" array
  */
-router.put("/following", middleware.authRequired, function(req, res) {
+router.put("/following", authRequired, function(req, res) {
     let user = req.user
     let user_id = req.body.user_id
     let follow = req.body.action == "follow"
