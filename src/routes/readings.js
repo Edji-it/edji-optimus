@@ -593,6 +593,7 @@ router.get("/feed", function(req, res) {
     // pagination factors
     pipeline.push(
         { $sort: { updatedAt: -1 }}, // sort by newly updated first - HAS TO BE CALLED BEFORE SKIP AND LIMIT
+        { $limit: 1000 }, // this limits the total number returnable to 1000
         { $group: {
             _id: null,
             total: { $sum: 1 },
