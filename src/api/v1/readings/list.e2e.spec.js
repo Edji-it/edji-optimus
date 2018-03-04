@@ -22,6 +22,19 @@ describe('GET /readings', () => {
       })
   })
 
+  it('should get a 400 when requesting with a bad query parameter', (done) => {
+    chai.request(TEST.SERVER)
+    .get(ENDPOINT_URL + "?badparam=nothing")
+    .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
+    .end((err, res) => {
+      should.exist(err)
+
+      res.should.not.have.status(200)
+      res.should.have.status(400)
+      done()
+    })
+  })
+
   let DEFAULT_READINGS_LIST
 
   // this test also serves as validation for all of the properties of readings
