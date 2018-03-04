@@ -15,7 +15,7 @@ var typesEnum = {
 }
 
 var Model = ModelCreator("Project", {
-    reading_id:{type: String, required:true, ref:"Reading"},
+    reading_id:{ type: mongoose.Schema.ObjectId, ref: "Reading" },
     teacher_id:{type: String, required:true, ref:"User"},
     comments:[Comment.schema],
     answers:[Comment.schema],
