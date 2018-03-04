@@ -593,8 +593,16 @@ router.get("/feed", function(req, res) {
     // pagination factors
     pipeline.push(
         { $sort: { updatedAt: -1 }}, // sort by newly updated first - HAS TO BE CALLED BEFORE SKIP AND LIMIT
-        { $skip: query.start }, // skip number of readings for pagination
-        { $limit: query.size } // limit number returned for pagination
+        { $limit: 1000 }, // this limits the total number returnable to 1000
+        { $group: {
+            _id: null,
+            total: { $sum: 1 },
+            readings: { $push: "$$ROOT" }
+        }},
+        { $project: {
+            total: true,
+            readings: { $slice: ["$readings", query.start, query.size] }
+        }}
     )
 
     Q(
@@ -602,8 +610,9 @@ router.get("/feed", function(req, res) {
         .exec()
     )
     .then((results) => {
+        results = results[0] // aggregations return arrays, so take the first element
         // return res.status(200).send({ readings: results, pipeline: pipeline })
-        return res.status(200).send({ readings: results })
+        return res.status(200).send({ total: results.total, readings: results.readings })
     })
     .catch((err) => {
         console.error(err)
