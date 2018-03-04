@@ -112,7 +112,24 @@ const populateProjectAggregation = function(userId) {
       "projects.code": true,
       "projects.types": true,
       "projects.createdAt": true,
-      "projects.updatedAt": true
+      "projects.updatedAt": true,
+      // "projects.comments": true,
+      "projects.comment_count": {
+        $size: {
+          $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
+        }
+      },
+      "projects.students_ids": true,
+      "projects.student_count": {
+        $sum: [ // sum the students and temp students together
+          { $size: {
+            $arrayElemAt: ["$projects.students_ids", 0]
+          }},
+          { $size: {
+            $arrayElemAt: ["$projects.temp_ids", 0]
+          }}
+        ]
+      }
     }
   })
   return aggregation
