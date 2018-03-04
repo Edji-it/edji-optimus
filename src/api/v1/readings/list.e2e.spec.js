@@ -22,12 +22,13 @@ describe('GET /readings', () => {
       })
   })
 
-  it('should return a list of 15 readings by default', (done) => {
+  // this test also serves as validation for all of the properties of readings
+  it('should return a list of 15 readings with default properties', (done) => {
     chai.request(TEST.SERVER)
     .get(ENDPOINT_URL)
     .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
     .end((err, res) => {
-      if (err) { done(err) }
+      if (err) { return done(err) }
       res.should.have.status(200)
 
       // total property test
@@ -39,7 +40,7 @@ describe('GET /readings', () => {
       const readings = res.body.readings
       readings.should.be.instanceOf(Array)
       readings.length.should.be.equal(15)
-      
+
       readings.forEach((reading) => {
         // things the reading SHOULD have
         reading.should.have.property("_id")
@@ -56,6 +57,23 @@ describe('GET /readings', () => {
       })
 
       done()
+    })
+  })
+
+  describe('?size parameter', () => {
+    it('should return 20 readings', (done) => {
+      chai.request(TEST.SERVER)
+      .get(ENDPOINT_URL + '?size=20')
+      .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
+      .end((err, res) => {
+        if (err) { return done(err) }
+
+        res.should.have.status(200)
+        res.body.should.have.property('readings')
+        res.body.readings.length.should.be.equal(20)
+
+        done()
+      })
     })
   })
 })
