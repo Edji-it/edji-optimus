@@ -64,7 +64,7 @@ describe('GET /readings', () => {
         reading.should.have.property("owner_id")
         reading.should.have.property("title")
         reading.should.have.property("teacher_ids")
-        reading.should.have.property("versionCount")
+        reading.should.have.property("version_count")
         reading.should.have.property("createdAt")
         reading.should.have.property("updatedAt")
 

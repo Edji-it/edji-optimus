@@ -34,7 +34,7 @@ const baseAggregation = function(userId) {
   return [
     { $match: { owner_id: userId }},
     { $project: {
-        versionCount: { $size: "$readings" },
+        version_count: { $size: "$readings" },
         readings: 1,
         updatedAt: 1
     }},
@@ -42,7 +42,7 @@ const baseAggregation = function(userId) {
     { $group: {
         _id: "$_id",
         reading: { $last: "$readings" },
-        versionCount: { $last: "$versionCount" },
+        version_count: { $last: "$version_count" },
         updatedAt: { $last: "$updatedAt" },
         promoter_count: { $last: "$promoter_count" }
     }},
@@ -68,7 +68,7 @@ const baseAggregation = function(userId) {
         version_id: "$reading.version_id",
         createdAt: "$reading.createdAt",
         updatedAt: "$reading.updatedAt",
-        versionCount: 1
+        version_count: 1
     }}
   ]
 }
@@ -101,7 +101,7 @@ const populateProjectAggregation = function(userId) {
       version_id: true,
       createdAt: true,
       updatedAt: true,
-      versionCount: true,
+      version_count: true,
       "projects._id": true,
       "projects.reading_id": true,
       "projects.teacher_id": true,
