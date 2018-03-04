@@ -20,6 +20,7 @@ module.exports = function(req, res) {
       query.value.start,
       query.value.size
     )
+    // it is assumed that we will always be starting with ReadingVersion on this endpoint, so that we can easily filter for the most recent
     dbQuery = ReadingVersion.aggregate(aggregation)
   } else {
     aggregation = helpers.paginate(

@@ -1,9 +1,6 @@
 // library imports
 const joi = require('joi')
 
-// project imports
-const ReadingVersion = require('./../../../models/ReadingVersion')
-
 /**
  * Validates query parameters against a query and returns with an object that either does or does not have an `error` property
  * @param {any} requestQuery The req.query passed to the route handler by express
@@ -113,7 +110,6 @@ const populateProjectAggregation = function(userId) {
       "projects.types": true,
       "projects.createdAt": true,
       "projects.updatedAt": true,
-      // "projects.comments": true,
       "projects.comment_count": {
         $size: {
           $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
