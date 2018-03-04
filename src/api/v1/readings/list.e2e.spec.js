@@ -57,6 +57,7 @@ describe('GET /readings', () => {
       readings.length.should.be.equal(15)
       DEFAULT_READINGS_LIST = readings
 
+      let lastReadingDate // used to test that the readings are in sort order from most to least recent
       readings.forEach((reading) => {
         // things the reading SHOULD have
         reading.should.have.property("_id")
@@ -70,6 +71,13 @@ describe('GET /readings', () => {
         // things the reading should NOT have
         reading.should.not.have.property("words")
         reading.should.not.have.property("html")
+
+        let thisReadingDate = new Date(reading.updatedAt)
+        if (lastReadingDate) {
+          // test to make sure lastReadingDate is more recent than the current reading
+          (lastReadingDate.getTime() > thisReadingDate.getTime()).should.be.true
+        }
+        lastReadingDate = thisReadingDate
       })
 
       done()
@@ -107,5 +115,7 @@ describe('GET /readings', () => {
 
       done()
     })
+
+    it('should populate projects onto the reading')
   })
 })
