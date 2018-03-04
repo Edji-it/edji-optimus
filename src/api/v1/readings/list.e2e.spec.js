@@ -115,7 +115,47 @@ describe('GET /readings', () => {
 
       done()
     })
+  })
 
-    it('should populate projects onto the reading')
+  it('should populate projects onto the reading', (done) => {
+    chai.request(TEST.SERVER)
+    .get(ENDPOINT_URL + "?pop=projects")
+    .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
+    .end((err, res) => {
+      if (err) { return done(err) }
+
+      res.should.have.status(200)
+      res.body.should.have.property('readings')
+
+      let hasAtLeastOnePopulatedProject = false
+      res.body.readings.forEach((reading) => {
+        reading.should.have.property('projects')
+        reading.projects.should.be.instanceOf(Array)
+
+        // these tests might intermittently not run because none of the readings may have a project
+        reading.projects.forEach((project) => {
+          // every project should have these
+          project.should.have.property('_id')
+          project.should.have.property('reading_id')
+          project.should.have.property('teacher_id')
+          project.should.have.property('label')
+          project.should.have.property('code')
+          project.should.have.property('types')
+          project.should.have.property('updatedAt')
+          project.should.have.property('createdAt')
+          project.should.have.property('comment_count')
+          project.should.have.property('student_count')
+
+          // no projects should have these
+          project.should.not.have.property('heat_vision')
+          project.should.not.have.property('answers')
+          project.should.not.have.property('comments')
+          project.should.not.have.property('temp_ids')
+          project.should.not.have.property('students_ids')
+        })
+      })
+
+      done()
+    })
   })
 })
