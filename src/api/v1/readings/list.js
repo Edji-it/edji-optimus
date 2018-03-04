@@ -1,6 +1,3 @@
-// library imports
-const joi = require('joi')
-
 // project imports
 const helpers = require('./_list')
 const ReadingVersion = require('./../../../models/ReadingVersion')
