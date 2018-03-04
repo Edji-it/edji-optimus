@@ -22,6 +22,8 @@ describe('GET /readings', () => {
       })
   })
 
+  let DEFAULT_READINGS_LIST
+
   // this test also serves as validation for all of the properties of readings
   it('should return a list of 15 readings with default properties', (done) => {
     chai.request(TEST.SERVER)
@@ -40,6 +42,7 @@ describe('GET /readings', () => {
       const readings = res.body.readings
       readings.should.be.instanceOf(Array)
       readings.length.should.be.equal(15)
+      DEFAULT_READINGS_LIST = readings
 
       readings.forEach((reading) => {
         // things the reading SHOULD have
@@ -60,20 +63,36 @@ describe('GET /readings', () => {
     })
   })
 
-  describe('?size parameter', () => {
-    it('should return 20 readings', (done) => {
-      chai.request(TEST.SERVER)
-      .get(ENDPOINT_URL + '?size=20')
-      .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
-      .end((err, res) => {
-        if (err) { return done(err) }
+  it('should return 20 readings with ?size=20 query parameter', (done) => {
+    chai.request(TEST.SERVER)
+    .get(ENDPOINT_URL + '?size=20')
+    .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
+    .end((err, res) => {
+      if (err) { return done(err) }
 
-        res.should.have.status(200)
-        res.body.should.have.property('readings')
-        res.body.readings.length.should.be.equal(20)
+      res.should.have.status(200)
+      res.body.should.have.property('readings')
+      res.body.readings.length.should.be.equal(20)
 
-        done()
-      })
+      done()
+    })
+  })
+
+  it('should start at the next index with ?start=1 query parameter', (done) => {
+    chai.request(TEST.SERVER)
+    .get(ENDPOINT_URL + '?start=1')
+    .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
+    .end((err, res) => {
+      if (err) { return done(err) }
+
+      res.should.have.status(200)
+      res.body.should.have.property('readings')
+
+      // tests if we've incremented 1 reading forward in the list
+      res.body.readings[0]._id.should.be.equal(DEFAULT_READINGS_LIST[1]._id)
+      res.body.readings[0]._id.should.not.be.equal(DEFAULT_READINGS_LIST[0]._id) // negative test
+
+      done()
     })
   })
 })
