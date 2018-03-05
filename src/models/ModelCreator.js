@@ -9,7 +9,14 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     schemaJson.createdAt = { type: Date, default: Date.now };
     schemaJson.updatedAt = { type: Date, default: Date.now };
 
-    var Schema = new db.Schema(schemaJson);
+    var Schema = new db.Schema(
+        schemaJson,
+        {
+            id: false, // tells mongoose not to create a copy of the _id field as 'id'
+            toObject: { virtuals: true }, // makes mongoose virtuals accessible to functions
+            toJSON: { virtuals: true } // makes mongoose virtuals accessible to JSON responses
+        }
+    );
 
     Schema.pre('save', function(next) {
         var now = new Date();

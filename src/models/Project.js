@@ -27,9 +27,18 @@ var Model = ModelCreator("Project", {
     tags: [Tags.schema],
     heat_vision: Boolean
 }, (schema) => {
+    // add population of user object
     schema.virtual('teacher', {
         ref: 'User',
         localField: 'teacher_id',
+        foreignField: '_id',
+        justOne: true
+    })
+
+    // add population of reading object
+    schema.virtual('reading', {
+        ref: 'Reading',
+        localField: 'reading_id',
         foreignField: '_id',
         justOne: true
     })

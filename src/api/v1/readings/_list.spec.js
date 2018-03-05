@@ -5,7 +5,7 @@ const should = chai.should()
 // local imports
 const helpers = require('./_list')
 
-describe('_list', () => {
+describe('readings _list helpers', () => {
   it('should have the required properties', () => {
     helpers.should.be.instanceof(Object)
     helpers.should.not.have.property('nothing')
@@ -38,7 +38,7 @@ describe('_list', () => {
     })
     it('should have an error when passed a query parameter which does not exist', () => {
       let query = helpers.validateQuery({
-        notexist: 'projects'
+        notexist: 'nothing'
       })
       query.should.have.property('error')
       should.exist(query.error)

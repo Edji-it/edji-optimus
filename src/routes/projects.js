@@ -22,21 +22,20 @@ router.get("/", authRequired, function(req, res){
 
     var user = req.user
 
-    Project.find(
+    Q(Project.find(
         { $or: [{students_ids: user._id}, {temp_ids: user._id}] },
         'reading_id teacher_id label code types tags updatedAt createdAt',
-        { sort: { createdAt: -1 } }, 
-        (err, result) => {
-            if (err) {
-                console.error(err)
-                res.status(500).send()
-                return
-            }
-            res.status(200).send(result)
-        }
+        { sort: { createdAt: -1 } }
     )
     .populate('teacher_id','fullname email username')
-    .populate('reading_id','title')
+    .populate('reading_id','title'))
+    .then((projects) => {
+        return res.status(200).send(projects)
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+    })
 })
 
 router.post("/", authRequired, function(req, res) {
