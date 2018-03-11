@@ -4,16 +4,18 @@
 const express = require( "express")
 const mongoose = require( "mongoose")
 const Q = require("q")
+const joi = require("joi")
+
 let Reading = require("./../models/Reading")
 let Project = require("./../models/Project")
 let User = require("./../models/User")
 let ReadingVersion = require("./../models/ReadingVersion")
 let MountModelToRouter = require("./MountModelToRouter")
-let Middleware = require("./../middleware/Middleware")
+const authRequired = require('./../middleware/auth-required')
 
-var router = express.Router()
+let router = express.Router()
 
-router.post("/", Middleware.authRequired, function(req, res) {
+router.post("/", authRequired, function(req, res) {
     let reading = req.body.reading
     let user = req.user
 
@@ -86,7 +88,7 @@ router.post("/", Middleware.authRequired, function(req, res) {
 })
 
 // Update a reading if in draft
-router.put("/:reading_id", Middleware.authRequired, function(req, res) {
+router.put("/:reading_id", authRequired, function(req, res) {
     var reading_upd = req.body.reading
     var reading_id = req.params.reading_id
     var user = req.user
@@ -133,7 +135,7 @@ router.put("/:reading_id", Middleware.authRequired, function(req, res) {
         })
 })
 
-router.delete("/:id", Middleware.authRequired, function(req, res) {
+router.delete("/:id", authRequired, function(req, res) {
     let id = req.params.id
     let user = req.user
 
@@ -179,7 +181,7 @@ router.delete("/:id", Middleware.authRequired, function(req, res) {
         })
 })
 
-router.get("/versions/:version_id", Middleware.authRequired, function(req, res) {
+router.get("/versions/:version_id", authRequired, function(req, res) {
     let version_id = req.params.version_id
     let user = req.user
 
@@ -251,7 +253,7 @@ router.get("/versions/:version_id", Middleware.authRequired, function(req, res) 
         })
 })
 
-router.get("/all/projects", Middleware.authRequired, function(req, res) {
+router.get("/all/projects", authRequired, function(req, res) {
     var user = req.user
 
     let promises = [
@@ -621,7 +623,7 @@ router.get("/feed", function(req, res) {
 })
 
 // //allows teachers to recommend reading to community library
-// router.put("/:reading_id/recommend", Middleware.authRequired, function(req, res) {
+// router.put("/:reading_id/recommend", authRequired, function(req, res) {
 //     var reading_id = req.params.reading_id
 //     var user = req.user
 
