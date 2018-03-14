@@ -5,6 +5,7 @@ const router = require('express').Router()
 const authRequired = require('./../../../middleware/auth-required')
 
 // attach route handlers
+router.post('/', authRequired, require('./create'))
 
 // export
 module.exports = router
