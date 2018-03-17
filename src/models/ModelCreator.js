@@ -12,7 +12,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     var Schema = new db.Schema(
         schemaJson,
         {
-            id: false, // tells mongoose not to create a copy of the _id field as 'id'
+            // id: false, // tells mongoose not to create a copy of the _id field as 'id'
             toObject: { virtuals: true }, // makes mongoose virtuals accessible to functions
             toJSON: { virtuals: true } // makes mongoose virtuals accessible to JSON responses
         }
