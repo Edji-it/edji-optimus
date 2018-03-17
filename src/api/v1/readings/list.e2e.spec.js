@@ -12,14 +12,14 @@ const ENDPOINT_URL = '/api/v1/readings'
 describe('GET /readings', () => {
   it('should get a 401 without auth', (done) => {
     chai.request(TEST.SERVER)
-      .get(ENDPOINT_URL)
-      .end((err, res) => {
-        should.exist(err)
+    .get(ENDPOINT_URL)
+    .end((err, res) => {
+      should.exist(err)
 
-        res.should.not.have.status(200)
-        res.should.have.status(401)
-        done()
-      })
+      res.should.not.have.status(200)
+      res.should.have.status(401)
+      done()
+    })
   })
 
   it('should get a 400 when requesting with a bad query parameter', (done) => {

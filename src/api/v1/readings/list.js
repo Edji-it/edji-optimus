@@ -1,5 +1,5 @@
 // library imports
-const joi = require('joi')
+const Q = require('q')
 
 // project imports
 const helpers = require('./_list')
@@ -21,14 +21,14 @@ module.exports = function(req, res) {
       query.value.size
     )
     // it is assumed that we will always be starting with ReadingVersion on this endpoint, so that we can easily filter for the most recent
-    dbQuery = ReadingVersion.aggregate(aggregation)
+    dbQuery = Q(ReadingVersion.aggregate(aggregation))
   } else {
     aggregation = helpers.paginate(
       helpers.baseAggregation(user._id),
       query.value.start,
       query.value.size
     )
-    dbQuery = ReadingVersion.aggregate(aggregation)
+    dbQuery = Q(ReadingVersion.aggregate(aggregation))
   }
 
   dbQuery.then((results) => {
