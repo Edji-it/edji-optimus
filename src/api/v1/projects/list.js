@@ -29,6 +29,13 @@ module.exports = function(req, res) {
 
   // run the query
   Q(dbQuery).then((projects) => {
+
+    // if reading was populated, make sure that only projects with readings are returned
+    if (query.value.pop.indexOf('reading') > -1) {
+      projects = projects.filter((project) => {
+        return !!project.reading
+      })
+    }
     return res.status(200).send({ projects: projects })
   })
   .catch((err) => {
