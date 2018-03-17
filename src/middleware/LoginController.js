@@ -23,13 +23,13 @@ const LoginController = {
                     if (result) {
                         result = me.generateLoginObjectForUser(dbUser)
                         if (result.user && !result.token) {
-                            reject('token not assigned for user')
+                            reject({ status: 500 })
                         } else {
                             resolve(result)
                         }
                     } else {
                         console.log('got the wrong credentials')
-                        reject("Wrong Credentials")
+                        reject({ status: 401 })
                     }
                 })
             })

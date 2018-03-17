@@ -321,9 +321,13 @@ router.post("/login", function(req, res){
 
     LoginController.login(user)
         .then((result) => {
-            res.status(200).send(result)
+            return res.status(200).send(result)
         }).catch((err) => {
-            res.status(401).send()
+            if (err && err.status) {
+                return res.status(err.status).send()
+            } else {
+                return res.status(401).send()
+            }
         })
 
 })
