@@ -11,7 +11,8 @@ describe('subscriptions _create helpers', () => {
     helpers.should.not.have.property('nothing')
 
     const propertiesToCheck = [
-      'validateBody'
+      'validateBody',
+      'retrieveOrCreateCustomer'
     ]
 
     for(let key of Object.keys(helpers)) {
@@ -70,5 +71,9 @@ describe('subscriptions _create helpers', () => {
       body.should.have.property('error')
       should.exist(body.error)
     })
+  })
+
+  describe('retrieveOrCreateCustomer', () => {
+
   })
 })

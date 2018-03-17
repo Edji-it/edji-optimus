@@ -1,7 +1,9 @@
-
+// library imports
+const Q = require('q')
 
 // project imports
 const helpers = require('./_create')
+const stripe = require('./_stripe')
 
 module.exports = function(req, res) {
   let user = req.user
@@ -10,20 +12,21 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: body.error })
   }
 
-  // // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
-  // let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
-  // .then((customerId) => {
-  //     if (customerId) {
-  //         // if they've got a customer id, straight up return it
-  //         return customerId
-  //     } else {
-  //         // if they don't have a customer id, then create the customer and resolve with it's id
-  //         return createCustomer(user.email, paymentToken)
-  //             .then((customer) => {
-  //                 return customer.id // extract the customer id and pass to next stage of promise
-  //             })
-  //     }
+  // helpers.retrieveOrCreateCustomer(req.user)
+  // .then((customer) => {
+  //   return res.status(200).send({ customer: customer })
+  // })
+  // .catch((err) => {
+  //   console.error(err)
+  //   return res.status(500).send()
   // })
 
-  return res.status(200).send()
+  // stripe.api.customers.retrieve(req.user.hero.customer_id)
+  stripe.retrieveOrCreateCustomer(req.user, body.value.paymentToken)
+  .then((customer) => {
+    return res.status(200).send({ customer: customer })
+  })
+  .catch((err) => {
+    return res.status(500).send()
+  })
 }
