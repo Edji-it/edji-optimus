@@ -27,12 +27,28 @@ describe('_stripe', () => {
   //   })
   // })
   describe('retrieveOrCreateCustomer', () => {
-    let createCustomer = sinon.stub(_stripe.api.customers, 'create')
+    
+    let fakeUser = {
+      email: 'corbin@edji.it',
+      hero: {
+        customer_id: 'cus_someid'
+      }
+    }
 
-    it('should return a promise', () => {
+    it('should call retrieve from stripes api', () => {
+      let retrieveCustomer = sinon.stub(_stripe.api.customers, 'retrieve')
+      .callsFake(() => {
+        return new Promise((resolve, reject) => { resolve() })
+      })
+      // retrieveCustomer.calledOnce(retrieveCustomer).should.be.false
 
+      _stripe.retrieveOrCreateCustomer(fakeUser, 'someString')
+
+      // retrieveCustomer.calledOnce(retrieveCustomer).should.be.true
+      
+      retrieveCustomer.restore()
+
+      sinon.assert.calledOnce(retrieveCustomer)
     })
-
-    createCustomer.restore()
   })
 })
