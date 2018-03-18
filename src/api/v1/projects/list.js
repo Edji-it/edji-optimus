@@ -12,30 +12,40 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: query.error })
   }
 
-  // set up initial query
-  let dbQuery = Project.find(
-    helpers.baseQuery(user),
-    'reading_id teacher_id label code types tags updatedAt createdAt',
-    { sort: { createdAt: -1 } }
-  )
+  let aggregation = helpers.baseAggregation(user)
 
-  // add population values
-  if (query.value.pop.indexOf('teacher') > -1) {
-    dbQuery.populate('teacher', 'fullname email username')
-  }
+  // populate the reading if it is requested
   if (query.value.pop.indexOf('reading') > -1) {
-    dbQuery.populate('reading', 'title')
+    aggregation = aggregation.concat(helpers.populateReadings)
+    console.log('asked for reading')
   }
+  
+  if (query.value.pop.indexOf('teacher') > -1) {
+    aggregation = aggregation.concat(helpers.populateTeachers)
+  }
+
+  aggregation.push({ $project: helpers.responseShape }) // filter down to only the properties which we want to return
+
+  // // set up initial query
+  // let dbQuery = Project.find(
+  //   helpers.baseQuery(user),
+  //   'reading_id teacher_id label code types tags updatedAt createdAt',
+  //   { sort: { createdAt: -1 } }
+  // )
+
+  // // add population values
+  // if (query.value.pop.indexOf('teacher') > -1) {
+  //   dbQuery.populate('teacher', 'fullname email username')
+  // }
+  // if (query.value.pop.indexOf('reading') > -1) {
+  //   dbQuery.populate('reading', 'title')
+  // }
+
+  aggregation.push({ $sort: { createdAt: -1 } })
 
   // run the query
-  Q(dbQuery).then((projects) => {
-
-    // if reading was populated, make sure that only projects with readings are returned
-    if (query.value.pop.indexOf('reading') > -1) {
-      projects = projects.filter((project) => {
-        return !!project.reading
-      })
-    }
+  Q(Project.aggregate(aggregation).exec())
+  .then((projects) => {
     return res.status(200).send({ projects: projects })
   })
   .catch((err) => {

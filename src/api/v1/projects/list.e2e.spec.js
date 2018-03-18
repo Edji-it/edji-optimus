@@ -54,6 +54,7 @@ describe('GET /projects', () => {
       res.body.projects.length.should.equal(15)
       DEFAULT_PROJECT_LIST = projects
 
+      let lastProjectDate // used to test that the projects are in sort order from most to least recent
       projects.forEach((project) => {
         // things the project SHOULD have
         project.should.have.property("_id")
@@ -65,7 +66,19 @@ describe('GET /projects', () => {
         project.should.have.property("tags")
         project.should.have.property("createdAt")
         project.should.have.property("updatedAt")
+
+        project.should.not.have.property("heat_vision")
+
+        let thisProjectDate = new Date(project.updatedAt)
+        if (lastProjectDate) {
+          // test to make sure lastProjectDate is more recent than the current reading
+          (lastProjectDate.getTime() > thisProjectDate.getTime()).should.be.true
+        }
+        lastProjectDate = thisProjectDate
       })
+      should.exist(lastProjectDate)
+
+      done()
     })
   })
 })

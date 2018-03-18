@@ -79,6 +79,7 @@ describe('GET /readings', () => {
         }
         lastReadingDate = thisReadingDate
       })
+      should.exist(lastReadingDate)
 
       done()
     })
