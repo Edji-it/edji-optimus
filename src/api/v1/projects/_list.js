@@ -41,7 +41,9 @@ const responseShape = {
   "types": true,
   "updatedAt": true,
   "createdAt": true,
+  "reading._id": true,
   "reading.title": true,
+  "teacher._id": true,
   "teacher.fullname": true,
   "teacher.email": true,
   "teacher.username": true
