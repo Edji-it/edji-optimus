@@ -622,30 +622,6 @@ router.get("/feed", function(req, res) {
     })
 })
 
-// //allows teachers to recommend reading to community library
-// router.put("/:reading_id/recommend", authRequired, function(req, res) {
-//     var reading_id = req.params.reading_id
-//     var user = req.user
-
-//     Reading.findById(reading_id, function(error, reading) {
-//         error && console.log(error)
-
-//         if (reading) {
-//             if (!reading.promoter_ids) { //update older readings
-//                 reading.promoter_ids = []
-//             } else if (reading.promoter_ids.indexOf(user._id) >= 0) {
-//                 res.status(304).send()
-//                 return
-//             }
-
-//             reading.promoter_ids.push(user._id)
-
-//             reading.save()
-//             res.status(204).send()
-//         }
-//     })
-// })
-
 MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
 
 module.exports = router
