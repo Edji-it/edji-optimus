@@ -31,7 +31,9 @@ module.exports = function(req, res) {
   // run the query
   Q(Project.aggregate(aggregation))
   .then((response) => {
-    response = response[0]
+    if (response[0]) { response = response[0] }
+    else { response = { total: 0, projects: [] } }
+
     return res.status(200).send({ total: response.total, projects: response.results })
   })
   .catch((err) => {

@@ -56,9 +56,9 @@ const responseShape = {
 const baseAggregation = function(user) {
   let query
   if (user.type && user.type === 'temp') {
-    query = { temp_ids: user._id.toString() }
+    query = { temp_ids: user._id }
   } else {
-    query = { students_ids: user._id.toString() }
+    query = { students_ids: user._id }
   }
   return [
     { $match: query }
