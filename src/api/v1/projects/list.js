@@ -4,7 +4,7 @@ const Q = require('q')
 // project imports
 const Project = require('./../../../models/Project')
 const helpers = require('./_list')
-const db = require('./../../../_db')
+const _agg = require('./../../../aggregations')
 
 module.exports = function(req, res) {
   const user = req.user
@@ -18,7 +18,6 @@ module.exports = function(req, res) {
   // populate the reading if it is requested
   if (query.value.pop.indexOf('reading') > -1) {
     aggregation = aggregation.concat(helpers.populateReadings)
-    console.log('asked for reading')
   }
   
   if (query.value.pop.indexOf('teacher') > -1) {
@@ -27,7 +26,7 @@ module.exports = function(req, res) {
 
   aggregation.push({ $project: helpers.responseShape }) // filter down to only the properties which we want to return
 
-  aggregation = db.paginateAggregation(aggregation, query.value.start, query.value.size) // paginate the results
+  aggregation = _agg.paginateAggregation(aggregation, query.value.start, query.value.size) // paginate the results
 
   // run the query
   Q(Project.aggregate(aggregation))

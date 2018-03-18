@@ -73,9 +73,7 @@ const populateReadings = [
     foreignField: '_id',
     as: 'reading'
   }},
-  { $match: {
-    reading: { $exists: true }
-  }}
+  { $unwind: '$reading' }
 ]
 
 const populateTeachers = [
@@ -84,7 +82,8 @@ const populateTeachers = [
     localField: 'teacher_id',
     foreignField: '_id',
     as: 'teacher'
-  }}
+  }},
+  { $unwind: '$teacher' }
 ]
 
 module.exports = {
