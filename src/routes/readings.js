@@ -193,7 +193,7 @@ router.get("/versions/:version_id", authRequired, function(req, res) {
 
     let promises = [
         Project.aggregate([
-            { $match: { $or: [{ teacher_id: user._id.toString() }, { students_ids: user._id.toString() }, { temp_ids: user._id.toString() }]}},
+            { $match: { $or: [{ teacher_id: user._id }, { students_ids: user._id }, { temp_ids: user._id }]}},
             { $project: {
                 teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
                 comment_count: { $size: { $ifNull: [ "$comments", [] ]}},
@@ -237,7 +237,7 @@ router.get("/versions/:version_id", authRequired, function(req, res) {
 
             readings.forEach((reading, index) => {
                 readings[index].projects = projects.filter((project) => {
-                    if (project.reading_id == reading._id.toString()) { return true }
+                    if (project.reading_id == reading._id) { return true }
                     else { return false }
                 })
             })
@@ -258,7 +258,7 @@ router.get("/all/projects", authRequired, function(req, res) {
 
     let promises = [
         Project.aggregate([
-            { $match: { $or: [{ teacher_id: user._id.toString() }, { students_ids: user._id.toString() }, { temp_ids: user._id.toString() }]}},
+            { $match: { $or: [{ teacher_id: user._id }, { students_ids: user._id }, { temp_ids: user._id }]}},
             { $project: {
                 teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
                 comment_count: { $size: { $ifNull: [ "$comments", [] ]}},
@@ -314,7 +314,7 @@ router.get("/all/projects", authRequired, function(req, res) {
 
             readings.forEach((reading, index) => {
                 readings[index].projects = projects.filter((project) => {
-                    if (project.reading_id == reading._id.toString()) { return true }
+                    if (project.reading_id == reading._id) { return true }
                     else { return false }
                 })
             })
