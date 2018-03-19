@@ -58,7 +58,12 @@ const baseAggregation = function(user) {
   if (user.type && user.type === 'temp') {
     query = { temp_ids: user._id }
   } else {
-    query = { students_ids: user._id }
+    query = {
+      $and: [
+        { students_ids: user._id },
+        { teacher_id: { $ne: user._id }}
+      ]
+    }
   }
   return [
     { $match: query }
