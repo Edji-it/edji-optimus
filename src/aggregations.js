@@ -6,9 +6,9 @@
  * @param {number} skip The index of results at which the results should begin returning
  * @param {number} limit The maximum number of readings to return
  */
-const paginateAggregation = function(pipeline, skip, limit) {
+const paginateAggregation = function(pipeline, sort, skip, limit) {
   return pipeline.concat([
-    { $sort: { updatedAt: -1 }},
+    { $sort: sort},
     { $group: {
       _id: null,
       total: { $sum: 1 },

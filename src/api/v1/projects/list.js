@@ -26,7 +26,7 @@ module.exports = function(req, res) {
 
   aggregation.push({ $project: helpers.responseShape }) // filter down to only the properties which we want to return
 
-  aggregation = _agg.paginateAggregation(aggregation, query.value.start, query.value.size) // paginate the results
+  aggregation = _agg.paginateAggregation(aggregation, { createdAt: -1 }, query.value.start, query.value.size) // paginate the results
 
   // run the query
   Q(Project.aggregate(aggregation))
