@@ -12,7 +12,10 @@ describe('projects _list helpers', () => {
 
     const propertiesToCheck = [
       'validateQuery',
-      'baseQuery'
+      'baseAggregation',
+      'populateReadings',
+      'responseShape',
+      'populateTeachers'
     ]
 
     for(key of Object.keys(helpers)) {
