@@ -9,37 +9,39 @@ const Passport = require('./../passport')
 //TODO: need something more secret than this
 const secret = process.env.OPTIMUS_PW_SECRET
 
-var LoginController = {
-    login:function(user){
-        var me = this
+const LoginController = {
+    login: function(user){
+        let me = this
 
-        return Q.Promise(function(resolve, reject) {
-            User.findOne({username: user.username.toLowerCase().trim()}, function (err, dbUser) {
-                if (err) {
-                    reject(err)
-                    return
-                } else if(!dbUser) {
-                    reject("User does not exist")
-                    return
-                }
-
+        return Q(
+            User.findOne({ username: user.username.toLowerCase().trim()})
+            .exec()
+        )
+        .then((dbUser) => {
+            return new Promise((resolve, reject) => {
                 bcrypt.compare(user.password, dbUser.password, function (error, result) {
                     if (result) {
-                        resolve(me.generateLoginObjectForUser(dbUser))
-                    }
-                    else {
-                        reject("Wrong Credentials")
+                        result = me.generateLoginObjectForUser(dbUser)
+                        if (result.user && !result.token) {
+                            reject({ status: 500 })
+                        } else {
+                            resolve(result)
+                        }
+                    } else {
+                        console.log('got the wrong credentials')
+                        reject({ status: 401 })
                     }
                 })
-
             })
         })
     },
     generateLoginObjectForUser: function(user){
         user = this.addHeroStatus(user)
+        let token = this.generateTokenForUser(user)
+        
         return {
             user: user.toPublic(),
-            token: this.generateTokenForUser(user)
+            token: token
         }
     },
     addHeroStatus: function(user) {
@@ -57,13 +59,10 @@ var LoginController = {
         return user
     },
     generateTokenForUser: function(user){
-        var id
         if (user.type === "temp") {
-            id = user.id
-            return jwt.sign({id: id, type: user.type}, secret)
-        } else if (user.id) {
-            id = user.id
-            return jwt.sign({id}, secret)
+            return jwt.sign({ id: user._id, type: user.type}, secret)
+        } else if (user._id) {
+            return jwt.sign({ id: user._id }, secret)
         } else {
             return null
         }

@@ -5,7 +5,6 @@
   "scripts": {
     "start": "nodemon ./src/index.js localhost 3354",
     "dev": "nodemon ./src/index.js localhost 3354",
-    "dev:win": "nodemon ./src/index.js localhost 3354",
     "test": "NODE_ENV=test mocha --timeout 4000",
     "test:dev": "NODE_ENV=dev mocha --timeout 4000",
     "test:projects": "NODE_ENV=test mocha --timeout 4000 --grep Projects",

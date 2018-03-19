@@ -16,7 +16,7 @@ let Comment = require("./../models/Comment")
 let TempUser = require("./../models/TempUser")
 let Project = require("./../models/Project")
 let ArchivedUser = require("./../models/ArchivedUser")
-let LoginController = require("./../middleware/LoginController")
+const LoginController = require("./../middleware/LoginController")
 const authRequired = require('./../middleware/auth-required')
 let MountModelToRouter = require("./MountModelToRouter")
 
@@ -320,10 +320,14 @@ router.post("/login", function(req, res){
     }
 
     LoginController.login(user)
-        .then(function(result){
-            res.json(result)
-        }).fail(function(err){
-            res.status(401).send()
+        .then((result) => {
+            return res.status(200).send(result)
+        }).catch((err) => {
+            if (err && err.status) {
+                return res.status(err.status).send()
+            } else {
+                return res.status(401).send()
+            }
         })
 
 })
