@@ -50,6 +50,7 @@ describe('_stripe', () => {
 
       // assertions
       sinon.assert.calledOnce(retrieveCustomer)
+      sinon.assert.calledWith(retrieveCustomer, fakeUser.hero.customer_id)
       sinon.assert.notCalled(createCustomer)
       
       done()
@@ -57,7 +58,7 @@ describe('_stripe', () => {
   })
 
   it('should call create from stripes api', (done) => {
-    let user = {
+    let sentUser = {
       fullname: 'corbin',
       email: 'corbin@edji.it'
     }
@@ -67,7 +68,7 @@ describe('_stripe', () => {
     let createCustomer = sinon.stub(_stripe.api.customers, 'create').resolves()
 
     // unit under test
-    _stripe.retrieveOrCreateCustomer(user, 'someString')
+    _stripe.retrieveOrCreateCustomer(sentUser, 'someString')
     
     // restore stubs
     retrieveCustomer.restore()
@@ -76,7 +77,12 @@ describe('_stripe', () => {
     // assertions
     sinon.assert.calledOnce(createCustomer)
     sinon.assert.notCalled(retrieveCustomer)
-    
+
+    let calledUser = createCustomer.firstCall.args[0] // get the object that it was called with for testing
+    calledUser.should.be.instanceOf(Object)
+    calledUser.should.have.property('email')
+    calledUser.email.should.be.equal(sentUser.email)
+
     done()
   })
 
