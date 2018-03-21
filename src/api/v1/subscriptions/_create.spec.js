@@ -38,17 +38,18 @@ describe('subscriptions _create helpers', () => {
       should.not.exist(body.error)
     })
 
-    // has all of the required properties of the request body
-    const MVP_BODY = {
-      subscriptionType: 'yearly'
-    }
+
     // validate that the MVP_BODY is really the minimum required
     it('should be valid when passed with required parameters', () => {
-      const body = helpers.validateBody(MVP_BODY)
+      const body = helpers.validateBody({ subscriptionType: 'monthly', token: 'i_got_cash' })
       body.should.have.property('error')
       should.not.exist(body.error)
     })
 
+    // has all of the required properties of the request body
+    const MVP_BODY = {
+      subscriptionType: 'yearly',
+    }
     // validate that each required property will throw an error
     for(let key of Object.keys(MVP_BODY)) {
       let testBody = Object.assign({}, MVP_BODY)
@@ -60,6 +61,12 @@ describe('subscriptions _create helpers', () => {
         should.exist(body.error)
       })
     }
+
+    it('should be valid when passed with only a couponCode', () => {
+      const body = helpers.validateBody({ couponCode: 'somecode', subscriptionType: 'sometype' })
+      body.should.have.property('error')
+      should.not.exist(body.error)
+    })
 
     // this is so that, if the front end is passing something which is intended to be used but has the incorrect property name,
     //  it will return an error and be caught

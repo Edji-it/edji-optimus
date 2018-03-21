@@ -12,8 +12,9 @@ const validateBody = function(reqBody) {
   const bodySchema = joi.object({
     token: joi.string(),
     subscriptionType: joi.string().required(),
-    couponCode: joi.string()
-  })
+    couponCode: joi.string(),
+    token: joi.string()
+  }).or('token', 'couponCode')
 
   return joi.validate(reqBody, bodySchema)
 }

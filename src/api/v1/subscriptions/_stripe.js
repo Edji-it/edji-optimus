@@ -8,6 +8,7 @@ const joi = require('joi')
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
 const retrieveOrCreateCustomer = function(user, paymentToken) {
+  // get the user if they've already got a customer_id
   if (user && user.hero && user.hero.customer_id) {
     return stripe.customers.retrieve(user.hero.customer_id)
   } else if(user && user.email) {
@@ -18,7 +19,7 @@ const retrieveOrCreateCustomer = function(user, paymentToken) {
 
     return stripe.customers.create(customer)
   } else {
-    return Promise.reject({ error: 'no email on user object' })
+    return Promise.reject({ error: 'user object missing required properties for customer creation' })
   }
 }
 
