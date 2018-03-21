@@ -13,7 +13,7 @@ module.exports = ModelCreator("Reading", {
     title:{type: String, required: true},
     parent_id: { type: mongoose.Schema.ObjectId, ref: "Reading" },
     owner_id: { type: mongoose.Schema.ObjectId, required: true, ref: "User" },
-    teacher_ids: [String],
+    teacher_ids: [String], // no longer used 3/20/18
     public: Boolean,
     questions: [Question.schema],
     promoter_ids: [String],
