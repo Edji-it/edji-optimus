@@ -224,7 +224,8 @@ router.get("/versions/:version_id", authRequired, function(req, res) {
                 draft: "$reading.draft",
                 createdAt: "$reading.createdAt",
                 updatedAt: "$reading.updatedAt",
-                versionCount: 1
+                versionCount: 1,
+                version_count: "$versionCount"
             }},
             { $sort: { _id: -1 }}
         ])
