@@ -237,7 +237,7 @@ router.get("/versions/:version_id", authRequired, function(req, res) {
 
             readings.forEach((reading, index) => {
                 readings[index].projects = projects.filter((project) => {
-                    if (project.reading_id && project.reading_id.equals(reading._id)) { return true }
+                    if (project.reading_id && reading._id.equals(project.reading_id)) { return true }
                     else { return false }
                 })
             })
@@ -314,7 +314,7 @@ router.get("/all/projects", authRequired, function(req, res) {
 
             readings.forEach((reading, index) => {
                 readings[index].projects = projects.filter((project) => {
-                    if (project.reading_id && project.reading_id.equals(reading._id)) { return true }
+                    if (project.reading_id && reading._id.equals(project.reading_id)) { return true }
                     else { return false }
                 })
             })
