@@ -32,23 +32,69 @@ describe('_stripe', () => {
       email: 'corbin@edji.it',
       hero: {
         customer_id: 'cus_someid'
-      }
+      },
+      fullanme: 'corbin'
     }
 
-    it('should call retrieve from stripes api', () => {
-      let retrieveCustomer = sinon.stub(_stripe.api.customers, 'retrieve')
-      .callsFake(() => {
-        return new Promise((resolve, reject) => { resolve() })
-      })
-      // retrieveCustomer.calledOnce(retrieveCustomer).should.be.false
+    it('should call retrieve from stripes api', (done) => {
+      // stub these functions
+      let retrieveCustomer = sinon.stub(_stripe.api.customers, 'retrieve').resolves()
+      let createCustomer = sinon.stub(_stripe.api.customers, 'create').resolves()
 
+      // unit under test
       _stripe.retrieveOrCreateCustomer(fakeUser, 'someString')
-
-      // retrieveCustomer.calledOnce(retrieveCustomer).should.be.true
       
+      // restore stubs
       retrieveCustomer.restore()
+      createCustomer.restore()
 
+      // assertions
       sinon.assert.calledOnce(retrieveCustomer)
+      sinon.assert.notCalled(createCustomer)
+      
+      done()
     })
+  })
+
+  it('should call create from stripes api', (done) => {
+    let user = {
+      fullname: 'corbin',
+      email: 'corbin@edji.it'
+    }
+
+    // stub these functions
+    let retrieveCustomer = sinon.stub(_stripe.api.customers, 'retrieve').resolves()
+    let createCustomer = sinon.stub(_stripe.api.customers, 'create').resolves()
+
+    // unit under test
+    _stripe.retrieveOrCreateCustomer(user, 'someString')
+    
+    // restore stubs
+    retrieveCustomer.restore()
+    createCustomer.restore()
+
+    // assertions
+    sinon.assert.calledOnce(createCustomer)
+    sinon.assert.notCalled(retrieveCustomer)
+    
+    done()
+  })
+
+  it('should reject a user without an email', (done) => {
+    // stub these functions
+    let retrieveCustomer = sinon.stub(_stripe.api.customers, 'retrieve').resolves()
+    let createCustomer = sinon.stub(_stripe.api.customers, 'create').resolves()
+
+    _stripe.retrieveOrCreateCustomer({}, 'payment')
+
+    // restore stubs
+    retrieveCustomer.restore()
+    createCustomer.restore()
+
+    sinon.assert.notCalled(createCustomer)
+    sinon.assert.notCalled(retrieveCustomer)
+    
+
+    done()
   })
 })
