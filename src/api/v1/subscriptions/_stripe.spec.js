@@ -21,11 +21,6 @@ describe('_stripe', () => {
     }
   })
 
-  // describe('getCustomer', () => {
-  //   it('should return a promise', (done) => {
-  //     _stripe.getCustomer()
-  //   })
-  // })
   describe('retrieveOrCreateCustomer', () => {
     let retrieveCustomer
     let createCustomer

@@ -12,15 +12,6 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: body.error })
   }
 
-  // helpers.retrieveOrCreateCustomer(req.user)
-  // .then((customer) => {
-  //   return res.status(200).send({ customer: customer })
-  // })
-  // .catch((err) => {
-  //   console.error(err)
-  //   return res.status(500).send()
-  // })
-
   // stripe.api.customers.retrieve(req.user.hero.customer_id)
   stripe.retrieveOrCreateCustomer(req.user, body.value.paymentToken)
   .then((customer) => {

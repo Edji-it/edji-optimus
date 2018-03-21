@@ -72,8 +72,4 @@ describe('subscriptions _create helpers', () => {
       should.exist(body.error)
     })
   })
-
-  describe('retrieveOrCreateCustomer', () => {
-
-  })
 })
