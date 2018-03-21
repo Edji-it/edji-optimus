@@ -4,6 +4,7 @@ const Q = require('q')
 // project imports
 const Project = require('./../../../models/Project')
 const helpers = require('./_list')
+const _agg = require('./../../../aggregations')
 
 module.exports = function(req, res) {
   const user = req.user
@@ -12,31 +13,28 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: query.error })
   }
 
-  // set up initial query
-  let dbQuery = Project.find(
-    helpers.baseQuery(user),
-    'reading_id teacher_id label code types tags updatedAt createdAt',
-    { sort: { createdAt: -1 } }
-  )
+  let aggregation = helpers.baseAggregation(user)
 
-  // add population values
-  if (query.value.pop.indexOf('teacher') > -1) {
-    dbQuery.populate('teacher', 'fullname email username')
-  }
+  // populate the reading if it is requested
   if (query.value.pop.indexOf('reading') > -1) {
-    dbQuery.populate('reading', 'title')
+    aggregation = aggregation.concat(helpers.populateReadings)
   }
+  
+  if (query.value.pop.indexOf('teacher') > -1) {
+    aggregation = aggregation.concat(helpers.populateTeachers)
+  }
+
+  aggregation.push({ $project: helpers.responseShape }) // filter down to only the properties which we want to return
+
+  aggregation = _agg.paginateAggregation(aggregation, { createdAt: -1 }, query.value.start, query.value.size) // paginate the results
 
   // run the query
-  Q(dbQuery).then((projects) => {
+  Q(Project.aggregate(aggregation))
+  .then((response) => {
+    if (response[0]) { response = response[0] }
+    else { response = { total: 0, projects: [] } }
 
-    // if reading was populated, make sure that only projects with readings are returned
-    if (query.value.pop.indexOf('reading') > -1) {
-      projects = projects.filter((project) => {
-        return !!project.reading
-      })
-    }
-    return res.status(200).send({ projects: projects })
+    return res.status(200).send({ total: response.total, projects: response.results })
   })
   .catch((err) => {
     console.error(err)

@@ -26,6 +26,47 @@ const validateQuery = function(requestQuery) {
   return joi.validate(requestQuery, querySchema)
 }
 
+const responseShape = {
+  _id: true,
+  title: true,
+  owner_id: true,
+  teacher_ids: true,
+  "public": true,
+  source: true,
+  subjects: true,
+  grade_levels: true,
+  cover_img: true,
+  draft: true,
+  version_id: true,
+  createdAt: true,
+  updatedAt: true,
+  version_count: true,
+  "projects._id": true,
+  "projects.reading_id": true,
+  "projects.teacher_id": true,
+  "projects.label": true,
+  "projects.code": true,
+  "projects.types": true,
+  "projects.createdAt": true,
+  "projects.updatedAt": true,
+  "projects.comment_count": {
+    $size: {
+      $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
+    }
+  },
+  "projects.students_ids": true,
+  "projects.student_count": {
+    $sum: [ // sum the students and temp students together
+      { $size: {
+        $arrayElemAt: ["$projects.students_ids", 0]
+      }},
+      { $size: {
+        $arrayElemAt: ["$projects.temp_ids", 0]
+      }}
+    ]
+  }
+}
+
 /**
  * Gets all of the most recent version of a user's readings and is meant to be expandable by other aggregation pipelines
  * @param {string} userId The user id for which you are searching for readings
@@ -87,46 +128,7 @@ const populateProjectAggregation = function(userId) {
       as: 'projects'
     }
   }, {
-    $project: {
-      _id: true,
-      title: true,
-      owner_id: true,
-      teacher_ids: true,
-      "public": true,
-      source: true,
-      subjects: true,
-      grade_levels: true,
-      cover_img: true,
-      draft: true,
-      version_id: true,
-      createdAt: true,
-      updatedAt: true,
-      version_count: true,
-      "projects._id": true,
-      "projects.reading_id": true,
-      "projects.teacher_id": true,
-      "projects.label": true,
-      "projects.code": true,
-      "projects.types": true,
-      "projects.createdAt": true,
-      "projects.updatedAt": true,
-      "projects.comment_count": {
-        $size: {
-          $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
-        }
-      },
-      "projects.students_ids": true,
-      "projects.student_count": {
-        $sum: [ // sum the students and temp students together
-          { $size: {
-            $arrayElemAt: ["$projects.students_ids", 0]
-          }},
-          { $size: {
-            $arrayElemAt: ["$projects.temp_ids", 0]
-          }}
-        ]
-      }
-    }
+    $project: responseShape
   })
   return aggregation
 }
