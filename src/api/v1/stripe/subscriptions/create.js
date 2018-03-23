@@ -3,7 +3,7 @@ const Q = require('q')
 
 // project imports
 const helpers = require('./_create')
-const stripe = require('./_stripe')
+const stripe = require('./../_stripe')
 
 module.exports = function(req, res) {
   let user = req.user

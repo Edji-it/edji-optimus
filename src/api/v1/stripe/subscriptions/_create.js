@@ -2,7 +2,7 @@
 const joi = require('joi')
 
 // project imports
-const _stripe = require('./_stripe')
+const _stripe = require('./../_stripe')
 
 /**
  * Validates query parameters against a query and returns with an object that either does or does not have an `error` property
