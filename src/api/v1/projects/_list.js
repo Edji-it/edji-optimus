@@ -27,21 +27,76 @@ const validateQuery = function(requestQuery) {
   return joi.validate(requestQuery, querySchema)
 }
 
+// 'reading_id teacher_id label code types tags updatedAt createdAt',
+
 /**
- * Returns the query passed to find the project documents
- * @param {any} user the user passed in from req.query
+ * Provides an object for the $project phase any time project objects are being passed through the pipeline
  */
-const baseQuery = function(user) {
+const responseShape = {
+  "_id": true,
+  "reading_id": true,
+  "teacher_id": true,
+  "label": true,
+  "code": true,
+  "types": true,
+  "updatedAt": true,
+  "createdAt": true,
+  "reading._id": true,
+  "reading.title": true,
+  "teacher._id": true,
+  "teacher.fullname": true,
+  "teacher.email": true,
+  "teacher.username": true
+}
+
+/**
+ * Takes a user and returns an array wrapping a $match phase, which starts off the aggregation pipeline
+ * @param {User} user the user passed by the req.user
+ */
+const baseAggregation = function(user) {
   let query
   if (user.type && user.type === 'temp') {
     query = { temp_ids: user._id }
   } else {
-    query = { students_ids: user._id }
+    query = {
+      $and: [
+        { students_ids: user._id },
+        { teacher_id: { $ne: user._id }}
+      ]
+    }
   }
-  return query
+  return [
+    { $match: query }
+  ]
 }
+
+/**
+ * An array of aggregation steps which, when applied to an array of projects, should populate the reading with certain properties
+ */
+const populateReadings = [
+  { $lookup: {
+    from: 'readings',
+    localField: 'reading_id',
+    foreignField: '_id',
+    as: 'reading'
+  }},
+  { $unwind: '$reading' }
+]
+
+const populateTeachers = [
+  { $lookup: {
+    from: 'users',
+    localField: 'teacher_id',
+    foreignField: '_id',
+    as: 'teacher'
+  }},
+  { $unwind: '$teacher' }
+]
 
 module.exports = {
   validateQuery: validateQuery,
-  baseQuery: baseQuery
+  baseAggregation: baseAggregation,
+  populateReadings: populateReadings,
+  responseShape: responseShape,
+  populateTeachers: populateTeachers
 }
