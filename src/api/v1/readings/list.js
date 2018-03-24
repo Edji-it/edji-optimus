@@ -32,9 +32,13 @@ module.exports = function(req, res) {
   }
 
   dbQuery.then((results) => {
-    results = results[0] // because it's an aggregation, they come back in an array so we take the first element
+    if (results && results[0]) {
+      results = results[0] // because it's an aggregation, they come back in an array so we take the first element
+    }
+
+    let readings = results.readings || []
     return res.status(200).send({
-      readings: results.readings,
+      readings: readings,
       total: results.total
     })
   })
