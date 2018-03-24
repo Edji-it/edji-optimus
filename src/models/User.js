@@ -1,18 +1,19 @@
-/**
- * Created by bvfergus on 3/5/16.
- */
-var ModelCreator = require("./ModelCreator")
-var mongoose = require("mongoose")
-var bcrypt = require("bcryptjs")
+// library imports
+const mongoose = require("mongoose")
+const bcrypt = require("bcryptjs")
+const _ = require('underscore')
+
+// project imports
+const ModelCreator = require("./ModelCreator")
 
 // tests email against regex
-var emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-var validateEmail = function(email) {
+let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+let validateEmail = function(email) {
     return emailRe.test(email)
 }
 
-// var nameRe = /(?:([^a-zA-Z0-9\s]))/g
-var validateName = function(name) {
+// let nameRe = /(?:([^a-zA-Z0-9\s]))/g
+let validateName = function(name) {
     // needs to return true for good names
     let listOfWordsItCantContainAtAll = [
         'fuck',
@@ -95,6 +96,9 @@ let model = ModelCreator("User", {
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
     lastActionTime: Date, // the time the user last hit the server with an Authorization token
+    last_hero_check: Date, // the last time we recalculated the their Hero status
+    hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
+    license_id: { type: mongoose.Schema.ObjectId }, // the license id for the user's school's license
     avatar : String,
     hero : {
         /**
@@ -176,17 +180,27 @@ let model = ModelCreator("User", {
 }, function(schema) {
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
-        //makes copy of document
-        var user = {}
-        Object.assign(user, this._doc)
+        // list out the properties it is ok to return to the front-end
+        let clientProperties = [
+            'username',
+            'fullname',
+            'email',
+            'identities',
+            'lastActionTime',
+            'last_hero_check',
+            'hero_status',
+            'license_id',
+            'avatar',
+            'hero',
+            'following',
+            'prefs',
+            'media'
+        ]
 
-        //deletes properties which should not be passed to front end
-        delete user.password
-        delete user.resetPasswordToken
-        delete user.resetPasswordExpires
-        delete user.accountArchiveToken
-        delete user.oauth
-        return user
+        // return all of the properties in the above array
+        return _.pick(this._doc, (value, key, object) => {
+            return clientProperties.indexOf(key) > -1
+        })
     }
 })
 
