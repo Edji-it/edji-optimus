@@ -28,7 +28,6 @@ describe('subscriptions _create helpers', () => {
 
     // should have all of the valid properties of the body
     const MAX_BODY = {
-      subscriptionType: 'yearly',
       couponCode: 'SOME_CODE',
       token: 'some_string'
     }
@@ -40,30 +39,14 @@ describe('subscriptions _create helpers', () => {
 
 
     // validate that the MVP_BODY is really the minimum required
-    it('should be valid when passed with required parameters', () => {
-      const body = helpers.validateBody({ subscriptionType: 'monthly', token: 'i_got_cash' })
+    it('should be valid when passed with only token parameter', () => {
+      const body = helpers.validateBody({ token: 'i_got_cash' })
       body.should.have.property('error')
       should.not.exist(body.error)
     })
 
-    // has all of the required properties of the request body
-    const MVP_BODY = {
-      subscriptionType: 'yearly',
-    }
-    // validate that each required property will throw an error
-    for(let key of Object.keys(MVP_BODY)) {
-      let testBody = Object.assign({}, MVP_BODY)
-      delete testBody[key]
-
-      it('should have an error when passed without ' + key + ' as a parameter', () => {
-        const body = helpers.validateBody(testBody)
-        body.should.have.property('error')
-        should.exist(body.error)
-      })
-    }
-
-    it('should be valid when passed with only a couponCode', () => {
-      const body = helpers.validateBody({ couponCode: 'somecode', subscriptionType: 'sometype' })
+    it('should be valid when passed with only a couponCode parameter', () => {
+      const body = helpers.validateBody({ couponCode: 'somecode' })
       body.should.have.property('error')
       should.not.exist(body.error)
     })
@@ -71,9 +54,10 @@ describe('subscriptions _create helpers', () => {
     // this is so that, if the front end is passing something which is intended to be used but has the incorrect property name,
     //  it will return an error and be caught
     it('should return an error when passed with unnecessary parameters', () => {
-      let testBody = Object.assign({
-        unnecessary: true
-      }, MVP_BODY)
+      let testBody = {
+        unnecessary: true,
+        token: "some_token"
+      }
       const body = helpers.validateBody(testBody)
       body.should.have.property('error')
       should.exist(body.error)

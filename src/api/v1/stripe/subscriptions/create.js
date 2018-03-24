@@ -12,12 +12,12 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: body.error })
   }
 
-  stripe.retrieveOrCreateCustomer(req.user, body.value.paymentToken)
+  stripe.retrieveOrCreateCustomer(req.user, body.value.token)
   .then((customer) => {
     return stripe.api.subscriptions.create({
       customer: customer.id,
       coupon: body.value.couponCode,
-      source: body.value.paymentToken
+      plan: 'yearly'
     })
   })
   .then((subscription) => {
@@ -27,10 +27,4 @@ module.exports = function(req, res) {
     console.error(err)
     return res.status(500).send()
   })
-
-  // get the stripe customer
-  // are they subscribed?
-    // yes: return error?
-    // no: subscribe them
-  // update user object with subscription & other Hero info (simplified)
 }

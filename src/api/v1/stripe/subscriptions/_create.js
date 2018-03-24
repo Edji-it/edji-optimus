@@ -11,9 +11,7 @@ const _stripe = require('./../_stripe')
 const validateBody = function(reqBody) {
   const bodySchema = joi.object({
     token: joi.string(),
-    subscriptionType: joi.string().required(),
-    couponCode: joi.string(),
-    token: joi.string()
+    couponCode: joi.string()
   }).or('token', 'couponCode')
 
   return joi.validate(reqBody, bodySchema)
