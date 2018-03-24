@@ -24,6 +24,7 @@ module.exports = function(req, res) {
     return res.status(200).send({ subscription: subscription })
   })
   .catch((err) => {
+    console.error(err)
     return res.status(500).send()
   })
 
