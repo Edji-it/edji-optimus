@@ -5,6 +5,7 @@ const _ = require('underscore')
 
 // project imports
 const ModelCreator = require("./ModelCreator")
+const helpers = require('./_User')
 
 // tests email against regex
 let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
@@ -204,16 +205,17 @@ let model = ModelCreator("User", {
         })
     }
 
-    // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
-    schema.methods.checkHeroStatus = function() {
-        calculateUserHeroStatus(this._doc)
-        .then((valid) => {
-
-        })
-        .catch((err) => {
-            console.error(err)
-        })
-    }
+    // // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
+    // schema.methods.checkHeroStatus = function() {
+    //     helpers.getUserHeroStatus(this._doc)
+    //     .then((valid) => {
+    //         console.log('got the hero status')
+    //         this._doc.
+    //     })
+    //     .catch((err) => {
+    //         console.error(err)
+    //     })
+    // }
 })
 
 model.schema.pre("save", function(next){
