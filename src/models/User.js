@@ -98,7 +98,8 @@ let model = ModelCreator("User", {
     lastActionTime: Date, // the time the user last hit the server with an Authorization token
     last_hero_check: Date, // the last time we recalculated the their Hero status
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
-    license_id: { type: mongoose.Schema.ObjectId }, // the license id for the user's school's license
+    stripe_customer_id: String, // the user's stripe customer id
+    license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
     avatar : String,
     hero : {
         /**
@@ -181,7 +182,7 @@ let model = ModelCreator("User", {
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
         // list out the properties it is ok to return to the front-end
-        let clientProperties = [
+        const clientProperties = [
             'username',
             'fullname',
             'email',
@@ -189,7 +190,7 @@ let model = ModelCreator("User", {
             'lastActionTime',
             'last_hero_check',
             'hero_status',
-            'license_id',
+            'stripe_customer_id',
             'avatar',
             'hero',
             'following',
@@ -202,10 +203,20 @@ let model = ModelCreator("User", {
             return clientProperties.indexOf(key) > -1
         })
     }
+
+    // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
+    schema.methods.checkHeroStatus = function() {
+        calculateUserHeroStatus(this._doc)
+        .then((valid) => {
+
+        })
+        .catch((err) => {
+            console.error(err)
+        })
+    }
 })
 
 model.schema.pre("save", function(next){
-
     if (!this.password) { return next() } // oauth users won't have a password
     // We should not save dynamically added properties
     this.hero && delete this.hero.active
@@ -221,7 +232,6 @@ model.schema.pre("save", function(next){
         this.password = hash
         return next()
     })
-
 })
 
 // add custom validator to make sure user has either oauth type or username/password
