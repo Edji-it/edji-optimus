@@ -1,0 +1,16 @@
+// library imports
+const mongoose = require('mongoose')
+
+// project imports
+const ModelCreator = require("./ModelCreator")
+
+// define the schema for a single message independently, for readability and b/c mongoose won't let you specify an array easily
+const messageSchema = new mongoose.Schema({
+  key: String,
+  added_at: Date
+})
+
+let model = ModelCreator('MessageList', {
+  messages: [messageSchema],
+  last_message_check: Date
+})
