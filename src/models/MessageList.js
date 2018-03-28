@@ -11,6 +11,8 @@ const messageSchema = new mongoose.Schema({
 })
 
 let model = ModelCreator('MessageList', {
-  messages: [messageSchema],
-  last_message_check: Date
+  messages: { type: [messageSchema], default: []},
+  last_message_check: { type: Date, default: Date.now() }
 })
+
+module.exports = model

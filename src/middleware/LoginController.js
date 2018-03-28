@@ -78,7 +78,7 @@ const LoginController = {
             // set their last action time! Whoo this is so exciting!
             User.findByIdAndUpdate(
                 decodedJWT.id,
-                { $set: { lastActionTime: Date.now() }},
+                { $set: { last_action_time: Date.now() }},
                 { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
                 callback
             )

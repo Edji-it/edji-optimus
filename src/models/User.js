@@ -6,6 +6,7 @@ const _ = require('underscore')
 // project imports
 const ModelCreator = require("./ModelCreator")
 const helpers = require('./_User')
+const MessageList = require('./MessageList')
 
 // tests email against regex
 let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
@@ -96,11 +97,12 @@ let model = ModelCreator("User", {
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
-    lastActionTime: Date, // the time the user last hit the server with an Authorization token
-    last_hero_check: Date, // the last time we recalculated the their Hero status
+    last_action_time: Date, // the time the user last hit the server with an Authorization token
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
     stripe_customer_id: String, // the user's stripe customer id
     license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
+    message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
+    last_message_check: { type: Date, default: Date.now() },
     avatar : String,
     hero : {
         /**
@@ -188,7 +190,6 @@ let model = ModelCreator("User", {
             'fullname',
             'email',
             'identities',
-            'lastActionTime',
             'last_hero_check',
             'hero_status',
             'stripe_customer_id',
