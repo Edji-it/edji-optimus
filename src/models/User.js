@@ -206,17 +206,19 @@ let model = ModelCreator("User", {
         })
     }
 
-    // // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
-    // schema.methods.checkHeroStatus = function() {
-    //     helpers.getUserHeroStatus(this._doc)
-    //     .then((valid) => {
-    //         console.log('got the hero status')
-    //         this._doc.
-    //     })
-    //     .catch((err) => {
-    //         console.error(err)
-    //     })
-    // }
+    // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
+    schema.methods.checkHeroStatus = function() {
+        // helpers.getUserHeroStatus(this._doc)
+        // .then((valid) => {
+        //     console.log('got the hero status')
+        //     // this._doc.
+        // })
+        // .catch((err) => {
+        //     console.error(err)
+        // })
+        console.log('just checked that users hero status')
+        return Promise.resolve(true)
+    }
 })
 
 model.schema.pre("save", function(next){

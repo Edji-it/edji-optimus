@@ -26,7 +26,7 @@ module.exports = function(req, res) {
     })
   } else {
     Q(
-      MessageList.findById(user.message_list_id).exec()
+      MessageList.findById(user.message_list_id).lean().exec() // call for just the json object - not the mongoose wrapped object
     )
     .then((messageList) => {
       return res.status(200).send({ messages: messageList.messages })
