@@ -1,6 +1,10 @@
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
 
+// constants
+const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
+const USER_REFRESH_INTERVAL = 1000 * 60 * 60 * 12 // 12 hrs
+
 /**
  * Returns a promise resolved with a boolean indicating whether or not 
  * @param {User} user the user for which we should calculate the hero status
@@ -29,6 +33,22 @@ const getUserHeroStatus = function(user) {
   })
 }
 
+/**
+ * Determines whether or not the user needs a refresh
+ * @param {Date} lastRefreshTime the time of the user's last refresh
+ */
+const refreshRequired = function(lastRefreshTime) {
+  console.log('checking user refresh time')
+  return lastRefreshTime > Date.now() - USER_REFRESH_INTERVAL
+}
+
+const messageCheckRequired = function(lastMessageCheckTime) {
+  console.log('checking message time')
+  return lastMessageCheckTime > Date.now() - MESSAGE_CHECK_INTERVAL
+}
+
 module.exports = {
-  getUserHeroStatus: getUserHeroStatus
+  getUserHeroStatus: getUserHeroStatus,
+  refreshRequired: refreshRequired,
+  messageCheckRequired: messageCheckRequired
 }

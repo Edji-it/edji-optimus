@@ -7,28 +7,38 @@ const helpers = require('./_retrieve')
 
 module.exports = function(req, res) {
   let user = req.user
-  const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
 
   // throttle the database calls if the user has gotten messages recently
-  if (user.last_message_check && user.last_message_check > Date.now() - MESSAGE_CHECK_INTERVAL) {
+  if (!user.message_check_required) {
     return res.status(200).send({ messages: [] })
   }
 
   // if the user doesn't have a MessageList, we need to make them one and update their user object
-  if(!user.last_message_check || !user.message_list_id) {
-    helpers.addNewMessageListToUser(user, (err) => {
-      if (err) {
-        console.error(err)
-        return res.status(500).send()
-      } else {
-        return res.status(200).send({ messages: [] })
-      }
+  if(!user.message_list_id) {
+    // helpers.addNewMessageListToUser(user, (err) => {
+    //   if (err) {
+    //     console.error(err)
+    //     return res.status(500).send()
+    //   } else {
+    //     return res.status(200).send({ messages: [] })
+    //   }
+    // })
+    helpers.createMessageList({})
+    .then((messageList) => {
+      
+    })
+    .catch((err) => {
+      console.error(err)
+      return res.status(500).send()
     })
   } else {
     Q(
-      MessageList.findById(user.message_list_id).lean().exec() // call for just the json object - not the mongoose wrapped object
+      MessageList.findById(user.message_list_id).exec() // call for just the json object - not the mongoose wrapped object
     )
     .then((messageList) => {
+      if (user.refresh_required) {
+        messageList.messages.push({ key: 'user_refresh_required', added_at_time: Date.now() })
+      }
       return res.status(200).send({ messages: messageList.messages })
     })
     .catch((err) => {

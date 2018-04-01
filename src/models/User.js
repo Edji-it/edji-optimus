@@ -98,11 +98,12 @@ let model = ModelCreator("User", {
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
     last_action_time: Date, // the time the user last hit the server with an Authorization token
+    last_message_check_time: { type: Date, default: Date.now() },
+    last_refresh_time: { type: Date, default: Date.now() },
+    message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
     stripe_customer_id: String, // the user's stripe customer id
     license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
-    message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
-    last_message_check: { type: Date, default: Date.now() },
     avatar : String,
     hero : {
         /**
@@ -208,7 +209,7 @@ let model = ModelCreator("User", {
 
     // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
     schema.methods.checkHeroStatus = function() {
-        // helpers.getUserHeroStatus(this._doc)
+        // return helpers.getUserHeroStatus(this._doc)
         // .then((valid) => {
         //     console.log('got the hero status')
         //     // this._doc.
@@ -219,6 +220,21 @@ let model = ModelCreator("User", {
         console.log('just checked that users hero status')
         return Promise.resolve(true)
     }
+
+    // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
+    schema
+    .virtual('refresh_required')
+    .get(() => {
+        // return helpers.refreshRequired(this.last_refresh_time)
+        return true
+    })
+
+    schema
+    .virtual('message_check_required')
+    .get(() => {
+        console.log('checking messages')
+        return true
+    })
 })
 
 model.schema.pre("save", function(next){
