@@ -31,6 +31,13 @@ module.exports = function(req, res) {
       MessageList.findById(user.message_list_id).exec() // call for just the json object - not the mongoose wrapped object
     )
     .then((messageList) => {
+      // this would be bad - nothing should make this happen... if it is happening, there's a flaw in the system that needs fixed
+      if (!messageList) {
+        let error = 'no message list exists for user ' + user._id
+        console.error(error)
+        return res.status(500).send({ error: error })
+      }
+
       if (user.refresh_required) {
         messageList.messages.push({ key: 'user_refresh_required', added_at_time: Date.now() })
       }
