@@ -207,33 +207,31 @@ let model = ModelCreator("User", {
         })
     }
 
-    // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
-    schema.methods.checkHeroStatus = function() {
-        // return helpers.getUserHeroStatus(this._doc)
-        // .then((valid) => {
-        //     console.log('got the hero status')
-        //     // this._doc.
-        // })
-        // .catch((err) => {
-        //     console.error(err)
-        // })
-        console.log('just checked that users hero status')
-        return Promise.resolve(true)
-    }
+    // // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
+    // schema.methods.checkHeroStatus = function() {
+    //     // return helpers.getUserHeroStatus(this._doc)
+    //     // .then((valid) => {
+    //     //     console.log('got the hero status')
+    //     //     // this._doc.
+    //     // })
+    //     // .catch((err) => {
+    //     //     console.error(err)
+    //     // })
+    //     console.log('just checked that users hero status')
+    //     return Promise.resolve(true)
+    // }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
     schema
     .virtual('refresh_required')
     .get(() => {
-        // return helpers.refreshRequired(this.last_refresh_time)
-        return true
+        return helpers.refreshRequired(this.last_refresh_time)
     })
 
     schema
     .virtual('message_check_required')
     .get(() => {
-        console.log('checking messages')
-        return true
+        return helpers.messageCheckRequired(this.last_message_check_time)
     })
 })
 

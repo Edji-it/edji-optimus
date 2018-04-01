@@ -70,29 +70,6 @@ const addListToUser = function(list, user) {
   })
 }
 
-// /**
-//  * Returns any messages that are generated from the user object and not stored in the database
-//  *  this can be made more generic in the future if there are other messages to develop on the server
-//  *  which are not stored in the database
-//  * @param {User} user the user from req.user
-//  */
-// const getRefreshMessage = function(user) {
-
-//   // if (user.last_refresh_time) 
-
-//   return user.checkHeroStatus()
-//   .then((heroValid) => {
-//     if (heroValid) {
-//       return
-//     } else {
-//       return 'user_refresh_required'
-//     }
-//   })
-//   .catch((err) => {
-//     console.error(err)
-//   })
-// }
-
 module.exports = {
   createMessageList: createMessageList,
   addListToUser: addListToUser

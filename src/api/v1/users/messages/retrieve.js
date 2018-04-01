@@ -7,6 +7,7 @@ const helpers = require('./_retrieve')
 
 module.exports = function(req, res) {
   let user = req.user
+  console.log(user)
 
   // throttle the database calls if the user has gotten messages recently
   if (!user.message_check_required) {
@@ -15,6 +16,7 @@ module.exports = function(req, res) {
 
   // if the user doesn't have a MessageList, we need to make them one and update their user object
   if(!user.message_list_id) {
+    console.log('creating message list')
     helpers.createMessageList({})
     .then((messageList) => {
       return helpers.addListToUser(messageList, user)
