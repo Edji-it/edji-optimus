@@ -15,17 +15,12 @@ module.exports = function(req, res) {
 
   // if the user doesn't have a MessageList, we need to make them one and update their user object
   if(!user.message_list_id) {
-    // helpers.addNewMessageListToUser(user, (err) => {
-    //   if (err) {
-    //     console.error(err)
-    //     return res.status(500).send()
-    //   } else {
-    //     return res.status(200).send({ messages: [] })
-    //   }
-    // })
     helpers.createMessageList({})
     .then((messageList) => {
-      
+      return helpers.addListToUser(messageList, user)
+    })
+    .then((user) => {
+      return res.status(200).send({ messages: [] })
     })
     .catch((err) => {
       console.error(err)
