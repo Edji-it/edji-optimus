@@ -187,6 +187,7 @@ let model = ModelCreator("User", {
     schema.methods.toPublic = function() {
         // list out the properties it is ok to return to the front-end
         const clientProperties = [
+            '_id',
             'username',
             'fullname',
             'email',
@@ -207,19 +208,8 @@ let model = ModelCreator("User", {
         })
     }
 
-    // // add a custom method which returns a promise, resolved with whether or not the user is a valid Hero
-    // schema.methods.checkHeroStatus = function() {
-    //     // return helpers.getUserHeroStatus(this._doc)
-    //     // .then((valid) => {
-    //     //     console.log('got the hero status')
-    //     //     // this._doc.
-    //     // })
-    //     // .catch((err) => {
-    //     //     console.error(err)
-    //     // })
-    //     console.log('just checked that users hero status')
-    //     return Promise.resolve(true)
-    // }
+    // attach this method for determining whether or not the user is a Hero right now
+    schema.methods.checkHeroStatus = helpers.getUserHeroStatus(this)
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
     schema
