@@ -39,9 +39,7 @@ describe('_stripe', () => {
     
     let fakeUser = {
       email: 'corbin@edji.it',
-      hero: {
-        customer_id: 'cus_someid'
-      },
+      stripe_customer_id: 'cus_someid',
       fullanme: 'corbin'
     }
 
@@ -51,7 +49,7 @@ describe('_stripe', () => {
       .then(() => {
         // assertions
         sinon.assert.calledOnce(retrieveCustomer)
-        sinon.assert.calledWith(retrieveCustomer, fakeUser.hero.customer_id)
+        sinon.assert.calledWith(retrieveCustomer, fakeUser.stripe_customer_id)
         sinon.assert.notCalled(createCustomer)
         
         done()
