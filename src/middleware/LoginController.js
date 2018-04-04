@@ -36,27 +36,12 @@ const LoginController = {
         })
     },
     generateLoginObjectForUser: function(user){
-        user = this.addHeroStatus(user)
         let token = this.generateTokenForUser(user)
         
         return {
             user: user.toPublic(),
             token: token
         }
-    },
-    addHeroStatus: function(user) {
-        if (!user.hero) {
-            user.hero = {}
-        }
-        // Check if user is expired 
-        if (user.hero && user.hero.will_expire && user.hero.will_expire < new Date().getTime()) {
-            user.hero.active = false
-        } else if (user.hero && user.hero.type != 'none' && user.hero.subscription_id) {
-            user.hero.active = true
-        } else {
-            user.hero.active = false
-        }
-        return user
     },
     generateTokenForUser: function(user){
         if (user.type === "temp") {
@@ -90,7 +75,6 @@ const LoginController = {
         if (req.headers.authorization){
             LoginController.decodeTokenToUser(req.headers.authorization, function(error, user) {
                 if (user){
-                    user = LoginController.addHeroStatus(user)
                     req.user = user
                 }
                 next()
