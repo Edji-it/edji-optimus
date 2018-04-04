@@ -9,8 +9,8 @@ const joi = require('joi')
  */
 const retrieveOrCreateCustomer = function(user, paymentToken) {
   // get the user if they've already got a customer_id
-  if (user && user.hero && user.hero.customer_id) {
-    return stripe.customers.retrieve(user.hero.customer_id)
+  if (user && user.stripe_customer_id) {
+    return stripe.customers.retrieve(user.stripe_customer_id)
   } else if(user && user.email) {
     let customer = {
       email: user.email,
