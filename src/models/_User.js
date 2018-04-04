@@ -38,10 +38,12 @@ const getUserHeroStatus = function(user) {
  * @param {Date} lastRefreshTime the time of the user's last refresh
  */
 const refreshRequired = function(lastRefreshTime) {
+  if (!lastRefreshTime) { console.error('no last_refresh_time on User') }
   return lastRefreshTime > Date.now() - USER_REFRESH_INTERVAL
 }
 
 const messageCheckRequired = function(lastMessageCheckTime) {
+  if (!lastMessageCheckTime) { console.error('no last_message_check_time on User') }
   return lastMessageCheckTime > Date.now() - MESSAGE_CHECK_INTERVAL
 }
 
