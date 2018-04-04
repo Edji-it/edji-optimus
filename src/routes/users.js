@@ -590,20 +590,20 @@ router.delete('/assets/:type/:asset_id', authRequired, (req, res) => {
     res.status(200).send({ file_locations: fileLocations })
 })
 
-router.get("/heroes/count", (req, res) => {
-    Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
-        .then((count) => {
-            if (!count) {
-                count = 0
-            }
+// router.get("/heroes/count", (req, res) => {
+//     Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
+//         .then((count) => {
+//             if (!count) {
+//                 count = 0
+//             }
             
-            return res.status(200).send({ count: count })
-        })
-        .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
-        })
-})
+//             return res.status(200).send({ count: count })
+//         })
+//         .catch((err) => {
+//             console.error(err)
+//             return res.status(500).send()
+//         })
+// })
 
 /**
  * Adds a user id to a user's "following" array
