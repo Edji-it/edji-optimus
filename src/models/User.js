@@ -209,7 +209,9 @@ let model = ModelCreator("User", {
     }
 
     // attach this method for determining whether or not the user is a Hero right now
-    schema.methods.checkHeroStatus = helpers.getUserHeroStatus(this)
+    schema.methods.checkHeroStatus = function() {
+        return helpers.getUserHeroStatus(this)
+    }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
     schema
