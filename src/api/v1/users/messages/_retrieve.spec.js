@@ -11,31 +11,6 @@ const MessageList = require('./../../../../models/MessageList')
 const User = require('./../../../../models/User')
 
 describe('_retrieve', () => {
-  // describe('addNewMessageListToUser', () => {
-  //   let messageStub
-  //   let userStub
-  //   beforeEach(() => {
-  //     messageStub = sinon.stub(MessageList.prototype, 'save')
-  //     userStub = sinon.stub(User.prototype, 'save')
-  //   })
-  //   afterEach(() => {
-  //     messageStub.restore()
-  //     userStub.restore()
-  //   })
-
-  //   it('should save a new MessageList and a new User', () => {
-  //     let messageListId = mongoose.Types.ObjectId()
-  //     let cb = sinon.stub() // create a callback to pass in
-  //     let user = User({})
-      
-  //     // prepare the stubs
-  //     messageStub.yields(false, { _id: messageListId })
-  //     userStub.yields()
-
-  //     helpers.addNewMessageListToUser(, )
-  //   })
-  // })
-
   // it does not make sense to have this method attached directly to the _retrieve route, but I don't know how to test it otherwise
   //  once I figure that out, it should be moved.
   describe('createMessageList', () => {

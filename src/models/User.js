@@ -105,52 +105,52 @@ let model = ModelCreator("User", {
     stripe_customer_id: String, // the user's stripe customer id
     license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
     avatar : String,
-    hero : {
-        /**
-         * Subscription status
-         * Do not save to database, dynamically provided
-         */
-        active: { type: Boolean }, 
-        /**
-         * Will Expire
-         * - Date when user's Hero subscription will expire
-         */
-        will_expire: { type: Date },
-        /**
-         * Type
-         * - 'monthly'  Monthly subscriber
-         * - 'yearly'   Yearly subscriber
-         * - 'academy'  Part of an institution subsribed as an Academy 
-         */
-        subscription_type: { type: String, enum: subscriptionType, default: 'none'},
-        /**
-         * Active Subscription Id
-         */
-        subscription_id: { type: String },
-        subscription_label: String,
-        subscription_cost: Number,
-        /**
-         * Updates to user's hero status, as a papertrail
-         * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
-         */
-        history: [{
-            /**
-             * Change: use applicable Status value (subscribed, canceled, unsubscribed)
-             */
-            change: { type: String, enum: heroStatuses, default: "unsubscribed" },
-            date: Date,
-            subscription_type: { type: String, enum: subscriptionType, default: 'none'},
-            /**
-             * Stripe Subscription ID
-             * https://stripe.com/docs/api#subscription_object
-             */
-            subscription_id: String
-        }],
-        /**
-         * Stripe Customer Id
-         */
-        customer_id: String 
-    },
+    // hero : {
+    //     /**
+    //      * Subscription status
+    //      * Do not save to database, dynamically provided
+    //      */
+    //     active: { type: Boolean }, 
+    //     /**
+    //      * Will Expire
+    //      * - Date when user's Hero subscription will expire
+    //      */
+    //     will_expire: { type: Date },
+    //     /**
+    //      * Type
+    //      * - 'monthly'  Monthly subscriber
+    //      * - 'yearly'   Yearly subscriber
+    //      * - 'academy'  Part of an institution subsribed as an Academy 
+    //      */
+    //     subscription_type: { type: String, enum: subscriptionType, default: 'none'},
+    //     /**
+    //      * Active Subscription Id
+    //      */
+    //     subscription_id: { type: String },
+    //     subscription_label: String,
+    //     subscription_cost: Number,
+    //     /**
+    //      * Updates to user's hero status, as a papertrail
+    //      * - Eg.: {  change: 'subscribed', date: '2017-06-16T01:36:37.128Z', subscriptionId: 'sub_AzLTHxKqE8orQq' }
+    //      */
+    //     history: [{
+    //         /**
+    //          * Change: use applicable Status value (subscribed, canceled, unsubscribed)
+    //          */
+    //         change: { type: String, enum: heroStatuses, default: "unsubscribed" },
+    //         date: Date,
+    //         subscription_type: { type: String, enum: subscriptionType, default: 'none'},
+    //         /**
+    //          * Stripe Subscription ID
+    //          * https://stripe.com/docs/api#subscription_object
+    //          */
+    //         subscription_id: String
+    //     }],
+    //     /**
+    //      * Stripe Customer Id
+    //      */
+    //     customer_id: String 
+    // },
     following: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     prefs: {
         recentEmoji: [ String ],
@@ -203,25 +203,35 @@ let model = ModelCreator("User", {
         ]
 
         // return all of the properties in the above array
-        return _.pick(this._doc, (value, key, object) => {
+        return _.pick(this, (value, key, object) => {
             return clientProperties.indexOf(key) > -1
         })
     }
 
     // attach this method for determining whether or not the user is a Hero right now
-    schema.methods.checkHeroStatus = helpers.getUserHeroStatus(this)
+    schema.methods.checkHeroStatus = function() {
+        return helpers.getUserHeroStatus(this)
+    }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
     schema
     .virtual('refresh_required')
-    .get(() => {
+    .get(function() {
         return helpers.refreshRequired(this.last_refresh_time)
     })
 
     schema
     .virtual('message_check_required')
-    .get(() => {
+    .get(function() {
         return helpers.messageCheckRequired(this.last_message_check_time)
+    })
+
+    // this virtual replaces the hero object, and is used for backward compatibility with older browsers which depend on user.hero.status
+    //  it can be removed later (changes made 4/4/18)
+    schema
+    .virtual('hero')
+    .get(function() {
+        return { status: !!this.hero_status }
     })
 })
 

@@ -1,12 +1,10 @@
 // package imports
 const router = require('express').Router()
 
-// // attach routes
-// router.use(
-//   '/:user_id',
-//   require('./user_id/validate-user-id'),
-//   require('./user_id')
-// )
+// project imports
+const authRequired = require('./../../../middleware/auth-required')
+
 router.use(require('./messages'))
+router.get('/:user_id', authRequired, require('./check-user-id'), require('./retrieve'))
 
 module.exports = router
