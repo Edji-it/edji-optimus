@@ -43,6 +43,7 @@ const refreshRequired = function(lastRefreshTime) {
 }
 
 const messageCheckRequired = function(lastMessageCheckTime) {
+  if (!lastMessageCheckTime) { console.error('no last_message_check_time on User') }
   return lastMessageCheckTime > (Date.now() - MESSAGE_CHECK_INTERVAL)
 }
 
