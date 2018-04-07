@@ -5,7 +5,7 @@ const router = require('express').Router()
 const authRequired = require('./../../../../middleware/auth-required')
 
 // attach route handlers
-router.get('/:id', authRequired, require('./retrieve'))
+router.get('/:stripe_id', authRequired, require('./retrieve'))
 
 // export
 module.exports = router

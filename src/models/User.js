@@ -1,18 +1,21 @@
-/**
- * Created by bvfergus on 3/5/16.
- */
-var ModelCreator = require("./ModelCreator")
-var mongoose = require("mongoose")
-var bcrypt = require("bcryptjs")
+// library imports
+const mongoose = require("mongoose")
+const bcrypt = require("bcryptjs")
+const _ = require('underscore')
+
+// project imports
+const ModelCreator = require("./ModelCreator")
+const helpers = require('./_User')
+const MessageList = require('./MessageList')
 
 // tests email against regex
-var emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-var validateEmail = function(email) {
+let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+let validateEmail = function(email) {
     return emailRe.test(email)
 }
 
-// var nameRe = /(?:([^a-zA-Z0-9\s]))/g
-var validateName = function(name) {
+// let nameRe = /(?:([^a-zA-Z0-9\s]))/g
+let validateName = function(name) {
     // needs to return true for good names
     let listOfWordsItCantContainAtAll = [
         'fuck',
@@ -94,7 +97,13 @@ let model = ModelCreator("User", {
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
-    lastActionTime: Date, // the time the user last hit the server with an Authorization token
+    last_action_time: Date, // the time the user last hit the server with an Authorization token
+    last_message_check_time: { type: Date, default: Date.now() },
+    last_refresh_time: { type: Date, default: Date.now() },
+    message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
+    hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
+    stripe_customer_id: String, // the user's stripe customer id
+    license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
     avatar : String,
     hero : {
         /**
@@ -176,22 +185,47 @@ let model = ModelCreator("User", {
 }, function(schema) {
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
-        //makes copy of document
-        var user = {}
-        Object.assign(user, this._doc)
+        // list out the properties it is ok to return to the front-end
+        const clientProperties = [
+            '_id',
+            'username',
+            'fullname',
+            'email',
+            'identities',
+            'last_hero_check',
+            'hero_status',
+            'stripe_customer_id',
+            'avatar',
+            'hero',
+            'following',
+            'prefs',
+            'media'
+        ]
 
-        //deletes properties which should not be passed to front end
-        delete user.password
-        delete user.resetPasswordToken
-        delete user.resetPasswordExpires
-        delete user.accountArchiveToken
-        delete user.oauth
-        return user
+        // return all of the properties in the above array
+        return _.pick(this._doc, (value, key, object) => {
+            return clientProperties.indexOf(key) > -1
+        })
     }
+
+    // attach this method for determining whether or not the user is a Hero right now
+    schema.methods.checkHeroStatus = helpers.getUserHeroStatus(this)
+
+    // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
+    schema
+    .virtual('refresh_required')
+    .get(() => {
+        return helpers.refreshRequired(this.last_refresh_time)
+    })
+
+    schema
+    .virtual('message_check_required')
+    .get(() => {
+        return helpers.messageCheckRequired(this.last_message_check_time)
+    })
 })
 
 model.schema.pre("save", function(next){
-
     if (!this.password) { return next() } // oauth users won't have a password
     // We should not save dynamically added properties
     this.hero && delete this.hero.active
@@ -207,7 +241,6 @@ model.schema.pre("save", function(next){
         this.password = hash
         return next()
     })
-
 })
 
 // add custom validator to make sure user has either oauth type or username/password

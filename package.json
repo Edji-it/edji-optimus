@@ -58,6 +58,7 @@
     "chai-http": "^3.0.0",
     "nodemon": "^1.11.0",
     "randomstring": "^1.1.5",
-    "sinon": "^4.4.6"
+    "sinon": "^4.4.6",
+    "sinon-mongoose": "^2.1.1"
   }
 }
