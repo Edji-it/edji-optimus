@@ -2,7 +2,7 @@
 const stripe = require('./../_stripe').api
 
 module.exports = function(req, res) {
-  let customer_id = req.params.id
+  let customer_id = req.params.stripe_id
   let user = req.user
 
   if (!user.stripe_customer_id) { return res.status(400).send({ error: 'user is not a stripe customer' }) }
