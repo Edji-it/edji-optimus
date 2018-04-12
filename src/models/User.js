@@ -2,11 +2,12 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcryptjs")
 const _ = require('underscore')
+const randomstring = require('randomstring')
 
 // project imports
 const ModelCreator = require("./ModelCreator")
+const Referral = require('./Referral')
 const helpers = require('./_User')
-const MessageList = require('./MessageList')
 
 // tests email against regex
 let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
@@ -83,17 +84,18 @@ let subscriptionType = {
 }
 
 let model = ModelCreator("User", {
-    username:{type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator},
-    fullname:{type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"}},
-    password:{type:String},
+    username:{ type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator },
+    fullname:{ type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"} },
+    password:{ type:String },
     oauth: [{
         type: { type: String, enum: oauthEnum },
         id: String,
         singleUseToken: String,
         singleUseTokenExpiration: Date
     }],
-    email:{type:String, set:toLower, required:true, unique:true, validate: {validator: validateEmail, message: "Invalid email", kind:"emailRegex"}},
+    email:{ type: String, set:toLower, required:true, unique:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }},
     identities: [String],
+    referral_code: { type: mongoose.Schema.ObjectId, ref: 'Referral' },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
@@ -104,7 +106,7 @@ let model = ModelCreator("User", {
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
     stripe_customer_id: String, // the user's stripe customer id
     license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
-    avatar : String,
+    avatar: String,
     // hero : {
     //     /**
     //      * Subscription status
@@ -235,22 +237,21 @@ let model = ModelCreator("User", {
     })
 })
 
-model.schema.pre("save", function(next){
-    if (!this.password) { return next() } // oauth users won't have a password
-    // We should not save dynamically added properties
-    this.hero && delete this.hero.active
-    
-    if (this._id && !this.isModified("password") || !this.password){ return next() }
+model.schema.pre("save", function(next) {
+    if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
 
-    bcrypt.hash(this.password, 10, (error, hash)=>{
-        if (error) {
-            console.error(error)
-            next(error)
-        }
+    if (this.password && this.isModified("password")){
+        this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
+    }
 
-        this.password = hash
-        return next()
-    })
+    next()
+})
+
+// this is our second pre-save handler, and you can add as many as you want kind of like node middleware
+model.schema.pre('save', function(next) {
+    if (this._id && !this.referral_code) {
+
+    }
 })
 
 // add custom validator to make sure user has either oauth type or username/password

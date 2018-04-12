@@ -52,7 +52,13 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
                 }
             }, options)
 
-            Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback);
+            if (options.promise) {
+                return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions).exec()
+            } else {
+                return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback)
+            }
+
+            // Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback);
         }
     };
 
