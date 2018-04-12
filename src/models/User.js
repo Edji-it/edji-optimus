@@ -250,7 +250,15 @@ model.schema.pre("save", function(next) {
 // this is our second pre-save handler, and you can add as many as you want kind of like node middleware
 model.schema.pre('save', function(next) {
     if (this._id && !this.referral_code) {
-
+        helpers.createUniqueReferralCode()
+        .then((code) => {
+            this.referral_code = code
+            next()
+        })
+        .catch((err) => {
+            console.error(err)
+            next(err)
+        })
     }
 })
 
