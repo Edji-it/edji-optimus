@@ -43,12 +43,20 @@ const getUserHeroStatus = function(user) {
  */
 const refreshRequired = function(lastRefreshTime) {
   if (!lastRefreshTime) { console.error('no last_refresh_time on User') }
-  return lastRefreshTime > (Date.now() - USER_REFRESH_INTERVAL)
+
+  let lastCheck = new Date(lastRefreshTime).getTime()
+  let nextCheck = lastCheck + USER_REFRESH_INTERVAL
+
+  return nextCheck < Date.now()
 }
 
 const messageCheckRequired = function(lastMessageCheckTime) {
   if (!lastMessageCheckTime) { console.error('no last_message_check_time on User') }
-  return lastMessageCheckTime > (Date.now() - MESSAGE_CHECK_INTERVAL)
+
+  let lastCheck = new Date(lastMessageCheckTime).getTime()
+  let nextCheck = lastCheck + MESSAGE_CHECK_INTERVAL
+  
+  return nextCheck < Date.now()
 }
 
 const createUniqueReferralCode = function(callCount) {
