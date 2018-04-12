@@ -231,7 +231,7 @@ let model = ModelCreator("User", {
     schema
     .virtual('hero')
     .get(function() {
-        return { status: !!this.hero_status }
+        return { active: !!this.hero_status }
     })
 })
 
