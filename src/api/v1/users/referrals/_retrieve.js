@@ -4,6 +4,10 @@ const randomstring = require('randomstring')
 // project imports
 const Referral = require('./../../../../models/Referral')
 
+/**
+ * Generates and saves a unique referral code, meant to be called recursively
+ * @param {number} callCount The number of times this function has been called in an attempt to generate a unique code
+ */
 const createUniqueReferral = function(callCount) {
   if (callCount >= 5) {
     return Promise.reject('unique code could not be found for createUniqueReferral')

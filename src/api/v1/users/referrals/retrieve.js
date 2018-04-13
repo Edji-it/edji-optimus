@@ -6,8 +6,10 @@ module.exports = function(req, res) {
   let user = req.user
   
   if (!user.referral_code) {
+    // create a new referral object for the user
     helpers.createUniqueReferral()
     .then((referral) => {
+      // update the user with the new referral's code
       user.referral_code = referral.code
       user.save(false, (err, result) => {
         if (err) {
@@ -23,6 +25,7 @@ module.exports = function(req, res) {
       return res.status(500).send({ error: 'could not generate unique code for user' })
     })
   } else {
+    // just go get that user's referral object
     Referral.find({ code: user.referral_code }).exec()
     .then((referral) => {
       if (referral.length < 1) {
