@@ -1,5 +1,9 @@
+// library imports
+const randomstring = require('randomstring')
+
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
+const Referral = require('./Referral')
 
 // constants
 const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
@@ -39,16 +43,70 @@ const getUserHeroStatus = function(user) {
  */
 const refreshRequired = function(lastRefreshTime) {
   if (!lastRefreshTime) { console.error('no last_refresh_time on User') }
-  return lastRefreshTime > (Date.now() - USER_REFRESH_INTERVAL)
+
+  let lastCheck = new Date(lastRefreshTime).getTime()
+  let nextCheck = lastCheck + USER_REFRESH_INTERVAL
+
+  return nextCheck < Date.now()
 }
 
 const messageCheckRequired = function(lastMessageCheckTime) {
   if (!lastMessageCheckTime) { console.error('no last_message_check_time on User') }
-  return lastMessageCheckTime > (Date.now() - MESSAGE_CHECK_INTERVAL)
+
+  let lastCheck = new Date(lastMessageCheckTime).getTime()
+  let nextCheck = lastCheck + MESSAGE_CHECK_INTERVAL
+  
+  return nextCheck < Date.now()
 }
+
+const createUniqueReferralCode = function(callCount) {
+  if (callCount >= 5) {
+    return Promise.reject('unique code could not be found for createUniqueReferralCode')
+  }
+  if (!callCount) { callCount = 0 }
+
+  const possibleCode = randomstring.generate({
+    readable: true,
+    length: 5,
+    capitalization: 'lowercase'
+  })
+
+  return Referral.find({ code: possibleCode }).exec()
+  .then((referral) => {
+    if (referral) {
+      // this is where we want to re-run the function, because we need to find one with a different function
+      return createUniqueReferralCode(callCount + 1)
+    } else {
+      return Referral({ code: possibleCode })
+             .save({ promise: true })
+             .then((result) => {
+               return result.code
+             })
+    }
+  })
+}
+
+// const createReferralCodeForUser = function(callCount) {
+//   return new Promise((resolve, reject) => {
+//     if (!callCount) { reject('no callCount passed to createReferralCodeForUser') }
+
+//     Referral.find({ code: possibleCode }).exec()
+//     .then((referral) => {
+//       if (referral) {
+//         // this is where we want to re-run the function, because we need to find one with a different function
+
+//       } else {
+//         let userReferral = Referral({
+//             code: possibleCode
+//         })
+//       }
+//     })
+//   })
+// }
 
 module.exports = {
   getUserHeroStatus: getUserHeroStatus,
   refreshRequired: refreshRequired,
-  messageCheckRequired: messageCheckRequired
+  messageCheckRequired: messageCheckRequired,
+  createUniqueReferralCode: createUniqueReferralCode
 }
