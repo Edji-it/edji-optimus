@@ -13,9 +13,9 @@ module.exports = function(req, res) {
         if (err) {
           console.error(err)
           return res.status(500).send({ error: 'error while saving user with referral_code' })
-        } else {
-          return res.status(200).send(referral)
         }
+        
+        return res.status(200).send(referral)
       })
     })
     .catch((err) => {
