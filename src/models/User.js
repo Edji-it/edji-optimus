@@ -219,14 +219,12 @@ let model = ModelCreator("User", {
     schema
     .virtual('refresh_required')
     .get(function() {
-        console.log('refresh required', helpers.refreshRequired(this.last_refresh_time))
         return helpers.refreshRequired(this.last_refresh_time)
     })
 
     schema
     .virtual('message_check_required')
     .get(function() {
-        console.log('message check', helpers.messageCheckRequired(this.last_message_check_time))
         return helpers.messageCheckRequired(this.last_message_check_time)
     })
 
@@ -248,22 +246,6 @@ model.schema.pre("save", function(next) {
 
     next()
 })
-
-// // this is our second pre-save handler, and you can add as many as you want kind of like node middleware
-// model.schema.pre('save', function(next) {
-//     console.log('calling second save')
-//     if (this._id && !this.referral_code) {
-//         helpers.createUniqueReferralCode()
-//         .then((code) => {
-//             this.referral_code = code
-//             next()
-//         })
-//         .catch((err) => {
-//             console.error(err)
-//             next(err)
-//         })
-//     }
-// })
 
 // add custom validator to make sure user has either oauth type or username/password
 model.schema.pre('validate', function(next) {
