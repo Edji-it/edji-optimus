@@ -19,10 +19,13 @@ const createUniqueReferral = function(callCount) {
     length: 5,
     capitalization: 'lowercase'
   })
+  console.log('calling find')
 
   return Referral.find({ code: possibleCode }).exec()
   .then((referrals) => {
+    console.log('referrals:', referrals)
     if (referrals.length > 0) {
+      console.log('re-calling...')
       // this is where we want to re-run the function, because we need to find one with a different function
       return createUniqueReferral(callCount + 1)
     } else {
@@ -38,7 +41,9 @@ const createUniqueReferral = function(callCount) {
  */
 const saveReferral = function(referral) {
   return new Promise((resolve, reject) => {
+    console.log('saving...')
     referral.save(false, (err, result) => {
+      console.log('saved')
       if (err) { return reject(err) }
       else { return resolve(result) }
     })

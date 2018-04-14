@@ -15,12 +15,12 @@ describe('createUniqueReferralCode', () => {
     code: '12345',
     users_referred: []
   }
-  let ReferralMock
-  let referralSaveStub = sinon.stub(Referral.prototype, 'save')
+  let ReferralMock = sinon.mock(Referral)
+  let referralSaveStub
 
   beforeEach(() => {
     ReferralMock = sinon.mock(Referral)
-    referralSaveStub.reset()
+    referralSaveStub = sinon.stub(Referral.prototype, 'save')
   })
 
   afterEach(() => {
@@ -45,6 +45,23 @@ describe('createUniqueReferralCode', () => {
     })
     .catch((err) => {
       done(err)
+    })
+  })
+
+  it('should re-call 5 times before exit', (done) => {
+    referralSaveStub.yields(false, fakeReferral)
+
+    ReferralMock
+    .expects('find').exactly(5)
+    .chain('exec').exactly(5)
+    .resolves([{ code: 'some_code' }])
+
+    helpers.createUniqueReferral()
+    .then(() => {
+      done(new Error('should not have resolved with referral'))
+    })
+    .catch((err) => {
+      done()
     })
   })
 })
