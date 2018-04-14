@@ -21,8 +21,8 @@ const createUniqueReferral = function(callCount) {
   })
 
   return Referral.find({ code: possibleCode }).exec()
-  .then((referral) => {
-    if (referral.length > 0) {
+  .then((referrals) => {
+    if (referrals.length > 0) {
       // this is where we want to re-run the function, because we need to find one with a different function
       return createUniqueReferral(callCount + 1)
     } else {
