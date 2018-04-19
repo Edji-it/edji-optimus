@@ -150,6 +150,7 @@ let model = ModelCreator("User", {
             'identities',
             'last_hero_check',
             'hero_status',
+            'referral_code',
             'stripe_customer_id',
             'avatar',
             'hero',
