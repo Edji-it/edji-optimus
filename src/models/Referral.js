@@ -11,8 +11,7 @@ const ReferredUser = new mongoose.Schema({
 
 let model = ModelCreator('Referral', {
   code: { type: String, unique: true, required: true },
-  users_referred: { type: [ReferredUser], default: [] },
-  referring_user: { type: mongoose.Schema.ObjectId, ref: 'User' }
+  users_referred: { type: [ReferredUser], default: [] }
 })
 
 module.exports = model

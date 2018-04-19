@@ -53,23 +53,25 @@ router.post("/", function(req, res){
             }
         } else {
             // update the referring user's Referral object to reflect their referral
-            if (model.referral_code) {
-                Referral.findOne({ code: model.referral_code }).exec()
+            if (model.referred_by) {
+                Referral.findOne({ code: model.referred_by }).exec()
                 .then((referral) => {
-                    referral.users_referred.push({
-                        user_id: model._id,
-                        status: 'registered'
-                    })
-                    referral.save(false, (err, result) => {
-                        err && console.error(err)
-                    })
+                    if (referral) {
+                        referral.users_referred.push({
+                            user_id: model._id,
+                            status: 'registered'
+                        })
+                        referral.save(false, (err, result) => {
+                            err && console.error(err)
+                        })
+                    }
                 })
                 .catch((err) => {
                     console.error(err)
                     // we don't actually mind if this doesn't execute all the way
                 })
             }
-
+            
             res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
     })
