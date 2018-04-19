@@ -54,18 +54,13 @@ router.post("/", function(req, res){
         } else {
             // update the referring user's Referral object to reflect their referral
             if (model.referred_by) {
-                Referral.findOne({ code: model.referred_by }).exec()
-                .then((referral) => {
-                    if (referral) {
-                        referral.users_referred.push({
-                            user_id: model._id,
-                            status: 'registered'
-                        })
-                        referral.save(false, (err, result) => {
-                            err && console.error(err)
-                        })
-                    }
-                })
+                Referral.findOneAndUpdate(
+                    { code: model.referred_by },
+                    { $push: { users_referred: {
+                        user_id: model._id,
+                        status: 'registered'
+                    }}}
+                ).exec()
                 .catch((err) => {
                     console.error(err)
                     // we don't actually mind if this doesn't execute all the way
