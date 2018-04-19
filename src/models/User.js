@@ -95,7 +95,7 @@ let model = ModelCreator("User", {
     }],
     email:{ type: String, set:toLower, required:true, unique:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }},
     identities: [String],
-    referral_code: { type: mongoose.Schema.ObjectId, ref: 'Referral' },
+    referral_code: { type: String }, // refers code in Referrals collection
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,
