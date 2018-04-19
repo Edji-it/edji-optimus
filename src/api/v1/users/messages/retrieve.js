@@ -43,6 +43,12 @@ module.exports = function(req, res) {
       if (user.refresh_required) {
         messageList.messages.push({ key: 'user_refresh_required', added_at_time: Date.now() })
       }
+
+      user.last_refresh_time = Date.now()
+      user.save(false, (err, res) => {
+        err && console.error(err)
+      })
+
       return res.status(200).send({ messages: messageList.messages })
     })
     .catch((err) => {
