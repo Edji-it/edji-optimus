@@ -95,7 +95,8 @@ let model = ModelCreator("User", {
     }],
     email:{ type: String, set:toLower, required:true, unique:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }},
     identities: [String],
-    referral_code: { type: String }, // refers code in Referrals collection
+    referral_code: { type: String, unique: true }, // refers code in Referrals collection
+    referred_by: { type: String },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     accountArchiveToken: Date,

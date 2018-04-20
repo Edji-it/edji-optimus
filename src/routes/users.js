@@ -19,6 +19,7 @@ let ArchivedUser = require("./../models/ArchivedUser")
 const LoginController = require("./../middleware/LoginController")
 const authRequired = require('./../middleware/auth-required')
 let MountModelToRouter = require("./MountModelToRouter")
+const Referral = require('./../models/Referral')
 
 let router = express.Router()
 
@@ -51,7 +52,22 @@ router.post("/", function(req, res){
                 return res.status(500).send()
             }
         } else {
-            return res.status(201).json(LoginController.generateLoginObjectForUser(result))
+            // update the referring user's Referral object to reflect their referral
+            if (model.referred_by) {
+                Referral.findOneAndUpdate(
+                    { code: model.referred_by },
+                    { $push: { users_referred: {
+                        user_id: model._id,
+                        status: 'registered'
+                    }}}
+                ).exec()
+                .catch((err) => {
+                    console.error(err)
+                    // we don't actually mind if this doesn't execute all the way
+                })
+            }
+            
+            res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
     })
 
