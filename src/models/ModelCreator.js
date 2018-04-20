@@ -51,14 +51,8 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
                     setDefaultsOnInsert: true
                 }
             }, options)
-
-            if (options.promise) {
-                return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions).exec()
-            } else {
-                return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback)
-            }
-
-            // Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback);
+            
+            return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback)
         }
     };
 
