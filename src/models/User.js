@@ -153,6 +153,7 @@ let model = ModelCreator("User", {
             'hero_status',
             'referral_code',
             'referred_by',
+            'license_ids',
             'stripe_customer_id',
             'avatar',
             'hero',
