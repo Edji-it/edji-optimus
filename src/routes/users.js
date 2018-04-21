@@ -19,6 +19,7 @@ let ArchivedUser = require("./../models/ArchivedUser")
 const LoginController = require("./../middleware/LoginController")
 const authRequired = require('./../middleware/auth-required')
 let MountModelToRouter = require("./MountModelToRouter")
+const Referral = require('./../models/Referral')
 
 let router = express.Router()
 
@@ -51,7 +52,22 @@ router.post("/", function(req, res){
                 return res.status(500).send()
             }
         } else {
-            return res.status(201).json(LoginController.generateLoginObjectForUser(result))
+            // update the referring user's Referral object to reflect their referral
+            if (model.referred_by) {
+                Referral.findOneAndUpdate(
+                    { code: model.referred_by },
+                    { $push: { users_referred: {
+                        user_id: model._id,
+                        status: 'registered'
+                    }}}
+                ).exec()
+                .catch((err) => {
+                    console.error(err)
+                    // we don't actually mind if this doesn't execute all the way
+                })
+            }
+            
+            res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
     })
 
@@ -90,46 +106,51 @@ router.put("/", authRequired, function(req, res){
     if (!userData) {
         return res.status(400).send()
     }
-    
-    // New object for acceptable updatable attribute
-    updatedUser = _.pick(userData, 'fullname', 'email', 'prefs', 'media', 'avatar', 'identities')
 
-    let queryModel
-    if (user.type == "temp") {
-        queryModel = TempUser
-    } else {
-        queryModel = User
+    if (userData.referred_by && user.referred_by && user.referred_by != userData.referred_by) {
+        return res.status(400).send({ error: "you dumb for tryna update a user's referred_by" })
     }
 
-    Q(queryModel.findByIdAndUpdate( user._id, updatedUser, {
-        new: true, runValidators: true, setDefaultsOnInsert: false
-    }).exec())
-    .then((user) => {
-        // send 404 if the user doesn't exist
-        if (!user) {
-            return res.status(400).send()
-        } else {
-            return res.status(200).send({ user: user.toPublic() })
+    const UPDATABLE_PROPERTIES = [
+        'fullname',
+        'email',
+        'prefs',
+        'media',
+        'avatar',
+        'identities',
+        'referred_by'
+    ]
+
+    UPDATABLE_PROPERTIES.forEach((property) => {
+        if (userData[property]) {
+            user[property] = userData[property]
         }
     })
-    .catch((error) => {
-        if (error.name === "ValidationError") {
-            var errors = {}
-
-            for (var property in error.errors) {
-                if (error.errors[property].kind === "user defined") {
-                    errors[property] = error.errors[property].properties.kind
-                } else {
-                    errors[property] = error.errors[property].kind
+    
+    user.save(false, (err, result) => {
+        if (err) {
+            if (error.name === "ValidationError") {
+                var errors = {}
+    
+                for (var property in error.errors) {
+                    if (error.errors[property].kind === "user defined") {
+                        errors[property] = error.errors[property].properties.kind
+                    } else {
+                        errors[property] = error.errors[property].kind
+                    }
                 }
+    
+                res.status(406).send({ validationErrors: errors })
+            } else if (error.code === 11000) {
+                return res.status(406).send(duplicateFieldErrorHandler(error))
+            } else {
+                console.error(error)
+                return res.status(500).send()
             }
-
-            res.status(406).send({ validationErrors: errors })
-        } else if (error.code === 11000) {
-            return res.status(406).send(duplicateFieldErrorHandler(error))
+        } else if (!result) {
+            return res.status(400).send({ error: 'no result returned from saving user' })
         } else {
-            console.error(error)
-            return res.status(500).send()
+            return res.status(200).send({ user: user.toPublic() })
         }
     })
 })

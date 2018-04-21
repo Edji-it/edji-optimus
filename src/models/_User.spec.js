@@ -3,7 +3,6 @@ const chai = require('chai')
 const should = chai.should()
 const sinon = require('sinon')
 const mongoose = require('mongoose')
-require('sinon-mongoose')
 
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
@@ -79,28 +78,6 @@ describe('_User', () => {
         heroStatus.should.be.false
         sinon.assert.calledOnce(retrieveSubscriptions)
 
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
-    })
-  })
-
-  describe('createUniqueReferralCode', () => {
-    let Referral = mongoose.model('Referral')
-    let ReferralMock = sinon.mock(Referral)
-
-    it('should return a generated code', (done) => {
-      ReferralMock
-      .expects('find')
-      .chain('exec')
-      .resolves('new-code')
-
-      _User.createUniqueReferralCode()
-      .then((code) => {
-        // ReferralMock.verify()
-        // ReferralMock.restore()
         done()
       })
       .catch((err) => {
