@@ -159,7 +159,9 @@ let model = ModelCreator("User", {
             'hero',
             'following',
             'prefs',
-            'media'
+            'media',
+            'createdAt',
+            'updatedAt'
         ]
 
         // return all of the properties in the above array
