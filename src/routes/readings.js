@@ -12,6 +12,7 @@ let User = require("./../models/User")
 let ReadingVersion = require("./../models/ReadingVersion")
 let MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
+const Referral = require('./../models/Referral')
 
 let router = express.Router()
 
@@ -73,9 +74,12 @@ router.post("/", authRequired, function(req, res) {
                     model.forceSave((error, result) => {
                         if (error) {
                             console.error(error)
-                            return res.status(500).send()
+                            res.status(500).send()
                         } else {
-                            return res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
+                            res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
+                            if (user.referral_code && user.prefs && user.prefs.onboarding && !user.prefs.onboarding.firstReadingCreated) {
+                                updateUserReferral(user)
+                            }
                         }
                     })
                 })
@@ -86,6 +90,40 @@ router.post("/", authRequired, function(req, res) {
         }
     })
 })
+
+/**
+ * Updates user and corresponding Referral object to record that the user has completed the referral process!!
+ * @param {User} user user attached to req object, must have referral_code
+ */
+let updateUserReferral = function(user) {
+    if (!user.referral_code) { return console.error('no referral code for user') }
+
+    // update and save the user to record that they've made their first reading
+    user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
+    user.save(false, (err, result) => {
+        err && console.error(err)
+    })
+
+    // update the corresponding referral so that the referring user gets credit
+    Referral.findOneAndUpdate(
+        { 
+            "code": referralCode,
+            "users_referred.user_id": user._id
+        },
+        {
+            $set: {
+                "users_referred.$.status": "completed"
+            }
+        }
+    )
+    .exec()
+    .then((result) => {
+        console.log(result)
+    })
+    .catch((err) => {
+        console.error(err)
+    })
+}
 
 // Update a reading if in draft
 router.put("/:reading_id", authRequired, function(req, res) {
