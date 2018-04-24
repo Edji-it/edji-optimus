@@ -117,9 +117,6 @@ let updateUserReferral = function(user) {
         }
     )
     .exec()
-    .then((result) => {
-        console.log(result)
-    })
     .catch((err) => {
         console.error(err)
     })

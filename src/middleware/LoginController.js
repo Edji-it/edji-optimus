@@ -28,7 +28,6 @@ const LoginController = {
                             resolve(result)
                         }
                     } else {
-                        console.log('got the wrong credentials')
                         reject({ status: 401 })
                     }
                 })
