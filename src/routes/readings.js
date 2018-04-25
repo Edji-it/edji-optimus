@@ -77,7 +77,7 @@ router.post("/", authRequired, function(req, res) {
                             res.status(500).send()
                         } else {
                             res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
-                            if (user.referred_by && (!user.prefs || !user.prefs.onboarding || !user.prefs.onboarding.firstReadingCreated)) {
+                            if (user.referred_by && (!user.prefs || !user.prefs.onboarding || !user.prefs.onboarding.firstReadingCreated || !user.prefs.onboarding.firstReadingCreated.firstDone)) {
                                 updateUserReferral(user)
                             }
                         }
