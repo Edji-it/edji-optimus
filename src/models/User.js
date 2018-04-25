@@ -123,6 +123,9 @@ let model = ModelCreator("User", {
             createReadingFromDash: {
                 firstDone: Date,
                 lastDone: Date
+            },
+            firstReadingCreated: {
+                firstDone: Date
             }
         }
     },
