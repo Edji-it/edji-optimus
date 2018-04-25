@@ -76,9 +76,13 @@ router.post("/", authRequired, function(req, res) {
                             console.error(error)
                             res.status(500).send()
                         } else {
+                            console.log('saved reading!')
                             res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
                             if (user.referral_code && user.prefs && user.prefs.onboarding && !user.prefs.onboarding.firstReadingCreated) {
+                                console.log('need to add referral, woot!')
                                 updateUserReferral(user)
+                            } else {
+                                console.log('bad bad bad', user.referral_code, user.prefs.onboarding)
                             }
                         }
                     })
@@ -93,10 +97,10 @@ router.post("/", authRequired, function(req, res) {
 
 /**
  * Updates user and corresponding Referral object to record that the user has completed the referral process!!
- * @param {User} user user attached to req object, must have referral_code
+ * @param {User} user user attached to req object, must have referred_by
  */
 let updateUserReferral = function(user) {
-    if (!user.referral_code) { return console.error('no referral code for user') }
+    if (!user.referred_by) { return console.error('no referral code for user') }
 
     // update and save the user to record that they've made their first reading
     user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
@@ -107,7 +111,7 @@ let updateUserReferral = function(user) {
     // update the corresponding referral so that the referring user gets credit
     Referral.findOneAndUpdate(
         { 
-            "code": referralCode,
+            "code": user.referred_by,
             "users_referred.user_id": user._id
         },
         {
