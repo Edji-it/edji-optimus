@@ -78,11 +78,11 @@ router.post("/", authRequired, function(req, res) {
                         } else {
                             console.log('saved reading!')
                             res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
-                            if (user.referred_by && user.prefs && user.prefs.onboarding && !user.prefs.onboarding.firstReadingCreated) {
+                            if (user.referred_by || !user.prefs || !user.prefs.onboarding || !user.prefs.onboarding.firstReadingCreated) {
                                 console.log('need to add referral, woot!')
                                 updateUserReferral(user)
                             } else {
-                                console.log('bad bad bad', user.referral_code, user.prefs.onboarding)
+                                console.log('bad bad bad', user.referred_by, user.prefs.onboarding)
                             }
                         }
                     })
@@ -101,6 +101,9 @@ router.post("/", authRequired, function(req, res) {
  */
 let updateUserReferral = function(user) {
     if (!user.referred_by) { return console.error('no referral code for user') }
+
+    if (!user.prefs) { user.prefs = {} }
+    if (!user.prefs.onboarding) { user.prefs.onboarding = {} }
 
     // update and save the user to record that they've made their first reading
     user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
