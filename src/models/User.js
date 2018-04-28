@@ -173,11 +173,6 @@ let model = ModelCreator("User", {
         })
     }
 
-    // attach this method for determining whether or not the user is a Hero right now
-    schema.methods.checkHeroStatus = function() {
-        return helpers.getUserHeroStatus(this)
-    }
-
     /**
      * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.save() function to return a promise, so this is what I'm doing for now...
      */
