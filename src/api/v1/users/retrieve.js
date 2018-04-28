@@ -2,19 +2,9 @@
 module.exports = function(req, res) {
   let user = req.user
 
-  // check to see if the user is a valid Hero
-  user.checkHeroStatus()
-  .then((validHero) => {
-    user.hero_status = validHero
-    user.last_refresh_time = Date.now()
-
-    // save the user with the upsated properties
-    user.save(false, (err, result) => {
-      err && console.error(err)
-    })
-
-    return res.status(200).send({ user: user.toPublic() })
-
+  user.refresh()
+  .then((refreshedUser) => {
+    return res.status(200).send({ user: refreshedUser.toPublic() })
   })
   .catch((err) => {
     console.error(err)

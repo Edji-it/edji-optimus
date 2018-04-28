@@ -1,13 +1,13 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-var db = require("./../db");
+var db = require("./../db")
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator){
 
-    schemaJson.createdAt = { type: Date, default: Date.now };
-    schemaJson.updatedAt = { type: Date, default: Date.now };
+    schemaJson.createdAt = { type: Date, default: Date.now }
+    schemaJson.updatedAt = { type: Date, default: Date.now }
 
     var Schema = new db.Schema(
         schemaJson,
@@ -16,20 +16,20 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
             toObject: { virtuals: true }, // makes mongoose virtuals accessible to functions
             toJSON: { virtuals: true } // makes mongoose virtuals accessible to JSON responses
         }
-    );
+    )
 
     Schema.pre('save', function(next) {
-        var now = new Date();
-        this.updatedAt = now;
-        next();
-    });    
+        var now = new Date()
+        this.updatedAt = now
+        next()
+    })    
 
     if (typeof schemaDecorator === "function"){
-        schemaDecorator(Schema);
+        schemaDecorator(Schema)
     }
-    var Model = db.model(modelName, Schema);
+    var Model = db.model(modelName, Schema)
 
-    Model.prototype.forceSave = Model.prototype.save;
+    Model.prototype.forceSave = Model.prototype.save
 
     Model.prototype.save = function(options, callback) {
         if (!options) {
@@ -39,7 +39,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         }
 
         if (options.forceSave) {
-            this.forceSave(callback);
+            this.forceSave(callback)
         } else {
             let queryOptions = Object.assign({
                 query: { _id: this._id },
@@ -54,7 +54,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
             
             return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback)
         }
-    };
+    }
 
-    return Model;
-};
+    return Model
+}
