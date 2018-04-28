@@ -178,6 +178,27 @@ let model = ModelCreator("User", {
         return helpers.getUserHeroStatus(this)
     }
 
+    /**
+     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.save() function to return a promise, so this is what I'm doing for now...
+     */
+    schema.methods.refresh = function() {
+        return new Promise((resolve, reject) => {
+            helpers.getUserHeroStatus(this)
+            .then((validHero) => {
+                this.hero_status = validHero
+                this.last_refresh_time = Date.now()
+
+                this.save(false, (err, result) => {
+                    if (err) { reject(err) }
+                    else { resolve(result) }
+                })
+            })
+            .catch((err) => {
+                reject(err)
+            })
+        })
+    }
+
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
     schema
     .virtual('refresh_required')
