@@ -21,7 +21,17 @@ module.exports = function(req, res) {
     })
   })
   .then((subscription) => {
-    return res.status(200).send({ subscription: subscription })
+    user.stripe_customer_id = subscription.customer
+    user.hero_status = true
+
+    user.save(false, (err, result) => {
+      if (err) {
+        console.error(err)
+        return res.status(500).send()
+      }
+
+      return res.status(200).send({ subscription: subscription, user: result.toPublic() })
+    })
   })
   .catch((err) => {
     console.error(err)
