@@ -10,62 +10,62 @@ const STRIPE_KEY = process.env.STRIPE_API_TOKEN
 let stripe = require("stripe")(STRIPE_KEY) // took out of try/catch because I want it to crash the server if it doesn't work
 const FULL_PRICE = 6000 // in cents this is $60
 
-/**
- * Updates the user that we store in the database and prepares a user object to be sent out to the client
- * @param {User} user the user's mongoose doc from the database
- * @param {*} subscription subscription object from Stripe
- * @param {boolean} subscribed determines whether or not to set will_expire on the user - true means they subscribed
- */
-let updateUserSub = function(user, subscription, subscribed) {
-    return new Promise((resolve, reject) => {
-        let customerId = subscription.customer
-        let subscriptionType = subscription.plan.id
-        if (!user.hero) {
-            user.hero = {}
-        }
-        // Once customer is created we need to save customer_id
-        if (!user.hero.customer_id) {
-            user.hero.customer_id = customerId
-        }
+// /**
+//  * Updates the user that we store in the database and prepares a user object to be sent out to the client
+//  * @param {User} user the user's mongoose doc from the database
+//  * @param {*} subscription subscription object from Stripe
+//  * @param {boolean} subscribed determines whether or not to set will_expire on the user - true means they subscribed
+//  */
+// let updateUserSub = function(user, subscription, subscribed) {
+//     return new Promise((resolve, reject) => {
+//         let customerId = subscription.customer
+//         let subscriptionType = subscription.plan.id
+//         if (!user.hero) {
+//             user.hero = {}
+//         }
+//         // Once customer is created we need to save customer_id
+//         if (!user.hero.customer_id) {
+//             user.hero.customer_id = customerId
+//         }
 
-        // // Update Hero properties on User
-        // // Remove expiration
-        if (!subscribed) {
-            user.hero.will_expire = Date(subscription.current_period_end)
-        } else {
-            user.hero.will_expire = null
-        }
+//         // // Update Hero properties on User
+//         // // Remove expiration
+//         if (!subscribed) {
+//             user.hero.will_expire = Date(subscription.current_period_end)
+//         } else {
+//             user.hero.will_expire = null
+//         }
 
-        // Update Subscription ID
-        user.hero.subscription_id = subscription.id
-        // Update Subscription type
-        user.hero.subscription_type = subscriptionType
+//         // Update Subscription ID
+//         user.hero.subscription_id = subscription.id
+//         // Update Subscription type
+//         user.hero.subscription_type = subscriptionType
         
-        // get the coupon id, if it exists
-        let couponId = subscription.discount && subscription.discount.coupon && subscription.discount.coupon.id
-        user.hero.subscription_label = "PLAIN_HERO"
+//         // get the coupon id, if it exists
+//         let couponId = subscription.discount && subscription.discount.coupon && subscription.discount.coupon.id
+//         user.hero.subscription_label = "PLAIN_HERO"
 
-        // Log subscription change
-        user.hero.history.unshift({
-            change: subscribed ? "subscribed" : "unsubscribed",
-            date: Date(subscription.created),
-            subscription_id: subscription.id,
-            subscription_type: subscriptionType
-        })
+//         // Log subscription change
+//         user.hero.history.unshift({
+//             change: subscribed ? "subscribed" : "unsubscribed",
+//             date: Date(subscription.created),
+//             subscription_id: subscription.id,
+//             subscription_type: subscriptionType
+//         })
 
-        user.save(false, (err, result) => {
-            if (err) {
-                console.error(err)
-            }
-        })
+//         user.save(false, (err, result) => {
+//             if (err) {
+//                 console.error(err)
+//             }
+//         })
 
-        // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
-        // so prep the user object and resolve, then save after
-        let resolveUser = user.toPublic()
-        resolveUser.hero.active = true
-        resolve(resolveUser)
-    })
-}
+//         // we don't want to tell the user there was an error after charging them - if we don't end up with their stripe info, it's our fault
+//         // so prep the user object and resolve, then save after
+//         let resolveUser = user.toPublic()
+//         resolveUser.hero.active = true
+//         resolve(resolveUser)
+//     })
+// }
 
 /**
  * Creates and resolves with a new Stripe customer
@@ -182,173 +182,173 @@ let getCoupon = function(couponId) {
     })
 }
 
-/** Route to subscribe to Hero!!! */
-router.post("/", authRequired, function(req, res) {
-    let user = req.user
-    let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
-    let subscriptionType = req.body.subscriptionType
-    let couponCode = req.body.couponCode
+// /** Route to subscribe to Hero!!! */
+// router.post("/", authRequired, function(req, res) {
+//     let user = req.user
+//     let paymentToken = req.body.token // Stripe encodes payment information into a token with the public key
+//     let subscriptionType = req.body.subscriptionType
+//     let couponCode = req.body.couponCode
 
-    if (!paymentToken && !couponCode) {
-        // This call requires a payment token
-        return res.status(400).send({ error : "paymentToken is required" })
-    }
-    if (!subscriptionType) {
-        return res.status(400).send({ error: "subscriptionType is required" })
-    }
+//     if (!paymentToken && !couponCode) {
+//         // This call requires a payment token
+//         return res.status(400).send({ error : "paymentToken is required" })
+//     }
+//     if (!subscriptionType) {
+//         return res.status(400).send({ error: "subscriptionType is required" })
+//     }
 
-    // array of promises to be executed by Q
-    let promises = []
+//     // array of promises to be executed by Q
+//     let promises = []
 
-    // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
-    let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
-        .then((customerId) => {
-            if (customerId) {
-                // if they've got a customer id, straight up return it
-                return customerId
-            } else {
-                // if they don't have a customer id, then create the customer and resolve with it's id
-                return createCustomer(user.email, paymentToken)
-                    .then((customer) => {
-                        return customer.id // extract the customer id and pass to next stage of promise
-                    })
-            }
-        })
+//     // some people have a customer id and some don't yet, so we're promisifying this to avoid a nasty if statement
+//     let getCustomerId = Promise.resolve(user.hero && user.hero.customer_id)
+//         .then((customerId) => {
+//             if (customerId) {
+//                 // if they've got a customer id, straight up return it
+//                 return customerId
+//             } else {
+//                 // if they don't have a customer id, then create the customer and resolve with it's id
+//                 return createCustomer(user.email, paymentToken)
+//                     .then((customer) => {
+//                         return customer.id // extract the customer id and pass to next stage of promise
+//                     })
+//             }
+//         })
     
-    getCustomerId.then((customerId) => {
-        // add a subscription for the customer
-        return subscribeCustomer(customerId, subscriptionType, couponCode)
-    })
-    .then((sub) => {
-        // update the user object that we keep
-        return updateUserSub(user, sub, true)
-    })
-    .then((updatedUser) => {
-        // send it back to the user and we're done!
-        res.status(200).send({ user: updatedUser })
-    })
-    .catch((err) => {
-        switch (err.rawType) {
-            case 'invalid_request_error':
-                res.status(400).send({ error: err.message })
-                break
-            case 'no_coupon_code':
-                res.status(500).send({ error: err.message })
-                break
-            default:
-                console.error(err)
-                res.status(500).send()
-        }
-    })
-})
+//     getCustomerId.then((customerId) => {
+//         // add a subscription for the customer
+//         return subscribeCustomer(customerId, subscriptionType, couponCode)
+//     })
+//     .then((sub) => {
+//         // update the user object that we keep
+//         return updateUserSub(user, sub, true)
+//     })
+//     .then((updatedUser) => {
+//         // send it back to the user and we're done!
+//         res.status(200).send({ user: updatedUser })
+//     })
+//     .catch((err) => {
+//         switch (err.rawType) {
+//             case 'invalid_request_error':
+//                 res.status(400).send({ error: err.message })
+//                 break
+//             case 'no_coupon_code':
+//                 res.status(500).send({ error: err.message })
+//                 break
+//             default:
+//                 console.error(err)
+//                 res.status(500).send()
+//         }
+//     })
+// })
 
 
-router.put("/", authRequired, function(req, res) {
-        /**
-         * Two options:
-         * - unsubscribe
-         * - change subscription plan
-         */
-        let user = req.user
-        let subscriptionId = user.hero.subscription_id
-        let subscriptionType = req.body.subscription_type
-        let statusChange = req.body.status
+// router.put("/", authRequired, function(req, res) {
+//         /**
+//          * Two options:
+//          * - unsubscribe
+//          * - change subscription plan
+//          */
+//         let user = req.user
+//         let subscriptionId = user.hero.subscription_id
+//         let subscriptionType = req.body.subscription_type
+//         let statusChange = req.body.status
 
-        let handleError = function(err) {
-            console.error(err)
-            return res.status(500).send({ })
-        }
+//         let handleError = function(err) {
+//             console.error(err)
+//             return res.status(500).send({ })
+//         }
 
-        let handleSuccess = function(sub) {
-            updateUserSub(user, sub, statusChange)
-            .then(value => {
-                res.status(200).send({ user: user.toPublic(), subscription: sub })
-            })
-            .catch( err => {
-                res.status(500).send({ error: 'Unable to save user object', subscription: sub })
-            })
-        }
+//         let handleSuccess = function(sub) {
+//             updateUserSub(user, sub, statusChange)
+//             .then(value => {
+//                 res.status(200).send({ user: user.toPublic(), subscription: sub })
+//             })
+//             .catch( err => {
+//                 res.status(500).send({ error: 'Unable to save user object', subscription: sub })
+//             })
+//         }
 
-        // If a Type is passed, we are changing plan
-        if (subscriptionType) {
-             stripe.subscriptions.update(
-                subscriptionId,
-                { plan: subscriptionType },
-                function(err, subscription) {
-                    // asynchronously called
-                    updateUserSub(user, subscription)
-                        .then(data => {
-                            handleSuccess(subscription)
-                        })
-                        .catch((err) => {
-                            handleError(err)
-                        })
-                }
-            )
-        } else if (statusChange == 'unsubscribed') {
-            // Cancel subscription
-            stripe.subscriptions.del(
-                subscriptionId,
-                function(err, subscription) {
-                    // asynchronously called
-                    updateUserSub(user, subscription)
-                        .then(data => {
-                            handleSuccess(subscription)
-                        })
-                        .catch((err) => {
-                            handleError(err)
-                        })
-                }
-            )
-        } else {
-            // This request needs something more!
-        }
+//         // If a Type is passed, we are changing plan
+//         if (subscriptionType) {
+//              stripe.subscriptions.update(
+//                 subscriptionId,
+//                 { plan: subscriptionType },
+//                 function(err, subscription) {
+//                     // asynchronously called
+//                     updateUserSub(user, subscription)
+//                         .then(data => {
+//                             handleSuccess(subscription)
+//                         })
+//                         .catch((err) => {
+//                             handleError(err)
+//                         })
+//                 }
+//             )
+//         } else if (statusChange == 'unsubscribed') {
+//             // Cancel subscription
+//             stripe.subscriptions.del(
+//                 subscriptionId,
+//                 function(err, subscription) {
+//                     // asynchronously called
+//                     updateUserSub(user, subscription)
+//                         .then(data => {
+//                             handleSuccess(subscription)
+//                         })
+//                         .catch((err) => {
+//                             handleError(err)
+//                         })
+//                 }
+//             )
+//         } else {
+//             // This request needs something more!
+//         }
        
 
-    }
-)
+//     }
+// )
 
-router.delete("/:subscription_id", authRequired, (req, res) => {
-    let user = req.user
-    let subscription_id = req.params.subscription_id
-    let history = user.hero && user.hero.history
+// router.delete("/:subscription_id", authRequired, (req, res) => {
+//     let user = req.user
+//     let subscription_id = req.params.subscription_id
+//     let history = user.hero && user.hero.history
 
-    if (!subscription_id) {
-        return res.status(400).send({ error: "subscription id required" })
-    } else if (!history || history.length < 1) { // this would mean the user doesn't have that subscription in their history
-        return res.status(404).send()
-    }
+//     if (!subscription_id) {
+//         return res.status(400).send({ error: "subscription id required" })
+//     } else if (!history || history.length < 1) { // this would mean the user doesn't have that subscription in their history
+//         return res.status(404).send()
+//     }
 
-    let subEvent = history.find((event) => {
-        return event.subscription_id === subscription_id
-    })
+//     let subEvent = history.find((event) => {
+//         return event.subscription_id === subscription_id
+//     })
 
-    if (!subEvent) { return res.status(404).send({ error: "user has no such subscription event", user: user }) }
+//     if (!subEvent) { return res.status(404).send({ error: "user has no such subscription event", user: user }) }
 
-    // cancel the subscription with Stripe
-    cancelSubscription(subscription_id)
-        .then((sub) => {
-            // update the user and save
-            return updateUserSub(user, sub, false)
-        })
-        .then((updatedUser) => {
-            // send it back to the user and we're done!
-            res.status(200).send({ user: updatedUser })
-        })
-        .catch((err) => {
-            switch (err.rawType) {
-                case 'invalid_request_error': //  this is the error Stripe will throw with 400s
-                    res.status(400).send({ error: err.message })
-                    break
-                case 'no_coupon_code':
-                    res.status(500).send({ error: err.message })
-                    break
-                default:
-                    console.error(err)
-                    res.status(500).send()
-            }
-        })
-})
+//     // cancel the subscription with Stripe
+//     cancelSubscription(subscription_id)
+//         .then((sub) => {
+//             // update the user and save
+//             return updateUserSub(user, sub, false)
+//         })
+//         .then((updatedUser) => {
+//             // send it back to the user and we're done!
+//             res.status(200).send({ user: updatedUser })
+//         })
+//         .catch((err) => {
+//             switch (err.rawType) {
+//                 case 'invalid_request_error': //  this is the error Stripe will throw with 400s
+//                     res.status(400).send({ error: err.message })
+//                     break
+//                 case 'no_coupon_code':
+//                     res.status(500).send({ error: err.message })
+//                     break
+//                 default:
+//                     console.error(err)
+//                     res.status(500).send()
+//             }
+//         })
+// })
 
 // find and validate a coupon code submitted by a user
 router.get("/coupons/:coupon_id", authRequired, (req, res) => {
