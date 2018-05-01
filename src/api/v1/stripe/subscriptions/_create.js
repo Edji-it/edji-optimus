@@ -9,6 +9,10 @@ const _stripe = require('./../_stripe')
  * @param {Object} reqBody The req.query passed to the route handler by express
  */
 const validateBody = function(reqBody) {
+  if (reqBody.token == '') {
+    delete reqBody.token
+  }
+
   const bodySchema = joi.object({
     token: joi.string(),
     couponCode: joi.string()
