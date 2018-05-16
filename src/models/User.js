@@ -140,8 +140,12 @@ let model = ModelCreator("User", {
                 pages: [ String ]
             }
         ]
-    }
-    
+    },
+    institution_ids: [{ type: mongoose.Schema.ObjectId, ref:"Institution" }], // array of institution ids which the user is associated with
+    roles: [{
+        institution_id: { type: mongoose.Schema.ObjectId }, // id of institution to which the role is associated with
+        role: { type: String, required:true } // the role for that particular institution_id
+    }]
 }, function(schema) {
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
