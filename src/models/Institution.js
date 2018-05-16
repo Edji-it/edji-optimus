@@ -2,6 +2,7 @@
  * Institution Model
  */
 var ModelCreator = require("./ModelCreator")
+var mongoose = require("mongoose")
 
 var Model =  ModelCreator("Institution", {
     name: { type: String, required: true }, // indicating the institution's full name
