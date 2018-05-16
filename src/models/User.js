@@ -147,7 +147,7 @@ let model = ModelCreator("User", {
         ]
     },
     institution_ids: [{ type: mongoose.Schema.ObjectId, ref: "Institution" }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
-    roles: [{
+    institution_roles: [{
         institution_id: { type: mongoose.Schema.ObjectId, required: true }, // id of institution to which the role is associated with
         role: { type: String, required: true, enum: institutionRoleEnum } // the role for that particular institution_id
     }]
