@@ -1,8 +1,6 @@
 /**
  * License Model
  */
-var mongoose = require("mongoose");
-var Schema = mongoose.Schema;
 var ModelCreator = require("./ModelCreator");
 
 // tests email against regex
