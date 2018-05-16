@@ -11,4 +11,4 @@ var Model =  ModelCreator("Institution", {
     parent_institution: { type: mongoose.Schema.ObjectId, required: true }, // id of the overarching institution 
 });
 
-module.exports = Model;
+module.exports = Model
