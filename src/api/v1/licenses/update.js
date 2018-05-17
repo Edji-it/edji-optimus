@@ -22,11 +22,11 @@ module.exports = function(req, res) {
   // save the updated user and return it back
   user.save(false, (err, result) => {
     if (err) {
-      return res.status(400).send({ error: err })
+      return res.status(500).send({ error: err })
     } else {
       // find the license and remove the pending invitation based on the user's email address
       Q(
-        License.findById(license_id).exec() // call for just the json object - not the mongoose wrapped object
+        License.findById(license_id).exec()
       )
       .then((license) => {
         let len_pend = license.pending_invitations.length
@@ -42,13 +42,13 @@ module.exports = function(req, res) {
           if (err) {
             return res.status(400).send({ error: err })
           }
+          return res.status(200).send({ user: result })
         })
       })
       .catch((err) => {
         console.error(err)
         return res.status(500).send()
       })
-      return res.status(200).send({ user: result })
     }
   })
 }
