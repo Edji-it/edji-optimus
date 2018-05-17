@@ -20,7 +20,7 @@ module.exports = function(req, res) {
   user.hero_status = true
 
   // save the updated user and return it back
-  user.save(false, (err, result) => {
+  user.save(false, (err, user) => {
     if (err) {
       return res.status(500).send({ error: err })
     } else {
@@ -39,10 +39,7 @@ module.exports = function(req, res) {
         }
         // save the license now that we've removed all pending invitations for that user's email address
         license.save(false, (err, result) => {
-          if (err) {
-            return res.status(400).send({ error: err })
-          }
-          return res.status(200).send({ user: result })
+          return res.status(200).send({ user: user })
         })
       })
       .catch((err) => {
