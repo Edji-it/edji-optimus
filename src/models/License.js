@@ -1,12 +1,18 @@
 /**
  * License Model
  */
-var ModelCreator = require("./ModelCreator");
+var ModelCreator = require("./ModelCreator")
+var mongoose = require("mongoose")
 
 // tests email against regex
 let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 let validateEmail = function(email) {
     return emailRe.test(email)
+}
+
+// converts full string to all lowercase
+function toLower(str) {
+    return str.toLowerCase()
 }
 
 // available license types
@@ -23,6 +29,6 @@ var Model =  ModelCreator("License",{
       email: { type: String, set:toLower, required:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }}, // string, user's email that was invited
       expiration: Date // date that this invitation will be void
     }]
-});
+})
 
-module.exports = Model;
+module.exports = Model

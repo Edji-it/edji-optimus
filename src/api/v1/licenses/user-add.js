@@ -2,7 +2,7 @@
 const Q = require('q')
 
 // project imports
-const License = require('./../../../../models/License')
+const License = require('./../../../models/License')
 
 module.exports = function(req, res) {
   let user = req.user
