@@ -20,43 +20,46 @@ module.exports = function(req, res) {
     License.findById(license_id).exec()
   )
   .then((license) => {
-    if (license) {
-      let len_pend = license.pending_invitations.length
-      // check through all pending invitations and remove for all that match the user's email address
-      let found_email = false
-      for (var i=0; i<len_pend; i++) {
-        if (license.pending_invitations[i].email==user.email) {
-          found_email = true
-          // remove the invitation from the license array
-          license.pending_invitations.splice(i, 1)
-        }
-      }
-      if (found_email) {
-        // save the license now that we've removed all pending invitations for that user's email address
-        license.save(false, (err, result) => {
-          // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
-          if (user.license_ids.indexOf(license_id)==-1) {
-            user.license_ids.push(license_id)
-            user.hero_status = true
-          } 
-
-          // save the updated user and return it back
-          user.save(false, (err, user) => {
-            if (err) {
-              return res.status(500).send({ error: err })
-            } else {
-              // send the updated user object back if the user is successfully updated
-              return res.status(200).send({ user: user })
-            }
-          })
-        })
-      } else {
-        // if we could not find the email in the list, there's no point in saving the license, and we should not add the license to the user object
-        return res.status(403).send({ error: 'could not find an invitation for this email address' }) 
-      }
-    } else {
+    // if license is null (meaning it did not exist in the collection)
+    if (!license) {
       return res.status(403).send({ error: 'license not found' }) 
     }
+
+    let len_pend = license.pending_invitations.length
+    // check through all pending invitations and remove for all that match the user's email address
+    let found_email = false
+    for (var i=0; i<len_pend; i++) {
+      if (license.pending_invitations[i].email==user.email) {
+        found_email = true
+        // remove the invitation from the license array
+        license.pending_invitations.splice(i, 1)
+      }
+    }
+
+    // if we could not match up the email for the user in the pending_invitations list
+    if (!found_email) {
+      // if we could not find the email in the list, there's no point in saving the license, and we should not add the license to the user object
+      return res.status(403).send({ error: 'could not find an invitation for this email address' }) 
+    }
+
+    // save the license now that we've removed all pending invitations for that user's email address
+    license.save(false, (err, result) => {
+      // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
+      if (user.license_ids.indexOf(license_id)==-1) {
+        user.license_ids.push(license_id)
+        user.hero_status = true
+      } 
+
+      // save the updated user and return it back
+      user.save(false, (err, user) => {
+        if (err) {
+          return res.status(500).send({ error: err })
+        } else {
+          // send the updated user object back if the user is successfully updated
+          return res.status(200).send({ user: user })
+        }
+      })
+    })
   })
   .catch((err) => {
     console.error(err)
