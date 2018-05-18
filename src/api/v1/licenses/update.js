@@ -1,5 +1,6 @@
 // library imports
 const Q = require('q')
+var mongoose = require("mongoose")
 
 // project imports
 const License = require('./../../../models/License')
@@ -11,8 +12,8 @@ module.exports = function(req, res) {
   let license_id = req.params.license_id
 
   // we cannot add a license id to the user's object if it is not passed in
-  if (!license_id) { 
-    return res.status(400).send({ error: 'license id is necessary to retrieve information' }) 
+  if (!mongoose.Types.ObjectId.isValid(license_id)) { 
+    return res.status(400).send({ error: 'license id is not a valid mongo id' }) 
   }
 
   // find the license and remove the pending invitation based on the user's email address
@@ -22,7 +23,7 @@ module.exports = function(req, res) {
   .then((license) => {
     // if license is null (meaning it did not exist in the collection)
     if (!license) {
-      return res.status(403).send({ error: 'license not found' }) 
+      return res.status(403).send() 
     }
 
     let len_pend = license.pending_invitations.length

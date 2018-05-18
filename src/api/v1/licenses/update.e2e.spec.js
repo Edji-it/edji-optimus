@@ -4,19 +4,18 @@ const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
-const TEST = require('./../../../../../_test')
+const TEST = require('./../../../../_test')
 
 // local variables
 const ENDPOINT_URL = '/api/v1/licenses/'
-const NO_LICENSE_ID = "accept"
-const BAD_LICENSE_ID = "5afe2acc9dbfbf137ec0df77/accept"
 
 describe('update', () => {
   describe('attempt to update user object with license_id and error out', () => {
     // should attempt an update on the user object and not pass in a license_id and get the appropriate error message
     it('should get an error when making put call and leaving license_id off', (done) => {
       chai.request(TEST.SERVER)
-      .put(ENDPOINT_URL + NO_LICENSE_ID) // this is a call with no id
+      .put(ENDPOINT_URL + '/123/accept') // this is a call with no id
+      .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
         should.exist(err)
 
@@ -29,7 +28,8 @@ describe('update', () => {
     // should attempt an update on the user object with a license_id that doesn't exist and get the appropriate error message
     it('should get an error if license_id does not exist in licenses collection', (done) => {
       chai.request(TEST.SERVER)
-      .put(ENDPOINT_URL + BAD_LICENSE_ID) // this is a call with a bad license_id
+      .put(ENDPOINT_URL + '5afe2acc9dbfbf137ec0df77/accept') // this is a call with a bad license_id
+      .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
         should.exist(err)
 
