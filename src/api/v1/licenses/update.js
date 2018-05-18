@@ -26,21 +26,14 @@ module.exports = function(req, res) {
     } else {
       // find the license and remove the pending invitation based on the user's email address
       Q(
-        License.findById(license_id).exec()
+        License.findByIdAndUpdate( license_id,
+          { $pull: {
+            pending_invitations: { email: user.email }
+          } }
+        ).exec()
       )
       .then((license) => {
-        let len_pend = license.pending_invitations.length
-        // check through all pending invitations and remove for all that match the user's email address
-        for (var i=0; i<len_pend; i++) {
-          if (license.pending_invitations[i].email==user.email) {
-            // remove the invitation from the license array
-            license.pending_invitations.splice(i, 1)
-          }
-        }
-        // save the license now that we've removed all pending invitations for that user's email address
-        license.save(false, (err, result) => {
-          return res.status(200).send({ user: user })
-        })
+        return res.status(200).send({ user: user })
       })
       .catch((err) => {
         console.error(err)
