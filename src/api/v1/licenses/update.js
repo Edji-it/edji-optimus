@@ -27,6 +27,7 @@ module.exports = function(req, res) {
     }
 
     let len_pend = license.pending_invitations.length
+    
     // check through all pending invitations and remove for all that match the user's email address
     let found_email = false
     for (var i=0; i<len_pend; i++) {
