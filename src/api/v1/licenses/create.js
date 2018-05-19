@@ -6,7 +6,28 @@ var mongoose = require("mongoose")
 const License = require('./../../../models/License')
 
 module.exports = function(req, res) {
-  let user = req.user
+  let new_license = req.body.license
 
-  
+  if (!new_license) {
+    return res.status(400).send({ error: "license properties were never sent" })
+  }
+
+  // add the pending_invitations array (empty) to the new_license
+  new_license.pending_invitations = []
+
+  let license = License(new_license)
+  let error = license.validateSync()
+
+  // if any of the properties that come in are missing or invalid
+  if (error) {
+    return res.status(400).send({ error: error.errors })
+  }
+
+  license.save(false, function(err, license) {
+    if (err) {
+      return res.status(500).send({ error: err })
+    }
+    // send the new license object back 
+    return res.status(200).send({ license: license })
+  })
 }

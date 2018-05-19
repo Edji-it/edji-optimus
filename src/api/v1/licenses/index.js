@@ -7,6 +7,6 @@ const localOnly = require('./../../../middleware/localOnly')
 
 router.put('/:license_id/accept', authRequired, require('./update'))
 router.put('/:license_id/invite', authRequired, require('./invite'))
-router.post('/', authRequired, require('./create'))
+router.post('/', localOnly, require('./create'))
 
 module.exports = router
