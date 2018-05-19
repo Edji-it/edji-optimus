@@ -26,7 +26,6 @@ describe('attempt to update license object with pending_invitation and error out
 
   // should attempt an update on the license object with a license_id that doesn't exist and get the appropriate error message
   it('should get an error if license_id does not exist in licenses collection', (done) => {
-
     let invite_email = 'optimus@prime.ed'
     
     chai.request(TEST.SERVER)
