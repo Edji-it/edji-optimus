@@ -10,7 +10,7 @@ const TEST = require('./../../../../_test')
 const ENDPOINT_URL = '/api/v1/licenses/'
 var LICENSE_ID = '5afe2acc9dbfbf137ec0df22'
 
-describe('license create, invite add, and invite accept success', () => {
+describe('license create, add invite, and accept invite success', () => {
   // before we get too far, we'll need to create a new license to test off of
   it('should add a new license to the collection', (done) => {
   chai.request(TEST.SERVER)
@@ -20,7 +20,7 @@ describe('license create, invite add, and invite accept success', () => {
     .send({
       license: {
         license_type: 'hero',
-        owner: "5afe25eef839555366ab959d",
+        owner: "5b006d759dbfbf137ec0df23",
         max_users: 10
       }
     })
@@ -34,7 +34,6 @@ describe('license create, invite add, and invite accept success', () => {
       license.should.have.property('_id')
       
       LICENSE_ID = license._id
-      console.log(LICENSE_ID)
 
       done()
     })
@@ -77,15 +76,15 @@ describe('license create, invite add, and invite accept success', () => {
       err && done(err)
 
       res.should.have.status(200)
-      res.body.should.have.property('license')
+      res.body.should.have.property('user')
 
-      let license = res.body.license
-      license.should.have.property('pending_invitations')
+      let user = res.body.user
+      user.should.have.property('license_ids')
 
-      let pending_invitation = license.pending_invitations[license.pending_invitations.length-1]
-      pending_invitation.should.have.property('email')
-      pending_invitation.should.have.property('expiration')
-      pending_invitation.email.should.be.equal(invite_email)
+      let license_ids = user.license_ids
+      license_ids.should.have.length.above(0)
+
+      license_ids.should.include(LICENSE_ID)
 
       done()
     })
