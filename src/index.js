@@ -36,6 +36,16 @@ app.use('/api', require('./api'))
 // attach the old routes
 app.use(require('./routes'))
 
+app.get('/pipo-log-test', (req, res) => {
+    let logData = {
+        user: 'corbin',
+        level: '>9000'
+    }
+
+    console.log('4pipo<3optimus:' + JSON.stringify(logData))
+
+    res.status(200).send({ data_logged: logData, time: Date.now() })
+})
 
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
