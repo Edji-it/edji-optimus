@@ -27,6 +27,7 @@
     "node": "^8.9.4"
   },
   "dependencies": {
+    "@types/request-promise": "^4.1.41",
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.18.2",
     "dotenv": "^5.0.0",
