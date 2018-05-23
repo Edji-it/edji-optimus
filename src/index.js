@@ -36,6 +36,7 @@ app.use('/api', require('./api'))
 // attach the old routes
 app.use(require('./routes'))
 
+app.get('/healthcheck', require('./healthcheck'))
 
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
