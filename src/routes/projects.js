@@ -1,18 +1,17 @@
-/**
- * corbfon 1/12/17
- */
+// library imports
 let express = require( "express")
 let mongoose = require( "mongoose")
 let Q = require("q")
 let rp = require("request-promise")
 const _ = require("underscore")
 
+// project imports
 let Project = require("./../models/Project")
 let Comment = require("./../models/Comment")
 let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
-
+const pipolog = require('./../pipolog')
 
 let router = express.Router()
 
@@ -129,6 +128,13 @@ router.get("/:id", function(req, res) {
                         }
                     }
                 }
+
+                pipolog({
+                    user_id: user._id,
+                    teacher: user._id.equals(project.teacher_id),
+                    hero: !!user.hero_status,
+                    event_name: 'reading_joined'
+                })
             }
 
             // here we're going to do a little curation for the returned project to make sure the comments come back with a replies array
