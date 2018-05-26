@@ -1,29 +1,19 @@
 import * as rp from 'request-promise'
 
-// export class DataLogger {
-//   public static pipoLog: (data: PipoLogData) => rp.RequestPromise = function(data: PipoLogData) {
-//     return rp({
-//       method: 'POST',
-//       url: process.env.EDJI_PIPO_DOMAIN + '/api/v1/events',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': process.env.EDJI_PIPO_TOKEN
-//       },
-//       body: { data: data }
-//     })
-//   }
-// }
-
 export function pipoLog (data: PipoLogData): rp.RequestPromise {
-  return rp({
-    method: 'POST',
-    url: process.env.EDJI_PIPO_DOMAIN + '/api/v1/events',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': process.env.EDJI_PIPO_TOKEN
-    },
-    body: { data: data }
-  })
+  let pipoUrl: string = process.env.EDJI_PIPO_DOMAIN + '/api/v1/events'
+
+  return rp.post(
+    {
+      uri: pipoUrl,
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': process.env.EDJI_PIPO_TOKEN
+      },
+      body: JSON.stringify({ data: data })
+    }
+  )
 }
 
 interface PipoLogData {

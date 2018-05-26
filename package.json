@@ -15,7 +15,7 @@
     "bump:patch": "yarn version --new-version patch",
     "bump:minor": "yarn version --new-version minor",
     "bump:major": "yarn version --new-version major",
-    "build": "rm -rf build && tsc",
+    "build": "rm -rf build && tsc && cp .env build",
     "start": "yarn build && node ./build/src"
   },
   "repository": {

@@ -11,7 +11,7 @@ let Comment = require("./../models/Comment")
 let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
-const pipolog = require('./../pipolog')
+const pipolog = require('./../pipolog').pipoLog
 
 let router = express.Router()
 
@@ -134,6 +134,12 @@ router.get("/:id", function(req, res) {
                     teacher: user._id.equals(project.teacher_id),
                     hero: !!user.hero_status,
                     event_name: 'reading_joined'
+                })
+                .then((res) => {
+                    console.log('got res from pipo!', res)
+                })
+                .catch((err) => {
+                    console.error('error from pipo :(', err)
                 })
             }
 
