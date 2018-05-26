@@ -114,10 +114,12 @@ router.get("/:id", function(req, res) {
             if (user) {
                 // don't add the teacher to the students array of their own project
                 if (!user._id.equals(project.teacher_id)) {
+                    let logJoinToPipo = false
                     if (user.type && user.type === "temp") {
                         // only add the user's id if it's not already in the project
                         if (project.temp_ids.indexOf(req.user._id) < 0) {
                             project.temp_ids.push(req.user._id)
+                            logJoinToPipo = true
                         }
 
                         // should call update here
@@ -125,19 +127,22 @@ router.get("/:id", function(req, res) {
                         // only add the user's id if it's not already in the project
                         if (project.students_ids.indexOf(req.user._id) < 0) {
                             project.students_ids.push(req.user._id)
+                            logJoinToPipo = true
                         }
                     }
-                }
 
-                pipolog({
-                    user_id: user._id,
-                    teacher: user._id.equals(project.teacher_id),
-                    hero: !!user.hero_status,
-                    event_name: 'reading_joined'
-                })
-                .catch((err) => {
-                    console.error('error from pipo :(', err)
-                })
+                    if (logJoinToPipo) {
+                        pipolog({
+                            user_id: user._id,
+                            teacher: user._id.equals(project.teacher_id),
+                            hero: !!user.hero_status,
+                            event_name: 'reading_joined'
+                        })
+                        .catch((err) => {
+                            console.error('error from pipo :(', err)
+                        })
+                    }
+                }
             }
 
             // here we're going to do a little curation for the returned project to make sure the comments come back with a replies array
