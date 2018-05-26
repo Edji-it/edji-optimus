@@ -11,16 +11,12 @@
     "test:tempusers": "NODE_ENV=test mocha --timeout 4000 --grep TempUsers",
     "test:subscriptions": "NODE_ENV=test mocha --timeout 4000 --grep Subscriptions",
     "bump": "npm run bump:patch",
-    "serve:dev": "yarn build:dev && node ./build/src",
-    "serve:prod": "yarn build:prod && node ./build/src",
+    "serve": "yarn build && node ./build/src",
     "bump:patch": "yarn version --new-version patch",
     "bump:minor": "yarn version --new-version minor",
     "bump:major": "yarn version --new-version major",
-    "build:dev": "rm -rf build && tsc && cp .env build",
-    "build:prod": "rm -rf build && tsc",
-    "start": "yarn start:dev",
-    "start:dev": "nodemon --exec yarn serve:dev",
-    "start:prod": "nodemon --exec yarn serve:prod"
+    "build": "rm -rf build && tsc && cp .env build",
+    "start": "nodemon --exec yarn serve"
   },
   "repository": {
     "type": "git",
