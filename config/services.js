@@ -10,7 +10,9 @@ const serviceSchema = joi.object({
   STRIPE_API_TOKEN: joi.string().required(),
   MAILCHIMP_API_TOKEN: joi.string().required(),
   EDJI_GRAPPLE_DOMAIN: joi.string().required(),
-  EDJI_GRAPPLE_TOKEN: joi.string().required()
+  EDJI_GRAPPLE_TOKEN: joi.string().required(),
+  EDJI_BLUESTREAK_DOMAIN: joi.string().required(),
+  EDJI_BLUESTREAK_TOKEN: joi.string().required()
 })
 
 const { error, value: serviceVars } = serviceSchema.validate(process.env, { allowUnknown: true })

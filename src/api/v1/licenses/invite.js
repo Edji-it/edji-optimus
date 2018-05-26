@@ -1,5 +1,6 @@
 // library imports
 const Q = require('q')
+let rp = require("request-promise")
 
 // project imports
 const License = require('./../../../models/License')
@@ -40,8 +41,32 @@ module.exports = function(req, res) {
     }
 
     // send an email to the user that let's them know they've been invited to join a license and gives them a link to process the invite
+    let email_template = "test"
+    let options = {
+        method: 'POST',
+        uri: [process.env.EDJI_BLUESTREAK_DOMAIN_LOCAL, "api", "v1", "emails", "sendmail", email_template].join("/"),
+        headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
+        body: {
+          "from": "brennen@edji.it",
+          "subject": "From AWS & Template",
+          "recipients": [
+            {
+              "name": "Josh",
+              "email": "josh@edji.it",
+              "vars": {}
+            }
+          ]
+        },
+        json: true
+    }
 
-    return res.status(200).send({ license: license })
+    rp(options)
+    .then((success) => {
+      return res.status(200).send({ license: license })
+    })
+    .catch((error) => {
+      return res.status(500).send({ error: error })
+    })    
   })
   .catch((error) => {
     console.error(error)
