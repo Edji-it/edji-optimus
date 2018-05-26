@@ -135,9 +135,6 @@ router.get("/:id", function(req, res) {
                     hero: !!user.hero_status,
                     event_name: 'reading_joined'
                 })
-                .then((res) => {
-                    console.log('got res from pipo!', res)
-                })
                 .catch((err) => {
                     console.error('error from pipo :(', err)
                 })
