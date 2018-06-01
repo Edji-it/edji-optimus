@@ -36,46 +36,64 @@ module.exports = function(req, res) {
         }
       }
     }, {new: true}
-  ).exec()).then((license) => {
-    // if license is null (meaning it did not exist in the collection)
-    if (!license) {
-      return res.status(403).send() 
-    }
-
-    // send an email to the user that let's them know they've been invited to join a license and gives them a link to process the invite
-    let email_template = "license-invite"
-    let options = {
-        method: 'POST',
-        uri: [process.env.EDJI_BLUESTREAK_DOMAIN_LOCAL, "api", "v1", "emails", "sendmail", email_template].join("/"),
-        headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
-        body: {
-          "from": "brennen@edji.it",
-          "subject": "You've Been Invited to Join an Edji License",
-          "recipients": [
-            {
-              "name": name,
-              "email": email,
-              "vars": {
-                "sending_user": user.name,
-                "license_url": [req.protocol + ":" + process.env.CLIENT_URL, "api", "v1", "licenses", license.pending_invitations[license.pending_invitations.length-1]._id, "accept"].join("/") // need to update to a front-end route once we have it
-              }
-            }
-          ]
+  ).exec()).then((updated_license) => {
+    Q(License.aggregate([
+        { $match:
+          { "_id": updated_license._id }
         },
-        json: true
-    }
+        { $lookup: {
+            from: "institutions",
+            localField: "owner",
+            foreignField: "_id",
+            as: "institution"
+        }},
+        { $unwind: "$institution" }
+      ]).exec()).then((licenses) => {
+        // if license is null (meaning it did not exist in the collection)
+        if (!licenses) {
+          return res.status(403).send() 
+        }
+        let license = licenses[0]
+        // send an email to the user that let's them know they've been invited to join a license and gives them a link to process the invite
+        let email_template = "license-invite"
+        let options = {
+            method: 'POST',
+            uri: [process.env.EDJI_BLUESTREAK_DOMAIN_LOCAL, "api", "v1", "emails", "sendmail", email_template].join("/"),
+            headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
+            body: {
+              "from": "brennen@edji.it",
+              "subject": "Welcome to Edji Academy!",
+              "recipients": [
+                {
+                  "name": name,
+                  "email": email,
+                  "vars": {
+                    // "sending_user": user.name,
+                    "license_url": [req.protocol + ":" + process.env.CLIENT_URL, "api", "v1", "licenses", license.pending_invitations[license.pending_invitations.length-1]._id, "accept"].join("/"), // need to update to a front-end route once we have it
+                    "institution_name": license.institution.name
+                  }
+                }
+              ]
+            },
+            json: true
+        }
 
-    // make the request to send the email with the license invitation
-    rp(options)
-    .then((success) => {
-      return res.status(200).send({ license: license })
+        // make the request to send the email with the license invitation
+        rp(options)
+        .then((success) => {
+          return res.status(200).send({ license: license })
+        })
+        .catch((error) => {
+          return res.status(500).send({ error: "issue contacting bluestreak to send an email", error })
+        })
     })
     .catch((error) => {
-      return res.status(500).send({ error: error })
-    })    
+      console.error(error)
+      res.status(500).send({error: "issue getting the license with institution reference attached", error})
+    })
   })
   .catch((error) => {
     console.error(error)
-    res.status(500).send()
+    res.status(500).send({error: "issue adding a pending invitation to the license", error})
   })
 }
