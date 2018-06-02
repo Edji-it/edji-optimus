@@ -30,22 +30,24 @@ module.exports = function(req, res) {
       return res.status(500).send({ error: err })
     }
     // add the newly created license _id to the institution
-    Q(Instituion.findByIdAndUpdate(
-      license.owner,
-      {
-        $push: { 
-          license_ids: license._id
+    Q(
+      Instituion.findByIdAndUpdate(
+        license.owner,
+        {
+          $push: { 
+            license_ids: license._id
+          }
         }
-      }
-    ).exec()).then((institution) => {
+      )
+      .exec()
+    )
+    .then((institution) => {
       // send the new license object back after updating the institution to include the new license_id
       return res.status(200).send({ license: license })
     })
     .catch((error) => {
       console.error(error)
-      res.status(500).send({ error: error })
+      res.status(500).send()
     })
   })
-
-  
 }
