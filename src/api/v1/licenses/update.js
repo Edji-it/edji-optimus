@@ -13,8 +13,9 @@ module.exports = function(req, res) {
 
   // we cannot add a license id to the user's object if it is not passed in
   if (!mongoose.Types.ObjectId.isValid(license_id)) { 
-    return res.status(400).send({ error: 'license id is not a valid mongo id' }) 
+    return res.status(403).send() 
   }
+  console.log(license_id)
 
   // find the license and remove the pending invitation based on the user's email address
   Q(
@@ -54,7 +55,7 @@ module.exports = function(req, res) {
       // save the updated user and return it back
       user.save(false, (err, user) => {
         if (err) {
-          return res.status(500).send({ error: err })
+          return res.status(500).send()
         } else {
           // send the updated user object back if the user is successfully updated
           return res.status(200).send({ user: user })
