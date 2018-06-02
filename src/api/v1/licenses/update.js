@@ -15,7 +15,6 @@ module.exports = function(req, res) {
   if (!mongoose.Types.ObjectId.isValid(license_id)) { 
     return res.status(403).send() 
   }
-  console.log(license_id)
 
   // find the license and remove the pending invitation based on the user's email address
   Q(
@@ -24,7 +23,7 @@ module.exports = function(req, res) {
   .then((license) => {
     // if license is null (meaning it did not exist in the collection)
     if (!license) {
-      return res.status(403).send() 
+      return res.status(403).send()
     }
 
     // check through all pending invitations and remove for all that match the user's email address
@@ -35,6 +34,7 @@ module.exports = function(req, res) {
         found_email = true
         // remove the invitation from the license array
         license.pending_invitations.splice(i, 1)
+        break
       }
     }
 

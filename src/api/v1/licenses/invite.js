@@ -68,8 +68,7 @@ module.exports = function(req, res) {
                   "name": name,
                   "email": email,
                   "vars": {
-                    // "sending_user": user.name,
-                    "license_url": [req.protocol + ":" + process.env.CLIENT_URL, "api", "v1", "licenses", license.pending_invitations[license.pending_invitations.length-1]._id, "accept"].join("/"), // need to update to a front-end route once we have it
+                    "license_url": [req.protocol + ":" + process.env.CLIENT_URL, "#", "license", "accept", license._id].join("/"),
                     "institution_name": license.institution.name
                   }
                 }
