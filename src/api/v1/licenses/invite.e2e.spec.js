@@ -9,7 +9,7 @@ const TEST = require('./../../../../_test')
 // local variables
 const ENDPOINT_URL = '/api/v1/licenses/'
 
-describe('attempt to update license object with pending_invitation and error out', () => {
+describe('PUT /api/v1/licenses/', () => {
   // should attempt an update on the license object and not pass in a license_id and get the appropriate error message
   it('should get an error when making put call and leaving license_id off', (done) => {
     chai.request(TEST.SERVER)
