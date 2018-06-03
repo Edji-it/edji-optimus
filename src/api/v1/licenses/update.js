@@ -55,6 +55,7 @@ module.exports = function(req, res) {
       // save the updated user and return it back
       user.save(false, (err, user) => {
         if (err) {
+          console.error(err)
           return res.status(500).send()
         } else {
           // send the updated user object back if the user is successfully updated

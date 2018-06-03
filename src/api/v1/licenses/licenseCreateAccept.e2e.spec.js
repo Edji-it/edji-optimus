@@ -8,7 +8,7 @@ const TEST = require('./../../../../_test')
 
 // local variables
 const ENDPOINT_URL = '/api/v1/licenses/'
-var LICENSE_ID = '5afe2acc9dbfbf137ec0df22'
+var LICENSE_ID = ''
 
 describe('license create, add invite, and accept invite success', () => {
   // before we get too far, we'll need to create a new license to test off of
