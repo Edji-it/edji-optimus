@@ -57,7 +57,7 @@ module.exports = function(req, res) {
           return res.status(500).send({ error: err })
         } else {
           // send the updated user object back if the user is successfully updated
-          return res.status(200).send({ user: user })
+          return res.status(200).send({ user: user.toPublic() })
         }
       })
     })
