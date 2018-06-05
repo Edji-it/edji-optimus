@@ -36,7 +36,7 @@ var Model =  ModelCreator("License",{
       expiration: Date // date that this invitation will be void
     }],
     roles: [{
-        user_id: { type: mongoose.Schema.ObjectId }, 
+        user_id: { type: mongoose.Schema.ObjectId, required: true }, 
         role: { type: String, enum: licenseRoleEnum } // the role for that particular license
     }]
 })
