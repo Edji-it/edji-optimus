@@ -257,15 +257,30 @@ router.put("/:id/user_id", authRequired, function(req, res) {
         update = { $addToSet: { students_ids: user._id }}
     }
 
-    Q(Project.update(
-        {
-            _id: id,
-            teacher_id: { $not: { $eq: user._id }} // don't add a project owner to their own project as a student
-        },
-        update
-    ).exec())
+    Q(
+        Project.findOneAndUpdate(
+            {
+                _id: id,
+                teacher_id: { $not: { $eq: user._id }} // don't add a project owner to their own project as a student
+            },
+            update,
+            { new: true }
+        )
+        .exec()
+    )
     .then((update) => {
-        if (update.nModified > 0) { return res.status(200).send() }
+        // log to pipo!
+        pipolog({
+            user_id: user._id,
+            teacher: user._id.equals(update.teacher_id),
+            hero: !!user.hero_status,
+            event_name: 'reading_joined'
+        })
+        .catch((err) => {
+            console.error('error from pipo :(', err)
+        })
+
+        if (update) { return res.status(200).send() }
         else { return res.status(304).send() }
     })
     .catch((err) => {
