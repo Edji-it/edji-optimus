@@ -2,7 +2,6 @@
  * Created by bvfergus on 3/5/16.
  */
 const express = require("express")
-const request = require("request")
 const mongoose = require("mongoose")
 const nodemailer = require('nodemailer')
 const mandrillTransport = require('nodemailer-mandrill-transport')
