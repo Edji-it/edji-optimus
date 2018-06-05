@@ -23,17 +23,29 @@ module.exports = function(req, res) {
 
   // add the email address of the person we're sending a license invitation to that license
   let expiration_date = new Date(Date.now() + (1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14))
-  Q(License.findByIdAndUpdate(
-    license_id,
-    {
-      $push: { 
-        pending_invitations: {
-          'email': email,
-          'expiration': expiration_date
+  // Q(License.findByIdAndUpdate(
+  //   license_id,
+  Q(
+    License.findOneAndUpdate(
+      {
+        _id: license_id,
+        "roles.user_id": user._id
+      },
+      {
+        $push: { 
+          pending_invitations: {
+            'email': email,
+            'expiration': expiration_date
+          }
         }
+      },
+      {
+        new: true
       }
-    }, {new: true}
-  ).exec()).then((license) => {
+    )
+    .exec()
+  )
+  .then((license) => {
     // if license is null (meaning it did not exist in the collection)
     if (!license) {
       return res.status(403).send() 
@@ -45,6 +57,6 @@ module.exports = function(req, res) {
   })
   .catch((error) => {
     console.error(error)
-    res.status(500).send()
+    return res.status(500).send()
   })
 }
