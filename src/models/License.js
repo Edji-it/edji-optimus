@@ -21,6 +21,12 @@ let licenseTypeEnum = {
   message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
+// available roles for the user
+let licenseRoleEnum = {
+    values: ['administrator', 'owner'],
+    message: 'intstitution role invalid'
+}
+
 var Model =  ModelCreator("License",{
     license_type: { type: String, required: true, enum: licenseTypeEnum }, // enum of license types, indicates what this license gives access to
     owner: { type: mongoose.Schema.ObjectId, required: true }, // mongo id of institution which owns this license
@@ -28,6 +34,10 @@ var Model =  ModelCreator("License",{
     pending_invitations: [{
       email: { type: String, set:toLower, required:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }}, // string, user's email that was invited
       expiration: Date // date that this invitation will be void
+    }],
+    roles: [{
+        user_id: { type: mongoose.Schema.ObjectId }, 
+        role: { type: String, enum: licenseRoleEnum } // the role for that particular license
     }]
 })
 
