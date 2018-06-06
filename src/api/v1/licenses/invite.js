@@ -68,7 +68,7 @@ module.exports = function(req, res) {
         let options = {
             method: 'POST',
             uri: [process.env.EDJI_BLUESTREAK_DOMAIN_LOCAL, "api", "v1", "emails", "sendmail", email_template].join("/"),
-            headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN, 'Content-Type': 'application/json' },
+            headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
             body: {
               "from": "brennen@edji.it",
               "subject": "Welcome to Edji Academy!",
