@@ -32,7 +32,7 @@ module.exports = function(req, res) {
     // add the newly created license _id to the institution
     Q(
       Instituion.findByIdAndUpdate(
-        license.owner,
+        license.owning_institution,
         {
           $push: { 
             license_ids: license._id
