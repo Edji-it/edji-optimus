@@ -1,6 +1,6 @@
 // library imports
 const Q = require('q')
-let rp = require("request-promise")
+const rp = require("request-promise")
 
 // project imports
 const License = require('./../../../models/License')
@@ -45,7 +45,9 @@ module.exports = function(req, res) {
       {
         new: true
       }
-  ).exec()).then((updated_license) => {
+    ).exec()
+  )
+  .then((updated_license) => {
     Q(License.aggregate([
         { $match:
           { "_id": updated_license._id }
@@ -57,9 +59,11 @@ module.exports = function(req, res) {
             as: "institution"
         }},
         { $unwind: "$institution" }
-      ]).exec()).then((licenses) => {
+      ]).exec()
+    )
+    .then((licenses) => {
         // if license is null (meaning it did not exist in the collection)
-        if (!licenses) {
+        if (licenses.length < 1) {
           return res.status(403).send() 
         }
         let license = licenses[0]
@@ -77,7 +81,7 @@ module.exports = function(req, res) {
                   "name": name,
                   "email": email,
                   "vars": {
-                    "license_url": [req.protocol + ":" + process.env.CLIENT_URL, "#", "license", "accept", license._id].join("/"),
+                    "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", license._id].join("/"),
                     "institution_name": license.institution.name
                   }
                 }
