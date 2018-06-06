@@ -20,8 +20,13 @@ describe('license create, add invite, and accept invite success', () => {
     .send({
       license: {
         license_type: 'hero',
-        owner: "5b006d759dbfbf137ec0df23",
-        max_users: 10
+        max_users: 10,
+        roles: [
+          {
+            user_id: "59bda04a85c6ab346c12dbbc",
+            role: 'owner'
+          }
+        ]
       }
     })
     .end((err, res) => {

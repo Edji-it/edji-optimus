@@ -1,18 +1,17 @@
-/**
- * corbfon 1/12/17
- */
+// library imports
 let express = require( "express")
 let mongoose = require( "mongoose")
 let Q = require("q")
 let rp = require("request-promise")
 const _ = require("underscore")
 
+// project imports
 let Project = require("./../models/Project")
 let Comment = require("./../models/Comment")
 let User = require("./../models/User")
 let MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
-
+const pipolog = require('./../pipolog').pipoLog
 
 let router = express.Router()
 
@@ -115,10 +114,12 @@ router.get("/:id", function(req, res) {
             if (user) {
                 // don't add the teacher to the students array of their own project
                 if (!user._id.equals(project.teacher_id)) {
+                    let logJoinToPipo = false
                     if (user.type && user.type === "temp") {
                         // only add the user's id if it's not already in the project
                         if (project.temp_ids.indexOf(req.user._id) < 0) {
                             project.temp_ids.push(req.user._id)
+                            logJoinToPipo = true
                         }
 
                         // should call update here
@@ -126,7 +127,20 @@ router.get("/:id", function(req, res) {
                         // only add the user's id if it's not already in the project
                         if (project.students_ids.indexOf(req.user._id) < 0) {
                             project.students_ids.push(req.user._id)
+                            logJoinToPipo = true
                         }
+                    }
+
+                    if (logJoinToPipo) {
+                        pipolog({
+                            user_id: user._id,
+                            teacher: user._id.equals(project.teacher_id),
+                            hero: !!user.hero_status,
+                            event_name: 'reading_joined'
+                        })
+                        .catch((err) => {
+                            console.error('error from pipo :(', err)
+                        })
                     }
                 }
             }
@@ -243,15 +257,30 @@ router.put("/:id/user_id", authRequired, function(req, res) {
         update = { $addToSet: { students_ids: user._id }}
     }
 
-    Q(Project.update(
-        {
-            _id: id,
-            teacher_id: { $not: { $eq: user._id }} // don't add a project owner to their own project as a student
-        },
-        update
-    ).exec())
+    Q(
+        Project.findOneAndUpdate(
+            {
+                _id: id,
+                teacher_id: { $not: { $eq: user._id }} // don't add a project owner to their own project as a student
+            },
+            update,
+            { new: true }
+        )
+        .exec()
+    )
     .then((update) => {
-        if (update.nModified > 0) { return res.status(200).send() }
+        // log to pipo!
+        pipolog({
+            user_id: user._id,
+            teacher: user._id.equals(update.teacher_id),
+            hero: !!user.hero_status,
+            event_name: 'reading_joined'
+        })
+        .catch((err) => {
+            console.error('error from pipo :(', err)
+        })
+
+        if (update) { return res.status(200).send() }
         else { return res.status(304).send() }
     })
     .catch((err) => {

@@ -3,6 +3,7 @@ node_modules/
 .vscode/
 .env*
 dist/
+build/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

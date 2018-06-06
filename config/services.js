@@ -12,7 +12,9 @@ const serviceSchema = joi.object({
   EDJI_GRAPPLE_DOMAIN: joi.string().required(),
   EDJI_GRAPPLE_TOKEN: joi.string().required(),
   EDJI_BLUESTREAK_DOMAIN: joi.string().required(),
-  EDJI_BLUESTREAK_TOKEN: joi.string().required()
+  EDJI_BLUESTREAK_TOKEN: joi.string().required(),
+  EDJI_PIPO_DOMAIN: joi.string().required(),
+  EDJI_PIPO_TOKEN: joi.string().required()
 })
 
 const { error, value: serviceVars } = serviceSchema.validate(process.env, { allowUnknown: true })
