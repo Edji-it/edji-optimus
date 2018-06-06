@@ -52,7 +52,7 @@ module.exports = function(req, res) {
         },
         { $lookup: {
             from: "institutions",
-            localField: "owner",
+            localField: "owning_institution",
             foreignField: "_id",
             as: "institution"
         }},
