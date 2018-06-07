@@ -48,7 +48,7 @@ module.exports = function(req, res) {
     ).exec()
   )
   .then((updated_license) => {
-    Q(License.aggregate([
+    return Q(License.aggregate([
         { $match:
           { "_id": updated_license._id }
         },
@@ -60,7 +60,7 @@ module.exports = function(req, res) {
         }},
         { $unwind: "$institution" }
       ]).exec()
-    )
+    )})
     .then((licenses) => {
         // if license is null (meaning it did not exist in the collection)
         if (licenses.length < 1) {
@@ -103,9 +103,4 @@ module.exports = function(req, res) {
       console.error(error)
       res.status(500).send({error: "issue getting the license with institution reference attached", error})
     })
-  })
-  .catch((error) => {
-    console.error(error)
-    return res.status(500).send()
-  })
 }
