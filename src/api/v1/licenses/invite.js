@@ -1,15 +1,16 @@
 // library imports
 const Q = require('q')
-const rp = require("request-promise")
 
 // project imports
 const License = require('./../../../models/License')
+const emailService = require('./../../../services/email')
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function(req, res) {
   let user = req.user
   let email = req.body.email
   let name = req.body.name
+  let licenseSend = {}
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
@@ -67,40 +68,26 @@ module.exports = function(req, res) {
           return res.status(403).send() 
         }
         let license = licenses[0]
-        // send an email to the user that let's them know they've been invited to join a license and gives them a link to process the invite
+        licenseSend = license
+
+        // specify the email template to use on the email service
         let email_template = "license-invite"
-        let options = {
-            method: 'POST',
-            uri: [process.env.EDJI_BLUESTREAK_DOMAIN_LOCAL, "api", "v1", "emails", "sendmail", email_template].join("/"),
-            headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
-            body: {
-              "from": "brennen@edji.it",
-              "subject": "Welcome to Edji Academy!",
-              "recipients": [
-                {
-                  "name": name,
-                  "email": email,
-                  "vars": {
-                    "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", license._id].join("/"),
-                    "institution_name": license.institution.name
-                  }
-                }
-              ]
-            },
-            json: true
+
+        // our email templates are flexible to take in other data to be used in the email body
+        // reference the email template documentation on the email service and set the other variables here
+        let vars_object = {
+          "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", license._id].join("/"),
+          "institution_name": license.institution.name
         }
 
-        // make the request to send the email with the license invitation
-        rp(options)
-        .then((success) => {
-          return res.status(200).send({ license: license })
-        })
-        .catch((error) => {
-          return res.status(500).send({ error: "issue contacting bluestreak to send an email", error })
-        })
+        // make the request to send the email with the license invitation, then return the license back if all is well
+        return emailService.sendEmail(email_template, name, email, vars_object)
+    })
+    .then((success) => {
+      return res.status(200).send({ license: licenseSend })
     })
     .catch((error) => {
       console.error(error)
-      res.status(500).send({error: "issue getting the license with institution reference attached", error})
+      res.status(500).send()
     })
 }
