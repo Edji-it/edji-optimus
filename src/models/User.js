@@ -199,6 +199,7 @@ let model = ModelCreator("User", {
     schema
     .virtual('refresh_required')
     .get(function() {
+        if (!this.last_refresh_time) { console.log('no last_refresh_time on ' + this.username) }
         return helpers.refreshRequired(this.last_refresh_time)
     })
 
