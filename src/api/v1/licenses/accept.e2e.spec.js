@@ -19,7 +19,7 @@ describe('PUT /api/v1/licenses/', () => {
       should.exist(err)
 
       res.should.not.have.status(200)
-      res.should.have.status(400)
+      res.should.have.status(403)
       done()
     })
   })

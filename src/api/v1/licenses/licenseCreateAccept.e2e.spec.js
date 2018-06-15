@@ -18,15 +18,16 @@ describe('license create, add invite, and accept invite success', () => {
     .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
     .set('Content-Type', 'application/json')
     .send({
-      license: {
-        license_type: 'hero',
+      license : {
+        license_type: "hero",
+        owning_institution: "5b006d759dbfbf137ec0df23",
         max_users: 10,
-        roles: [
-          {
-            user_id: "59bda04a85c6ab346c12dbbc",
-            role: 'owner'
-          }
-        ]
+        roles : [ 
+	        {
+	            user_id : "5afe25eef839555366ab959c",
+	            role : "owner"
+	        }
+	      ]
       }
     })
     .end((err, res) => {
