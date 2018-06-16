@@ -14,10 +14,8 @@ module.exports = function(req, res) {
     return res.status(403).send() 
   }
   Q(
-    Institution.find(
-      {
-        _id: institutionId
-      },
+    Institution.findById(
+      institutionId,
       {
         name: 1,
         abbreviation: 1
