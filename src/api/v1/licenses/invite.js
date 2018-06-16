@@ -12,7 +12,7 @@ module.exports = function(req, res) {
   let user = req.user
   let email = req.body.email
   let name = req.body.name
-  let licenseSend = {}
+  let licenseSend
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
@@ -57,9 +57,8 @@ module.exports = function(req, res) {
   )
   .then((updated_license) => {
     licenseSend = updated_license
-    console.log(licenseSend)
     // if license is null (meaning it did not exist in the collection)
-    if (licenseSend==={} || licenseSend===null) {
+    if (!licenseSend) {
       return res.status(403).send() 
     }
     return Q(Institution.findById(updated_license.owning_institution)
@@ -67,7 +66,7 @@ module.exports = function(req, res) {
     })
     .then((institution) => {
       // if license is null (meaning it did not exist in the collection)
-      if (licenseSend==={} || licenseSend===null) {
+      if (!licenseSend) {
         return res.status(403).send() 
       }
 
