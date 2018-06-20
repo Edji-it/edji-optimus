@@ -12,7 +12,7 @@ module.exports = function(req, res) {
   let user = req.user
   let email = req.body.email
   let name = req.body.name
-  let licenseSend = {}
+  let licenseSend
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
@@ -34,8 +34,6 @@ module.exports = function(req, res) {
 
   // add the email address of the person we're sending a license invitation to that license
   let expiration_date = new Date(Date.now() + (1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14))
-  // Q(License.findByIdAndUpdate(
-  //   license_id,
   Q(
     License.findOneAndUpdate(
       {
@@ -56,39 +54,41 @@ module.exports = function(req, res) {
     ).exec()
   )
   .then((updated_license) => {
-    licenseSend = updated_license
-    console.log(licenseSend)
     // if license is null (meaning it did not exist in the collection)
-    if (licenseSend==={} || licenseSend===null) {
+    if (!updated_license) {
       return res.status(403).send() 
     }
-    return Q(Institution.findById(updated_license.owning_institution)
-      .exec())
-    })
-    .then((institution) => {
-      // if license is null (meaning it did not exist in the collection)
-      if (licenseSend==={} || licenseSend===null) {
-        return res.status(403).send() 
-      }
 
-      // specify the email template to use on the email service
-      let email_template = "license-invite"
+    // save this object for use in later promise statements
+    licenseSend = updated_license
 
-      // our email templates are flexible to take in other data to be used in the email body
-      // reference the email template documentation on the email service and set the other variables here
-      let vars_object = {
-        "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", licenseSend._id].join("/"),
-        "institution_name": institution.name
-      }
+    return Q(Institution.findById(licenseSend.owning_institution).exec())
+  })
+  .then((institution) => {
+    // there's an error on our end if a user's License has a non-existant owning_institution
+    if (!institution) {
+      console.error("no institution exists for license's owning_institution")
+      return res.status(500).send()
+    }
 
-      // make the request to send the email with the license invitation, then return the license back if all is well
-      return emailService.sendEmail(email_template, name, email, vars_object)
-    })
-    .then((success) => {
-      return res.status(200).send({ license: licenseSend })
-    })
-    .catch((error) => {
-      console.error(error)
-      res.status(500).send()
-    })
+    // specify the email template to use on the email service
+    const emailTemplate = "license-invite"
+
+    // our email templates are flexible to take in other data to be used in the email body
+    // reference the email template documentation on the email service and set the other variables here
+    let varsObject = {
+      "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", licenseSend._id].join("/"),
+      "institution_name": institution.name
+    }
+
+    // make the request to send the email with the license invitation, then return the license back if all is well
+    return emailService.sendEmail(emailTemplate, name, email, varsObject)
+  })
+  .then((success) => {
+    return res.status(200).send({ license: licenseSend })
+  })
+  .catch((error) => {
+    console.error(error)
+    res.status(500).send()
+  })
 }
