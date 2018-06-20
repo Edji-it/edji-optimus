@@ -89,6 +89,6 @@ module.exports = function(req, res) {
   })
   .catch((error) => {
     console.error(error)
-    res.status(500).send()
+    return res.status(500).send()
   })
 }
