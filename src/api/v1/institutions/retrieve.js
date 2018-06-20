@@ -13,6 +13,7 @@ module.exports = function(req, res) {
   if (!mongoose.Types.ObjectId.isValid(institutionId)) { 
     return res.status(403).send() 
   }
+
   Q(
     Institution.findById(
       institutionId,
@@ -27,10 +28,11 @@ module.exports = function(req, res) {
     if (!institution) {
       return res.status(404).send() 
     }
+    
     return res.status(200).send({ institution: institution })
   })
   .catch((error)=> {
     console.error(error)
-    res.status(500).send()
+    return res.status(500).send()
   })
 }
