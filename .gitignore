@@ -4,6 +4,7 @@ node_modules/
 .env*
 dist/
 build/
+yarn-error.*
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
