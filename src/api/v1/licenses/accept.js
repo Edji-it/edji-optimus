@@ -13,7 +13,7 @@ module.exports = function(req, res) {
 
   // we cannot add a license id to the user's object if it is not passed in
   if (!mongoose.Types.ObjectId.isValid(license_id)) { 
-    return res.status(400).send({ error: 'license id is not a valid mongo id' }) 
+    return res.status(403).send() 
   }
 
   // find the license and remove the pending invitation based on the user's email address
@@ -23,7 +23,7 @@ module.exports = function(req, res) {
   .then((license) => {
     // if license is null (meaning it did not exist in the collection)
     if (!license) {
-      return res.status(403).send() 
+      return res.status(403).send()
     }
 
     // check through all pending invitations and remove for all that match the user's email address
@@ -34,6 +34,7 @@ module.exports = function(req, res) {
         found_email = true
         // remove the invitation from the license array
         license.pending_invitations.splice(i, 1)
+        break
       }
     }
 
@@ -47,6 +48,7 @@ module.exports = function(req, res) {
     license.save(false, (err, result) => {
       // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
       if (user.license_ids.indexOf(license_id)==-1) {
+        user.institution_ids.push(license.owning_institution)
         user.license_ids.push(license_id)
         user.hero_status = true
       } 

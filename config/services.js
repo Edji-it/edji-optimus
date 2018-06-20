@@ -11,6 +11,8 @@ const serviceSchema = joi.object({
   MAILCHIMP_API_TOKEN: joi.string().required(),
   EDJI_GRAPPLE_DOMAIN: joi.string().required(),
   EDJI_GRAPPLE_TOKEN: joi.string().required(),
+  EDJI_BLUESTREAK_DOMAIN: joi.string().required(),
+  EDJI_BLUESTREAK_TOKEN: joi.string().required(),
   EDJI_PIPO_DOMAIN: joi.string().required(),
   EDJI_PIPO_TOKEN: joi.string().required()
 })
