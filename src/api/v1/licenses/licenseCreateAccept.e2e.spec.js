@@ -13,6 +13,7 @@ var LICENSE_ID = ''
 describe('license create, add invite, and accept invite success', () => {
   // before we get too far, we'll need to create a new license to test off of
   it('should add a new license to the collection', (done) => {
+    console.log('hi')
   chai.request(TEST.SERVER)
     .post(ENDPOINT_URL + '') // send a post call to create a new license
     .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
@@ -24,13 +25,14 @@ describe('license create, add invite, and accept invite success', () => {
         max_users: 10,
         roles : [ 
 	        {
-	            user_id : "5afe25eef839555366ab959c",
+	            user_id : "59bda04a85c6ab346c12dbbc",
 	            role : "owner"
 	        }
 	      ]
       }
     })
     .end((err, res) => {
+      console.log(res.body)
       err && done(err)
 
       res.should.have.status(200)
@@ -53,7 +55,10 @@ describe('license create, add invite, and accept invite success', () => {
     .put(ENDPOINT_URL + LICENSE_ID + '/invite') // send a put to the license_id to add email to pending_invitations
     .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
     .set('Content-Type', 'application/json')
-    .send({email: invite_email})
+    .send({
+      email: invite_email,
+      name: "apitesthero2"
+    })
     .end((err, res) => {
       err && done(err)
 
