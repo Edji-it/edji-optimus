@@ -10,11 +10,17 @@ const TEST = require('./../../../../_test')
 const ENDPOINT_URL = '/api/v1/licenses/'
 
 describe('PUT /api/v1/licenses/', () => {
+  let invite_email = 'optimus@prime.ed'
+
   // should attempt an update on the license object and not pass in a license_id and get the appropriate error message
   it('should get an error when making put call and leaving license_id off', (done) => {
     chai.request(TEST.SERVER)
     .put(ENDPOINT_URL + '/123/invite') // this is a call with no id
     .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
+    .send({
+      email: invite_email,
+      name: "apitesthero2"
+    })
     .end((err, res) => {
       should.exist(err)
 
@@ -32,12 +38,15 @@ describe('PUT /api/v1/licenses/', () => {
     .put(ENDPOINT_URL + '5afe2acc9dbfbf137ec0df77/invite') // this is a call with a bad license_id
     .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
     .set('Content-Type', 'application/json')
-    .send({email: invite_email})
+    .send({
+      email: invite_email,
+      name: "apitesthero2"
+    })
     .end((err, res) => {
       should.exist(err)
 
       res.should.not.have.status(200)
-      res.should.have.status(403)
+      res.should.have.status(500)
       done()
     })
   })
