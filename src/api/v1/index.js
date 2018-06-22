@@ -8,5 +8,6 @@ router.use('/stripe', require('./stripe'))
 router.use('/users', require('./users'))
 router.use('/referrals', require('./referrals'))
 router.use('/licenses', require('./licenses'))
+router.use('/institutions', require('./institutions'))
 
 module.exports = router

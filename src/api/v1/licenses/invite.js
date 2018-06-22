@@ -56,7 +56,7 @@ module.exports = function(req, res) {
   .then((updated_license) => {
     // if license is null (meaning it did not exist in the collection)
     if (!updated_license) {
-      return res.status(403).send() 
+      return Q.reject("license not found")
     }
 
     // save this object for use in later promise statements
@@ -67,8 +67,7 @@ module.exports = function(req, res) {
   .then((institution) => {
     // there's an error on our end if a user's License has a non-existant owning_institution
     if (!institution) {
-      console.error("no institution exists for license's owning_institution")
-      return res.status(500).send()
+      return Q.reject("no institution exists for license's owning_institution")
     }
 
     // specify the email template to use on the email service
