@@ -10,7 +10,7 @@ module.exports = function(req, res) {
   Q(
     License.find( {
         owning_institution: {
-          $in: user._id
+          $in: user.institution_ids
         },
         roles: {
           $elemMatch: {
