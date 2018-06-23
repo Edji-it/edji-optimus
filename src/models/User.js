@@ -2,11 +2,9 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcryptjs")
 const _ = require('underscore')
-const randomstring = require('randomstring')
 
 // project imports
 const ModelCreator = require("./ModelCreator")
-const Referral = require('./Referral')
 const helpers = require('./_User')
 
 // tests email against regex
@@ -70,17 +68,6 @@ let usernameValidator = [
 let oauthEnum = {
     values: ['google'],
     message: 'oauth type invalid'
-}
-
-/** mongoose hook for validation against acceptable values for `types` */
-let heroStatuses = {
-    values: ['subscribed', 'unsubscribed', 'canceled'],
-    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
-}
-
-let subscriptionType = {
-    values: ['monthly', 'yearly', 'academy', 'none'],
-    message: 'enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
 let model = ModelCreator("User", {
