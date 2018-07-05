@@ -29,12 +29,11 @@ module.exports = function(req, res) {
     // check through all pending invitations and remove for all that match the user's email address
     let found_email = false
     let len_pend = license.pending_invitations.length
-    for (var i=0; i<len_pend; i++) {
+    for (var i=len_pend-1; i>-1; i--) {
       if (license.pending_invitations[i].email==user.email) {
         found_email = true
-        // remove the invitation from the license array
+        // remove the invitation from the license array (if multiple invitations for this email address, we'll remove)
         license.pending_invitations.splice(i, 1)
-        break
       }
     }
 
@@ -48,10 +47,14 @@ module.exports = function(req, res) {
     license.save(false, (err, result) => {
       // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
       if (user.license_ids.indexOf(license_id)==-1) {
-        user.institution_ids.push(license.owning_institution)
         user.license_ids.push(license_id)
         user.hero_status = true
       } 
+
+      // update the user object to add the owning_institution if the owning_institution doesn't already exist on their object
+      if (user.institution_ids.indexOf(license.owning_institution)==-1) {
+        user.institution_ids.push(license.owning_institution)
+      }
 
       // save the updated user and return it back
       user.save(false, (err, user) => {
