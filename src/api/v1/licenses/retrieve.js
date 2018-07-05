@@ -9,7 +9,15 @@ module.exports = function(req, res) {
 
   Q(
     License.aggregate([
-      { $match: { owning_institution: { $in: user.institution_ids } } },
+      { $match: { 
+        owning_institution: { $in: user.institution_ids },
+        roles: {
+          $elemMatch: {
+            user_id: user._id,
+            role: "owner"
+          }
+        }
+      }},
       { $lookup: {
           from: "users",
           localField: "_id",
