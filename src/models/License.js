@@ -33,6 +33,7 @@ var Model =  ModelCreator("License",{
     max_users: { type: Number, required: true, default: 0 }, // number users are intended to have access through this license
     pending_invitations: [{
       email: { type: String, set:toLower, required:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }}, // string, user's email that was invited
+      name: { type: String, required: true },
       expiration: Date // date that this invitation will be void
     }],
     roles: [{

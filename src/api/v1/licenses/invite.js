@@ -32,6 +32,11 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: 'cannot add email address to pending invitations because there was no email in the request' })
   }
 
+  // we cannot add an email address to the pending_invitations if no email is included in the request body
+  if (!name || name.length==0) {
+    return res.status(400).send({ error: 'cannot add name to pending invitations because there was no name in the request' })
+  }
+
   // add the email address of the person we're sending a license invitation to that license
   let expiration_date = new Date(Date.now() + (1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14))
   Q(
@@ -44,6 +49,7 @@ module.exports = function(req, res) {
         $push: { 
           pending_invitations: {
             'email': email,
+            'name': name,
             'expiration': expiration_date
           }
         }
