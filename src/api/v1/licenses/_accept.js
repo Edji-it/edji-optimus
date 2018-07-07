@@ -6,11 +6,11 @@
 const findLicense = function(userLicenses, license_id) {
   let arrLength = userLicenses.length
   for (var i=0; i<arrLength; i++) {
-    if(userLicenses[i].license_id.equals(license_id)) {
+    if(userLicenses[i].license_id && userLicenses[i].license_id.equals(license_id)) {
       return i
     }
   }
-  return -1;
+  return -1
 }
 
 module.exports = {
