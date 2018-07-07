@@ -46,11 +46,11 @@ module.exports = function(req, res) {
     // save the license now that we've removed all pending invitations for that user's email address
     license.save(false, (err, result) => {
       let matchingLicense = user.license_ids.find((license) => {
-        return license.license_id.equals(license_id)
+        return license.license_id && license.license_id.equals(license_id)
       })
 
       // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
-      if (matchingLicense) {
+      if (!matchingLicense) {
         let new_license = {
           license_id: license_id,
           joined: new Date()
