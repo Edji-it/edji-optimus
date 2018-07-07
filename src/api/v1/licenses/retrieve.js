@@ -21,7 +21,7 @@ module.exports = function(req, res) {
       { $lookup: {
           from: "users",
           localField: "_id",
-          foreignField: "license_ids",
+          foreignField: "license_ids.license_id",
           as: "users"
       }}, 
       { $project: {

@@ -4,6 +4,7 @@ var mongoose = require("mongoose")
 
 // project imports
 const License = require('./../../../models/License')
+const helpers = require('./_accept')
 
 module.exports = function(req, res) {
   let user = req.user
@@ -15,7 +16,7 @@ module.exports = function(req, res) {
   if (!mongoose.Types.ObjectId.isValid(license_id)) { 
     return res.status(403).send() 
   }
-
+  
   // find the license and remove the pending invitation based on the user's email address
   Q(
     License.findById(license_id).exec()
@@ -46,8 +47,12 @@ module.exports = function(req, res) {
     // save the license now that we've removed all pending invitations for that user's email address
     license.save(false, (err, result) => {
       // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
-      if (user.license_ids.indexOf(license_id)==-1) {
-        user.license_ids.push(license_id)
+      if (helpers.findLicense(user.license_ids, license_id)==-1) {
+        let new_license = {
+          license_id: license_id,
+          joined: new Date()
+        }
+        user.license_ids.push(new_license)
         user.hero_status = true
       } 
 
