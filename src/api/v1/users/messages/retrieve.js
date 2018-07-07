@@ -33,9 +33,7 @@ module.exports = function(req, res) {
     .then((messageList) => {
       // this would be bad - nothing should make this happen... if it is happening, there's a flaw in the system that needs fixed
       if (!messageList) {
-        let error = 'no message list exists for user ' + user._id
-        console.error(error)
-        return res.status(500).send({ error: error })
+        return Promise.reject('no message list exists for user ' + user._id)
       }
 
       if (user.refresh_required) {
@@ -43,11 +41,10 @@ module.exports = function(req, res) {
       }
 
       user.last_refresh_time = Date.now()
-      user.save(false, (err, res) => {
+      user.save(false, (err, result) => {
         err && console.error(err)
+        return res.status(200).send({ messages: messageList.messages })
       })
-
-      return res.status(200).send({ messages: messageList.messages })
     })
     .catch((err) => {
       console.error(err)
