@@ -41,7 +41,7 @@ module.exports = function(req, res) {
       }
 
       user.last_refresh_time = Date.now()
-      user.save(false, (err, res) => {
+      user.save(false, (err, result) => {
         err && console.error(err)
         return res.status(200).send({ messages: messageList.messages })
       })
