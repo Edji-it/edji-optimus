@@ -59,7 +59,7 @@ const messageCheckRequired = function(lastMessageCheckTime) {
   return nextCheck < Date.now()
 }
 
-const createOneTimeToken = function(validFor) {
+const createOneTimeToken = function(validFor, callback) {
   if (!validFor) { validFor = '24h' }
 
   let tokenStr = randomstring.generate({
@@ -67,7 +67,7 @@ const createOneTimeToken = function(validFor) {
     charset: 'hex'
   })
   let token = jwt.sign(
-    tokenStr,
+    { token: tokenStr },
     process.env.OPTIMUS_TOKEN_SIGNING_SECRET,
     { expiresIn: validFor }
   )
