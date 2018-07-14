@@ -104,19 +104,17 @@ describe('_User', () => {
       signJwtStub.restore()
     })
 
-    it('should generate a jwt from the randomly generated string with a default expiration of 24 hrs', () => {
+    it('should make one call to generate a random string, and one call to sign a jwt', () => {
       let token = _User.createOneTimeToken()
 
       sinon.assert.calledOnce(generateStringStub)
       sinon.assert.calledOnce(signJwtStub)
-      token.should.be.equal(mockJwt)
+    })
 
-      let jwtArgs = signJwtStub.getCall(0).args
-      // the token property
-      jwtArgs[0].should.be.equal(randomToken)
-      // the options, including expiration
-      jwtArgs[2].should.be.instanceOf(Object)
-      jwtArgs[2].expiresIn.should.be.equal('24h')
+    it('should return the result of jwt.sign()', () => {
+      let token = _User.createOneTimeToken()
+
+      token.should.be.equal(mockJwt)
     })
 
     it('should create tokens made up of hex characters', () => {
@@ -126,9 +124,22 @@ describe('_User', () => {
       strOptions.charset.should.be.equal('hex')
     })
 
+    it('should call jwt.sign with the random hex token as the first property', () => {
+      let token = _User.createOneTimeToken()
+
+      signJwtStub.getCall(0).args[0].should.be.equal(randomToken)
+    })
+
+    it('should generate a jwt with a default expiration of 24 hrs', () => {
+      let token = _User.createOneTimeToken()
+
+      let jwtArgs = signJwtStub.getCall(0).args
+      jwtArgs[2].should.be.instanceOf(Object)
+      jwtArgs[2].expiresIn.should.be.equal('24h')
+    })
+
     it('should generate a jwt with a custom expiration', () => {
       let timePeriod = '2 days'
-
       let token = _User.createOneTimeToken(timePeriod)
 
       signJwtStub.getCall(0).args[2].expiresIn.should.be.equal(timePeriod)
