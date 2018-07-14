@@ -226,12 +226,12 @@ let model = ModelCreator("User", {
      * @param {string} propertyName property name on user object which contains the token to be used
      * @returns {boolean} indicating whether the token was found to be valid or not
      */
-    schema.methods.useOneTimeToken = function(propertyName) {
-        if (!this.isValidTokenProperty(propertyName)) {
+    schema.methods.useOneTimeToken = function(propertyName, referToken) {
+        if (!this.isValidTokenProperty(propertyName) || !this[propertyName]) {
             return // just do nothing here, error is logged in validator
         }
 
-        let isValidToken = helpers.validateToken(this[propertyName])
+        let isValidToken = helpers.validateToken(this[propertyName].token, referToken)
         
         if (isValidToken) {
             this[propertyName] = null // get rid of the token so we're not storing old tokens on purpose

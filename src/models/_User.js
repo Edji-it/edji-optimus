@@ -9,6 +9,7 @@ const stripe = require('./../api/v1/stripe/_stripe').api
 // constants
 const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
 const USER_REFRESH_INTERVAL = 1000 * 60 * 60 * 12 // 12 hrs
+const ONE_TIME_TOKEN_SALT = 5
 
 /**
  * Returns a promise resolved with a boolean indicating whether or not 
@@ -75,7 +76,7 @@ const createOneTimeTokenObject = function(validFor, callback) {
   let timeInMs = ms(validFor + 'h')
 
   let tokenObj = {
-    token: bcrypt.hashSync(tokenStr, 5),
+    token: bcrypt.hashSync(tokenStr, ONE_TIME_TOKEN_SALT),
     expiration: Date.now() + timeInMs
   }
 
@@ -84,19 +85,19 @@ const createOneTimeTokenObject = function(validFor, callback) {
 
 /**
  * Returns whether or not a token is valid
- * @param {string} token the jwt to verify
+ * @param {Object} tokenObj the token object stored on the user object, with token property and expiration property
+ * @param {string} unhashedToken the token given to the user, likely in an email
  */
-const validateToken = function(jwt, tokenToCheck) {
-  try {
-    let tokenSavedToUser = jwt.verify(jwt, process.env.OPTIMUS_TOKEN_SIGNING_SECRET).token
-    if (tokenToCheck && tokenToCheck == tokenSavedToUser) {
-      return true
-    } else {
-      return false
-    }
-  } catch (e) {
+const validateToken = function(tokenObj, unhashedToken) {
+  // check to see if the current time is past the expiration
+  //  past this, the expiration is valid and we just have to compare tokens
+  if (!tokenObj.expiration || Date.now() > tokenObj.expiration) {
     return false
   }
+
+  let tokenValid = bcrypt.compareSync(tokenObj.token, unhashedToken)
+
+  return tokenValid
 }
 
 module.exports = {
