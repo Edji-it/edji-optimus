@@ -145,4 +145,35 @@ describe('_User', () => {
       signJwtStub.getCall(0).args[2].expiresIn.should.be.equal(timePeriod)
     })
   })
+
+  describe('validateToken', () => {
+    let fakeJwtToVerify = 'jrieoqnfdjgauifnjecidanjf;da'
+    let jwtVerifyStub
+
+    beforeEach(() => {
+      jwtVerifyStub = sinon.stub(jwt, 'verify')
+    })
+
+    afterEach(() => {
+      jwtVerifyStub.restore()
+    })
+
+    it('should call jwt.verify once with the jwt passed in', () => {
+      jwtVerifyStub.returns('this is a fake token response :( but thats ok')
+
+      let valid = _User.validateToken(fakeJwtToVerify)
+
+      valid.should.be.true
+      sinon.assert.calledOnce(jwtVerifyStub)
+      jwtVerifyStub.getCall(0).args[0].should.be.equal(fakeJwtToVerify)
+    })
+
+    it('should return false if the jwt is not valid', () => {
+      jwtVerifyStub.throws(new Error('here is an error'))
+
+      let valid = _User.validateToken(fakeJwtToVerify)
+
+      valid.should.be.false
+    })
+  })
 })
