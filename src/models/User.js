@@ -86,7 +86,7 @@ let model = ModelCreator("User", {
     referred_by: { type: String },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    accountArchiveToken: Date,
+    change_email_token: { type: String },
     last_action_time: Date, // the time the user last hit the server with an Authorization token
     last_message_check_time: { type: Date, default: Date.now() },
     last_refresh_time: { type: Date, default: Date.now() },
@@ -180,6 +180,54 @@ let model = ModelCreator("User", {
                 reject(err)
             })
         })
+    }
+
+    /**
+     * Simple function to validate a User property as a valid one time use token storage
+     * @param {string} propertyName name of property on User object which the user would like to assign as a one time use token
+     */
+    schema.methods.isValidTokenProperty = function(propertyName) {
+        // array of all the properties which should be treated as one time use jwt's
+        let validProperties = [
+            'change_email_token'
+        ]
+        let isValidProperty = validProperties.indexOf(propertyName) > -1
+
+        if (!isValidProperty) {
+            console.error('property: ' + propertyName + ' is not allowed to be updated by setToken')
+        }
+
+        return isValidProperty
+    }
+
+    /**
+     * Generates and assigns a one time use token based on provided property
+     * @param {string} propertyName the property to assign as a one time use token
+     */
+    schema.methods.setOneTimeToken = function(propertyName) {        
+        if (!this.isValidTokenProperty(propertyName)) {
+            return // leave function if the property should not be updated this way
+        }
+
+        this[propertyName] = helpers.createOneTimeToken('7 days')
+    }
+
+    /**
+     * Validates and a token stored on the User based on provided property name
+     * @param {string} propertyName property name on user object which contains the token to be used
+     * @returns {boolean} indicating whether the token was found to be valid or not
+     */
+    schema.methods.useOneTimeToken = function(propertyName) {
+        if (!this.isValidTokenProperty(propertyName)) {
+            return // just do nothing here, error is logged in validator
+        }
+
+        let isValidToken = helpers.validateToken(this[propertyName])
+        
+        if (isValidToken) {
+            this[propertyName] = null // get rid of the token so we're not storing old tokens on purpose
+        }
+        return isValidToken
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)

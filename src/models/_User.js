@@ -1,4 +1,6 @@
 // library imports
+const jwt = require('jsonwebtoken')
+const randomstring = require('randomstring')
 
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
@@ -57,8 +59,39 @@ const messageCheckRequired = function(lastMessageCheckTime) {
   return nextCheck < Date.now()
 }
 
+const createOneTimeToken = function(validFor) {
+  if (!validFor) { validFor = '24h' }
+
+  let tokenStr = randomstring.generate({
+    length: 15,
+    charset: 'hex'
+  })
+  let token = jwt.sign(
+    tokenStr,
+    process.env.OPTIMUS_TOKEN_SIGNING_SECRET,
+    { expiresIn: validFor }
+  )
+
+  return token
+}
+
+/**
+ * Returns whether or not a token is valid
+ * @param {string} token the jwt to verify
+ */
+const validateToken = function(token) {
+  try {
+    jwt.verify(token, process.env.OPTIMUS_TOKEN_SIGNING_SECRET)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
 module.exports = {
-  getUserHeroStatus: getUserHeroStatus,
-  refreshRequired: refreshRequired,
-  messageCheckRequired: messageCheckRequired
+  getUserHeroStatus,
+  refreshRequired,
+  messageCheckRequired,
+  createOneTimeToken,
+  validateToken
 }
