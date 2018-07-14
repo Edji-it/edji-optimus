@@ -2,7 +2,8 @@
 const chai = require('chai')
 const should = chai.should()
 const sinon = require('sinon')
-const mongoose = require('mongoose')
+const randomstring = require('randomstring')
+const jwt = require('jsonwebtoken')
 
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
@@ -83,6 +84,54 @@ describe('_User', () => {
       .catch((err) => {
         done(err)
       })
+    })
+  })
+
+  describe('createOneTimeToken', () => {
+    let randomToken = '12j4kl1j35kl4;2j5kl42' // the token which will be returned by the random string generator
+    let mockJwt = 'this is a fake return value'
+
+    let generateStringStub
+    let signJwtStub
+    
+    beforeEach(() => {
+      generateStringStub = sinon.stub(randomstring, 'generate').returns(randomToken)
+      signJwtStub = sinon.stub(jwt, 'sign').returns(mockJwt)
+    })
+
+    afterEach(() => {
+      generateStringStub.restore()
+      signJwtStub.restore()
+    })
+
+    it('should generate a jwt from the randomly generated string with a default expiration of 24 hrs', () => {
+      let token = _User.createOneTimeToken()
+
+      sinon.assert.calledOnce(generateStringStub)
+      sinon.assert.calledOnce(signJwtStub)
+      token.should.be.equal(mockJwt)
+
+      let jwtArgs = signJwtStub.getCall(0).args
+      // the token property
+      jwtArgs[0].should.be.equal(randomToken)
+      // the options, including expiration
+      jwtArgs[2].should.be.instanceOf(Object)
+      jwtArgs[2].expiresIn.should.be.equal('24h')
+    })
+
+    it('should create tokens made up of hex characters', () => {
+      let token = _User.createOneTimeToken()
+
+      let strOptions = generateStringStub.getCall(0).args[0]
+      strOptions.charset.should.be.equal('hex')
+    })
+
+    it('should generate a jwt with a custom expiration', () => {
+      let timePeriod = '2 days'
+
+      let token = _User.createOneTimeToken(timePeriod)
+
+      signJwtStub.getCall(0).args[2].expiresIn.should.be.equal(timePeriod)
     })
   })
 })
