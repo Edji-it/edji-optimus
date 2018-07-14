@@ -3,7 +3,7 @@ const chai = require('chai')
 const should = chai.should()
 const sinon = require('sinon')
 const randomstring = require('randomstring')
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
@@ -87,62 +87,69 @@ describe('_User', () => {
     })
   })
 
-  describe('createOneTimeToken', () => {
+  describe('createOneTimeTokenObject', () => {
     let randomToken = '12j4kl1j35kl4;2j5kl42' // the token which will be returned by the random string generator
-    let mockJwt = 'this is a fake return value'
+    let mockHash = 'this is a fake return value'
 
     let generateStringStub
-    let signJwtStub
+    let hashStub
     
     beforeEach(() => {
       generateStringStub = sinon.stub(randomstring, 'generate').returns(randomToken)
-      signJwtStub = sinon.stub(jwt, 'sign').returns(mockJwt)
+      hashStub = sinon.stub(bcrypt, 'hashSync').returns(mockHash)
     })
 
     afterEach(() => {
       generateStringStub.restore()
-      signJwtStub.restore()
+      hashStub.restore()
     })
 
-    it('should make one call to generate a random string, and one call to sign a jwt', () => {
-      let token = _User.createOneTimeToken()
-
-      sinon.assert.calledOnce(generateStringStub)
-      sinon.assert.calledOnce(signJwtStub)
+    it('should make one call to generate a random string, and one call to bcrypt.hashSync', () => {
+      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+        sinon.assert.calledOnce(generateStringStub)
+        sinon.assert.calledOnce(hashStub)
+      })
     })
 
-    it('should return the result of jwt.sign()', () => {
-      let token = _User.createOneTimeToken()
-
-      token.should.be.equal(mockJwt)
+    it('should return the result of bcrypt.hashSync', () => {
+      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+        tokenObj.token.should.be.equal(mockHash)
+      })
     })
 
     it('should create tokens made up of hex characters', () => {
-      let token = _User.createOneTimeToken()
-
-      let strOptions = generateStringStub.getCall(0).args[0]
-      strOptions.charset.should.be.equal('hex')
+      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+        let strOptions = generateStringStub.getCall(0).args[0]
+        strOptions.charset.should.be.equal('hex')
+      })
     })
 
-    it('should call jwt.sign with the random hex token as the first property', () => {
-      let token = _User.createOneTimeToken()
-
-      signJwtStub.getCall(0).args[0].should.be.equal(randomToken)
+    it('should call bcrypt.hashSync with the random hex token as the first property', () => {
+      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+        hashStub.getCall(0).args[0].should.be.equal(randomToken)
+      })
     })
 
-    it('should generate a jwt with a default expiration of 24 hrs', () => {
-      let token = _User.createOneTimeToken()
-
-      let jwtArgs = signJwtStub.getCall(0).args
-      jwtArgs[2].should.be.instanceOf(Object)
-      jwtArgs[2].expiresIn.should.be.equal('24h')
+    it('should generate a tokenObj with an expiration 24 hrs from now', () => {
+      let estimatedExpiration = Date.now() + 1000 * 3600 * 24
+      let expirationMax = estimatedExpiration + 1000
+      let expirationMin = estimatedExpiration - 1000
+      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+        let expiration = tokenObj.expiration
+        let isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
+        isValidExpiration.should.be.true
+      })
     })
 
     it('should generate a jwt with a custom expiration', () => {
-      let timePeriod = '2 days'
-      let token = _User.createOneTimeToken(timePeriod)
-
-      signJwtStub.getCall(0).args[2].expiresIn.should.be.equal(timePeriod)
+      let estimatedExpiration = Date.now() + 1000 * 3600 * 48
+      let expirationMax = estimatedExpiration + 1000
+      let expirationMin = estimatedExpiration - 1000
+      let token = _User.createOneTimeTokenObject(48, (tokenObj, tokenStr) => {
+        let expiration = tokenObj.expiration
+        let isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
+        isValidExpiration.should.be.true
+      })
     })
   })
 
@@ -183,7 +190,7 @@ describe('_User', () => {
       let tokenSavedToUser = '1234567890fjklso'
       let randomTokenStub = sinon.stub(randomstring, 'generate').returns(tokenSavedToUser)
 
-      let validJwt = _User.createOneTimeToken()
+      let validJwt = _User.createOneTimeTokenObject()
       let valid = _User.validateToken(validJwt, tokenSavedToUser)
 
       valid.should.be.true
