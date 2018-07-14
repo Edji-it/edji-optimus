@@ -70,6 +70,11 @@ let oauthEnum = {
     message: 'oauth type invalid'
 }
 
+let OneTimeTokenObject = mongoose.Schema({
+    token: { type: String, required: true },
+    expiration: { type: String, required: true, default: Date.now() + 1000 /* s */ * 3600 /* h */ * 24 }
+})
+
 let model = ModelCreator("User", {
     username:{ type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator },
     fullname:{ type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"} },
@@ -86,7 +91,7 @@ let model = ModelCreator("User", {
     referred_by: { type: String },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    change_email_token: { type: String },
+    change_email_token: { type: OneTimeTokenObject },
     last_action_time: Date, // the time the user last hit the server with an Authorization token
     last_message_check_time: { type: Date, default: Date.now() },
     last_refresh_time: { type: Date, default: Date.now() },
@@ -203,13 +208,17 @@ let model = ModelCreator("User", {
     /**
      * Generates and assigns a one time use token based on provided property
      * @param {string} propertyName the property to assign as a one time use token
+     * @param {number} expiration the number of hours that the expiration should last
      */
-    schema.methods.setOneTimeToken = function(propertyName) {        
+    schema.methods.setOneTimeToken = function(propertyName, expiration) {        
         if (!this.isValidTokenProperty(propertyName)) {
             return // leave function if the property should not be updated this way
         }
 
-        this[propertyName] = helpers.createOneTimeToken('7 days')
+        helpers.createOneTimeTokenObject(expiration, (tokenObj, unhashedToken) => {
+            this[propertyName] = tokenObj
+            return unhashedToken
+        })
     }
 
     /**

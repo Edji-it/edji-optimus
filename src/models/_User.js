@@ -1,6 +1,7 @@
 // library imports
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 const randomstring = require('randomstring')
+const ms = require('ms')
 
 // project imports
 const stripe = require('./../api/v1/stripe/_stripe').api
@@ -59,30 +60,40 @@ const messageCheckRequired = function(lastMessageCheckTime) {
   return nextCheck < Date.now()
 }
 
-const createOneTimeToken = function(validFor, callback) {
-  if (!validFor) { validFor = '24h' }
+/**
+ * Creates and returns a valid 
+ * @param {number} validFor time in hours that the token should be valid for 
+ * @param {function} callback (tokenObject, tokenString) called with object to be assigned to the User object, and the pre-hash token value to be used as link
+ */
+const createOneTimeTokenObject = function(validFor, callback) {
+  if (!validFor) { validFor = 24 } // time in hours
 
   let tokenStr = randomstring.generate({
-    length: 15,
+    length: 20,
     charset: 'hex'
   })
-  let token = jwt.sign(
-    { token: tokenStr },
-    process.env.OPTIMUS_TOKEN_SIGNING_SECRET,
-    { expiresIn: validFor }
-  )
+  let timeInMs = ms(validFor + 'h')
 
-  return token
+  let tokenObj = {
+    token: bcrypt.hashSync(tokenStr, 5),
+    expiration: Date.now() + timeInMs
+  }
+
+  return callback(tokenObj, tokenStr)
 }
 
 /**
  * Returns whether or not a token is valid
  * @param {string} token the jwt to verify
  */
-const validateToken = function(token) {
+const validateToken = function(jwt, tokenToCheck) {
   try {
-    jwt.verify(token, process.env.OPTIMUS_TOKEN_SIGNING_SECRET)
-    return true
+    let tokenSavedToUser = jwt.verify(jwt, process.env.OPTIMUS_TOKEN_SIGNING_SECRET).token
+    if (tokenToCheck && tokenToCheck == tokenSavedToUser) {
+      return true
+    } else {
+      return false
+    }
   } catch (e) {
     return false
   }
@@ -92,6 +103,6 @@ module.exports = {
   getUserHeroStatus,
   refreshRequired,
   messageCheckRequired,
-  createOneTimeToken,
+  createOneTimeTokenObject,
   validateToken
 }
