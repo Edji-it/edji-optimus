@@ -191,7 +191,6 @@ describe('_User', () => {
   })
 
   describe('create and validate one time jwt token workflow', () => {
-    process.env.OPTIMUS_TOKEN_SIGNING_SECRET = 'fdjkafieowqfmklda'
     it('should create and validate a one time use token with default expiration', () => {
       let tokenSavedToUser = '1234567890fjklso'
       let randomTokenStub = sinon.stub(randomstring, 'generate').returns(tokenSavedToUser)
