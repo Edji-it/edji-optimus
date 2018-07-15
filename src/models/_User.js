@@ -69,18 +69,18 @@ const messageCheckRequired = function(lastMessageCheckTime) {
 const createOneTimeTokenObject = function(validFor, callback) {
   if (!validFor) { validFor = 24 } // time in hours
 
-  let tokenStr = randomstring.generate({
+  let unhashedToken = randomstring.generate({
     length: 20,
     charset: 'hex'
   })
   let timeInMs = ms(validFor + 'h')
 
   let tokenObj = {
-    token: bcrypt.hashSync(tokenStr, ONE_TIME_TOKEN_SALT),
+    token: bcrypt.hashSync(unhashedToken, ONE_TIME_TOKEN_SALT),
     expiration: Date.now() + timeInMs
   }
 
-  return callback(tokenObj, tokenStr)
+  return callback(unhashedToken, tokenObj)
 }
 
 /**

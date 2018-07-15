@@ -105,27 +105,27 @@ describe('_User', () => {
     })
 
     it('should make one call to generate a random string, and one call to bcrypt.hashSync', () => {
-      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+      let token = _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
         sinon.assert.calledOnce(generateStringStub)
         sinon.assert.calledOnce(hashStub)
       })
     })
 
     it('should return the result of bcrypt.hashSync', () => {
-      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+      let token = _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
         tokenObj.token.should.be.equal(mockHash)
       })
     })
 
     it('should create tokens made up of hex characters', () => {
-      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+      let token = _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
         let strOptions = generateStringStub.getCall(0).args[0]
         strOptions.charset.should.be.equal('hex')
       })
     })
 
     it('should call bcrypt.hashSync with the random hex token as the first property', () => {
-      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+      let token = _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
         hashStub.getCall(0).args[0].should.be.equal(randomToken)
       })
     })
@@ -134,7 +134,7 @@ describe('_User', () => {
       let estimatedExpiration = Date.now() + 1000 * 3600 * 24
       let expirationMax = estimatedExpiration + 1000
       let expirationMin = estimatedExpiration - 1000
-      let token = _User.createOneTimeTokenObject(false, (tokenObj, tokenStr) => {
+      let token = _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
         let expiration = tokenObj.expiration
         let isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
         isValidExpiration.should.be.true
@@ -145,7 +145,7 @@ describe('_User', () => {
       let estimatedExpiration = Date.now() + 1000 * 3600 * 48
       let expirationMax = estimatedExpiration + 1000
       let expirationMin = estimatedExpiration - 1000
-      let token = _User.createOneTimeTokenObject(48, (tokenObj, tokenStr) => {
+      let token = _User.createOneTimeTokenObject(48, (tokenStr, tokenObj) => {
         let expiration = tokenObj.expiration
         let isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
         isValidExpiration.should.be.true
@@ -192,14 +192,15 @@ describe('_User', () => {
 
   describe('create and validate one time jwt token workflow', () => {
     it('should create and validate a one time use token with default expiration', () => {
-      let tokenSavedToUser = '1234567890fjklso'
-      let randomTokenStub = sinon.stub(randomstring, 'generate').returns(tokenSavedToUser)
+      // set randomstring.generate up to return the string we want
+      let unhashedToken = '1234567890fjklso'
+      let randomTokenStub = sinon.stub(randomstring, 'generate').returns(unhashedToken)
 
-      let validJwt = _User.createOneTimeTokenObject()
-      let valid = _User.validateToken(validJwt, tokenSavedToUser)
-
-      valid.should.be.true
-      randomTokenStub.restore()
+      _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
+        let valid = _User.validateToken(tokenStr, tokenObj)
+        valid.should.be.true
+        randomTokenStub.restore()
+      })
     })
   })
 })
