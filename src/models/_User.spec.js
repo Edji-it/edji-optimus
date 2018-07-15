@@ -188,6 +188,16 @@ describe('_User', () => {
 
       valid.should.be.false
     })
+
+    it('should return false for an expired token', () => {
+      let mockTokenObj = {
+        token: 'somestr',
+        expiration: Date.now() - 1000 * 3600 // an expired date
+      }
+      let valid = _User.validateToken("this doesn't even matter!", mockTokenObj)
+
+      valid.should.be.false
+    })
   })
 
   describe('create and validate one time use token workflow', () => {
