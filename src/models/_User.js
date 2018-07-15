@@ -88,14 +88,14 @@ const createOneTimeTokenObject = function(validFor, callback) {
  * @param {Object} tokenObj the token object stored on the user object, with token property and expiration property
  * @param {string} unhashedToken the token given to the user, likely in an email
  */
-const validateToken = function(tokenObj, unhashedToken) {
+const validateToken = function(unhashedToken, tokenObj) {
   // check to see if the current time is past the expiration
   //  past this, the expiration is valid and we just have to compare tokens
   if (!tokenObj.expiration || Date.now() > tokenObj.expiration) {
     return false
   }
 
-  let tokenValid = bcrypt.compareSync(tokenObj.token, unhashedToken)
+  let tokenValid = bcrypt.compareSync(unhashedToken, tokenObj.token)
 
   return tokenValid
 }

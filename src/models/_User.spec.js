@@ -154,31 +154,37 @@ describe('_User', () => {
   })
 
   describe('validateToken', () => {
-    let fakeJwtToVerify = 'jrieoqnfdjgauifnjecidanjf;da'
-    let jwtVerifyStub
+    let fakeTokenToVerify = 'jrieoqnfdjgauifnjecidanjf;da'
+    let fakeTokenObj = {
+      token: 'this is whatever',
+      expiration: Date.now() + 1000 * 3600 // make the expiration later
+    }
+    let bcryptCompareStub
 
     beforeEach(() => {
-      jwtVerifyStub = sinon.stub(jwt, 'verify')
+      bcryptCompareStub = sinon.stub(bcrypt, 'compareSync')
     })
 
     afterEach(() => {
-      jwtVerifyStub.restore()
+      bcryptCompareStub.restore()
     })
 
-    it('should call jwt.verify once with the jwt passed in', () => {
-      jwtVerifyStub.returns('this is a fake token response :( but thats ok')
+    it('should call bcrypt.compare once', () => {
+      bcryptCompareStub.returns(true)
+      let fakeUnhashedToken = 'this is a fake hash'
 
-      let valid = _User.validateToken(fakeJwtToVerify)
+      let valid = _User.validateToken(fakeUnhashedToken, fakeTokenObj)
 
       valid.should.be.true
-      sinon.assert.calledOnce(jwtVerifyStub)
-      jwtVerifyStub.getCall(0).args[0].should.be.equal(fakeJwtToVerify)
+      sinon.assert.calledOnce(bcryptCompareStub)
+      bcryptCompareStub.getCall(0).args[0].should.be.equal(fakeUnhashedToken)
+      bcryptCompareStub.getCall(0).args[1].should.be.equal(fakeTokenObj.token)
     })
 
     it('should return false if the jwt is not valid', () => {
-      jwtVerifyStub.throws(new Error('here is an error'))
+      bcryptCompareStub.returns(false)
 
-      let valid = _User.validateToken(fakeJwtToVerify)
+      let valid = _User.validateToken('this is a fake hash', fakeTokenObj)
 
       valid.should.be.false
     })
