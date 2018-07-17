@@ -37,7 +37,7 @@ describe('GET /projects', () => {
 
   let DEFAULT_PROJECT_LIST
 
-  it('should return a list of 15 projects', (done) => {
+  it('should return more than 15 projects', (done) => {
     chai.request(TEST.SERVER)
     .get(ENDPOINT_URL)
     .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
@@ -63,7 +63,6 @@ describe('GET /projects', () => {
         project.should.have.property("label")
         project.should.have.property("code")
         project.should.have.property("types")
-        project.should.have.property("tags")
         project.should.have.property("createdAt")
         project.should.have.property("updatedAt")
 
