@@ -1,0 +1,32 @@
+// library imports
+import * as rp from 'request-promise'
+
+export class EmailService {
+  
+  public static sendEmail(email_template: string, name: string, email: string, from: string, vars_object: any): rp.RequestPromise {
+    if (!from) {
+      from = "brennen"
+    }
+  
+    const options: rp.Options = {
+      method: 'POST',
+      uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
+      headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
+      body: {
+        "from": from + "@edji.it",
+        "subject": "Welcome to Edji Academy!",
+        "recipients": [
+          {
+            "name": name,
+            "email": email,
+            "vars": vars_object
+          }
+        ]
+      },
+      json: true
+    }
+  
+    // make the request to send the email with the license invitation
+    return rp(options)
+  }
+}

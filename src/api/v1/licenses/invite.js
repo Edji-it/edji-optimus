@@ -5,7 +5,7 @@ var mongoose = require("mongoose")
 // project imports
 const License = require('./../../../models/License')
 const Institution = require('./../../../models/Institution')
-const emailService = require('./../../../services/email')
+const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function(req, res) {
@@ -79,9 +79,9 @@ module.exports = function(req, res) {
       "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", licenseSend._id].join("/"),
       "institution_name": institution.name
     }
-
+    
     // make the request to send the email with the license invitation, then return the license back if all is well
-    return emailService.sendEmail(emailTemplate, name, email, varsObject)
+    return emailService.sendEmail(emailTemplate, name, email, 'Brennen <brennen@edji.it>', varsObject)
   })
   .then((success) => {
     return res.status(200).send({ license: licenseSend })
