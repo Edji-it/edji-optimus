@@ -239,9 +239,19 @@ let model = ModelCreator("User", {
         let isValidToken = helpers.validateToken(this[propertyName].token, referToken)
         
         if (isValidToken) {
-            this[propertyName] = null // get rid of the token so we're not storing old tokens on purpose
+            // get rid of the token so we're not storing old tokens on purpose
+            this.save({
+                update: {
+                    $unset: {
+                        [propertyName]: 1
+                    }
+                }
+            }, (err, result) => {
+                return isValidToken
+            })
+        } else {
+            return false
         }
-        return isValidToken
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
@@ -270,7 +280,7 @@ let model = ModelCreator("User", {
 model.schema.pre("save", function(next) {
     if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
 
-    if (this.password && this.isModified("password")){
+    if (this.password && this.isModified("password")) {
         this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
     }
 
