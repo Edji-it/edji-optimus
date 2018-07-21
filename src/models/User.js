@@ -212,16 +212,16 @@ let model = ModelCreator("User", {
      */
     schema.methods.setOneTimeToken = function(propertyName, expiration, callback) {
         if (!this.isValidTokenProperty(propertyName)) {
-            return // leave function if the property should not be updated this way
+            return callback('no valid property with that name')// leave function if the property should not be updated this way
         }
 
         helpers.createOneTimeTokenObject(expiration, (tokenObj, unhashedToken) => {
             this[propertyName] = tokenObj
-            console.log('saving user...')
+            console.log('saving user...', tokenObj)
             this.save(false, (err, result) => {
                 console.log('user saved')
                 err && console.error(err)
-                return callback(unhashedToken)
+                return callback(null, unhashedToken)
             })
         })
     }
@@ -233,7 +233,7 @@ let model = ModelCreator("User", {
      */
     schema.methods.useOneTimeToken = function(propertyName, referToken) {
         if (!this.isValidTokenProperty(propertyName) || !this[propertyName]) {
-            return // just do nothing here, error is logged in validator
+            return false // return false here to indicate the token was not valid or used
         }
 
         let isValidToken = helpers.validateToken(this[propertyName].token, referToken)
