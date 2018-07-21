@@ -12,13 +12,13 @@ export function SetTokenController(req: Request, res: Response) {
     return res.status(400).send({ error: 'no token name provided' })
   }
 
-  user.setOneTimeUseToken(tokenName, 24, (token) => {
+  user.setOneTimeToken(tokenName, 24, (token) => {
     let varsObj: any = {
       token_url: `https://edji.it/redeem-tokens/${tokenName}/${token}`
     }
 
     EmailService.sendEmail(
-      'reset_email',
+      'reset-email',
       user.fullname,
       user.email,
       'Edji <recovery@edji.it>',
