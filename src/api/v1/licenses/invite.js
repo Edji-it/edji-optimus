@@ -13,6 +13,7 @@ module.exports = function(req, res) {
   let email = req.body.email
   let name = req.body.name
   let licenseSend
+  let subject = 'Welcome to Edji Academy!'
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
@@ -81,7 +82,7 @@ module.exports = function(req, res) {
     }
 
     // make the request to send the email with the license invitation, then return the license back if all is well
-    return emailService.sendEmail(emailTemplate, name, email, varsObject)
+    return emailService.sendEmail(emailTemplate, subject, name, email, varsObject)
   })
   .then((success) => {
     return res.status(200).send({ license: licenseSend })
