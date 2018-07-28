@@ -1,7 +1,7 @@
 // library imports
 
 // project imports
-const emailService = require('./../../services/email')
+const emailService = require('./../../../services/email')
 
 module.exports = function(req, res) {
   let email = req.body.email
