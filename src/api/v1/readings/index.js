@@ -6,6 +6,7 @@ const authRequired = require('./../../../middleware/auth-required')
 
 // attach route handlers
 router.get('/', authRequired, require('./list'))
+router.post('/', authRequired, require('./reports'))
 
 // export
 module.exports = router

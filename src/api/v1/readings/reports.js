@@ -1,7 +1,7 @@
 // library imports
 
 // project imports
-const emailService = require('./../../../services/email')
+const emailService = require('./../../services/email')
 
 module.exports = function(req, res) {
   let email = req.body.email
@@ -15,10 +15,13 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: 'cannot send evaluation without a proper email address' })
   }
 
+  // specify the email template to use on the email service
+  const emailTemplate = "reading-report"
+
   let varsObject = {
     "evaluation": evaluation,
     "pdf": pdf
   }
 
-  return emailService.sendEmail('readingreport', subject, name, email, varsObject)
+  return emailService.sendEmail(emailTemplate, subject, name, email, varsObject)
 }
