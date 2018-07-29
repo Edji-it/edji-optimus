@@ -6,6 +6,7 @@ const emailService = require('./../../../services/email')
 module.exports = function(req, res) {
   let email = req.body.email
   let evaluation = req.body.eval
+  let attachmentName = req.body.pdfName
   let pdf = req.body.pdf
   let name = ''
   let subject = 'Reading Report from Edji!'
@@ -20,7 +21,9 @@ module.exports = function(req, res) {
 
   let varsObject = {
     "evaluation": evaluation,
-    "pdf": pdf
+    "attachment": pdf,
+    "attachment_name": attachmentName,
+    "attachment_type": 'pdf'
   }
 
   return emailService.sendEmail(emailTemplate, subject, name, email, varsObject)
