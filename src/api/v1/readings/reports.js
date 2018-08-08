@@ -11,6 +11,7 @@ module.exports = function(req, res) {
   let name = req.body.person_receiving
   let subject = 'Reading Report from Edji!'
   let personSharing = req.body.person_sharing
+  let personSharingEmail = req.body.person_sharing_email
   
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!email || email.length==0) {
@@ -25,7 +26,8 @@ module.exports = function(req, res) {
     "evaluation": evaluation,
     "attachment": pdf,
     "attachment_name": attachmentName,
-    "attachment_type": 'application/pdf'
+    "attachment_type": 'application/pdf',
+    "replyTo": personSharingEmail
   }
 
   return emailService.sendEmail(emailTemplate, subject, name, email, varsObject)
