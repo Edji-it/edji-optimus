@@ -8,7 +8,7 @@ module.exports = function(req, res) {
   let evaluation = req.body.eval
   let attachmentName = req.body.pdfName
   let pdf = req.body.pdf
-  let name = req.body.person_receiving
+  let name = ''
   let subject = 'Reading Report from Edji!'
   let personSharing = req.body.person_sharing
   
