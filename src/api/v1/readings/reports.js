@@ -32,5 +32,11 @@ module.exports = function(req, res) {
     "reading_name": readingName
   }
 
-  return emailService.sendEmail(emailTemplate, subject, name, email, varsObject)
+  emailService.sendEmail(emailTemplate, subject, name, email, varsObject).then((success) => {
+    return res.status(200).send({ success: success })
+  })
+  .catch((error) => {
+    console.error(error)
+    return res.status(500).send()
+  })
 }
