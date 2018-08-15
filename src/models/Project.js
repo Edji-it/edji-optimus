@@ -25,7 +25,13 @@ var Model = ModelCreator("Project", {
     code:{type:String, unique:true},
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
     tags: [Tags.schema],
-    heat_vision: Boolean
+    heat_vision: Boolean,
+    reading_evals: [{
+        user_id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
+        evaluation: { type: String, required: true },
+        createdAt: { type: Date, required: true }
+    }],
+    group_instructions: { type: String, required: true }
 }, (schema) => {
     // add population of user object
     schema.virtual('teacher', {
