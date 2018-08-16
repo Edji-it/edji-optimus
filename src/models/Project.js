@@ -31,7 +31,7 @@ var Model = ModelCreator("Project", {
         evaluation: { type: String, required: true },
         createdAt: { type: Date, required: true }
     }],
-    group_instructions: { type: String, required: true }
+    group_instructions: String 
 }, (schema) => {
     // add population of user object
     schema.virtual('teacher', {
