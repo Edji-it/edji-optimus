@@ -225,7 +225,7 @@ router.put("/:id", authRequired, function(req, res) {
         return
     }
 
-    let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags'])
+    let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags', 'report_evals'])
 
     Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
         new: true, runValidators: true, setDefaultsOnInsert: true

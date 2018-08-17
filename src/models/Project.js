@@ -26,7 +26,7 @@ var Model = ModelCreator("Project", {
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
     tags: [Tags.schema],
     heat_vision: Boolean,
-    reading_evals: [{
+    report_evals: [{
         user_id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
         evaluation: { type: String, required: true },
         createdAt: { type: Date, required: true }
