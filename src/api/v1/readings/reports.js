@@ -14,6 +14,16 @@ module.exports = function(req, res) {
   let personSharingEmail = req.body.person_sharing_email
   let readingName = req.body.reading_name
   
+  // we cannot send this email without designating the person we're sending it to
+  if (!pdf || pdf.length==0) {
+    return res.status(400).send({ error: 'cannot send evaluation without the actual pdf report' })
+  }
+  
+  // we cannot send this email without designating the person we're sending it to
+  if (!name || name.length==0) {
+    return res.status(400).send({ error: 'cannot send evaluation without a designated person to send to' })
+  }
+  
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!email || email.length==0) {
     return res.status(400).send({ error: 'cannot send evaluation without a proper email address' })
