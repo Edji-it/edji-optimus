@@ -19,7 +19,7 @@ export function SetTokenController(req: Request, res: Response) {
       let varsObj: any = {
         token_url: `https://edji.it/redeem-tokens/${tokenName}/${token}`
       }
-      
+
       EmailService.sendEmail(
         'reset-email',
         user.fullname,
