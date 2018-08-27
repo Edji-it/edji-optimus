@@ -25,6 +25,7 @@
     "url": "github.com/codiak/edji-server"
   },
   "author": "Edji",
+  "private": true,
   "license": "",
   "engines": {
     "node": "^8.9.4"
