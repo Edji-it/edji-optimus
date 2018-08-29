@@ -30,12 +30,25 @@ module.exports = function(req, res) {
     // check through all pending invitations and remove for all that match the user's email address
     let found_email = false
     let len_pend = license.pending_invitations.length
+    let user_role = ''
     for (var i=len_pend-1; i>-1; i--) {
       if (license.pending_invitations[i].email==user.email) {
+        // check if the user was given admin privileges to add them to the roles array on this license
+        if (license.pending_invitations[i].role && license.pending_invitations[i].role==='administrator') {
+          user_role = license.pending_invitations[i].role
+        }
         found_email = true
         // remove the invitation from the license array (if multiple invitations for this email address, we'll remove)
         license.pending_invitations.splice(i, 1)
       }
+    }
+
+    // if the teacher was invited to join the academy as an administrator, let's make sure they are added to the roles object on the license
+    if (user_role==='administrator') {
+      license.roles.push({
+        user_id: user._id,
+        role: user_role
+      })
     }
 
     // if we could not match up the email for the user in the pending_invitations list
