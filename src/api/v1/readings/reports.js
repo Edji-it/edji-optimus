@@ -1,4 +1,5 @@
 // library imports
+const joi = require('joi')
 
 // project imports
 const emailService = require('./../../../services/email')
@@ -9,10 +10,28 @@ module.exports = function(req, res) {
   let attachmentName = req.body.pdfName
   let pdf = req.body.pdf
   let name = req.body.person_receiving
-  let subject = 'Reading Report from Edji!'
+  const subject = 'Reading Report from Edji!'
   let personSharing = req.body.person_sharing
   let personSharingEmail = req.body.person_sharing_email
   let readingName = req.body.reading_name
+
+
+  /**
+   * JOSH THIS IS EXAMPLE JOI VALIDATION
+   */
+  // const requestSchema = joi.object({
+  //   email: joi.string().required(),
+  //   pdf: joi.string().required(),
+  //   name: joi.string().required(),
+  //   personSharing: joi.string().required(),
+  //   personSharingEmail: joi.string().required(),
+  //   readingName: joi.string().required(),
+  // })
+
+  // const body = joi.validate(req.body, requestSchema)
+  // if (body.error) {
+  //   req.status(400).send({ error: body.error })
+  // }
   
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!email || email.length==0) {
