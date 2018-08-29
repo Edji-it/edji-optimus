@@ -14,7 +14,11 @@ module.exports = function(req, res) {
         roles: {
           $elemMatch: {
             user_id: user._id,
-            role: "owner"
+            "$or": [{
+              role: "owner"
+            }, {
+              role: "administrator"
+            }]
           }
         }
       }},
