@@ -12,6 +12,7 @@ module.exports = function(req, res) {
   let user = req.user
   let email = req.body.email
   let name = req.body.name
+  let role = req.body.role
   let licenseSend
 
   // the license_id is a param that will be passed in to add to the user's object
@@ -32,6 +33,16 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: 'cannot add email address to pending invitations because there was no email in the request' })
   }
 
+  // we cannot add an email address to the pending_invitations if no email is included in the request body
+  if (!name || name.length==0) {
+    return res.status(400).send({ error: 'cannot add name to pending invitations because there was no name in the request' })
+  }
+
+  // if the role is not defined, we'll default back to 'teacher'
+  if (!role || role.length==0) {
+    role = 'teacher'
+  }
+
   // add the email address of the person we're sending a license invitation to that license
   let expiration_date = new Date(Date.now() + (1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14))
   Q(
@@ -44,7 +55,9 @@ module.exports = function(req, res) {
         $push: { 
           pending_invitations: {
             'email': email,
-            'expiration': expiration_date
+            'name': name,
+            'expiration': expiration_date,
+            'role': role
           }
         }
       },
