@@ -93,7 +93,10 @@ let model = ModelCreator("User", {
     message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
     stripe_customer_id: String, // the user's stripe customer id
-    license_ids: [{ type: mongoose.Schema.ObjectId }], // the license id for the user's school's license
+    license_ids: [{
+        license_id: { type: mongoose.Schema.ObjectId, ref: 'License', required: true },
+        joined: { type: Date, required: true }
+    }], // the license id for the user's school's license
     avatar: String,
     following: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     prefs: {
@@ -147,7 +150,6 @@ let model = ModelCreator("User", {
             'institution_ids',
             'stripe_customer_id',
             'avatar',
-            'hero',
             'following',
             'prefs',
             'media',
@@ -194,14 +196,6 @@ let model = ModelCreator("User", {
     .virtual('message_check_required')
     .get(function() {
         return helpers.messageCheckRequired(this.last_message_check_time)
-    })
-
-    // this virtual replaces the hero object, and is used for backward compatibility with older browsers which depend on user.hero.status
-    //  it can be removed later (changes made 4/4/18)
-    schema
-    .virtual('hero')
-    .get(function() {
-        return { active: !!this.hero_status }
     })
 })
 
