@@ -56,9 +56,11 @@ app.use((err, req, res, next) => {
     }
 })
 
-// install raven error handling
-var Raven = require('raven')
-Raven.config('https://c581687e3838434b859f1249b31d5a26@sentry.io/299438').install()
+if (process.env.NODE_ENV === 'production') {
+    // install raven error handling
+    var Raven = require('raven')
+    Raven.config('https://c581687e3838434b859f1249b31d5a26@sentry.io/299438').install()
+}
 
 let port = process.env.PORT || 3354
 
