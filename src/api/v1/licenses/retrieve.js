@@ -51,7 +51,6 @@ module.exports = function(req, res) {
           institution_ids: 1,
           stripe_customer_id: 1,
           avatar: 1,
-          hero: 1,
           following: 1,
           prefs: 1,
           media: 1,

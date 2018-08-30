@@ -21,6 +21,42 @@ describe('GET /api/v1/licenses/', () => {
       res.should.not.have.status(404)
       res.should.not.have.status(500)
       res.should.have.status(200)
+
+      res.body.should.have.property('licenses')
+      let licenses = res.body.licenses
+      licenses.should.be.instanceOf(Array)
+      licenses.length.should.be.above(1)
+
+      let heroLicense = licenses.find((license) => {
+        return license.license_type === 'hero'
+      })
+      should.exist(heroLicense)
+      heroLicense.should.have.property('_id')
+      heroLicense.should.have.property('max_users')
+      heroLicense.max_users.should.be.above(0)
+      heroLicense.should.have.property('pending_invitations')
+      heroLicense.pending_invitations.should.be.instanceOf(Array)
+      heroLicense.should.have.property('roles')
+      heroLicense.should.have.property('owning_institution')
+      heroLicense.should.have.property('users')
+      heroLicense.users.should.be.instanceOf(Array)
+      heroLicense.users.length.should.be.above(0)
+      heroLicense.should.have.property('createdAt')
+      heroLicense.should.have.property('updatedAt')
+      
+      let firstUser = heroLicense.users[0]
+      firstUser.should.have.property('_id')
+      firstUser.should.have.property('username')
+      firstUser.should.have.property('fullname')
+      firstUser.should.have.property('email')
+      firstUser.should.have.property('identities')
+      firstUser.should.have.property('last_hero_check')
+      firstUser.should.have.property('hero_status')
+      firstUser.should.have.property('license_ids')
+      firstUser.should.have.property('institution_ids')
+      firstUser.should.have.property('updatedAt')
+      firstUser.should.have.property('createdAt')
+      
       done()
     })
   })
