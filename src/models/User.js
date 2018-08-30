@@ -150,7 +150,6 @@ let model = ModelCreator("User", {
             'institution_ids',
             'stripe_customer_id',
             'avatar',
-            'hero',
             'following',
             'prefs',
             'media',
@@ -197,14 +196,6 @@ let model = ModelCreator("User", {
     .virtual('message_check_required')
     .get(function() {
         return helpers.messageCheckRequired(this.last_message_check_time)
-    })
-
-    // this virtual replaces the hero object, and is used for backward compatibility with older browsers which depend on user.hero.status
-    //  it can be removed later (changes made 4/4/18)
-    schema
-    .virtual('hero')
-    .get(function() {
-        return { active: !!this.hero_status }
     })
 })
 
