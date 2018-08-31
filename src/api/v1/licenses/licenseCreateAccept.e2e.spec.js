@@ -93,7 +93,10 @@ describe('license create, add invite, and accept invite success', () => {
       let license_ids = user.license_ids
       license_ids.should.have.length.above(0)
 
-      license_ids.should.include(LICENSE_ID)
+      let specificLicense = license_ids.find((license) => {
+        return license.license_id === LICENSE_ID
+      })
+      specificLicense.license_id.should.include(LICENSE_ID)
 
       done()
     })
