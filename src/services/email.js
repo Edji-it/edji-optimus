@@ -7,7 +7,7 @@ const sendEmail = function(email_template, name, email, vars_object) {
     uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
     headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
     body: {
-      "from": "brennen@edji.it",
+      "from": "academy@edji.it",
       "subject": "Welcome to Edji Academy!",
       "recipients": [
         {
