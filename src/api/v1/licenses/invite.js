@@ -88,8 +88,10 @@ module.exports = function(req, res) {
 
     // our email templates are flexible to take in other data to be used in the email body
     // reference the email template documentation on the email service and set the other variables here
+    let lastInvitation = licenseSend.pending_invitations.length-1
+    let invitationId = licenseSend.pending_invitations[lastInvitation]._id
     let varsObject = {
-      "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", licenseSend._id].join("/"),
+      "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", invitationId].join("/") + '?academy=' + URLEncoder.encode(institution.name, "UTF-8"),
       "institution_name": institution.name
     }
 
