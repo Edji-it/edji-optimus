@@ -10,7 +10,6 @@ module.exports = function(req, res) {
 
   // the license_id is a param that will be passed in to add to the user's object
   const license_id = req.params.license_id
-  console.log(license_id)
 
   // we cannot add a license id to the user's object if it is not passed in
   if (!mongoose.Types.ObjectId.isValid(license_id)) { 
