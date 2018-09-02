@@ -30,24 +30,25 @@ module.exports = function(req, res) {
 
     let license_id=license._id
 
-    let user_role = ''
-    // find the invitation for the user
+    // find the invitation for the user so we can collect the information to process the acceptance on the license
     let invititationPos = license.pending_invitations.map((invite) => { return invite._id.toString() }).indexOf(userInviteId)
+    
+    // if we find the invitation we need to get the role info and then clear the license out
     if (invititationPos > -1) {
+      // if the teacher was invited to join the academy as an administrator, let's make sure they are added to the roles object on the license
+      // we need to reference the role on the license before we clear the license out
+      let licenseRole = license.pending_invitations[invititationPos].role
+      if (licenseRole==='administrator') {
+        license.roles.push({
+          user_id: user._id,
+          role: licenseRole
+        })
+      }
       // take the invitation out of the license object
       license.pending_invitations.splice(invititationPos, 1)
     } else {
       // if we could not match up the email for the user in the pending_invitations list
       return res.status(403).send({ error: 'invite not found for email' }) 
-    }
-
-    // if the teacher was invited to join the academy as an administrator, let's make sure they are added to the roles object on the license
-    let licenseRole = license.pending_invitations[invititationPos].role
-    if (licenseRole && licenseRole==='administrator') {
-      license.roles.push({
-        user_id: user._id,
-        role: user_role
-      })
     }
 
     // save the license now that we've removed all pending invitations for that user's email address
