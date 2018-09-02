@@ -29,7 +29,7 @@ var Model = ModelCreator("Project", {
     report_evals: [{
         user_id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
         evaluation: { type: String, required: true },
-        createdAt: { type: Date, required: true }
+        createdAt: { type: Date, required: true, default: Date.now() }
     }],
     group_instructions: String 
 }, (schema) => {
