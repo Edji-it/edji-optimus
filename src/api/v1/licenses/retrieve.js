@@ -23,6 +23,13 @@ module.exports = function(req, res) {
         }
       }},
       { $lookup: {
+        from: "institutions",
+        localField: "owning_institution",
+        foreignField: "_id",
+        as: "owning_institution"
+      }},
+      { $unwind: "$owning_institution" },
+      { $lookup: {
           from: "users",
           localField: "_id",
           foreignField: "license_ids.license_id",
@@ -35,7 +42,10 @@ module.exports = function(req, res) {
         roles: 1,
         createdAt: 1,
         updatedAt: 1,
-        owning_institution: 1,
+        owning_institution: {
+          name: 1,
+          abbreviation: 1
+        },
         license_type: 1,
         users: {
           _id: 1,

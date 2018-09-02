@@ -5,6 +5,7 @@ var mongoose = require("mongoose")
 // project imports
 const License = require('./../../../models/License')
 const Instituion = require('./../../../models/Institution')
+const User = require('./../../../models/User')
 
 module.exports = function(req, res) {
   let new_license = req.body.license
@@ -42,8 +43,25 @@ module.exports = function(req, res) {
       .exec()
     )
     .then((institution) => {
-      // send the new license object back after updating the institution to include the new license_id
-      return res.status(200).send({ license: license })
+      Q(
+        User.findByIdAndUpdate(
+          license.roles[0].user_id,
+          {
+            $push: {
+              license_ids: {
+                license_id: license._id,
+                joined: new Date()
+              },
+              institution_ids: license.owning_institution
+            }
+          }
+        )
+        .exec()
+      )
+      .then((user) => {
+        // send the new license object back after updating the institution to include the new license_id
+        return res.status(200).send({ license: license })
+      })
     })
     .catch((error) => {
       console.error(error)
