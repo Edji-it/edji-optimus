@@ -34,10 +34,6 @@ module.exports = function(req, res) {
     // find the invitation for the user
     let invititationPos = license.pending_invitations.map((invite) => { return invite._id.toString() }).indexOf(userInviteId)
     if (invititationPos > -1) {
-      if (license.pending_invitations[invititationPos].role && license.pending_invitations[invititationPos].role==='administrator') {
-        user_role = license.pending_invitations[invititationPos].role
-      }
-      user_role = license.pending_invitations[invititationPos].role
       // take the invitation out of the license object
       license.pending_invitations.splice(invititationPos, 1)
     } else {
@@ -46,7 +42,8 @@ module.exports = function(req, res) {
     }
 
     // if the teacher was invited to join the academy as an administrator, let's make sure they are added to the roles object on the license
-    if (user_role==='administrator') {
+    let licenseRole = license.pending_invitations[invititationPos].role
+    if (licenseRole && licenseRole==='administrator') {
       license.roles.push({
         user_id: user._id,
         role: user_role
