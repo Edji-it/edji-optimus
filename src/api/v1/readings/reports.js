@@ -1,4 +1,5 @@
 // library imports
+const joi = require('joi')
 
 // project imports
 const emailService = require('./../../../services/email')

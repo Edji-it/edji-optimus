@@ -9,49 +9,68 @@ module.exports = function(req, res) {
   let user = req.user
 
   // the license_id is a param that will be passed in to add to the user's object
-  let license_id = req.params.license_id
+  const userInviteId = req.params.license_id
 
   // we cannot add a license id to the user's object if it is not passed in
-  if (!mongoose.Types.ObjectId.isValid(license_id)) { 
-    return res.status(403).send() 
+  if (!mongoose.Types.ObjectId.isValid(userInviteId)) { 
+    return res.status(403).send({ error: 'invalid license' }) 
   }
-
+  
   // find the license and remove the pending invitation based on the user's email address
   Q(
-    License.findById(license_id).exec()
+    License.findOne({
+      "pending_invitations._id": userInviteId
+    }).exec()
   )
   .then((license) => {
     // if license is null (meaning it did not exist in the collection)
     if (!license) {
-      return res.status(403).send()
+      return res.status(403).send({ error: 'invalid license' })
     }
 
-    // check through all pending invitations and remove for all that match the user's email address
-    let found_email = false
-    let len_pend = license.pending_invitations.length
-    for (var i=0; i<len_pend; i++) {
-      if (license.pending_invitations[i].email==user.email) {
-        found_email = true
-        // remove the invitation from the license array
-        license.pending_invitations.splice(i, 1)
-        break
+    let license_id=license._id
+
+    // find the invitation for the user so we can collect the information to process the acceptance on the license
+    let invititationPos = license.pending_invitations.map((invite) => { return invite._id.toString() }).indexOf(userInviteId)
+    
+    // if we find the invitation we need to get the role info and then clear the license out
+    if (invititationPos > -1) {
+      // if the teacher was invited to join the academy as an administrator, let's make sure they are added to the roles object on the license
+      // we need to reference the role on the license before we clear the license out
+      let licenseRole = license.pending_invitations[invititationPos].role
+      if (licenseRole==='administrator') {
+        license.roles.push({
+          user_id: user._id,
+          role: licenseRole
+        })
       }
-    }
-
-    // if we could not match up the email for the user in the pending_invitations list
-    if (!found_email) {
-      // if we could not find the email in the list, there's no point in saving the license, and we should not add the license to the user object
-      return res.status(403).send({ error: 'could not find an invitation for this email address' }) 
+      // take the invitation out of the license object
+      license.pending_invitations.splice(invititationPos, 1)
+    } else {
+      // if we could not match up the email for the user in the pending_invitations list
+      return res.status(403).send({ error: 'invite not found for email' }) 
     }
 
     // save the license now that we've removed all pending invitations for that user's email address
     license.save(false, (err, result) => {
+      let matchingLicense = user.license_ids.find((license) => {
+        return license.license_id && license.license_id.equals(license_id)
+      })
+
       // update the user object to add the license_id and set hero_status to true if the license doesn't already exist on their object
-      if (user.license_ids.indexOf(license_id)==-1) {
-        user.institution_ids.push(license.owning_institution)
-        user.license_ids.push(license_id)
+      if (!matchingLicense) {
+        let new_license = {
+          license_id: license_id,
+          joined: new Date()
+        }
+        user.license_ids.push(new_license)
         user.hero_status = true
       } 
+
+      // update the user object to add the owning_institution if the owning_institution doesn't already exist on their object
+      if (user.institution_ids.indexOf(license.owning_institution)==-1) {
+        user.institution_ids.push(license.owning_institution)
+      }
 
       // save the updated user and return it back
       user.save(false, (err, user) => {
@@ -59,8 +78,14 @@ module.exports = function(req, res) {
           console.error(err)
           return res.status(500).send()
         } else {
-          // send the updated user object back if the user is successfully updated
-          return res.status(200).send({ user: user.toPublic() })
+          // make sure the license was added to the user object
+          let licensePos = findLicense(user.license_ids, license._id)
+          if (licensePos > -1) {
+            // send the updated user object back if the user is successfully updated
+            return res.status(200).send({ user: user.toPublic() })
+          } else {
+            return res.status(500).send()
+          }
         }
       })
     })
@@ -69,4 +94,19 @@ module.exports = function(req, res) {
     console.error(err)
     return res.status(500).send()
   })
+}
+
+/**
+ * Checks for the license on the user object since it is an array of objects including licnese_id and joined date
+ * @param userLicenses the licenses on the user object, which is an array of licenses
+ * @param license_id the license we are looking to confirm is on the user object
+ */
+function findLicense(userLicenses, license_id) {
+  let arrLength = userLicenses.length
+  for (var i=0; i<arrLength; i++) {
+    if(userLicenses[i].license_id.equals(license_id)) {
+      return i
+    }
+  }
+  return -1
 }

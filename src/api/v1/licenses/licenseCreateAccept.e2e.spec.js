@@ -9,6 +9,7 @@ const TEST = require('./../../../../_test')
 // local variables
 const ENDPOINT_URL = '/api/v1/licenses/'
 var LICENSE_ID = ''
+var INVITE_ID = ''
 
 describe('license create, add invite, and accept invite success', () => {
   // before we get too far, we'll need to create a new license to test off of
@@ -70,6 +71,7 @@ describe('license create, add invite, and accept invite success', () => {
       pending_invitation.should.have.property('email')
       pending_invitation.should.have.property('expiration')
       pending_invitation.email.should.be.equal(invite_email)
+      INVITE_ID = pending_invitation._id
 
       done()
     })
@@ -79,7 +81,7 @@ describe('license create, add invite, and accept invite success', () => {
   // array and get the updated user object in return
   it('should update the user with the new license_id and clear out the email address from the pending_invitation', (done) => {
     chai.request(TEST.SERVER)
-    .put(ENDPOINT_URL + LICENSE_ID + '/accept') // send a put to the license_id to add email to pending_invitations
+    .put(ENDPOINT_URL + INVITE_ID + '/accept') // send a put to the license_id to add email to pending_invitations
     .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
     .end((err, res) => {
       err && done(err)
@@ -93,7 +95,10 @@ describe('license create, add invite, and accept invite success', () => {
       let license_ids = user.license_ids
       license_ids.should.have.length.above(0)
 
-      license_ids.should.include(LICENSE_ID)
+      let specificLicense = license_ids.find((license) => {
+        return license.license_id === LICENSE_ID
+      })
+      specificLicense.license_id.should.include(LICENSE_ID)
 
       done()
     })
