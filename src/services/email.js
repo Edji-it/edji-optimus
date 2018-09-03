@@ -1,14 +1,14 @@
 // library imports
 const rp = require("request-promise")
 
-const sendEmail = function(email_template, name, email, vars_object) {
+const sendEmail = function(email_template, subject, name, email, vars_object) {
   const options = {
     method: 'POST',
     uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
     headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
     body: {
       "from": "academy@edji.it",
-      "subject": "Welcome to Edji Academy!",
+      "subject": subject,
       "recipients": [
         {
           "name": name,
