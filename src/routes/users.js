@@ -126,8 +126,8 @@ router.put("/", authRequired, function(req, res){
         }
     })
     
-    user.save(false, (err, result) => {
-        if (err) {
+    user.save(false, (error, result) => {
+        if (error) {
             if (error.name === "ValidationError") {
                 var errors = {}
     
