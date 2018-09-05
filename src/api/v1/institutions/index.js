@@ -7,6 +7,6 @@ const localOnly = require('./../../../middleware/local-only')
 
 router.get('/:institution_id', authRequired, require('./retrieve'))
 router.get('/', localOnly, require('./list'))
-router.post('/', localOnly, require('./create'))
+router.post('/', authRequired, require('./create'))
 
 module.exports = router
