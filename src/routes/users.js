@@ -8,7 +8,6 @@ const mandrillTransport = require('nodemailer-mandrill-transport')
 const bcrypt = require("bcryptjs")
 const Q = require("q")
 const _ = require("underscore")
-const queryString = require("querystring")
 
 let User = require("./../models/User")
 let Comment = require("./../models/Comment")
@@ -464,9 +463,7 @@ router.post("/recover_password", function(req, res) {
                 }
             }))
 
-            var query = queryString.stringify({
-                token: user.resetPasswordToken
-            })
+            var query = 'token=' + encodeURIComponent(user.resetPasswordToken)
             
             //TODO set link to Angular component URL
             transport.sendMail({
@@ -489,7 +486,7 @@ router.post("/recover_password", function(req, res) {
                     // we don't really care - if there's not an error, everything happened correctly
                 }
             })
-            res.status(204).send()
+            return res.status(204).send()
         }).catch(function(e) {
 
             // e.status will be 204 if no user is found so that we don't tell people the user exists
