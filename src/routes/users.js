@@ -377,7 +377,7 @@ router.post("/reset_password", function(req, res) {
                     userRes.save(false, (err, doc) => {
                         if (err) {
                             console.error(err)
-                            return res.status(500).send({ error: 'error occurred while saving user', err: err })
+                            return res.status(500).send({ error: 'error occurred while saving user' })
                         }
                         else {
                             res.status(200).send(LoginController.generateLoginObjectForUser(userRes))
@@ -409,7 +409,7 @@ router.post("/reset_password", function(req, res) {
             user.save(false, (err, doc) => {
                 if (err) {
                     console.error(err)
-                    return res.status(500).send({ error: 'error occurred while saving user', err: err })
+                    return res.status(500).send({ error: 'error occurred while saving user' })
                 }
                 else {
                     return res.status(200).send(LoginController.generateLoginObjectForUser(user))
