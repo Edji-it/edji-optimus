@@ -375,9 +375,12 @@ router.post("/reset_password", function(req, res) {
                 .then((userRes) => {
                     userRes.password = newPassword
                     userRes.save(false, (err, doc) => {
-                        if (err) { console.error(err) }
+                        if (err) {
+                            console.error(err)
+                            return res.status(500).send({ error: 'error occurred while saving user' })
+                        }
                         else {
-                            res.json(LoginController.generateLoginObjectForUser(userRes))
+                            res.status(200).send(LoginController.generateLoginObjectForUser(userRes))
                         }
                     })
                 })
@@ -396,22 +399,26 @@ router.post("/reset_password", function(req, res) {
             resetPasswordToken:token,
             resetPasswordExpires: { $gte: Date.now() }
         })
-            .exec())
-            .then(function(user) {
-                if (!user) {
-                    throw new Error("No user found")
-                }
+        .exec())
+        .then(function(user) {
+            if (!user) {
+                throw new Error("No user found")
+            }
 
-                user.password = newPassword
-                user.save(false, (err, doc) => {
-                    if (err) { console.error(err) }
-                    else { /** do nothing b/c it worked */ }
-                })
-                res.json(LoginController.generateLoginObjectForUser(user))
-            }).catch(function(e) {
-                console.error(e)
-                res.status(500).send()
+            user.password = newPassword
+            user.save(false, (err, doc) => {
+                if (err) {
+                    console.error(err)
+                    return res.status(500).send({ error: 'error occurred while saving user' })
+                }
+                else {
+                    return res.status(200).send(LoginController.generateLoginObjectForUser(user))
+                }
             })
+        }).catch(function(e) {
+            console.error(e)
+            res.status(500).send()
+        })
         return
     } else {
         res.status(400).send()
