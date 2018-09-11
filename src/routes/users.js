@@ -372,18 +372,19 @@ router.post("/reset_password", function(req, res) {
                 return
             } else {
                 Q(User.findById(user._id).exec())
-                    .then((userRes) => {
-                        userRes.password = newPassword
-                        userRes.save(false, (err, doc) => {
-                            if (err) { console.error(err) }
-                            else { /** do nothing b/c it worked */ }
-                        })
-                        res.json(LoginController.generateLoginObjectForUser(userRes))
+                .then((userRes) => {
+                    userRes.password = newPassword
+                    userRes.save(false, (err, doc) => {
+                        if (err) { console.error(err) }
+                        else {
+                            res.json(LoginController.generateLoginObjectForUser(userRes))
+                        }
                     })
-                    .catch((error) => {
-                        console.error(error)
-                        res.status(500).send()
-                    })
+                })
+                .catch((error) => {
+                    console.error(error)
+                    res.status(500).send()
+                })
             }
 
             
