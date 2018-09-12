@@ -286,7 +286,12 @@ router.put("/convert/:temp_id", authRequired, function(req, res) {
     let user = req.user
     let temp_id = req.params.temp_id
 
-    if (!mongoose.Types.ObjectId.isValid(temp_id)) { return res.status(400).send() }
+    if (!mongoose.Types.ObjectId.isValid(temp_id)) {
+        return res.status(400).send({ error: 'invalid mongo id' })
+    }
+
+    // update all of the projects the user has opened, and replace their comments with their new info
+
 
     // find all the projects that the temp user has opened
     Q(Project.find({ temp_ids: temp_id }).exec())
@@ -311,6 +316,7 @@ router.put("/convert/:temp_id", authRequired, function(req, res) {
                 else { project.students_ids = [user._id] }
 
                 promises.push(Q(project.save()))
+
             }
         })
         return promises
