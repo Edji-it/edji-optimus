@@ -33,6 +33,30 @@ var Model = ModelCreator("Project", {
     }],
     group_instructions: String 
 }, (schema) => {
+    // grab a session code and add it to the project before saving
+    schema.pre("save", function(next){
+        if (this.code) { next() }
+        else {
+            SessionCode.findOne({ active: false })
+            .then((result) => {
+                this.code = result.code
+                result.active = true
+                result.save(false, (err, result) => {
+                    if (!err) {
+                        next()
+                    } else {
+                        console.error(err)
+                        next(err)
+                    }
+                })
+            })
+            .catch((err) => {
+                console.error(err)
+                next(err)
+            })
+        }
+    })
+
     // add population of user object
     schema.virtual('teacher', {
         ref: 'User',
@@ -48,30 +72,6 @@ var Model = ModelCreator("Project", {
         foreignField: '_id',
         justOne: true
     })
-})
-
-Model.schema.pre("save", function(next){
-    if (!this.code){
-        SessionCode.findOne({ active: false })
-        .then((result) => {
-            this.code = result.code
-            result.active = true
-            result.save(false, (err, result) => {
-                if (!err) {
-                    next()
-                } else {
-                    console.error(err)
-                    next(err)
-                }
-            })
-        })
-        .catch((err) => {
-            console.error(err)
-            next(err)
-        })
-    } else {
-        next()
-    }
 })
 
 module.exports = Model
