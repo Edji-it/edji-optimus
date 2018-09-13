@@ -7,11 +7,13 @@ const helpers = require('./_retrieve')
 
 module.exports = function(req, res) {
   let user = req.user
+  console.log('1')
 
   // throttle the database calls if the user has gotten messages recently
   if (!user.message_check_required) {
     return res.status(200).send({ messages: [] })
   }
+  console.log('2')
 
   // if the user doesn't have a MessageList, we need to make them one and update their user object
   if(!user.message_list_id) {
@@ -20,6 +22,7 @@ module.exports = function(req, res) {
       return helpers.addListToUser(messageList, user)
     })
     .then((user) => {
+      console.log('3')
       return res.status(200).send({ messages: [] })
     })
     .catch((err) => {
@@ -41,14 +44,27 @@ module.exports = function(req, res) {
       }
 
       user.last_refresh_time = Date.now()
-      user.edjiSave(false, (err, result) => {
-        if (err) {
-          console.error(err)
-          return res.status(500).send()
-        } else {
-          return res.status(200).send({ messages: messageList.messages })
-        }
+
+      user.edjiSave(false)
+      .then((result) => {
+        console.log('5')
+        return res.status(200).send({ messages: messageList.messages })
       })
+      .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+      })
+
+      // user.edjiSave(false, (err, result) => {
+      //   console.log('edji save callback')
+      //   if (err) {
+      //     console.error(err)
+      //     return res.status(500).send()
+      //   } else {
+      //     console.log('4')
+      //     return res.status(200).send({ messages: messageList.messages })
+      //   }
+      // })
     })
     .catch((err) => {
       console.error(err)

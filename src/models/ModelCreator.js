@@ -19,7 +19,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     )
 
     Schema.pre('edjiSave', function(next) {
-        console.log('in edjiSave')
+        console.log('in model pre-edjiSave')
         var now = new Date()
         this.updatedAt = now
         next()
@@ -32,6 +32,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     Schema.methods.forceSave = Schema.methods.save
 
     Schema.methods.edjiSave = function(options, callback) {
+        console.log('in edjiSave method')
         if (!options) {
             options = {
                 forceSave: this._id ? false : true
@@ -39,8 +40,10 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         }
 
         if (options.forceSave) {
+            console.log('force saving...')
             this.save(callback)
         } else {
+            console.log('updating...')
             let queryOptions = Object.assign({
                 query: { _id: this._id },
                 update: this,
@@ -52,7 +55,11 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
                 }
             }, options)
             
-            return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback)
+            return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions)
+            .then((res) => {
+                console.log('in the res')
+                return res
+            })
         }
     }
 

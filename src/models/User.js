@@ -169,6 +169,8 @@ let model = ModelCreator("User", {
         if (this.password && this.isModified("password")){
             this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
         }
+
+        console.log('in user pre-edjiSave')
     
         next()
     })

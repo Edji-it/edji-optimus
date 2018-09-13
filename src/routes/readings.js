@@ -71,7 +71,7 @@ router.post("/", authRequired, function(req, res) {
                 .exec())
                 .then((version) => {
                     // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
-                    model.forceSave((error, result) => {
+                    model.save((error, result) => {
                         if (error) {
                             console.error(error)
                             res.status(500).send()
