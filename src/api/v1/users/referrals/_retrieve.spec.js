@@ -20,7 +20,7 @@ describe('createUniqueReferralCode', () => {
 
   beforeEach(() => {
     ReferralMock = sinon.mock(Referral)
-    referralSaveStub = sinon.stub(Referral.prototype, 'save')
+    referralSaveStub = sinon.stub(Referral.prototype, 'edjiSave')
   })
 
   afterEach(() => {

@@ -199,7 +199,7 @@ let model = ModelCreator("User", {
     })
 })
 
-model.schema.pre("save", function(next) {
+model.schema.pre("edjiSave", function(next) {
     if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
 
     if (this.password && this.isModified("password")){
