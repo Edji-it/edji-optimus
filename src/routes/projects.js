@@ -195,18 +195,17 @@ router.delete("/:id", authRequired, function(req, res) {
         return
     }
 
-    Project.remove({_id:req.params.id, teacher_id: user._id}, (error, obj) => {
-        if (error) {
-            console.error(error)
-            res.status(500).send()
-            return
-        } else if (obj.result.n === 0) {
-            res.status(404).send()
-            return
+    Project.deleteOne({_id:req.params.id, teacher_id: user._id})
+    .then((obj) => {
+        if (obj.n < 1) {
+            return res.status(404).send()
         } else {
-            res.status(204).send()
-            return
+            return res.status(204).send()
         }
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
     })
 })
 
