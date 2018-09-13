@@ -13,7 +13,6 @@ module.exports = function(req, res) {
   let email = req.body.email
   let name = req.body.name
   let role = req.body.role
-  let licenseSend
   let subject = 'Welcome to Edji Academy!'
 
   // the license_id is a param that will be passed in to add to the user's object
@@ -46,12 +45,18 @@ module.exports = function(req, res) {
 
   // add the email address of the person we're sending a license invitation to that license
   let expiration_date = new Date(Date.now() + (1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14))
-  Q(
-    License.findById(license_id).exec()
-  )
+  // used to store the license across steps of the promise, because it will eventually be sent back to the user
+  let licenseSend
+  License.findById(license_id).exec()
   .then((license) => {
     // see if we already have an invitation for this user
-    let invititationPos = license.pending_invitations.map((invite) => {return invite.email }).indexOf(email)
+    let invititationPos = license.pending_invitations.map(
+      (invite) => {
+        return invite.email
+      }
+    )
+    .indexOf(email)
+
     // update the expiration date if the invite already exists
     if (invititationPos > -1) {
       license.pending_invitations[invititationPos].expiration = expiration_date
@@ -66,27 +71,22 @@ module.exports = function(req, res) {
         }
       )
     }
+
     // save the license and return it for the next step
-    return license.edjiSave(false, (err, updatedLicense) => {
-      if (err) {
-        return Q.reject("license not updated")
-      } else {
-        // set the updated license here for us to reference for email later
-        licenseSend = updatedLicense
-        return updatedLicense
-      }
-    })
+    return license.edjiSave(false)
   })
-  .then(() => {
+  .then((updatedLicense) => {
     // if license is null (meaning it did not get updated in the collection)
-    if (!licenseSend) {
+    if (!updatedLicense) {
       return Q.reject("license not found")
     }
 
+    // assign this to preserve it across the promise stages
+    licenseSend = updatedLicense
+
     // get the institution info for the email
-    return Q(Institution.findById(licenseSend.owning_institution).exec())
+    return Institution.findById(licenseSend.owning_institution)
   })
-  // })
   .then((institution) => {
     // there's an error on our end if a user's License has a non-existant owning_institution
     if (!institution) {

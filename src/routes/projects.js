@@ -428,44 +428,43 @@ router.put("/:project_id/comments/:comment_id", authRequired, function(req, res)
     }
 
     // the project's id must match, and it must have a comment w/ correct id and user_id
-    Q(  Project.findOne(query)
-        .exec())
-        .then((project) => {
-            if (!project) {
-                return res.status(404).send({ error: "project not found" })
-            }
+    Project.findOne(query)
+    .then((project) => {
+        if (!project) {
+            return res.status(404).send({ error: "project not found" })
+        }
 
-            let comment = project.comments.find((comm) => {
-                return comm._id == comment_id
-            })
-
-            // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
-            if (comment.url && comment_update.url && comment_update.url != comment.url) {
-                deleteFromS3(comment.url)
-                    .then((body) => {
-                        // do nothing here because we successfully deleted the object
-                    })
-                    .catch((err) => {
-                        console.error(err)
-                    })
-            }
-
-            // update the fields from the comment_update onto the comment
-            Object.assign(comment, comment_update)
-
-            // save the entire project (DON'T JUST SAVE THE COMMENT)
-            project.edjiSave(false, (err, doc) => {
-                if (err) { console.error(err) }
-                else { /** do nothing */ }
-            })
-
-            return res.status(200).send({ comment: comment })
-
+        let comment = project.comments.find((comm) => {
+            return comm._id == comment_id
         })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send()
+
+        // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
+        if (comment.url && comment_update.url && comment_update.url != comment.url) {
+            deleteFromS3(comment.url)
+                .then((body) => {
+                    // do nothing here because we successfully deleted the object
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        }
+
+        // update the fields from the comment_update onto the comment
+        Object.assign(comment, comment_update)
+
+        // save the entire project (DON'T JUST SAVE THE COMMENT)
+        project.edjiSave(false, (err, doc) => {
+            if (err) { console.error(err) }
+            else { /** do nothing */ }
         })
+
+        return res.status(200).send({ comment: comment })
+
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).send()
+    })
 })
 
 router.delete("/:project_id/comments/:comment_id", authRequired, function(req, res){
