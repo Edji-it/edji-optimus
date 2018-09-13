@@ -185,9 +185,9 @@ router.delete("/:id", authRequired, function(req, res) {
 
     let promises = []
     // remove all of the readings with the same id
-    promises.push(Reading.remove({ _id: id, owner_id: user._id }).exec())
+    promises.push(Reading.deleteOne({ _id: id, owner_id: user._id }).exec())
     // remove all projects associated with the reading
-    promises.push(Project.remove({ reading_id: id, teacher_id: user._id }).exec())
+    promises.push(Project.deleteMany({ reading_id: id, teacher_id: user._id }).exec())
     // remove the version id from all the version id places
     promises.push(ReadingVersion.update(
         { readings: id, owner_id: user._id },
@@ -197,26 +197,25 @@ router.delete("/:id", authRequired, function(req, res) {
 
     // run all of the promises and return to client
     Q.all(promises)
-        .then((responses) => {
+    .then((responses) => {
+        // if the delete reading response indicates that a reading has been deleted, assign properties and return 200
+        if (responses.length && responses[0].n > 0) {
+            let delReadings = responses[0].n
+            let delProjects = responses[1].n
 
-            // if the delete reading response indicates that a reading has been deleted, assign properties and return 200
-            if (responses.length && responses[0].result && responses[0].result.n > 0) {
-                let delReadings = responses[0].result.n
-                let delProjects = responses[1].result.n
+            return res.status(200).send({ results: {
+                deletedReadings: delReadings,
+                deletedProjects: delProjects
+            }})
+        } else {
+            return res.status(404).send()
+        }
 
-                return res.status(200).send({ results: {
-                    deletedReadings: delReadings,
-                    deletedProjects: delProjects
-                }})
-            } else {
-                return res.status(404).send()
-            }
-
-        })
-        .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
-        })
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
+    })
 })
 
 router.get("/versions/:version_id", authRequired, function(req, res) {
