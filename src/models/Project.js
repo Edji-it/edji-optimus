@@ -52,25 +52,26 @@ var Model = ModelCreator("Project", {
 
 Model.schema.pre("save", function(next){
     if (!this.code){
-        var this_project = this
-
-        SessionCode.findOne({active: false}, function(err, result) {
-            if (!err) {
-                this_project.code = result.code
-                result.active = true
-                result.save(false, function(err, result) {
-                    if (!err) {
-                        next()
-                    } else {
-                        console.error(err)
-                    }
-                })
-            } else {
-                console.error(err)
-            }
+        SessionCode.findOne({ active: false })
+        .then((result) => {
+            this.code = result.code
+            result.active = true
+            result.save(false, (err, result) => {
+                if (!err) {
+                    next()
+                } else {
+                    console.error(err)
+                    next(err)
+                }
+            })
+        })
+        .catch((err) => {
+            console.error(err)
+            next(err)
         })
     } else {
         next()
     }
 })
+
 module.exports = Model
