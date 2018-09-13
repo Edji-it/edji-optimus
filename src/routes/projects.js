@@ -52,7 +52,7 @@ router.post("/", authRequired, function(req, res) {
 
     var model = Project(project)
 
-    model.save(false, function(error, result) {
+    model.edjiSave(false, function(error, result) {
         if (error) {
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
@@ -173,7 +173,7 @@ router.get("/:id", function(req, res) {
 
             // we save it afterward so that we don't obstruct returning the data
             //  if this fails, we won't have their username in the array, but oh well
-            project.save(false, (err) => {
+            project.edjiSave(false, (err) => {
                 if (err) {
                     console.error(err)
                 }
@@ -356,7 +356,7 @@ router.post("/:id/comments", authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(false, function(error, project){
+            project.edjiSave(false, function(error, project){
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
@@ -454,7 +454,7 @@ router.put("/:project_id/comments/:comment_id", authRequired, function(req, res)
             Object.assign(comment, comment_update)
 
             // save the entire project (DON'T JUST SAVE THE COMMENT)
-            project.save(false, (err, doc) => {
+            project.edjiSave(false, (err, doc) => {
                 if (err) { console.error(err) }
                 else { /** do nothing */ }
             })
@@ -572,7 +572,7 @@ router.post("/:id/answers", authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(false, (error, project) => {
+            project.edjiSave(false, (error, project) => {
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
@@ -651,7 +651,7 @@ router.put("/:project_id/answers/:answer_id", authRequired, function(req, res) {
             Object.assign(answer, answer_update)
 
             // save the entire project (DON'T JUST SAVE THE ANSWER)
-            project.save(false, (err, doc) => {
+            project.edjiSave(false, (err, doc) => {
                 if (err) { console.error(err) }
                 else { /** do nothing b/c it worked */ }
             })

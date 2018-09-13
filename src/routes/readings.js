@@ -103,7 +103,7 @@ let updateUserReferral = function(user) {
 
     // update and save the user to record that they've made their first reading
     user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
-    user.save(false, (err, result) => {
+    user.edjiSave(false, (err, result) => {
         err && console.error(err)
     })
 
@@ -158,7 +158,7 @@ router.put("/:reading_id", authRequired, function(req, res) {
             if (!user._id.equals(result.owner_id)) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
-            result.save(false, (err) => {
+            result.edjiSave(false, (err) => {
                 if (err) {
                     console.error(err)
                     return res.status(500).send()

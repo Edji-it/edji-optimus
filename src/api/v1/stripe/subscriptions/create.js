@@ -24,7 +24,7 @@ module.exports = function(req, res) {
     user.stripe_customer_id = subscription.customer
     user.hero_status = true
 
-    user.save(false, (err, result) => {
+    user.edjiSave(false, (err, result) => {
       if (err) {
         console.error(err)
         return res.status(500).send()

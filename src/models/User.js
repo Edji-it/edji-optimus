@@ -164,7 +164,7 @@ let model = ModelCreator("User", {
     }
 
     /**
-     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.save() function to return a promise, so this is what I'm doing for now...
+     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
      */
     schema.methods.refresh = function() {
         return new Promise((resolve, reject) => {
@@ -173,7 +173,7 @@ let model = ModelCreator("User", {
                 this.hero_status = validHero
                 this.last_refresh_time = Date.now()
 
-                this.save(false, (err, result) => {
+                this.edjiSave(false, (err, result) => {
                     if (err) { reject(err) }
                     else { resolve(result) }
                 })

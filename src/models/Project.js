@@ -34,14 +34,14 @@ var Model = ModelCreator("Project", {
     group_instructions: String 
 }, (schema) => {
     // grab a session code and add it to the project before saving
-    schema.pre("save", function(next){
+    schema.pre("edjiSave", function(next){
         if (this.code) { next() }
         else {
             SessionCode.findOne({ active: false })
             .then((result) => {
                 this.code = result.code
                 result.active = true
-                result.save(false, (err, result) => {
+                result.edjiSave(false, (err, result) => {
                     if (!err) {
                         next()
                     } else {

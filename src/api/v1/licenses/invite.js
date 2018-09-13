@@ -67,7 +67,7 @@ module.exports = function(req, res) {
       )
     }
     // save the license and return it for the next step
-    return license.save(false, (err, updatedLicense) => {
+    return license.edjiSave(false, (err, updatedLicense) => {
       if (err) {
         return Q.reject("license not updated")
       } else {

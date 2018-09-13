@@ -10,13 +10,13 @@ const MessageList = require('./../../../../models/MessageList')
 // const addNewMessageListToUser = function(user, cb) {
 //   // create/save MessageList and update User object with last_message_check_time and message_list_id
 //   let messages = MessageList({})
-//   messages.save(false, (err, result) => {
+//   messages.edjiSave(false, (err, result) => {
 //     if (err) {
 //       return cb(err) // call the callback with the error
 //     }
 //     user.message_list_id = result._id
 //     user.last_message_check_time = Date.now()
-//     user.save(false, (err, result) => {
+//     user.edjiSave(false, (err, result) => {
 //       if (err) {
 //         return cb(err)
 //       } else {
@@ -33,7 +33,7 @@ const createMessageList = function(obj) {
     }
 
     let messages = MessageList(obj)
-    messages.save({ forceSave: true }, (err, result) => {
+    messages.edjiSave({ forceSave: true }, (err, result) => {
       if (err) {
         return reject(err)
       } else {
@@ -60,7 +60,7 @@ const addListToUser = function(list, user) {
 
     user.message_list_id = list._id
     user.last_message_check_time = Date.now()
-    user.save(false, (err, result) => {
+    user.edjiSave(false, (err, result) => {
       if (err) {
         return reject(err)
       } else {

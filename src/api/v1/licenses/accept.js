@@ -52,7 +52,7 @@ module.exports = function(req, res) {
     }
 
     // save the license now that we've removed all pending invitations for that user's email address
-    license.save(false, (err, result) => {
+    license.edjiSave(false, (err, result) => {
       let matchingLicense = user.license_ids.find((license) => {
         return license.license_id && license.license_id.equals(license_id)
       })
@@ -73,7 +73,7 @@ module.exports = function(req, res) {
       }
 
       // save the updated user and return it back
-      user.save(false, (err, user) => {
+      user.edjiSave(false, (err, user) => {
         if (err) {
           console.error(err)
           return res.status(500).send()

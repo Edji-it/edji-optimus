@@ -26,7 +26,7 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: error.errors })
   }
 
-  license.save(false, function(err, license) {
+  license.edjiSave(false, function(err, license) {
     if (err) {
       return res.status(500).send({ error: err })
     }

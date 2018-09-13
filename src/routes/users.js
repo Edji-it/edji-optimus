@@ -29,7 +29,7 @@ router.post("/", function(req, res){
 
     var model = User(userData)
 
-    model.save(false, (error, result)=>{
+    model.edjiSave(false, (error, result)=>{
         if (error){
             if (error.name === "ValidationError") {
                 var errors = {}
@@ -125,7 +125,7 @@ router.put("/", authRequired, function(req, res){
         }
     })
     
-    user.save(false, (error, result) => {
+    user.edjiSave(false, (error, result) => {
         if (error) {
             if (error.name === "ValidationError") {
                 var errors = {}
@@ -261,7 +261,7 @@ router.delete("/:id", function(req, res) {
                     fullname: user.fullname
                 })
 
-                archiveUser.save(false, (err) => {
+                archiveUser.edjiSave(false, (err) => {
                     if (err) {
                         throw new Error(err)
                     }
@@ -315,7 +315,7 @@ router.put("/convert/:temp_id", authRequired, function(req, res) {
                 if (project.students_ids) { project.students_ids.push(user._id) }
                 else { project.students_ids = [user._id] }
 
-                promises.push(Q(project.save()))
+                promises.push(Q(project.edjiSave()))
 
             }
         })
@@ -379,7 +379,7 @@ router.post("/reset_password", function(req, res) {
                 Q(User.findById(user._id).exec())
                 .then((userRes) => {
                     userRes.password = newPassword
-                    userRes.save(false, (err, doc) => {
+                    userRes.edjiSave(false, (err, doc) => {
                         if (err) {
                             console.error(err)
                             return res.status(500).send({ error: 'error occurred while saving user' })
@@ -411,7 +411,7 @@ router.post("/reset_password", function(req, res) {
             }
 
             user.password = newPassword
-            user.save(false, (err, doc) => {
+            user.edjiSave(false, (err, doc) => {
                 if (err) {
                     console.error(err)
                     return res.status(500).send({ error: 'error occurred while saving user' })
@@ -458,7 +458,7 @@ router.post("/recover_password", function(req, res) {
             }
         }).then(function(user) {
 
-            user.save(false, function(err) {
+            user.edjiSave(false, function(err) {
                 if (err) { throw new Error(err) }
             })
 
@@ -542,7 +542,7 @@ router.post("/verify", function(req, res) {
 
                 //by this point, we pretty much think the user is the real deal set that user's token and send back the thumbs up
                 dbUser.accountArchiveToken = Date.now() + 300000
-                dbUser.save(false, (err) => {
+                dbUser.edjiSave(false, (err) => {
                     if (err) { throw new Error(err) }
                     res.status(204).send()
                 })
@@ -613,7 +613,7 @@ router.delete('/assets/:type/:asset_id', authRequired, (req, res) => {
     user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
 
     // make sure to save the user without the asset which will be deleted
-    user.save(false, (err, doc) => {
+    user.edjiSave(false, (err, doc) => {
         if (err) { console.error(err) }
         else { /** do nothing b/c it worked */ }
     })
@@ -685,7 +685,7 @@ router.put("/following", authRequired, function(req, res) {
         }
     }
 
-    user.save(false, (err, result) => {
+    user.edjiSave(false, (err, result) => {
         if (err) {
             return res.status(500).send({ error: err })
         }
