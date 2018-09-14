@@ -215,13 +215,11 @@ router.put("/:id", authRequired, function(req, res) {
     let project = req.body.project
 
     if (!project) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags', 'report_evals'])
@@ -232,15 +230,14 @@ router.put("/:id", authRequired, function(req, res) {
     .then((project) => {
         // send 404 if the project doesn't exist
         if (!project) {
-            res.status(404).send()
-            return
+            return res.status(404).send()
         } else {
             res.status(200).send({ update: updated })
         }
     })
     .catch((err) => {
         console.error(err)
-        res.status(500).send()
+        return res.status(500).send()
     })
 })
 
@@ -294,8 +291,7 @@ router.get("/reading/:reading_id", authRequired, function(req, res){
     var user = req.user
 
     if (!mongoose.Types.ObjectId.isValid(reading_id)) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     Project.find(
