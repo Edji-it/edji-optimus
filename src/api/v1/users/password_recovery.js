@@ -11,9 +11,10 @@ const PASSWORD_HASH_EXPIRES = /* hours */ 1 * /* seconds */ 3600 * /* ms */ 1000
 
 module.exports = function(req, res) {
     let username = req.body.username
+    console.log('req', req)
 
     if (!username) {
-        return req.status(400).send({ error: 'no username sent with request' })
+        return res.status(400).send({ error: 'no username sent with request' })
     }
 
     // search for either the user's username or their email - let's be flexible here!

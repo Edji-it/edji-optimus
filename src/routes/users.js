@@ -462,7 +462,7 @@ router.post("/verify", function(req, res) {
     var user = req.user
 
     if (!user) {
-        req.status(400).send()
+        res.status(400).send()
         return
     }
 
