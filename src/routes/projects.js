@@ -235,7 +235,7 @@ router.put("/:id", authRequired, function(req, res) {
             res.status(404).send()
             return
         } else {
-            res.status(200).send({ update })
+            res.status(200).send({ updated })
         }
     })
     .catch((err) => {
