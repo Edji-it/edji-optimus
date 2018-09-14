@@ -232,7 +232,7 @@ router.put("/:id", authRequired, function(req, res) {
         if (!project) {
             return res.status(404).send()
         } else {
-            res.status(200).send({ update: updated })
+            res.status(200).send({ updated: update })
         }
     })
     .catch((err) => {
