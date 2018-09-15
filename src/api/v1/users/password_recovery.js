@@ -4,25 +4,16 @@ const bcrypt = require('bcryptjs')
 // project imports
 const User = require('../../../models/User')
 const emailService = require('../../../services/email')
+const helpers = require('./_password_recovery').default
 
 // constants
 const SUCCESS_STATUS = 204
 const PASSWORD_HASH_EXPIRES = /* hours */ 1 * /* seconds */ 3600 * /* ms */ 1000
 
 module.exports = function (req, res) {
-  let username = req.body.username
-  let email = req.body.email
-  console.log(req.body)
+  let query = helpers.createQuery(req.body)
 
-  let query = {}
-  if (username) {
-    console.log('got to the route with query', query)
-    query.username = username
-  } else if (email) {
-    console.log('got to the route with query', query)
-    query.email = email
-  } else {
-    console.log('got to the route with query', query)
+  if (!query) {
     return res.status(400).send({ error: 'no username or email sent in request body' })
   }
 
