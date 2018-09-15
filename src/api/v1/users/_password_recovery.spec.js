@@ -5,6 +5,10 @@ const sinon = require('sinon')
 
 // project imports
 const helpers = require('./_password_recovery')
+const emailService = require('../../../services/email')
+
+// constants
+process.env.CLIENT_URL = 'localhost:3354'
 
 describe('_password_recovery', () => {
   describe('createQuery', () => {
@@ -33,6 +37,74 @@ describe('_password_recovery', () => {
       for (let property in query) {
         should.not.exist(property)
       }
+    })
+  })
+
+  describe('createResetLink', () => {
+    it('should return a link that includes the client url as the hostname', () => {
+      let link = helpers.createResetLink('sometoken')
+      link.includes(process.env.CLIENT_URL).should.be.true
+    })
+
+    it('should return a link that uriencodes the token', () => {
+      let token = 'fkdjaoin/123432!#@#%#&%^#$U^&^$@+=-08*'
+      let link = helpers.createResetLink(token)
+
+      let encodedToken = encodeURIComponent(token)
+      link.includes(encodedToken).should.be.true
+    })
+  })
+
+  describe('sendRecoveryEmail', () => {
+    let emailServiceStub
+    let createResetLinkStub
+    let createResetLinkReturn = 'hoogadabookada'
+    let user
+    beforeEach(() => {
+      emailServiceStub = sinon.stub(emailService, 'sendEmail').resolves()
+      createResetLinkStub = sinon.stub(helpers, 'createResetLink').returns(createResetLinkReturn)
+      user = {
+        email: 'corbin@edji.it',
+        fullname: 'Corbin rocks!',
+        resetPasswordToken: '8q4h9t4rnauvdyfd^&^^%$%$#%%(dafsfdskfjlads;jdla;"' // this would be a crappy string to put in a url if it was not encoded
+      }
+    })
+    afterEach(() => {
+      emailServiceStub.restore()
+      createResetLinkStub.restore()
+    })
+
+    it('should call sendEmail with the correct user properties', (done) => {
+      helpers.sendRecoveryEmail(user)
+        .then(() => {
+          sinon.assert.calledOnce(emailServiceStub)
+
+          let emailOptions = emailServiceStub.firstCall.args[0]
+          emailOptions.email.should.be.equal(user.email)
+          emailOptions.name.should.be.equal(user.fullname)
+          emailOptions.should.have.property('vars_object')
+          emailOptions.vars_object.name.should.be.equal(user.fullname)
+          emailOptions.vars_object.reset_link.should.be.equal(createResetLinkReturn)
+
+          sinon.assert.calledOnce(createResetLinkStub)
+          createResetLinkStub.firstCall.args[0].should.be.equal(user.resetPasswordToken)
+
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
+    })
+
+    it('should call sendEmail with a valid email templace', (done) => {
+      helpers.sendRecoveryEmail(user)
+        .then(() => {
+          emailServiceStub.firstCall.args[0].email_template.should.be.equal('recover-password')
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
     })
   })
 })

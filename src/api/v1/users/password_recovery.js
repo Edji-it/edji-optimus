@@ -33,7 +33,7 @@ module.exports = function (req, res) {
       return user.edjiSave(false)
     })
     .then((user) => {
-      let query = 'token=' + encodeURIComponent(user.resetPasswordToken)
+      let queryString = 'token=' + encodeURIComponent(user.resetPasswordToken)
 
       return emailService.sendEmail({
         email_template: 'recover-password',
@@ -43,7 +43,7 @@ module.exports = function (req, res) {
         from: 'recovery@edji.it',
         vars_object: {
           name: user.fullname,
-          reset_link: `http:${process.env.CLIENT_URL}/#/reset-password?${query}`
+          reset_link: `http:${process.env.CLIENT_URL}/#/reset-password?${queryString}`
         }
       })
     })
