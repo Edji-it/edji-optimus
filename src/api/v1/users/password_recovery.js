@@ -22,20 +22,45 @@ module.exports = function (req, res) {
         return res.status(404).send()
       }
 
-      if (helpers.userCanResetPass(user)) {
-        const HASH = bcrypt.hashSync(String(user._id) + Date.now().toString(), 8)
-        user.resetPasswordToken = HASH
-        user.resetPasswordExpires = Date.now() + PASSWORD_HASH_EXPIRES
+      // error cases where the user doesnt have username/password
+      if (!helpers.userCanResetPass(user)) {
+        if (user.oauth && user.oauth.length > 0) {
+          // pull oauth types out of array
+          let types = user.oauth.map(({ type }) => {
+            return type
+          })
+
+          return Promise.resolve({
+            status: 400,
+            body: {
+              error: 'NO_LOGIN_CREDENTIALS',
+              message: 'user has no username/password, but has at least one oauth account that could be used to log in',
+              oauth_types: types
+            }
+          })
+        } else {
+          let ERROR = 'account has no credentials or oauth: ' + user._id
+          console.error(ERROR)
+          return Promise.resolve({ status: 500, body: { error: ERROR } })
+        }
       }
+
+      const HASH = bcrypt.hashSync(String(user._id) + Date.now().toString(), 8)
+      user.resetPasswordToken = HASH
+      user.resetPasswordExpires = Date.now() + PASSWORD_HASH_EXPIRES
 
       // update user with reset variables
       return user.edjiSave(false)
+        .then((user) => {
+          return helpers.sendRecoveryEmail(user) // returns the user object
+        })
+        .then(() => {
+          return Promise.resolve({ status: 204, body: {} })
+        })
     })
-    .then((user) => {
-      return helpers.sendRecoveryEmail(user)
-    })
-    .then(() => {
-      return res.status(204).send()
+
+    .then(({ status, body }) => {
+      return res.status(status).send(body) // either 400 or 204
     })
     .catch((err) => {
       console.error(err)

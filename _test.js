@@ -8,7 +8,7 @@ module.exports = {
     TEMP_USER: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjVhOWM1MjZkNDFlOGE3MDAxNDA2NjFkZCIsInR5cGUiOiJ0ZW1wIiwiaWF0IjoxNTIwMTk0MTU3fQ.5Jds9a_4uyL1ye3yLBYzEHwN0UC0mrQUPa0DRfYTjXE",
     API_EMAIL_SUCCESS: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjViOWQ3YzBjNTJmODU5MDkwYzlhNWY5OCIsImlhdCI6MTUzNzA0NzU2NH0.JBt3nXqIa0Gwg6o0L3-tzLaIOmCKjZhCSZJNRz5jz0I"
   },
-  USER_INFO_OBJECT_THAT_I_WANT_TO_MAKE_BETTER: {
+  LOGIN_INFO: {
     API_STUDENT: {
       username: "apistudent",
       password: "apistudent"
@@ -28,6 +28,9 @@ module.exports = {
     API_EMAIL_SUCCESS: {
       username: "api_email_success",
       password: "tester"
+    },
+    GOOGLE_OAUTH_USER: {
+      email: "edji.oauth.test@gmail.com"
     }
   }
 }

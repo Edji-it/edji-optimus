@@ -24,6 +24,9 @@ let sendRecoveryEmail = function (user) {
     }
   }
   return emailService.sendEmail(options)
+    .then((response) => {
+      return user
+    })
 }
 
 let createResetLink = function (resetToken) {

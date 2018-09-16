@@ -43,6 +43,28 @@ describe('PUT /api/v1/users/password_recovery', () => {
       })
   })
 
+  it('should receive a 400 for a user that exists, but has only signed in with oauth', (done) => {
+    chai.request(TEST.SERVER)
+      .put(ENDPOINT_URL)
+      .send({
+        email: TEST.LOGIN_INFO.GOOGLE_OAUTH_USER.email
+      })
+      .end((err, res) => {
+        should.exist(err)
+
+        res.should.have.status(400)
+
+        res.body.should.have.property('error')
+        res.body.error.should.be.equal('NO_LOGIN_CREDENTIALS')
+        res.body.should.have.property('message')
+        res.body.should.have.property('oauth_types')
+        res.body.oauth_types.should.be.instanceOf(Array)
+        res.body.oauth_types.includes('google').should.be.true
+
+        done()
+      })
+  })
+
   it('should receive a 404 for a username that does not exist', (done) => {
     chai.request(TEST.SERVER)
       .put(ENDPOINT_URL)
