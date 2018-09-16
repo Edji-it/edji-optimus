@@ -1,9 +1,9 @@
 // project imports
-const License = require('./../models/License')
 const User = require('./../models/User')
+const _bumblebee = require('./../services/bumblebee')
 
-module.exports = function() {
-  User.aggregate([
+module.exports = function () {
+  return User.aggregate([
     {
       $match: {
         "license_ids.license_id": {
@@ -32,7 +32,7 @@ module.exports = function() {
           $first: "$license.max_users"
         },
         users_count: {
-          $sum: NumberInt(1)
+          $sum: 1
         }
       }
     },
@@ -40,7 +40,8 @@ module.exports = function() {
       $project: {
         over_max: {
           $cmp: ["$users_count", "$max_users"] // returns 1 if users_count is greater than max_users, 0 if equal, -1 if otherwise
-        }
+        },
+        users_count: 1
       }
     },
     {
@@ -62,8 +63,16 @@ module.exports = function() {
       $unwind: "$academy"
     }
   ])
-  .exec()
-  .then((results) => {
-    
-  })
+    .exec()
+    .then((results) => {
+      let message = ''
+
+      results.forEach(({ users_count, academy }) => {
+        message += `Academy: "${academy.name}" is over their user count of ${users_count}\n`
+      })
+
+      return _bumblebee.sendMessage(
+        message
+      )
+    })
 }
