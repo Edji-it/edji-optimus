@@ -50,8 +50,12 @@ const responseShape = {
   "projects.createdAt": true,
   "projects.updatedAt": true,
   "projects.comment_count": {
-    $size: {
-      $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
+    $map: {
+      input: "$projects.comments",
+      as: "comments",
+      in: {
+        $size: "comments"
+      }
     }
   },
   "projects.students_ids": true,
