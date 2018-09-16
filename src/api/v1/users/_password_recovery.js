@@ -31,8 +31,17 @@ let createResetLink = function (resetToken) {
   return `http:${process.env.CLIENT_URL}/#/reset-password?${queryString}`
 }
 
+let userCanResetPass = function (user) {
+  let canReset = false
+  if (user.username && user.password) {
+    canReset = true
+  }
+  return canReset
+}
+
 module.exports = {
   createQuery,
   sendRecoveryEmail,
-  createResetLink
+  createResetLink,
+  userCanResetPass
 }

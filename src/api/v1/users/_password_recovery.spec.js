@@ -107,4 +107,33 @@ describe('_password_recovery', () => {
         })
     })
   })
+
+  describe('userCanResetPass', () => {
+    it('should return true for a user with a username and password', () => {
+      let user = {
+        username: 'a_username',
+        password: 'a_pass'
+      }
+      helpers.userCanResetPass(user).should.be.true
+    })
+
+    it('should return false for a user without a username', () => {
+      let user = {
+        password: 'a_pass'
+      }
+      helpers.userCanResetPass(user).should.be.false
+    })
+
+    it('should return false for a user without a password', () => {
+      let user = {
+        username: 'a_username',
+      }
+      helpers.userCanResetPass(user).should.be.false
+    })
+
+    it('should return false if the user has neither a username nor a password', () => {
+      let user = {}
+      helpers.userCanResetPass(user).should.be.false
+    })
+  })
 })
