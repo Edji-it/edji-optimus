@@ -16,7 +16,7 @@ describe('_retrieve', () => {
   describe('createMessageList', () => {
     let messageStub
     beforeEach(() => {
-      messageStub = sinon.stub(MessageList.prototype, 'save')
+      messageStub = sinon.stub(MessageList.prototype, 'edjiSave')
     })
     afterEach(() => {
       messageStub.restore()
@@ -68,7 +68,7 @@ describe('_retrieve', () => {
         _id: mongoose.Types.ObjectId(),
         save: () => {} // need a function to stub out
       }
-      userStub = sinon.stub(user, 'save')
+      userStub = sinon.stub(user, 'edjiSave')
     })
     afterEach(() => {
       userStub.restore()

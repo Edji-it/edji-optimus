@@ -8,7 +8,6 @@ const mandrillTransport = require('nodemailer-mandrill-transport')
 const bcrypt = require("bcryptjs")
 const Q = require("q")
 const _ = require("underscore")
-const queryString = require("querystring")
 
 let User = require("./../models/User")
 let Comment = require("./../models/Comment")
@@ -30,7 +29,7 @@ router.post("/", function(req, res){
 
     var model = User(userData)
 
-    model.save(false, (error, result)=>{
+    model.edjiSave(false, (error, result)=>{
         if (error){
             if (error.name === "ValidationError") {
                 var errors = {}
@@ -126,7 +125,7 @@ router.put("/", authRequired, function(req, res){
         }
     })
     
-    user.save(false, (error, result) => {
+    user.edjiSave(false, (error, result) => {
         if (error) {
             if (error.name === "ValidationError") {
                 var errors = {}
@@ -262,7 +261,7 @@ router.delete("/:id", function(req, res) {
                     fullname: user.fullname
                 })
 
-                archiveUser.save(false, (err) => {
+                archiveUser.edjiSave(false, (err) => {
                     if (err) {
                         throw new Error(err)
                     }
@@ -281,55 +280,63 @@ router.delete("/:id", function(req, res) {
         })
 })
 
+// this is a replacement for the user conversion route which updates all of the users projects to have their new user's data
+router.put("/convert/:temp_id", authRequired, require("./../api/v1/temp_users/convert"))
 
-//------------DO NOT MODIFY THIS ROUTE WITHOUT TALKING TO CORBIN------------//
-router.put("/convert/:temp_id", authRequired, function(req, res) {
-    let user = req.user
-    let temp_id = req.params.temp_id
+// //------------DO NOT MODIFY THIS ROUTE WITHOUT TALKING TO CORBIN------------//
+// router.put("/convert/:temp_id", authRequired, function(req, res) {
+//     let user = req.user
+//     let temp_id = req.params.temp_id
 
-    if (!mongoose.Types.ObjectId.isValid(temp_id)) { return res.status(400).send() }
+//     if (!mongoose.Types.ObjectId.isValid(temp_id)) {
+//         return res.status(400).send({ error: 'invalid mongo id' })
+//     }
 
-    // find all the projects that the temp user has opened
-    Q(Project.find({ temp_ids: temp_id }).exec())
-    .then((projects) => {
-        let promises = []
-        projects.forEach((project) => {
-            if (project && project.comments) {
+//     // update all of the projects the user has opened, and replace their comments with their new info
 
-                // change each of the comment's user_id and fullname to match the new user
-                project.comments = project.comments.map((comment) => {
-                    if (comment.user_id == temp_id) {
-                        comment.user_id = user._id
-                        comment.author = user.fullname
-                    }
-                    return comment
-                })
 
-                // remove the temp_id from the project
-                project.temp_ids.splice(project.temp_ids.indexOf(temp_id), 1)
-                // add the user's new id
-                if (project.students_ids) { project.students_ids.push(user._id) }
-                else { project.students_ids = [user._id] }
+//     // find all the projects that the temp user has opened
+//     Q(Project.find({ temp_ids: temp_id }).exec())
+//     .then((projects) => {
+//         let promises = []
+//         projects.forEach((project) => {
+//             if (project && project.comments) {
 
-                promises.push(Q(project.save()))
-            }
-        })
-        return promises
-    })
-    .then((promises) => {
-        Q.all(promises)
-            .then(() => {
-                return res.status(200).send()
-            })
-            .catch((err) => {
-                throw new Error(err)
-            })
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
-})
+//                 // change each of the comment's user_id and fullname to match the new user
+//                 project.comments = project.comments.map((comment) => {
+//                     if (comment.user_id == temp_id) {
+//                         comment.user_id = user._id
+//                         comment.author = user.fullname
+//                     }
+//                     return comment
+//                 })
+
+//                 // remove the temp_id from the project
+//                 project.temp_ids.splice(project.temp_ids.indexOf(temp_id), 1)
+//                 // add the user's new id
+//                 if (project.students_ids) { project.students_ids.push(user._id) }
+//                 else { project.students_ids = [user._id] }
+
+//                 promises.push(Q(project.edjiSave()))
+
+//             }
+//         })
+//         return promises
+//     })
+//     .then((promises) => {
+//         Q.all(promises)
+//             .then(() => {
+//                 return res.status(200).send()
+//             })
+//             .catch((err) => {
+//                 throw new Error(err)
+//             })
+//     })
+//     .catch((err) => {
+//         console.error(err)
+//         return res.status(500).send()
+//     })
+// })
 
 router.post("/login", function(req, res){
     var user = req.body.user // note this is coming from the request's body, not the req.user
@@ -372,18 +379,22 @@ router.post("/reset_password", function(req, res) {
                 return
             } else {
                 Q(User.findById(user._id).exec())
-                    .then((userRes) => {
-                        userRes.password = newPassword
-                        userRes.save(false, (err, doc) => {
-                            if (err) { console.error(err) }
-                            else { /** do nothing b/c it worked */ }
-                        })
-                        res.json(LoginController.generateLoginObjectForUser(userRes))
+                .then((userRes) => {
+                    userRes.password = newPassword
+                    userRes.edjiSave(false, (err, doc) => {
+                        if (err) {
+                            console.error(err)
+                            return res.status(500).send({ error: 'error occurred while saving user' })
+                        }
+                        else {
+                            res.status(200).send(LoginController.generateLoginObjectForUser(userRes))
+                        }
                     })
-                    .catch((error) => {
-                        console.error(error)
-                        res.status(500).send()
-                    })
+                })
+                .catch((error) => {
+                    console.error(error)
+                    res.status(500).send()
+                })
             }
 
             
@@ -395,22 +406,26 @@ router.post("/reset_password", function(req, res) {
             resetPasswordToken:token,
             resetPasswordExpires: { $gte: Date.now() }
         })
-            .exec())
-            .then(function(user) {
-                if (!user) {
-                    throw new Error("No user found")
-                }
+        .exec())
+        .then(function(user) {
+            if (!user) {
+                throw new Error("No user found")
+            }
 
-                user.password = newPassword
-                user.save(false, (err, doc) => {
-                    if (err) { console.error(err) }
-                    else { /** do nothing b/c it worked */ }
-                })
-                res.json(LoginController.generateLoginObjectForUser(user))
-            }).catch(function(e) {
-                console.error(e)
-                res.status(500).send()
+            user.password = newPassword
+            user.edjiSave(false, (err, doc) => {
+                if (err) {
+                    console.error(err)
+                    return res.status(500).send({ error: 'error occurred while saving user' })
+                }
+                else {
+                    return res.status(200).send(LoginController.generateLoginObjectForUser(user))
+                }
             })
+        }).catch(function(e) {
+            console.error(e)
+            res.status(500).send()
+        })
         return
     } else {
         res.status(400).send()
@@ -445,7 +460,7 @@ router.post("/recover_password", function(req, res) {
             }
         }).then(function(user) {
 
-            user.save(false, function(err) {
+            user.edjiSave(false, function(err) {
                 if (err) { throw new Error(err) }
             })
 
@@ -456,9 +471,7 @@ router.post("/recover_password", function(req, res) {
                 }
             }))
 
-            var query = queryString.stringify({
-                token: user.resetPasswordToken
-            })
+            var query = 'token=' + encodeURIComponent(user.resetPasswordToken)
             
             //TODO set link to Angular component URL
             transport.sendMail({
@@ -481,7 +494,7 @@ router.post("/recover_password", function(req, res) {
                     // we don't really care - if there's not an error, everything happened correctly
                 }
             })
-            res.status(204).send()
+            return res.status(204).send()
         }).catch(function(e) {
 
             // e.status will be 204 if no user is found so that we don't tell people the user exists
@@ -531,7 +544,7 @@ router.post("/verify", function(req, res) {
 
                 //by this point, we pretty much think the user is the real deal set that user's token and send back the thumbs up
                 dbUser.accountArchiveToken = Date.now() + 300000
-                dbUser.save(false, (err) => {
+                dbUser.edjiSave(false, (err) => {
                     if (err) { throw new Error(err) }
                     res.status(204).send()
                 })
@@ -602,7 +615,7 @@ router.delete('/assets/:type/:asset_id', authRequired, (req, res) => {
     user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
 
     // make sure to save the user without the asset which will be deleted
-    user.save(false, (err, doc) => {
+    user.edjiSave(false, (err, doc) => {
         if (err) { console.error(err) }
         else { /** do nothing b/c it worked */ }
     })
@@ -674,7 +687,7 @@ router.put("/following", authRequired, function(req, res) {
         }
     }
 
-    user.save(false, (err, result) => {
+    user.edjiSave(false, (err, result) => {
         if (err) {
             return res.status(500).send({ error: err })
         }

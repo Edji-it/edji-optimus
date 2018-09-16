@@ -22,7 +22,7 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: error.errors })
   }
 
-  institution.save(false, function(err, institution) {
+  institution.edjiSave(false, function(err, institution) {
     if (err) {
       return res.status(500).send({ error: err })
     }

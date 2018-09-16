@@ -64,7 +64,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options){
         var instanceData = req.body[name]
         var model = Model(instanceData)
 
-        model.save(false, (error, result)=>{
+        model.edjiSave(false, (error, result)=>{
             console.error(error)
             res.json(result)
         })

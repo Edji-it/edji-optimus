@@ -38,7 +38,7 @@ const createUniqueReferral = function(callCount) {
  */
 const saveReferral = function(referral) {
   return new Promise((resolve, reject) => {
-    referral.save(false, (err, result) => {
+    referral.edjiSave(false, (err, result) => {
       if (err) { return reject(err) }
       else { return resolve(result) }
     })

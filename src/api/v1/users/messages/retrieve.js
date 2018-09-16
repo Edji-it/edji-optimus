@@ -41,9 +41,14 @@ module.exports = function(req, res) {
       }
 
       user.last_refresh_time = Date.now()
-      user.save(false, (err, result) => {
-        err && console.error(err)
+
+      user.edjiSave(false)
+      .then((result) => {
         return res.status(200).send({ messages: messageList.messages })
+      })
+      .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
       })
     })
     .catch((err) => {

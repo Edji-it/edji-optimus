@@ -163,8 +163,34 @@ let model = ModelCreator("User", {
         })
     }
 
+    schema.pre("edjiSave", function(next) {
+        if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
+    
+        if (this.password && this.isModified("password")){
+            this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
+        }
+    
+        next()
+    })
+    
+    // add custom validator to make sure user has either oauth type or username/password
+    schema.pre('validate', function(next) {
+        // make sure it has a password or an oauth type
+        let hasPassword = !!this.password
+        let hasUsername = !!this.username
+        let hasOauth = !!(this.oauth && this.oauth.length > 0)
+        let isValid = (hasPassword && hasUsername) || hasOauth
+    
+        if (!isValid) {
+            // this is a mongoose method which provides the error to the mongoose error aggrigator
+            this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
+        }
+    
+        next()
+    })
+
     /**
-     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.save() function to return a promise, so this is what I'm doing for now...
+     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
      */
     schema.methods.refresh = function() {
         return new Promise((resolve, reject) => {
@@ -173,7 +199,7 @@ let model = ModelCreator("User", {
                 this.hero_status = validHero
                 this.last_refresh_time = Date.now()
 
-                this.save(false, (err, result) => {
+                this.edjiSave(false, (err, result) => {
                     if (err) { reject(err) }
                     else { resolve(result) }
                 })
@@ -197,32 +223,6 @@ let model = ModelCreator("User", {
     .get(function() {
         return helpers.messageCheckRequired(this.last_message_check_time)
     })
-})
-
-model.schema.pre("save", function(next) {
-    if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
-
-    if (this.password && this.isModified("password")){
-        this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
-    }
-
-    next()
-})
-
-// add custom validator to make sure user has either oauth type or username/password
-model.schema.pre('validate', function(next) {
-    // make sure it has a password or an oauth type
-    let hasPassword = !!this.password
-    let hasUsername = !!this.username
-    let hasOauth = !!(this.oauth && this.oauth.length > 0)
-    let isValid = (hasPassword && hasUsername) || hasOauth
-
-    if (!isValid) {
-        // this is a mongoose method which provides the error to the mongoose error aggrigator
-        this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
-    }
-
-    next()
 })
 
 module.exports = model

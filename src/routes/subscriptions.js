@@ -53,7 +53,7 @@ const FULL_PRICE = 6000 // in cents this is $60
 //             subscription_type: subscriptionType
 //         })
 
-//         user.save(false, (err, result) => {
+//         user.edjiSave(false, (err, result) => {
 //             if (err) {
 //                 console.error(err)
 //             }
