@@ -1,1 +1,1 @@
-web: nodemon --exec yarn serve:prod
+web: yarn serve:prod
