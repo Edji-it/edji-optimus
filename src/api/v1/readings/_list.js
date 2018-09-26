@@ -49,22 +49,22 @@ const responseShape = {
   "projects.types": true,
   "projects.createdAt": true,
   "projects.updatedAt": true,
-  "projects.comment_count": {
-    $size: {
-      $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
-    }
-  },
+  // "projects.comment_count": {
+  //   $size: {
+  //     $arrayElemAt: ["$projects.comments", 0] // projects.comments comes back as an array, so we have to ask for array element at 0
+  //   }
+  // },
   "projects.students_ids": true,
-  "projects.student_count": {
-    $sum: [ // sum the students and temp students together
-      { $size: {
-        $arrayElemAt: ["$projects.students_ids", 0]
-      }},
-      { $size: {
-        $arrayElemAt: ["$projects.temp_ids", 0]
-      }}
-    ]
-  }
+  // "projects.student_count": {
+  //   $sum: [ // sum the students and temp students together
+  //     { $size: {
+  //       $arrayElemAt: ["$projects.students_ids", 0]
+  //     }},
+  //     { $size: {
+  //       $arrayElemAt: ["$projects.temp_ids", 0]
+  //     }}
+  //   ]
+  // }
 }
 
 /**
@@ -127,9 +127,42 @@ const populateProjectAggregation = function(userId) {
       foreignField: 'reading_id',
       as: 'projects'
     }
-  }, {
-    $project: responseShape
-  })
+  },
+  { "$unwind": "$projects" },
+  { $group: {
+      _id: "$projects.reading_id",
+      title: { $first: "$$ROOT.title"},
+      owner_id: { $first: "$$ROOT.owner_id"},
+      teacher_ids: { $first: "$$ROOT.teacher_ids"},
+      "public": { $first: "$$ROOT.public"},
+      source: { $first: "$$ROOT.source"},
+      subjects: { $first: "$$ROOT.subjects"},
+      grade_levels: { $first: "$$ROOT.grade_levels"},
+      cover_img: { $first: "$$ROOT.cover_img"},
+      draft: { $first: "$$ROOT.draft"},
+      version_id: { $first: "$$ROOT.version_id"},
+      createdAt: { $first: "$$ROOT.createdAt"},
+      updatedAt: { $first: "$$ROOT.updatedAt"},
+      version_count: { $first: "$$ROOT.version_count"},
+      "projects": {
+        $push: {
+          _id: "$projects._id",
+          reading_id: "$projects.reading_id",
+          teacher_id: "$projects.teacher_id",
+          label: "$projects.label",
+          code: "$projects.code",
+          types: "$projects.types",
+          createdAt: "$projects.createdAt",
+          updatedAt: "$projects.updatedAt",
+          students_ids: "$projects.students_ids",
+          comment_count: {
+            $size: "$projects.comments"
+          },
+          
+        }
+      }
+    }}
+  )
   return aggregation
 }
 
