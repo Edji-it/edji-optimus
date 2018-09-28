@@ -36,12 +36,21 @@ jobs:
         
       # run tests!
       - run: yarn test:ci
-      - hot_rod_trigger:
-          branches:
-            only:
-              - master
-              - dev
-          command: |
-            curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8: \
-              -d build_parameters[CIRCLE_JOB]=build \
-              https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
+  hot_rod_trigger:
+    docker:
+      - image: circleci/node:8.9
+    requires:
+      - build
+    branches:
+      only:
+        - master
+        - dev
+        - OPT-better-testing
+    steps:
+      - run: curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8 -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - build
+    - hot_rod_trigger
