@@ -44,7 +44,8 @@ jobs:
         - master
         - dev
         - OPT-better-testing
-    command: |
-      curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8: \
-        -d build_parameters[CIRCLE_JOB]=build \
-        https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
+    steps:
+      - command: |
+        curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8: \
+          -d build_parameters[CIRCLE_JOB]=build \
+          https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
