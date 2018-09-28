@@ -43,14 +43,12 @@ jobs:
       - run: curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8 -d build_parameters[CIRCLE_JOB]=build https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
 workflows:
   version: 2
-  unit_tests:
+  test:
     jobs:
     - build
-  hot_rod_trigger:
-    jobs:
     - hot_rod_trigger:
         requires:
-          - unit_tests
+          - build
         filters:
           branches:
             only:
