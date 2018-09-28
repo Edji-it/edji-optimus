@@ -10,12 +10,9 @@ const emailService = require('./../../../services/email')
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function (req, res) {
   let user = req.user
-  // let email = req.body.email
-  // let name = req.body.name
-  // let role = req.body.role
   let subject = 'Welcome to Edji Academy!'
 
-  const { email, name, role } = req.body
+  let { email, name, role } = req.body
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
