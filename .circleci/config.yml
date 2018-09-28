@@ -52,6 +52,4 @@ workflows:
         filters:
           branches:
             only:
-              - master
               - dev
-              - OPT-better-testing
