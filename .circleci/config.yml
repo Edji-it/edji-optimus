@@ -47,13 +47,13 @@ workflows:
     jobs:
     - build
   hot_rod_trigger:
-    requires:
-      - unit_tests
-    filters:
-      branches:
-        only:
-          - master
-          - dev
-          - OPT-better-testing
     jobs:
-    - hot_rod_trigger
+    - hot_rod_trigger:
+        requires:
+          - unit_tests
+        filters:
+          branches:
+            only:
+              - master
+              - dev
+              - OPT-better-testing
