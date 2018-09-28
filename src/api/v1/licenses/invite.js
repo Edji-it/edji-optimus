@@ -48,6 +48,9 @@ module.exports = function (req, res) {
   let licenseSend
   License.findById(license_id).exec()
     .then((license) => {
+      if (!license) {
+        return res.status(404).send({ error: 'no license exists for that license_id' })
+      }
       // see if we already have an invitation for this user
       let invititationPos = license.pending_invitations.map(
         (invite) => {
