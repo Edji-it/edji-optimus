@@ -37,6 +37,7 @@
     "jsonwebtoken": "^5.7.0",
     "mailchimp-api-v3": "^1.7.0",
     "method-override": "^2.3.10",
+    "mocha": "^5.2.0",
     "mongoose": "^5.2.14",
     "mongoose-simple-random": "^0.3.3",
     "nodemailer": "^2.6.4",
