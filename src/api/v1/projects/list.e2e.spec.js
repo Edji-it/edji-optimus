@@ -62,16 +62,15 @@ describe('GET /projects', () => {
           project.should.have.property("label")
           project.should.have.property("code")
           project.should.have.property("types")
-          project.should.have.property("tags")
           project.should.have.property("createdAt")
           project.should.have.property("updatedAt")
 
           project.should.not.have.property("comments")
 
-          let thisProjectDate = new Date(project.updatedAt)
+          let thisProjectDate = new Date(project.createdAt)
           if (lastProjectDate) {
             // test to make sure lastProjectDate is more recent than the current reading
-            (lastProjectDate.getTime() > thisProjectDate.getTime()).should.be.true
+            (lastProjectDate.getTime() >= thisProjectDate.getTime()).should.be.true
           }
           lastProjectDate = thisProjectDate
         })
@@ -118,7 +117,6 @@ describe('GET /projects', () => {
           project.teacher._id.should.be.equal(project.teacher_id)
           project.teacher.should.have.property('fullname')
           project.teacher.should.have.property('email')
-          project.teacher.should.have.property('username')
 
           project.teacher.should.not.have.property('password')
         })
