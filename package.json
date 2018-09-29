@@ -3,13 +3,8 @@
   "version": "1.1.3",
   "description": "Node backend for Edji.",
   "scripts": {
-    "test": "NODE_ENV=test mocha --timeout 4000",
-    "test:dev": "NODE_ENV=dev mocha --timeout 4000",
-    "test:projects": "NODE_ENV=test mocha --timeout 4000 --grep Projects",
-    "test:readings": "NODE_ENV=test mocha --timeout 4000 --grep Readings",
-    "test:users": "NODE_ENV=test mocha --timeout 4000 --grep Users",
-    "test:tempusers": "NODE_ENV=test mocha --timeout 4000 --grep TempUsers",
-    "test:subscriptions": "NODE_ENV=test mocha --timeout 4000 --grep Subscriptions",
+    "test": "yarn build:dev && mocha 'build/src/**/*.spec.js' --timeout 4000 --exit",
+    "test:ci": "yarn build:prod && mocha 'build/src/**/*.spec.js' --timeout 4000 --exit",
     "bump": "npm run bump:patch",
     "serve:dev": "yarn build:dev && node ./build/src",
     "serve:prod": "yarn build:prod && forever ./build/src",
@@ -62,6 +57,7 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "mocha": "^5.2.0",
     "chai": "^4.0.0",
     "chai-http": "^3.0.0",
     "node-mocks-http": "^1.5.8",

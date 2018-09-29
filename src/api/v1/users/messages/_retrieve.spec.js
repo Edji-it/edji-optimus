@@ -27,32 +27,32 @@ describe('_retrieve', () => {
       messageStub.yields(false, list)
 
       helpers.createMessageList(list)
-      .then((result) => {
-        result.should.have.property('_id')
-        result._id.should.be.equal(list._id)
+        .then((result) => {
+          result.should.have.property('_id')
+          result._id.should.be.equal(list._id)
 
-        let options = messageStub.firstCall.args[0]
-        options.should.have.property('forceSave')
-        options.forceSave.should.be.true
+          let options = messageStub.firstCall.args[0]
+          options.should.have.property('forceSave')
+          options.forceSave.should.be.true
 
-        sinon.assert.calledOnce(messageStub)
+          sinon.assert.calledOnce(messageStub)
 
-        done()
-      })
-      .catch((err) => {
-        err && done(err)
-      })
+          done()
+        })
+        .catch((err) => {
+          err && done(err)
+        })
     })
 
     it('should return error if no object passed in', (done) => {
       helpers.createMessageList()
-      .then(() => {
-        sinon.assert.notCalled(messageStub)
-        return done(new Error('should not have resolved'))
-      })
-      .catch(() => {
-        return done()
-      })
+        .then(() => {
+          sinon.assert.notCalled(messageStub)
+          return done(new Error('should not have resolved'))
+        })
+        .catch(() => {
+          return done()
+        })
     })
   })
 
@@ -66,7 +66,7 @@ describe('_retrieve', () => {
     beforeEach(() => {
       user = {
         _id: mongoose.Types.ObjectId(),
-        save: () => {} // need a function to stub out
+        edjiSave: () => { } // need a function to stub out
       }
       userStub = sinon.stub(user, 'edjiSave')
     })
@@ -79,37 +79,37 @@ describe('_retrieve', () => {
       userStub.yields(false, user) // set stub to return user
 
       helpers.addListToUser(list, user)
-      .then((result) => {
-        sinon.assert.calledOnce(userStub)
-        result.should.have.property('message_list_id')
-        result.message_list_id.should.be.equal(list._id)
-        result.should.have.property('last_message_check_time')
+        .then((result) => {
+          sinon.assert.calledOnce(userStub)
+          result.should.have.property('message_list_id')
+          result.message_list_id.should.be.equal(list._id)
+          result.should.have.property('last_message_check_time')
 
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
     })
 
     it('should throw an error if called without a list', (done) => {
       helpers.addListToUser({}, user)
-      .then(() => {
-        done(new Error('should not have resolved'))
-      })
-      .catch((err) => {
-        done()
-      })
+        .then(() => {
+          done(new Error('should not have resolved'))
+        })
+        .catch((err) => {
+          done()
+        })
     })
 
     it('should throw an error if called without a user', (done) => {
       helpers.addListToUser(list, {})
-      .then(() => {
-        done(new Error('should not have resolved'))
-      })
-      .catch((err) => {
-        done()
-      })
+        .then(() => {
+          done(new Error('should not have resolved'))
+        })
+        .catch((err) => {
+          done()
+        })
     })
   })
 })
