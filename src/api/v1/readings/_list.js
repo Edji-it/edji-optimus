@@ -41,33 +41,30 @@ const responseShape = {
   createdAt: true,
   updatedAt: true,
   version_count: true,
-  "projects._id": true,
-  "projects.reading_id": true,
-  "projects.teacher_id": true,
-  "projects.label": true,
-  "projects.code": true,
-  "projects.types": true,
-  "projects.createdAt": true,
-  "projects.updatedAt": true,
-  "projects.comment_count": {
-    $map: {
-      input: "$projects.comments",
-      as: "comments",
-      in: {
-        $size: "comments"
+  "projects": {
+    "$map": {
+      "input": "$projects",
+      "in": {
+        "_id": "$$this._id",
+        "reading_id": "$$this.reading_id",
+        "teacher_id": "$$this.teacher_id",
+        "label": "$$this.label",
+        "code": "$$this.code",
+        "types": "$$this.types",
+        "createdAt": "$$this.createdAt",
+        "updatedAt": "$$this.updatedAt",
+        "students_ids": "$$this.students_ids",
+        "comment_count": {
+          "$size": "$$this.comments"
+        },
+        "student_count": {
+          "$sum": [
+            { "$size": "$$this.students_ids" },
+            { "$size": "$$this.temp_ids" }
+          ]
+        }
       }
     }
-  },
-  "projects.students_ids": true,
-  "projects.student_count": {
-    $sum: [ // sum the students and temp students together
-      { $size: {
-        $arrayElemAt: ["$projects.students_ids", 0]
-      }},
-      { $size: {
-        $arrayElemAt: ["$projects.temp_ids", 0]
-      }}
-    ]
   }
 }
 
