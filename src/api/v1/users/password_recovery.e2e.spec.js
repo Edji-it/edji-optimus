@@ -21,7 +21,6 @@ describe('PUT /api/v1/users/password_recovery', () => {
         username: SUCCESS_USER.username
       })
       .end((err, res) => {
-        console.log(err)
         err && done(err)
 
         res.should.have.status(204)

@@ -6,7 +6,7 @@ const Project = require('./../../../models/Project')
 const helpers = require('./_list')
 const _agg = require('./../../../aggregations')
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
   const user = req.user
   const query = helpers.validateQuery(req.query)
   if (query.error) {
@@ -19,7 +19,7 @@ module.exports = function(req, res) {
   if (query.value.pop.indexOf('reading') > -1) {
     aggregation = aggregation.concat(helpers.populateReadings)
   }
-  
+
   if (query.value.pop.indexOf('teacher') > -1) {
     aggregation = aggregation.concat(helpers.populateTeachers)
   }
@@ -30,14 +30,14 @@ module.exports = function(req, res) {
 
   // run the query
   Q(Project.aggregate(aggregation))
-  .then((response) => {
-    if (response[0]) { response = response[0] }
-    else { response = { total: 0, projects: [] } }
+    .then((response) => {
+      if (response[0]) { response = response[0] }
+      else { response = { total: 0, results: [] } }
 
-    return res.status(200).send({ total: response.total, projects: response.results })
-  })
-  .catch((err) => {
-    console.error(err)
-    return res.status(500).send()
-  })
+      return res.status(200).send({ total: response.total, projects: response.results })
+    })
+    .catch((err) => {
+      console.error(err)
+      return res.status(500).send()
+    })
 }

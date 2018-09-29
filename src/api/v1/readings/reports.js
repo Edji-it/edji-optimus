@@ -5,10 +5,9 @@ const joi = require('joi')
 const emailService = require('./../../../services/email')
 const helpers = require('./_reports')
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
   const body = helpers.validateBody(req.body)
   if (body.error) {
-    console.error(body.error)
     return res.status(400).send({ error: body.error })
   }
 
@@ -31,13 +30,13 @@ module.exports = function(req, res) {
     subject: subject,
     name: req.body.person_receiving,
     email: req.body.email,
-    vars_object: varsObject, 
+    vars_object: varsObject,
     from: "academy@edji.it"
   }).then((success) => {
     return res.status(200).send({ success: success })
   })
-  .catch((error) => {
-    console.error(error)
-    return res.status(500).send()
-  })
+    .catch((error) => {
+      console.error(error)
+      return res.status(500).send()
+    })
 }

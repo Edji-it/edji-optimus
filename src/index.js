@@ -5,20 +5,20 @@ require('dotenv').config()
 const express = require("express")
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
-const mongoose = require("mongoose")
-const User = require("./models/User")
-const LoginController = require("./middleware/LoginController")
-const headerManagement = require('./middleware/header-management')
-const util = require('util')
 const passport = require('passport') // passport gets configured elsewhere
 const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
-const config = require('./../config') // make sure that the config is set up
+// set up all environment variables
+const config = require('./../config')
+
+// local project imports
+const LoginController = require("./middleware/LoginController")
+const headerManagement = require('./middleware/header-management')
 
 // configure express
 var app = express()
 app.use(responseTime())
-app.use(bodyParser.json({limit: '20mb'}))
+app.use(bodyParser.json({ limit: '20mb' }))
 
 // this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
