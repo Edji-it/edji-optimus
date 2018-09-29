@@ -26,7 +26,14 @@ module.exports = function(req, res) {
     "reading_name": req.body.reading_name
   }
 
-  emailService.sendEmail(emailTemplate, subject, req.body.person_receiving, req.body.email, varsObject).then((success) => {
+  emailService.sendEmail({
+    email_template: emailTemplate,
+    subject: subject,
+    name: req.body.person_receiving,
+    email: req.body.email,
+    vars_object: varsObject, 
+    from: "academy@edji.it"
+  }).then((success) => {
     return res.status(200).send({ success: success })
   })
   .catch((error) => {

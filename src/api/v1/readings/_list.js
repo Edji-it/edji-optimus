@@ -128,8 +128,10 @@ const populateProjectAggregation = function(userId) {
       foreignField: 'reading_id',
       as: 'projects'
     }
-  }, {
-    $project: responseShape
+  },
+  { "$unwind": "$projects" },
+  { $group: 
+    responseShape 
   })
   return aggregation
 }

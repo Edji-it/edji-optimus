@@ -106,7 +106,14 @@ module.exports = function(req, res) {
     }
 
     // make the request to send the email with the license invitation, then return the license back if all is well
-    return emailService.sendEmail(emailTemplate, subject, name, email, varsObject)
+    return emailService.sendEmail({
+      email_template: emailTemplate,
+      subject,
+      name,
+      email,
+      vars_object: varsObject,
+      from: "academy@edji.it"
+    })
   })
   .then((success) => {
     return res.status(200).send({ license: licenseSend })
