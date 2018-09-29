@@ -20,20 +20,20 @@ export function SetTokenController(req: Request, res: Response) {
         token_url: `https://edji.it/redeem-tokens/${tokenName}/${token}`
       }
 
-      EmailService.sendEmail(
-        'reset-email',
-        user.fullname,
-        user.email,
-        'Edji <recovery@edji.it>',
-        varsObj
-      )
-      .then((response) => {
-        return res.status(200).send()
+      EmailService.sendEmail({
+        email_template: 'reset-email',
+        name: user.fullname,
+        email: user.email,
+        from: 'Edji <recovery@edji.it>',
+        vars_object: varsObj
       })
-      .catch((err) => {
-        console.error(err)
-        return res.status(500).send({ error: 'error while sending email to user' })
-      })
+        .then((response) => {
+          return res.status(200).send()
+        })
+        .catch((err) => {
+          console.error(err)
+          return res.status(500).send({ error: 'error while sending email to user' })
+        })
     }
   })
 }
