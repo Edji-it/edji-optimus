@@ -9,5 +9,6 @@ router.use('/users', require('./users'))
 router.use('/referrals', require('./referrals'))
 router.use('/licenses', require('./licenses'))
 router.use('/institutions', require('./institutions'))
+router.use('/temp_users', require('./temp_users'))
 
 module.exports = router

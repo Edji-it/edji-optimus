@@ -52,7 +52,7 @@ router.post("/", authRequired, function(req, res) {
 
     var model = Project(project)
 
-    model.save(false, function(error, result) {
+    model.edjiSave(false, function(error, result) {
         if (error) {
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
@@ -173,7 +173,7 @@ router.get("/:id", function(req, res) {
 
             // we save it afterward so that we don't obstruct returning the data
             //  if this fails, we won't have their username in the array, but oh well
-            project.save(false, (err) => {
+            project.edjiSave(false, (err) => {
                 if (err) {
                     console.error(err)
                 }
@@ -195,18 +195,17 @@ router.delete("/:id", authRequired, function(req, res) {
         return
     }
 
-    Project.remove({_id:req.params.id, teacher_id: user._id}, (error, obj) => {
-        if (error) {
-            console.error(error)
-            res.status(500).send()
-            return
-        } else if (obj.result.n === 0) {
-            res.status(404).send()
-            return
+    Project.deleteOne({_id:req.params.id, teacher_id: user._id})
+    .then((obj) => {
+        if (obj.n < 1) {
+            return res.status(404).send()
         } else {
-            res.status(204).send()
-            return
+            return res.status(204).send()
         }
+    })
+    .catch((err) => {
+        console.error(err)
+        return res.status(500).send()
     })
 })
 
@@ -216,16 +215,14 @@ router.put("/:id", authRequired, function(req, res) {
     let project = req.body.project
 
     if (!project) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
-    let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags'])
+    let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags', 'report_evals'])
 
     Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
         new: true, runValidators: true, setDefaultsOnInsert: true
@@ -233,15 +230,14 @@ router.put("/:id", authRequired, function(req, res) {
     .then((project) => {
         // send 404 if the project doesn't exist
         if (!project) {
-            res.status(404).send()
-            return
+            return res.status(404).send()
         } else {
-            res.status(200).send({ project: project })
+            res.status(200).send({ updated: update })
         }
     })
     .catch((err) => {
         console.error(err)
-        res.status(500).send()
+        return res.status(500).send()
     })
 })
 
@@ -295,8 +291,7 @@ router.get("/reading/:reading_id", authRequired, function(req, res){
     var user = req.user
 
     if (!mongoose.Types.ObjectId.isValid(reading_id)) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     Project.find(
@@ -357,7 +352,7 @@ router.post("/:id/comments", authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(false, function(error, project){
+            project.edjiSave(false, function(error, project){
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
@@ -429,44 +424,43 @@ router.put("/:project_id/comments/:comment_id", authRequired, function(req, res)
     }
 
     // the project's id must match, and it must have a comment w/ correct id and user_id
-    Q(  Project.findOne(query)
-        .exec())
-        .then((project) => {
-            if (!project) {
-                return res.status(404).send({ error: "project not found" })
-            }
+    Project.findOne(query)
+    .then((project) => {
+        if (!project) {
+            return res.status(404).send({ error: "project not found" })
+        }
 
-            let comment = project.comments.find((comm) => {
-                return comm._id == comment_id
-            })
-
-            // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
-            if (comment.url && comment_update.url && comment_update.url != comment.url) {
-                deleteFromS3(comment.url)
-                    .then((body) => {
-                        // do nothing here because we successfully deleted the object
-                    })
-                    .catch((err) => {
-                        console.error(err)
-                    })
-            }
-
-            // update the fields from the comment_update onto the comment
-            Object.assign(comment, comment_update)
-
-            // save the entire project (DON'T JUST SAVE THE COMMENT)
-            project.save(false, (err, doc) => {
-                if (err) { console.error(err) }
-                else { /** do nothing */ }
-            })
-
-            return res.status(200).send({ comment: comment })
-
+        let comment = project.comments.find((comm) => {
+            return comm._id == comment_id
         })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send()
+
+        // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
+        if (comment.url && comment_update.url && comment_update.url != comment.url) {
+            deleteFromS3(comment.url)
+                .then((body) => {
+                    // do nothing here because we successfully deleted the object
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        }
+
+        // update the fields from the comment_update onto the comment
+        Object.assign(comment, comment_update)
+
+        // save the entire project (DON'T JUST SAVE THE COMMENT)
+        project.edjiSave(false, (err, doc) => {
+            if (err) { console.error(err) }
+            else { /** do nothing */ }
         })
+
+        return res.status(200).send({ comment: comment })
+
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).send()
+    })
 })
 
 router.delete("/:project_id/comments/:comment_id", authRequired, function(req, res){
@@ -573,7 +567,7 @@ router.post("/:id/answers", authRequired, function(req, res) {
                 successStatus = 201
             }
 
-            project.save(false, (error, project) => {
+            project.edjiSave(false, (error, project) => {
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
@@ -652,7 +646,7 @@ router.put("/:project_id/answers/:answer_id", authRequired, function(req, res) {
             Object.assign(answer, answer_update)
 
             // save the entire project (DON'T JUST SAVE THE ANSWER)
-            project.save(false, (err, doc) => {
+            project.edjiSave(false, (err, doc) => {
                 if (err) { console.error(err) }
                 else { /** do nothing b/c it worked */ }
             })

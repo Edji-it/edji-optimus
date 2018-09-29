@@ -1,6 +1,3 @@
-/**
- * Created by bvfergus on 3/5/16.
- */
 var db = require("./../db")
 
 //all models are created through this function
@@ -18,7 +15,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         }
     )
 
-    Schema.pre('save', function(next) {
+    Schema.pre('edjiSave', function(next) {
         var now = new Date()
         this.updatedAt = now
         next()
@@ -27,11 +24,10 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
     if (typeof schemaDecorator === "function"){
         schemaDecorator(Schema)
     }
-    var Model = db.model(modelName, Schema)
 
-    Model.prototype.forceSave = Model.prototype.save
+    Schema.methods.forceSave = Schema.methods.save
 
-    Model.prototype.save = function(options, callback) {
+    Schema.methods.edjiSave = function(options, callback) {
         if (!options) {
             options = {
                 forceSave: this._id ? false : true
@@ -39,7 +35,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         }
 
         if (options.forceSave) {
-            this.forceSave(callback)
+            this.save(callback)
         } else {
             let queryOptions = Object.assign({
                 query: { _id: this._id },
@@ -50,11 +46,15 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
                     upsert: true,
                     setDefaultsOnInsert: true
                 }
-            }, options)
+            },
+                options
+            )
             
-            return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions, callback)
+            return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions)
         }
     }
+
+    var Model = db.model(modelName, Schema)
 
     return Model
 }

@@ -2,12 +2,12 @@
 import * as rp from 'request-promise'
 
 export class EmailService {
-  
-  public static sendEmail(email_template: string, name: string, email: string, from: string, vars_object: any): rp.RequestPromise {
+
+  public static sendEmail({ email_template, name, email, from, vars_object }: EmailOptions): rp.RequestPromise {
     if (!from) {
       from = "brennen"
     }
-  
+
     const options: rp.Options = {
       method: 'POST',
       uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
@@ -25,8 +25,16 @@ export class EmailService {
       },
       json: true
     }
-  
+
     // make the request to send the email with the license invitation
     return rp(options)
   }
+}
+
+interface EmailOptions {
+  email_template: string
+  name: string
+  email: string
+  from: string
+  vars_object: { [key: string]: string }
 }

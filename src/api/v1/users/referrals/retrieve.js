@@ -11,7 +11,7 @@ module.exports = function(req, res) {
     .then((referral) => {
       // update the user with the new referral's code
       user.referral_code = referral.code
-      user.save(false, (err, result) => {
+      user.edjiSave(false, (err, result) => {
         if (err) {
           console.error(err)
           return res.status(500).send({ error: 'error while saving user with referral_code' })

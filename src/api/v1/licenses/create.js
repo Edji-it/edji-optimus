@@ -5,6 +5,7 @@ var mongoose = require("mongoose")
 // project imports
 const License = require('./../../../models/License')
 const Instituion = require('./../../../models/Institution')
+const User = require('./../../../models/User')
 
 module.exports = function(req, res) {
   let new_license = req.body.license
@@ -25,29 +26,37 @@ module.exports = function(req, res) {
     return res.status(400).send({ error: error.errors })
   }
 
-  license.save(false, function(err, license) {
-    if (err) {
-      return res.status(500).send({ error: err })
-    }
+  license.edjiSave(false)
+  .then((license) => {
     // add the newly created license _id to the institution
-    Q(
-      Instituion.findByIdAndUpdate(
-        license.owning_institution,
+    Instituion.findByIdAndUpdate(
+      license.owning_institution,
+      {
+        $push: { 
+          license_ids: license._id
+        }
+      }
+    )
+    .then((institution) => {
+      return User.findByIdAndUpdate(
+        license.roles[0].user_id,
         {
-          $push: { 
-            license_ids: license._id
+          $push: {
+            license_ids: {
+              license_id: license._id,
+              joined: new Date()
+            },
+            institution_ids: license.owning_institution
           }
         }
       )
-      .exec()
-    )
-    .then((institution) => {
+    })
+    .then((user) => {
       // send the new license object back after updating the institution to include the new license_id
       return res.status(200).send({ license: license })
     })
-    .catch((error) => {
-      console.error(error)
-      res.status(500).send()
-    })
+  })
+  .catch((err) => {
+    return res.status(500).send({ error: err })
   })
 }

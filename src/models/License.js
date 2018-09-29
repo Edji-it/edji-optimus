@@ -23,7 +23,7 @@ let licenseTypeEnum = {
 
 // available roles for the user
 let licenseRoleEnum = {
-    values: ['administrator', 'owner'],
+    values: ['administrator', 'owner', 'teacher'],
     message: 'intstitution role invalid'
 }
 
@@ -33,7 +33,9 @@ var Model =  ModelCreator("License",{
     max_users: { type: Number, required: true, default: 0 }, // number users are intended to have access through this license
     pending_invitations: [{
       email: { type: String, set:toLower, required:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }}, // string, user's email that was invited
-      expiration: Date // date that this invitation will be void
+      name: { type: String, required: true },
+      expiration: Date, // date that this invitation will be void
+      role: { type: String, enum: licenseRoleEnum } // the role for that particular license
     }],
     roles: [{
         user_id: { type: mongoose.Schema.ObjectId, required: true }, 

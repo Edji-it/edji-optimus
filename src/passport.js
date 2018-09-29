@@ -65,7 +65,7 @@ passport.use('google', new GoogleStrategy({
             }
             else if (!dbUser) {
                 // here we know it's a new user, and we need to create them!!
-                user.save(
+                user.edjiSave(
                     { forceSave: true },
                     (err, newUser) => {
                         if (err) {

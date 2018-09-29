@@ -16,7 +16,7 @@ router.post("/", function(req, res) {
 
     //create and save temp user
     var model = TempUser(userData)
-    model.save(false, (error, result) => {
+    model.edjiSave(false, (error, result) => {
         if (error) {
             if (error.name === "ValidationError") {
                 var errors = {}
