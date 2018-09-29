@@ -10,10 +10,9 @@ const emailService = require('./../../../services/email').EmailService
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function (req, res) {
   let user = req.user
-  let email = req.body.email
-  let name = req.body.name
-  let role = req.body.role
   let subject = 'Welcome to Edji Academy!'
+
+  let { email, name, role } = req.body
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
@@ -49,6 +48,9 @@ module.exports = function (req, res) {
   let licenseSend
   License.findById(license_id).exec()
     .then((license) => {
+      if (!license) {
+        return res.status(404).send({ error: 'no license exists for that license_id' })
+      }
       // see if we already have an invitation for this user
       let invititationPos = license.pending_invitations.map(
         (invite) => {
