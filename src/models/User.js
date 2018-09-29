@@ -216,37 +216,19 @@ let model = ModelCreator("User", {
     }
 
     /**
-     * Simple function to validate a User property as a valid one time use token storage
-     * @param {string} propertyName name of property on User object which the user would like to assign as a one time use token
-     */
-    schema.methods.isValidTokenProperty = function (propertyName) {
-        // array of all the properties which should be treated as one time use jwt's
-        let validProperties = [
-            'change_email_token'
-        ]
-        let isValidProperty = validProperties.indexOf(propertyName) > -1
-
-        if (!isValidProperty) {
-            console.error('property: ' + propertyName + ' is not allowed to be updated by setToken')
-        }
-
-        return isValidProperty
-    }
-
-    /**
      * Generates and assigns a one time use token based on provided property
      * @param {string} propertyName the property to assign as a one time use token
      * @param {number} expiration the number of hours that the expiration should last
      */
     schema.methods.setOneTimeToken = function (propertyName, expiration, callback) {
-        if (!this.isValidTokenProperty(propertyName)) {
-            return callback('no valid property with that name')// leave function if the property should not be updated this way
+        if (!helpers.isValidTokenProperty(propertyName)) {
+            return callback('no valid property with that name') // leave function if the property should not be updated this way
         }
 
         helpers.createOneTimeTokenObject(expiration, (tokenObj, unhashedToken) => {
             this[propertyName] = tokenObj
             console.log('saving user...', tokenObj)
-            this.save(false, (err, result) => {
+            this.edjiSave(false, (err, result) => {
                 console.log('user saved')
                 err && console.error(err)
                 return callback(null, unhashedToken)
@@ -260,7 +242,7 @@ let model = ModelCreator("User", {
      * @returns {boolean} indicating whether the token was found to be valid or not
      */
     schema.methods.useOneTimeToken = function (propertyName, referToken) {
-        if (!this.isValidTokenProperty(propertyName) || !this[propertyName]) {
+        if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
             return false // return false here to indicate the token was not valid or used
         }
 
@@ -268,7 +250,7 @@ let model = ModelCreator("User", {
 
         if (isValidToken) {
             // get rid of the token so we're not storing old tokens on purpose
-            this.save({
+            this.edjiSave({
                 update: {
                     $unset: {
                         [propertyName]: 1
