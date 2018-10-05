@@ -1,26 +1,85 @@
 // library imports
 const Q = require('q')
+let mongoose = require( "mongoose")
 
 // project imports
 const Project = require('./../../../models/Project')
 
 module.exports = function(req, res) {
   let user = req.user
+  const reading_id = req.params.reading_id
+  let populate = req.query.pop || []
+  if (typeof populate == 'string') { // otherwise it's going to be an array of strings, which is what we want
+    populate = [populate]
+  }
+  let findParams = {}
 
-  let project = "success"
-
-  // Q(
-    
-  // )
-  // .then((project) => {
-  //   // if project is null (meaning it did not exist in the collection)
-  //   if (!project || project.length < 1) {
-  //     return res.status(404).send()
-  //   }
+  //creates flexibility to use with either project code or with project id
+  if (mongoose.Types.ObjectId.isValid(reading_id)) {
+      findParams._id = mongoose.Types.ObjectId(reading_id)
+  } else {
+      findParams.code = reading_id.toLowerCase()
+  }
+  
+  Q(
+    Project.aggregate([
+      {
+        $match: findParams
+      }, {
+        $lookup: {
+          from: "readings",
+          localField: "reading_id",
+          foreignField: "_id",
+          as: "reading"
+        }
+      }, {
+        $addFields: {
+          "reading_id": {
+            _id: {$arrayElemAt: ["$reading._id", 0]},
+            words: {$arrayElemAt: ["$reading.words", 0]},
+            title: {$arrayElemAt: ["$reading.title", 0]}, 
+            owner_id: {$arrayElemAt: ["$reading.owner_id", 0]}, 
+            teacher_ids: {$arrayElemAt: ["$reading.teacher_ids", 0]}, 
+            public: {$arrayElemAt: ["$reading.public", 0]}, 
+            promoter_ids: {$arrayElemAt: ["$reading.promoter_ids", 0]}, 
+            source: {$arrayElemAt: ["$reading.source", 0]}, 
+            cover_img: {$arrayElemAt: ["$reading.cover_img", 0]}, 
+            tags: {$arrayElemAt: ["$reading.tags", 0]}, 
+            draft: {$arrayElemAt: ["$reading.draft", 0]}, 
+            version_id: {$arrayElemAt: ["$reading.version_id", 0]}, 
+            questions: {$arrayElemAt: ["$reading.questions", 0]}, 
+            parent_id: {$arrayElemAt: ["$reading.parent_id", 0]}
+          }
+        }
+      }, {
+        $lookup: {
+          from: "users",
+          localField: "teacher_id",
+          foreignField: "_id",
+          as: "teacherRef"
+        }
+      }, {
+        $addFields: {
+          "teacher": {
+            _id: {$arrayElemAt: ["$teacherRef._id", 0]},
+            fullname: {$arrayElemAt: ["$teacherRef.fullname", 0]},
+            username: {$arrayElemAt: ["$teacherRef.username", 0]}, 
+            refresh_required: {$arrayElemAt: ["$teacherRef.refresh_required", 0]}, 
+            message_check_required: {$arrayElemAt: ["$teacherRef.message_check_required", 0]}
+          }
+        }
+      }
+    ]).exec()
+  )
+  .then((project) => {
+    // if project is null (meaning it did not exist in the collection)
+    if (!project || project.length < 1) {
+      return res.status(404).send()
+    }
     return res.status(200).send({ project: project })
-  // })
-  // .catch((error)=> {
-  //   console.error(error)
-  //   return res.status(500).send()
-  // })
+  })
+  .catch((error)=> {
+    console.error(error)
+    return res.status(500).send()
+  })
 }
