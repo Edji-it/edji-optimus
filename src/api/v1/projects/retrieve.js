@@ -6,7 +6,6 @@ let mongoose = require( "mongoose")
 const Project = require('./../../../models/Project')
 
 module.exports = function(req, res) {
-  let user = req.user
   const reading_id = req.params.reading_id
   let populate = req.query.pop || []
   if (typeof populate == 'string') { // otherwise it's going to be an array of strings, which is what we want
@@ -76,6 +75,12 @@ module.exports = function(req, res) {
     if (!project || project.length < 1) {
       return res.status(404).send()
     }
+    // aggregate returns as an array, we need this to just be the set of properties
+    project = project[0]
+    // clear out the properties that we don't need
+    delete project.teacherRef
+    delete project.reading
+    // send back the project
     return res.status(200).send({ project: project })
   })
   .catch((error)=> {
