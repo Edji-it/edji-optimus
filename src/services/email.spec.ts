@@ -10,7 +10,7 @@ describe('EmailService', () => {
   const emailParams: EmailOptions = {
     email_template: 'fake-template',
     name: 'corbin',
-    from: 'fake',
+    from: 'fake@edji.it',
     email: 'something@gmail.com',
     vars_object: {
 
@@ -22,6 +22,27 @@ describe('EmailService', () => {
   })
   afterEach(() => {
     rpStub.restore()
+  })
+
+  it('should call sendEmail with the passed parameters', (done) => {
+    let emailStub: sinon.SinonStub = sinon.stub(EmailService, "sendEmail").resolves()
+
+    EmailService.sendEmail(emailParams)
+      .then((res) => {
+        emailStub.calledOnce.should.be.true
+        let params: EmailOptions = emailStub.firstCall.args[0]
+        params.email_template.should.be.equal(emailParams.email_template)
+        params.name.should.be.equal(emailParams.name)
+        params.from.should.be.equal(emailParams.from)
+        params.email.should.be.equal(emailParams.email)
+
+        done()
+        emailStub.restore()
+      })
+      .catch((err) => {
+        done(err)
+        emailStub.restore()
+      })
   })
 
   it('should call request-promise with proper body', (done) => {
@@ -39,7 +60,7 @@ describe('EmailService', () => {
         options.uri.toString().indexOf(['api', 'v1', 'emails', 'sendmail', emailParams.email_template].join('/')).should.be.greaterThan(-1)
         options.should.have.property('body')
         options.body.should.have.property('from')
-        options.body.from.should.be.equal(emailParams.from + '@edji.it')
+        options.body.from.should.be.equal(emailParams.from)
         options.body.should.have.property('subject')
         options.body.should.have.property('recipients')
         let recipients = options.body.recipients

@@ -1,5 +1,5 @@
 // library imports
-const emailService = require('../../../services/email')
+const emailService = require('../../../services/email').EmailService
 
 let createQuery = function ({ username, email }) {
   if (username) {

@@ -12,7 +12,7 @@ export class EmailService {
       uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
       headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
       body: {
-        "from": from + "@edji.it",
+        "from": from,
         "subject": "Welcome to Edji Academy!",
         "recipients": [
           {

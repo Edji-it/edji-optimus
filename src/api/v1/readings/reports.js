@@ -2,7 +2,7 @@
 const joi = require('joi')
 
 // project imports
-const emailService = require('./../../../services/email')
+const emailService = require('./../../../services/email').EmailService
 const helpers = require('./_reports')
 
 module.exports = function (req, res) {
