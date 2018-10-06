@@ -8,8 +8,7 @@ export class EmailService {
       from = "brennen"
     }
 
-    const options: rp.Options = {
-      method: 'POST',
+    const options: rp.OptionsWithUri = {
       uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
       headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
       body: {
@@ -27,11 +26,11 @@ export class EmailService {
     }
 
     // make the request to send the email with the license invitation
-    return rp(options)
+    return rp.post(options)
   }
 }
 
-interface EmailOptions {
+export interface EmailOptions {
   email_template: string
   name: string
   email: string

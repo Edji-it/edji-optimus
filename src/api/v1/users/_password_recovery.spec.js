@@ -5,7 +5,7 @@ const sinon = require('sinon')
 
 // project imports
 const helpers = require('./_password_recovery')
-const emailService = require('../../../services/email')
+const emailService = require('../../../services/email').EmailService
 
 // constants
 process.env.CLIENT_URL = 'localhost:3354'
