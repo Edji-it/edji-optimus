@@ -206,11 +206,10 @@ describe('_User', () => {
       let unhashedToken = '1234567890fjklso'
       let randomTokenStub = sinon.stub(randomstring, 'generate').returns(unhashedToken)
 
-      _User.createOneTimeTokenObject(false, (tokenStr, tokenObj) => {
-        let valid = _User.validateToken(tokenStr, tokenObj)
-        valid.should.be.true
-        randomTokenStub.restore()
-      })
+      let { tokenStr, tokenObj } = _User.createOneTimeTokenObject(false)
+      let valid = _User.validateToken(tokenStr, tokenObj)
+      valid.should.be.true
+      randomTokenStub.restore()
     })
 
     it('should create and validate a one time use token with custom expiration', () => {
@@ -218,11 +217,10 @@ describe('_User', () => {
       let unhashedToken = '1234567890fjklso'
       let randomTokenStub = sinon.stub(randomstring, 'generate').returns(unhashedToken)
 
-      _User.createOneTimeTokenObject(1, (tokenStr, tokenObj) => {
-        let valid = _User.validateToken(tokenStr, tokenObj)
-        valid.should.be.true
-        randomTokenStub.restore()
-      })
+      let { tokenStr, tokenObj } = _User.createOneTimeTokenObject(1)
+      let valid = _User.validateToken(tokenStr, tokenObj)
+      valid.should.be.true
+      randomTokenStub.restore()
     })
   })
 })

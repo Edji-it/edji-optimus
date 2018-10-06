@@ -236,27 +236,26 @@ let model = ModelCreator("User", {
      * @param {string} propertyName property name on user object which contains the token to be used
      * @returns {boolean} indicating whether the token was found to be valid or not
      */
-    schema.methods.useOneTimeToken = function (propertyName, referToken) {
+    schema.methods.useOneTimeToken = async function (propertyName, referToken) {
         if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
-            return false // return false here to indicate the token was not valid or used
+            return false
         }
 
         let isValidToken = helpers.validateToken(this[propertyName].token, referToken)
 
-        if (isValidToken) {
-            // get rid of the token so we're not storing old tokens on purpose
-            this.edjiSave({
-                update: {
-                    $unset: {
-                        [propertyName]: 1
-                    }
-                }
-            }, (err, result) => {
-                return isValidToken
-            })
-        } else {
+        if (!isValidToken) {
             return false
         }
+
+        // get rid of the token so we're not storing old tokens on purpose
+        await this.edjiSave({
+            update: {
+                $unset: {
+                    [propertyName]: 1
+                }
+            }
+        })
+        return isValidToken
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
