@@ -66,7 +66,7 @@ const messageCheckRequired = function (lastMessageCheckTime) {
  * @param {number} validFor time in hours that the token should be valid for 
  * @param {function} callback (tokenObject, tokenString) called with object to be assigned to the User object, and the pre-hash token value to be used as link
  */
-const createOneTimeTokenObject = function (validFor, callback) {
+const createOneTimeTokenObject = function (validFor) {
   if (!validFor) { validFor = 24 } // time in hours
 
   let unhashedToken = randomstring.generate({
@@ -80,7 +80,7 @@ const createOneTimeTokenObject = function (validFor, callback) {
     expiration: Date.now() + timeInMs
   }
 
-  return callback(unhashedToken, tokenObj)
+  return { unhashedToken, tokenObj }
 }
 
 /**

@@ -220,20 +220,15 @@ let model = ModelCreator("User", {
      * @param {string} propertyName the property to assign as a one time use token
      * @param {number} expiration the number of hours that the expiration should last
      */
-    schema.methods.setOneTimeToken = function (propertyName, expiration, callback) {
+    schema.methods.setOneTimeToken = async function (propertyName, expiration) {
         if (!helpers.isValidTokenProperty(propertyName)) {
-            return callback('no valid property with that name') // leave function if the property should not be updated this way
+            throw new Error('no valid property with that name') // leave function if the property should not be updated this way
         }
 
-        helpers.createOneTimeTokenObject(expiration, (tokenObj, unhashedToken) => {
-            this[propertyName] = tokenObj
-            console.log('saving user...', tokenObj)
-            this.edjiSave(false, (err, result) => {
-                console.log('user saved')
-                err && console.error(err)
-                return callback(null, unhashedToken)
-            })
-        })
+        const { unhashedToken, tokenObj } = helpers.createOneTimeTokenObject(expiration)
+        this[propertyName] = tokenObj
+        await this.edjiSave(false)
+        return unhashedToken
     }
 
     /**
