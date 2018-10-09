@@ -6,7 +6,7 @@ let mongoose = require( "mongoose")
 const Project = require('./../../../models/Project')
 
 module.exports = function(req, res) {
-  const reading_id = req.params.reading_id
+  const project_id = req.params.project_id
   let populate = req.query.pop || []
   if (typeof populate == 'string') { // otherwise it's going to be an array of strings, which is what we want
     populate = [populate]
@@ -14,10 +14,10 @@ module.exports = function(req, res) {
   let findParams = {}
 
   //creates flexibility to use with either project code or with project id
-  if (mongoose.Types.ObjectId.isValid(reading_id)) {
-      findParams._id = mongoose.Types.ObjectId(reading_id)
+  if (mongoose.Types.ObjectId.isValid(project_id)) {
+      findParams._id = mongoose.Types.ObjectId(project_id)
   } else {
-      findParams.code = reading_id.toLowerCase()
+      findParams.code = project_id.toLowerCase()
   }
   
   Q(
@@ -27,7 +27,7 @@ module.exports = function(req, res) {
       }, {
         $lookup: {
           from: "readings",
-          localField: "reading_id",
+          localField: "project_id",
           foreignField: "_id",
           as: "reading"
         }
