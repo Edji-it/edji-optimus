@@ -9,6 +9,11 @@ module.exports = function(req, res) {
   const students_ids = req.query.students_ids.split(",")
   const temp_ids = req.query.temp_ids.split(",")
 
+  // if we do not have any students or temp _ids in the request, we can go ahead and skip this
+  if (students_ids.length < 1 && temp_ids.length < 1) {
+    return res.status(400).send({ error: 'no _ids to search for' })
+  }
+
   Q(
     User.find({
       _id: {

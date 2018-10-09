@@ -15,9 +15,9 @@ module.exports = function(req, res) {
 
   //creates flexibility to use with either project code or with project id
   if (mongoose.Types.ObjectId.isValid(project_id)) {
-      findParams._id = mongoose.Types.ObjectId(project_id)
+    findParams._id = mongoose.Types.ObjectId(project_id)
   } else {
-      findParams.code = project_id.toLowerCase()
+    findParams.code = project_id.toLowerCase()
   }
   
   Q(
@@ -27,7 +27,7 @@ module.exports = function(req, res) {
       }, {
         $lookup: {
           from: "readings",
-          localField: "project_id",
+          localField: "reading_id",
           foreignField: "_id",
           as: "reading"
         }
