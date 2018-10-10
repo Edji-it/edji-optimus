@@ -5,21 +5,25 @@ chai.use(require("chai-http"))
 
 // project imports
 const TEST = require('./../../../../_test')
-const PROJECT = TEST.PROJECT_REF.TEST_PROJECT.project_id
-const BAD_PROJECT = TEST.PROJECT_REF.BAD_PROJECT.project_id
+const PROJECT = TEST.PROJECT_REF.TEST_PROJECT.project_id + '?pop=reading_id'
+const BAD_PROJECT = TEST.PROJECT_REF.BAD_PROJECT.project_id + '?pop=reading_id'
 
 // local variables
 const ENDPOINT_URL = '/api/v1/projects/'
 
 describe('GET /projects/:project_id', () => {
-  it('should get a 401 without auth', (done) => {
+  it('should not get a 401 without auth', (done) => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + PROJECT)
       .end((err, res) => {
-        should.exist(err)
+        if (err) { return done(err) }
+        res.should.have.status(200)
 
-        res.should.not.have.status(200)
-        res.should.have.status(401)
+        // check to make sure we get an object back that is the project
+        res.body.should.have.property("project")
+        const project = res.body.project
+        project.should.be.instanceOf(Object)
+
         done()
       })
   })
@@ -99,7 +103,6 @@ describe('GET /projects/:project_id', () => {
 
         // properties the project object should not have
         project.should.not.have.property("teacherRef")
-        project.should.not.have.property("reading")
 
         done()
       })
