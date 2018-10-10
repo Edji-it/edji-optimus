@@ -16,7 +16,7 @@ describe('GET /projects/:project_id', () => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + PROJECT)
       .end((err, res) => {
-        if (err) { return done(err) }
+        err && done(err)
         res.should.have.status(200)
 
         // check to make sure we get an object back that is the project
@@ -33,7 +33,7 @@ describe('GET /projects/:project_id', () => {
       .get(ENDPOINT_URL + PROJECT)
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        if (err) { return done(err) }
+        err && done(err)
         res.should.have.status(200)
 
         // check to make sure we get an object back that is the project
