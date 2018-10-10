@@ -18,6 +18,7 @@ module.exports = function(req, res) {
 
   // since we want to be flexible, the call can take both students_ids and temp_ids, or just one.. but we have to set this up to run just one if we're doing that
   if (students_ids[0]!=='') {
+    // case where we'll be searching by students_ids (and possibly temp_ids.. if not, we'll handle that later in the call)
     queryObj = User.find({
       _id: {
         $in: students_ids
@@ -28,6 +29,7 @@ module.exports = function(req, res) {
       username: 1
     }).lean().exec()
   } else {
+    // case where we'll not be searching by students_ids (temp_ids only)
     skipTempCall = true
     queryObj = TempUser.find({
       _id: {
@@ -44,8 +46,10 @@ module.exports = function(req, res) {
   )
   .then((projectUsers) => {
     if (!skipTempCall) {
+      // port the user properties to the next stage
       users = projectUsers
       if (temp_ids[0]!=='') {
+        // if we're searching for temp_ids, then we'll need to handle the return to the next stage here
         return TempUser.find({
           _id: {
             $in: temp_ids
@@ -56,6 +60,7 @@ module.exports = function(req, res) {
         }).lean()
       }
     } else {
+      // if we're not searching by students_ids, nullify the users so we don't mix up temps and students
       users = null
       return projectUsers // these are actually tempUsers that we'll move to the next then
     }
