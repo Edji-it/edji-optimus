@@ -7,6 +7,7 @@ const TempUser = require('../../../models/TempUser')
 const helpers = require('./_public-details')
 
 module.exports = function(req, res) {
+  // request query params for students_ids and temp_ids (either can be empty for this to work)
   const student_ids_req = req.query.students_ids
   const temp_ids_req = req.query.temp_ids
 
@@ -14,10 +15,12 @@ module.exports = function(req, res) {
   if (helpers.validateRequest(student_ids_req, temp_ids_req)) {
     return res.status(400).send({ error: 'no _ids to search for' })
   }
+  // convert the request query params in to array of ObjectIds
   const students_ids = helpers.stringToArray(student_ids_req)
   const temp_ids = helpers.stringToArray(temp_ids_req)
 
   Q(
+    // determine if we're starting with the User or TempUser collections to search by (dictated by request query params)
     helpers.initialQueryObject(student_ids_req, students_ids, temp_ids)
   )
   .then((projectUsers) => {
@@ -42,40 +45,15 @@ module.exports = function(req, res) {
     }
   })
   .then((tempUsers) => {
-    // declare array length variables
-    let tempCount = 0
-    let userCount = 0
-
-    // if we get users back, set the array length
     if (users) {
-      userCount = users.length
+      users = helpers.addUserType(users, "registered")
     }
-
-    // if we get temp users back, set the array length
     if (tempUsers) {
-      tempCount = tempUsers.length
-    }
-
-    // add a "user" label so we know what type of user this is
-    for (var i=0; i<userCount; i++) {
-      users[i].userType = "registered"
-    }
-
-    // add a "temp" label so we know what type of user this is
-    for (var i=0; i<tempCount; i++) {
-      tempUsers[i].userType = "temp"
+      tempUsers = helpers.addUserType(tempUsers, "temp")
     }
 
     // combine the user and temp info
-    if (users && tempUsers) {
-      totalUsers = users.concat(tempUsers)
-    } else if (users && !tempUsers) {
-      totalUsers = users
-    } else if (!users && tempUsers) {
-      totalUsers = tempUsers
-    } else {
-      totalUsers = []
-    }
+    totalUsers = helpers.combineArrays(users, tempUsers)
     
     // send back the project
     return res.status(200).send({ users: totalUsers })

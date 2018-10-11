@@ -43,6 +43,18 @@ let initialQueryObject = function (student_ids_req, students_ids, temp_ids) {
   return queryObj
 }
 
+let combineArrays = function (users, tempUsers) {
+  if (users && tempUsers) {
+    return users.concat(tempUsers)
+  } else if (users && !tempUsers) {
+    return users
+  } else if (!users && tempUsers) {
+    return tempUsers
+  } else {
+    return []
+  }
+}
+
 let _idNull = function (_ids) {
   if (_ids==='') {
     return true
@@ -50,9 +62,21 @@ let _idNull = function (_ids) {
   return false
 }
 
+let addUserType = (array, userType) => {
+  let len = array.length
+  // add the userType to each document
+  for (var i=0; i<len; i++) {
+    array[i].userType = userType
+  }
+  // send the updated array back
+  return array
+}
+
 module.exports = {
   validateRequest,
   stringToArray,
   initialQueryObject,
-  _idNull
+  _idNull,
+  combineArrays,
+  addUserType
 }
