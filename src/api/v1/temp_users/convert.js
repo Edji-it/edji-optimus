@@ -9,7 +9,7 @@ module.exports = function (req, res) {
   let user = req.user
   let temp_id = req.params.temp_id
 
-  if (!mongoose.Types.ObjectId.isValid(temp_id)) {
+  if (!mongoose.validateEdjiId(temp_id)) {
     return res.status(400).send({ error: 'invalid mongo id' })
   }
 

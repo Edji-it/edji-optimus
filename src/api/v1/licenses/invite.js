@@ -23,7 +23,7 @@ module.exports = function (req, res) {
   }
 
   // we cannot add a license id to the user's object if it is not passed in
-  if (!mongoose.Types.ObjectId.isValid(license_id)) {
+  if (!mongoose.validateEdjiId(license_id)) {
     return res.status(403).send()
   }
 
