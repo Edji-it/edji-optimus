@@ -31,7 +31,7 @@ module.exports = function (req, res) {
     name: req.body.person_receiving,
     email: req.body.email,
     vars_object: varsObject,
-    from: "academy@edji.it"
+    from: "Edji <academy@edji.it>"
   }).then((success) => {
     return res.status(200).send({ success: success })
   })

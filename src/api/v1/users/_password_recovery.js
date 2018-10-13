@@ -17,7 +17,7 @@ let sendRecoveryEmail = function (user) {
     subject: 'Password Recovery - Edji',
     name: user.fullname,
     email: user.email,
-    from: 'recovery@edji.it',
+    from: 'Account Recovery <recovery@edji.it>',
     vars_object: {
       name: user.fullname,
       reset_link: this.createResetLink(user.resetPasswordToken)

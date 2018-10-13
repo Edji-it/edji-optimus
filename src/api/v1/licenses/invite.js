@@ -114,7 +114,7 @@ module.exports = function (req, res) {
         name,
         email,
         vars_object: varsObject,
-        from: "academy@edji.it"
+        from: "Edji <academy@edji.it>"
       })
     })
     .then((success) => {
