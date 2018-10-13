@@ -2,9 +2,9 @@
 const User = require('../../../models/User')
 const TempUser = require('../../../models/TempUser')
 
-let validateRequest = function (student_ids_req, temp_ids_req) {
+let validateRequest = function (students_ids, temp_ids) {
   // if we do not have any students or temp _ids in the request, we can go ahead and skip this
-  if (_idNull(student_ids_req) && _idNull(temp_ids_req)) {
+  if (_idNull(students_ids) && _idNull(temp_ids)) {
     return true
   }
   return false
@@ -15,10 +15,10 @@ let stringToArray = function (string) {
   return arr
 }
 
-let initialQueryObject = function (student_ids_req, students_ids, temp_ids) {
+let initialQueryObject = function (students_ids, temp_ids) {
   let queryObj
   // since we want to be flexible, the call can take both students_ids and temp_ids, or just one.. but we have to set this up to run just one if we're doing that
-  if (!_idNull(student_ids_req)) {
+  if (!_idNull(students_ids)) {
     // case where we'll be searching by students_ids (and possibly temp_ids.. if not, we'll handle that later in the call)
     queryObj = User.find({
       _id: {
@@ -56,7 +56,7 @@ let combineArrays = function (users, tempUsers) {
 }
 
 let _idNull = function (_ids) {
-  if (_ids==='') {
+  if (_ids && _ids[0]==='') {
     return true
   }
   return false
