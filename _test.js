@@ -35,10 +35,12 @@ module.exports = {
   },
   PROJECT_REF: {
     TEST_PROJECT: {
-      project_id: "5b79c7562ea6d825a0002c28"
+      project_id: "5b79c7562ea6d825a0002c28",
+      code: "readingrecap"
     },
     BAD_PROJECT: {
-      project_id: "59bd9bda8e0867dcf65ed46"
+      project_id: "59bd9bda8e0867dcf65ed46",
+      code: "notarealcodeidjrugnrie"
     }
   }
 }
