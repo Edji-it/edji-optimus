@@ -129,7 +129,6 @@ describe('GET /projects/:project_id', () => {
       .get(ENDPOINT_URL + PROJECT_CODE)
       .set("Authorization", TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        console.log(ENDPOINT_URL + PROJECT_CODE)
         err && done(err)
         res.should.have.status(200)
 

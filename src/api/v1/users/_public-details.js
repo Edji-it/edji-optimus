@@ -5,14 +5,9 @@ const TempUser = require('../../../models/TempUser')
 let validateRequest = function (students_ids, temp_ids) {
   // if we do not have any students or temp _ids in the request, we can go ahead and skip this
   if (_idNull(students_ids) && _idNull(temp_ids)) {
-    return true
+    return false
   }
-  return false
-}
-
-let stringToArray = function (string) {
-  let arr = string.split(",")
-  return arr
+  return true
 }
 
 let initialQueryObject = function (students_ids, temp_ids) {
@@ -74,7 +69,6 @@ let addUserType = (array, userType) => {
 
 module.exports = {
   validateRequest,
-  stringToArray,
   initialQueryObject,
   _idNull,
   combineArrays,

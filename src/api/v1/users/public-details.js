@@ -12,7 +12,7 @@ module.exports = function(req, res) {
   const temp_ids = req.query.temp_ids
 
   // if we do not have any students or temp _ids in the request, we can go ahead and skip this
-  if (helpers.validateRequest(students_ids, temp_ids)) {
+  if (!helpers.validateRequest(students_ids, temp_ids)) {
     return res.status(400).send({ error: 'no _ids to search for' })
   }
 
