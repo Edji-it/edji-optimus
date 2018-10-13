@@ -103,6 +103,7 @@ describe('GET /projects/:project_id', () => {
 
         // properties the project object should not have
         project.should.not.have.property("teacherRef")
+        project.teacher.should.not.have.property("password")
 
         done()
       })

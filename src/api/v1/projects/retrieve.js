@@ -62,9 +62,7 @@ module.exports = function(req, res) {
           "teacher": {
             _id: {$arrayElemAt: ["$teacherRef._id", 0]},
             fullname: {$arrayElemAt: ["$teacherRef.fullname", 0]},
-            username: {$arrayElemAt: ["$teacherRef.username", 0]}, 
-            refresh_required: {$arrayElemAt: ["$teacherRef.refresh_required", 0]}, 
-            message_check_required: {$arrayElemAt: ["$teacherRef.message_check_required", 0]}
+            username: {$arrayElemAt: ["$teacherRef.username", 0]}
           }
         }
       }
