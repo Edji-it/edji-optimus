@@ -8,12 +8,12 @@ const TEST = require('./../../../../_test')
 
 // local variables
 const ENDPOINT_URL = '/api/v1/users/public-details'
-const ONE_STUDENT = "?students_ids=59bd945b5239f3001105dbb6&temp_ids="
-const ONE_TEMP = "?students_ids=&temp_ids=59bda03b85c6ab346c12dba0"
-const ONE_STUDENT_ONE_TEMP = "?students_ids=59bd945b5239f3001105dbb6&temp_ids=59bda03b85c6ab346c12dba0"
-const TWO_STUDENT_ONE_TEMP = "?students_ids=59bd945b5239f3001105dbb6,59bd93955239f3001105dbb0&temp_ids=59bda03b85c6ab346c12dba0"
-const EMPTY_REQUEST = "?students_ids=&temp_ids="
-const BAD_REQUEST = "?students="
+const ONE_STUDENT = "?students_ids[]=59bd945b5239f3001105dbb6&temp_ids[]="
+const ONE_TEMP = "?students_ids[]=&temp_ids=59bda03b85c6ab346c12dba0"
+const ONE_STUDENT_ONE_TEMP = "?students_ids[]=59bd945b5239f3001105dbb6&temp_ids[]=59bda03b85c6ab346c12dba0"
+const TWO_STUDENT_ONE_TEMP = "?students_ids[]=59bd945b5239f3001105dbb6&students_ids[]=59bd93955239f3001105dbb0&temp_ids[]=59bda03b85c6ab346c12dba0"
+const EMPTY_REQUEST = "?students_ids[]=&temp_ids[]="
+const BAD_REQUEST = "?students=[]"
 
 describe('GET /users/public-details', () => {
   it('should get a 401 without auth', (done) => {
