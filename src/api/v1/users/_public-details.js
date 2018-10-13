@@ -56,7 +56,7 @@ let combineArrays = function (users, tempUsers) {
 }
 
 let _idNull = function (_ids) {
-  if (_ids && _ids[0]==='') {
+  if (!_ids || (_ids && _ids[0]==='')) {
     return true
   }
   return false

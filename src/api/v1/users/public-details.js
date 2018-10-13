@@ -10,7 +10,6 @@ module.exports = function(req, res) {
   // request query params for students_ids and temp_ids (either can be empty for this to work)
   const students_ids = req.query.students_ids
   const temp_ids = req.query.temp_ids
-  console.log(students_ids,temp_ids)
 
   // if we do not have any students or temp _ids in the request, we can go ahead and skip this
   if (helpers.validateRequest(students_ids, temp_ids)) {
@@ -25,7 +24,7 @@ module.exports = function(req, res) {
     if (!helpers._idNull(students_ids)) {
       // port the user properties to the next stage
       users = projectUsers
-      if (!helpers._idNull(temp_ids[0])) {
+      if (!helpers._idNull(temp_ids)) {
         // if we're searching for temp_ids, then we'll need to handle the return to the next stage here
         return TempUser.find({
           _id: {
