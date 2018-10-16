@@ -89,8 +89,27 @@ describe('_public-details helper', () => {
         }
       ]
 
-      let combineArrays = helpers.combineArrays(users, tempUsers)
+      const combineArrays = helpers.combineArrays(users, tempUsers)
+      // verify number of objects in array
       combineArrays.length.should.be.equal(2)
+
+      // verify first object properties
+      const firstResponse = combineArrays[0]
+      firstResponse.should.have.property("_id")
+      firstResponse.should.have.property("fullname")
+      firstResponse.should.have.property("username")
+      firstResponse.should.have.property("userType")
+      firstResponse.userType.should.be.equal("registered")
+      firstResponse.userType.should.not.be.equal("temp")
+
+      // verify second object properties
+      const secondResponse = combineArrays[1]
+      secondResponse.should.have.property("_id")
+      secondResponse.should.have.property("fullname")
+      secondResponse.should.not.have.property("username")
+      secondResponse.should.have.property("userType")
+      secondResponse.userType.should.be.equal("temp")
+      secondResponse.userType.should.not.be.equal("registered")
     })
 
     it('should return an array of users only', () => {
@@ -105,7 +124,17 @@ describe('_public-details helper', () => {
       let tempUsers = []
 
       let combineArrays = helpers.combineArrays(users, tempUsers)
+      // verify number of objects in array
       combineArrays.length.should.be.equal(1)
+
+      // verify first object properties
+      const firstResponse = combineArrays[0]
+      firstResponse.should.have.property("_id")
+      firstResponse.should.have.property("fullname")
+      firstResponse.should.have.property("username")
+      firstResponse.should.have.property("userType")
+      firstResponse.userType.should.be.equal("registered")
+      firstResponse.userType.should.not.be.equal("temp")
     })
 
     it('should return an array of tempusers only', () => {
@@ -119,7 +148,17 @@ describe('_public-details helper', () => {
       ]
 
       let combineArrays = helpers.combineArrays(users, tempUsers)
+      // verify number of objects in array
       combineArrays.length.should.be.equal(1)
+
+      // verify first object properties
+      const firstResponse = combineArrays[0]
+      firstResponse.should.have.property("_id")
+      firstResponse.should.have.property("fullname")
+      firstResponse.should.not.have.property("username")
+      firstResponse.should.have.property("userType")
+      firstResponse.userType.should.be.equal("temp")
+      firstResponse.userType.should.not.be.equal("registered")
     })
 
     it('should return an empty array', () => {
@@ -127,6 +166,7 @@ describe('_public-details helper', () => {
       let tempUsers = []
 
       let combineArrays = helpers.combineArrays(users, tempUsers)
+      // verify number of objects in array
       combineArrays.length.should.be.equal(0)
     })
   })
