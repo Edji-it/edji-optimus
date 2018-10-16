@@ -48,26 +48,6 @@ describe('_public-details helper', () => {
     })
   })
 
-  // // stringToArray - should return back an array from a string of _ids separate by commas (length 1)
-  // it('should ', () => {
-    
-  // })
-
-  // // stringToArray - should return back an array from a string of _ids separate by commas (length 3)
-  // it('should ', () => {
-    
-  // })
-
-  // // initialQueryObject - return User.find()
-  // it('should ', () => {
-    
-  // })
-
-  // // initialQueryObject - return TempUser.find()
-  // it('should ', () => {
-    
-  // })
-
   // // _idNull - return true
   // it('should ', () => {
     
@@ -94,11 +74,6 @@ describe('_public-details helper', () => {
   // })
 
   // // combineArrays - should return an empty array
-  // it('should ', () => {
-    
-  // })
-
-  // // addUserType - return array and check first object for userType property
   // it('should ', () => {
     
   // })
