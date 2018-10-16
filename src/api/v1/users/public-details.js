@@ -1,5 +1,6 @@
 // library imports
 const Q = require('q')
+let mongoose = require("mongoose")
 
 // project imports
 const User = require('../../../models/User')
@@ -8,51 +9,75 @@ const helpers = require('./_public-details')
 
 module.exports = function(req, res) {
   // request query params for students_ids and temp_ids (either can be empty for this to work)
-  const students_ids = req.query.students_ids
-  const temp_ids = req.query.temp_ids
+  const students = req.query.students_ids
+  const temps = req.query.temp_ids
 
   // if we do not have any students or temp _ids in the request, we can go ahead and skip this
-  if (!helpers.validateRequest(students_ids, temp_ids)) {
+  if (!helpers.validateRequest(students, temps)) {
     return res.status(400).send({ error: 'no _ids to search for' })
   }
 
+  // set up the _id arrays to convert them all to ObjectIds if the array is not empty
+  let students_ids = []
+  let temp_ids = []
+  if (!helpers._idNull(students)) {
+    students_ids = students.map(val => {
+      return mongoose.Types.ObjectId(val)
+    })
+  }
+  if (!helpers._idNull(temps)) {
+    temp_ids = temps.map(val => {
+      return mongoose.Types.ObjectId(val)
+    })
+  }
+
+  // the arrays that we'll get from searching both collections -- needs to initialize as an empty array 
+  let users = []
+  let tempUsers = []
+
   Q(
-    // determine if we're starting with the User or TempUser collections to search by (dictated by request query params)
-    helpers.initialQueryObject(students_ids, temp_ids)
+    User.aggregate([
+      {
+        $match: { 
+          _id: {
+            $in: students_ids
+          }
+        }
+      },{
+        $project: {
+          _id: 1,
+          fullname: 1,
+          username: 1,
+          "userType": "registered"
+        }
+      }
+    ]).exec()
   )
-  .then((projectUsers) => {
-    if (!helpers._idNull(students_ids)) {
-      // port the user properties to the next stage
-      users = projectUsers
-      if (!helpers._idNull(temp_ids)) {
-        // if we're searching for temp_ids, then we'll need to handle the return to the next stage here
-        return TempUser.find({
+  .then((returnedUsers) => {
+    // set users
+    users = returnedUsers
+    return TempUser.aggregate([
+      {
+        $match: { 
           _id: {
             $in: temp_ids
           }
-        },{
+        }
+      },{
+        $project: {
           _id: 1,
-          fullname: 1
-        }).lean()
+          fullname: 1,
+          "userType": "temp"
+        }
       }
-    } else {
-      // if we're not searching by students_ids, nullify the users so we don't mix up temps and students
-      users = null
-      return projectUsers // these are actually tempUsers that we'll move to the next then
-    }
-  })
-  .then((tempUsers) => {
-    if (users) {
-      users = helpers.addUserType(users, "registered")
-    }
-    if (tempUsers) {
-      tempUsers = helpers.addUserType(tempUsers, "temp")
-    }
-
+    ])
+  }).then((returnedTempUsers) => {
+    // set tempUsers
+    tempUsers = returnedTempUsers
     // combine the user and temp info
     totalUsers = helpers.combineArrays(users, tempUsers)
     
-    // send back the project
+    // send back the users
     return res.status(200).send({ users: totalUsers })
   })
   .catch((error)=> {
