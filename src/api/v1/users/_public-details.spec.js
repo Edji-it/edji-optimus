@@ -48,33 +48,86 @@ describe('_public-details helper', () => {
     })
   })
 
-  // // _idNull - return true
-  // it('should ', () => {
-    
-  // })
+  describe('check for empty arrays in request - _idNull', () => {
+    it('should return true if the array is not defined', () => {
+      let students_ids
 
-  // // _idNull - return false
-  // it('should ', () => {
-    
-  // })
+      let isNull = helpers._idNull(students_ids)
+      isNull.should.be.equal(true)
+    })
 
-  // // combineArrays - should return an array of users and tempusers
-  // it('should ', () => {
-    
-  // })
+    it('should return true if the array is defined but is empty', () => {
+      let students_ids = [""]
 
-  // // combineArrays - should return an array of users only
-  // it('should ', () => {
-    
-  // })
+      let isNull = helpers._idNull(students_ids)
+      isNull.should.be.equal(true)
+    })
 
-  // // combineArrays - should return an array of tempusers only
-  // it('should ', () => {
-    
-  // })
+    it('should return false if the array is defined and is not empty', () => {
+      let students_ids = ["59bd8e3eee48dfca29138e87"]
 
-  // // combineArrays - should return an empty array
-  // it('should ', () => {
-    
-  // })
+      let isNull = helpers._idNull(students_ids)
+      isNull.should.be.equal(false)
+    })
+  })
+
+  describe('combining arrays - or not to combine - combineArrays', () => {
+    it('should return an array of users and tempusers', () => {
+      let users = [
+        {
+          "_id": "59bd8e3eee48dfca29138e87",
+          "fullname": "Cody",
+          "username": "cody",
+          "userType": "registered"
+        }
+      ]
+      let tempUsers = [
+        {
+          "_id": "5b1c65fe06de88003a0ec8c4",
+          "fullname": "Just Josh",
+          "userType": "temp"
+        }
+      ]
+
+      let combineArrays = helpers.combineArrays(users, tempUsers)
+      combineArrays.length.should.be.equal(2)
+    })
+
+    it('should return an array of users only', () => {
+      let users = [
+        {
+          "_id": "59bd8e3eee48dfca29138e87",
+          "fullname": "Cody",
+          "username": "cody",
+          "userType": "registered"
+        }
+      ]
+      let tempUsers = []
+
+      let combineArrays = helpers.combineArrays(users, tempUsers)
+      combineArrays.length.should.be.equal(1)
+    })
+
+    it('should return an array of tempusers only', () => {
+      let users = []
+      let tempUsers = [
+        {
+          "_id": "5b1c65fe06de88003a0ec8c4",
+          "fullname": "Just Josh",
+          "userType": "temp"
+        }
+      ]
+
+      let combineArrays = helpers.combineArrays(users, tempUsers)
+      combineArrays.length.should.be.equal(1)
+    })
+
+    it('should return an empty array', () => {
+      let users = []
+      let tempUsers = []
+
+      let combineArrays = helpers.combineArrays(users, tempUsers)
+      combineArrays.length.should.be.equal(0)
+    })
+  })
 })
