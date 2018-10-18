@@ -46,62 +46,62 @@ describe('GET /projects/:project_id', () => {
         // check for properties on the main project object
         project.should.have.property("_id")
         project.should.have.property("comments")
-          // test comments further
-          project.comments.should.be.instanceOf(Array)
-          project.comments.length.should.be.above(0)
+        // test comments further
+        project.comments.should.be.instanceOf(Array)
+        project.comments.length.should.be.above(0)
         project.should.have.property("answers")
-          // test answers further
-          project.answers.should.be.instanceOf(Array)
-          project.answers.length.should.be.above(0)
+        // test answers further
+        project.answers.should.be.instanceOf(Array)
+        project.answers.length.should.be.above(0)
         project.should.have.property("students_ids")
-          // test students_ids further
-          project.students_ids.should.be.instanceOf(Array)
-          project.students_ids.length.should.be.above(0)
+        // test students_ids further
+        project.students_ids.should.be.instanceOf(Array)
+        project.students_ids.length.should.be.above(0)
         project.should.have.property("temp_ids")
-          // test temp_ids further
-          project.temp_ids.should.be.instanceOf(Array)
+        // test temp_ids further
+        project.temp_ids.should.be.instanceOf(Array)
         project.should.have.property("types")
-          // test types further
-          project.types.should.be.instanceOf(Array)
-          project.types.length.should.be.equal(4)
+        // test types further
+        project.types.should.be.instanceOf(Array)
+        project.types.length.should.be.equal(4)
         project.should.have.property("report_evals")
-          // test report_evals further
-          project.report_evals.should.be.instanceOf(Array)
-          project.report_evals.length.should.be.above(0)
+        // test report_evals further
+        project.report_evals.should.be.instanceOf(Array)
+        project.report_evals.length.should.be.above(0)
         project.should.have.property("group_instructions")
         project.should.have.property("tags")
         project.should.have.property("createdAt")
         project.should.have.property("updatedAt")
         project.should.have.property("teacher_id")
         project.should.have.property("reading_id")
-          // test reading_id further
-          const reading = project.reading_id
-          reading.should.have.property("_id")
-          reading.should.have.property("words")
-            // test words further
-            reading.words.should.be.instanceOf(Array)
-            reading.words.length.should.be.above(0)
-          reading.should.have.property("title")
-          reading.should.have.property("owner_id")
-          reading.should.have.property("teacher_ids")
-          reading.should.have.property("public")
-          reading.should.have.property("promoter_ids")
-          reading.should.have.property("source")
-          reading.should.have.property("tags")
-          reading.should.have.property("draft")
-          reading.should.have.property("version_id")
-          reading.should.have.property("questions")
-            // test words further
-            reading.questions.should.be.instanceOf(Array)
-            reading.questions.length.should.be.above(0)
+        // test reading_id further
+        const reading = project.reading_id
+        reading.should.have.property("_id")
+        reading.should.have.property("words")
+        // test words further
+        reading.words.should.be.instanceOf(Array)
+        reading.words.length.should.be.above(0)
+        reading.should.have.property("title")
+        reading.should.have.property("owner_id")
+        reading.should.have.property("teacher_ids")
+        reading.should.have.property("public")
+        reading.should.have.property("promoter_ids")
+        reading.should.have.property("source")
+        reading.should.have.property("tags")
+        reading.should.have.property("draft")
+        reading.should.have.property("version_id")
+        reading.should.have.property("questions")
+        // test words further
+        reading.questions.should.be.instanceOf(Array)
+        reading.questions.length.should.be.above(0)
         project.should.have.property("code")
         project.should.have.property("label")
         project.should.have.property("heat_vision")
         project.should.have.property("teacher")
-          // test teacher further
-          project.teacher.should.have.property("_id")
-          project.teacher.should.have.property("fullname")
-          project.teacher.should.have.property("username")
+        // test teacher further
+        project.teacher.should.have.property("_id")
+        project.teacher.should.have.property("fullname")
+        project.teacher.should.have.property("username")
 
         // properties the project object should not have
         project.should.not.have.property("teacherRef")
@@ -140,62 +140,62 @@ describe('GET /projects/:project_id', () => {
         // check for properties on the main project object
         project.should.have.property("_id")
         project.should.have.property("comments")
-          // test comments further
-          project.comments.should.be.instanceOf(Array)
-          project.comments.length.should.be.above(0)
+        // test comments further
+        project.comments.should.be.instanceOf(Array)
+        project.comments.length.should.be.above(0)
         project.should.have.property("answers")
-          // test answers further
-          project.answers.should.be.instanceOf(Array)
-          project.answers.length.should.be.above(0)
+        // test answers further
+        project.answers.should.be.instanceOf(Array)
+        project.answers.length.should.be.above(0)
         project.should.have.property("students_ids")
-          // test students_ids further
-          project.students_ids.should.be.instanceOf(Array)
-          project.students_ids.length.should.be.above(0)
+        // test students_ids further
+        project.students_ids.should.be.instanceOf(Array)
+        project.students_ids.length.should.be.above(0)
         project.should.have.property("temp_ids")
-          // test temp_ids further
-          project.temp_ids.should.be.instanceOf(Array)
+        // test temp_ids further
+        project.temp_ids.should.be.instanceOf(Array)
         project.should.have.property("types")
-          // test types further
-          project.types.should.be.instanceOf(Array)
-          project.types.length.should.be.equal(4)
+        // test types further
+        project.types.should.be.instanceOf(Array)
+        project.types.length.should.be.equal(4)
         project.should.have.property("report_evals")
-          // test report_evals further
-          project.report_evals.should.be.instanceOf(Array)
-          project.report_evals.length.should.be.above(0)
+        // test report_evals further
+        project.report_evals.should.be.instanceOf(Array)
+        project.report_evals.length.should.be.above(0)
         project.should.have.property("group_instructions")
         project.should.have.property("tags")
         project.should.have.property("createdAt")
         project.should.have.property("updatedAt")
         project.should.have.property("teacher_id")
         project.should.have.property("reading_id")
-          // test reading_id further
-          const reading = project.reading_id
-          reading.should.have.property("_id")
-          reading.should.have.property("words")
-            // test words further
-            reading.words.should.be.instanceOf(Array)
-            reading.words.length.should.be.above(0)
-          reading.should.have.property("title")
-          reading.should.have.property("owner_id")
-          reading.should.have.property("teacher_ids")
-          reading.should.have.property("public")
-          reading.should.have.property("promoter_ids")
-          reading.should.have.property("source")
-          reading.should.have.property("tags")
-          reading.should.have.property("draft")
-          reading.should.have.property("version_id")
-          reading.should.have.property("questions")
-            // test words further
-            reading.questions.should.be.instanceOf(Array)
-            reading.questions.length.should.be.above(0)
+        // test reading_id further
+        const reading = project.reading_id
+        reading.should.have.property("_id")
+        reading.should.have.property("words")
+        // test words further
+        reading.words.should.be.instanceOf(Array)
+        reading.words.length.should.be.above(0)
+        reading.should.have.property("title")
+        reading.should.have.property("owner_id")
+        reading.should.have.property("teacher_ids")
+        reading.should.have.property("public")
+        reading.should.have.property("promoter_ids")
+        reading.should.have.property("source")
+        reading.should.have.property("tags")
+        reading.should.have.property("draft")
+        reading.should.have.property("version_id")
+        reading.should.have.property("questions")
+        // test words further
+        reading.questions.should.be.instanceOf(Array)
+        reading.questions.length.should.be.above(0)
         project.should.have.property("code")
         project.should.have.property("label")
         project.should.have.property("heat_vision")
         project.should.have.property("teacher")
-          // test teacher further
-          project.teacher.should.have.property("_id")
-          project.teacher.should.have.property("fullname")
-          project.teacher.should.have.property("username")
+        // test teacher further
+        project.teacher.should.have.property("_id")
+        project.teacher.should.have.property("fullname")
+        project.teacher.should.have.property("username")
 
         // properties the project object should not have
         project.should.not.have.property("teacherRef")

@@ -23,7 +23,7 @@ module.exports = function (req, res) {
 
   let pipeline = [{ $match: findParams }]
 
-  pipeline.concat(helpers.populateProperties(population))
+  pipeline = pipeline.concat(helpers.populateProperties(population))
 
   Project
     .aggregate(pipeline)
