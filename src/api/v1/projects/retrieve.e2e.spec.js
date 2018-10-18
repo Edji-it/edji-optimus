@@ -162,6 +162,24 @@ describe('GET /projects/:project_id', () => {
       })
   })
 
+  it('should populate both teacher and reading_id', (done) => {
+    chai.request(TEST.SERVER)
+      .get(ENDPOINT_URL + PROJECT_ID + '?pop=reading_id&pop=teacher')
+      .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
+      .end((err, res) => {
+        err && done(err)
+        res.should.have.status(200)
+
+        res.body.should.have.property('project')
+        res.body.project.should.have.property('reading_id')
+        res.body.project.reading_id.should.be.instanceOf(Object)
+        res.body.project.should.have.property('teacher')
+        res.body.project.teacher.should.be.instanceOf(Object)
+
+        done()
+      })
+  })
+
   it('should get a 404 for a project that does not exist', (done) => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + BAD_PROJECT)
