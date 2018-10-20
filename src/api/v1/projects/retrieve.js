@@ -7,6 +7,7 @@ const Project = require('./../../../models/Project')
 const helpers = require('./_retrieve')
 
 module.exports = function (req, res) {
+  let user = req.user
   const project_id = req.params.project_id
   let population = req.query.pop || []
   if (typeof population == 'string') { // otherwise it's going to be an array of strings, which is what we want
@@ -38,8 +39,17 @@ module.exports = function (req, res) {
       // clear out the properties that we don't need
       delete project.teacherRef
       delete project.reading
+
+      return helpers.addIdToProject(user, project)
+    })
+    .then(({ project, updated }) => {
+      // some properties needs to be added to the project before sending it
+      helpers.decorateProject(project)
       // send back the project
-      return res.status(200).send({ project: project })
+      res.status(200).send({ project: project })
+
+      // if the user was added to arrays, log this to pipo
+      updated && helpers.logJoinToPipo(user, project)
     })
     .catch((error) => {
       console.error(error)
