@@ -106,13 +106,18 @@ const addIdToProject = async function (user, project) {
     return { project, updated: false }
   }
 
-  await Project.update(
+  let result = await Project.update(
     {
       _id: project._id
     },
     update
   )
-  return { project, updated: true }
+  if (!result.nModified) {
+    console.error('project was not successfully updated')
+    return { project, updated: false }
+  } else {
+    return { project, updated: true }
+  }
 }
 
 /**
