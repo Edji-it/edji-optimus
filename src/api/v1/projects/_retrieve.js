@@ -83,17 +83,20 @@ const addIdToProject = async function (user, project) {
   // obvi, we don't want to add the teacher to the students array if they're the teacher
   //  there is also sometimes not a user when this endpoint is called, like when someone doesn't yet have an account
   if (!user || user._id.equals(project.teacher_id)) {
-    return { project, updated: false }
+    return { project }
   }
 
   let id = user._id
   let update
   // add temp users to the temp_ids array
-  if (user.type && user.type === 'temp' && !project.temp_ids.includes(id)) {
-    update = {
-      $push: {
-        temp_ids: id
+  if (user.type && user.type === 'temp') {
+    if (!project.temp_ids.includes(id)) {
+      update = {
+        $push: {
+          temp_ids: id
+        }
       }
+      project.temp_ids.push(user._id)
     }
     // add logged in users to the students_ids array
   } else if (!project.students_ids.includes(id)) {
@@ -102,22 +105,25 @@ const addIdToProject = async function (user, project) {
         students_ids: id
       }
     }
+    project.students_ids.push(user._id)
   } else {
-    return { project, updated: false }
+    return { project }
   }
 
-  let result = await Project.update(
-    {
-      _id: project._id
-    },
-    update
-  )
-  if (!result.nModified) {
-    console.error('project was not successfully updated')
-    return { project, updated: false }
-  } else {
-    return { project, updated: true }
-  }
+  return { project, update }
+
+  // let result = await Project.update(
+  //   {
+  //     _id: project._id
+  //   },
+  //   update
+  // )
+  // if (!result.nModified) {
+  //   console.error('project was not successfully updated')
+  //   return { project }
+  // } else {
+  //   return { project, updated: true }
+  // }
 }
 
 /**

@@ -40,7 +40,22 @@ module.exports = function (req, res) {
       delete project.teacherRef
       delete project.reading
 
-      return helpers.addIdToProject(user, project)
+      // return helpers.addIdToProject(user, project)
+      let { update } = helpers.addIdToProject(user, project)
+      if (update) {
+        return Project.update(
+          { _id: project._id },
+          update
+        )
+          .then((result) => {
+            if (!result.nModified) {
+              console.error('user not added to project upon update attempt')
+            }
+            return { project, updated: true }
+          })
+      } else {
+        return { project }
+      }
     })
     .then(({ project, updated }) => {
       // some properties needs to be added to the project before sending it

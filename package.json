@@ -65,6 +65,7 @@
     "nodemon": "^1.11.0",
     "randomstring": "^1.1.5",
     "sinon": "^4.4.6",
+    "sinon-as-promised": "^4.0.3",
     "sinon-mongoose": "^2.1.1"
   }
 }

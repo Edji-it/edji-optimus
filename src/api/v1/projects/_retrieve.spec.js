@@ -6,7 +6,6 @@ const sinon = require('sinon')
 
 // project imports
 const helpers = require('./_retrieve')
-const Project = require('./../../../models/Project')
 
 describe('projects _retrieve', () => {
   describe('populateProperties', () => {
@@ -53,7 +52,6 @@ describe('projects _retrieve', () => {
   describe('addIdToProject', () => {
     let mockProject
     let mockUser
-    let projectUpdateStub
     beforeEach(() => {
       mockUser = {
         _id: mongoose.Types.ObjectId()
@@ -70,52 +68,58 @@ describe('projects _retrieve', () => {
           mongoose.Types.ObjectId()
         ]
       }
-      projectUpdateStub = sinon.stub(Project.prototype, 'update')
-    })
-
-    afterEach(() => {
-      projectUpdateStub.restore()
     })
 
     it('should throw an error if called without a project', async () => {
-      await helpers.addIdToProject({}).should.be.rejected
+      return await helpers.addIdToProject({}).should.be.rejected
     })
 
     it('should not update if no user is passed in', async () => {
-      let { project, updated } = await helpers.addIdToProject(undefined, mockProject)
+      let { project, update } = await helpers.addIdToProject(undefined, mockProject)
+      project.teacher_id.should.be.equal(mockProject.teacher_id)
       project.should.be.equal(mockProject)
-      updated.should.be.false
+      should.not.exist(update)
     })
 
     it('should not update if the user id is equal to the project id', async () => {
       mockProject.teacher_id = mockUser._id.toString()
-      let { project, updated } = await helpers.addIdToProject(mockUser, mockProject)
+      let { project, update } = await helpers.addIdToProject(mockUser, mockProject)
       project.should.be.equal(mockProject)
-      updated.should.be.false
+      should.not.exist(update)
     })
 
     it('should not update if the user id is already in the students_ids array', async () => {
       mockProject.students_ids.push(mockUser._id)
-      let { project, updated } = await helpers.addIdToProject(mockUser, mockProject)
+      let { project, update } = await helpers.addIdToProject(mockUser, mockProject)
       project.should.be.equal(mockProject)
-      updated.should.be.false
+      should.not.exist(update)
     })
 
     it('should not update if a temp user is already in the temp_ids array', async () => {
       mockUser.type = 'temp'
       mockProject.temp_ids.push(mockUser._id)
-      let { project, updated } = await helpers.addIdToProject(mockUser, mockProject)
+      let { project, update } = await helpers.addIdToProject(mockUser, mockProject)
       project.should.be.equal(mockProject)
-      updated.should.be.false
-      sinon.assert.notCalled(projectUpdateStub)
+      should.not.exist(update)
     })
 
-    it('should update the project when the user id is not in the students_ids array', async () => {
-      let { project, updated } = await helpers.addIdToProject(mockUser, mockProject)
-      sinon.assert.calledOnce(projectUpdateStub)
-      updated.should.be.true
+    it('should return a valid update when the user id is not in the students_ids array', async () => {
+      let { project, update } = await helpers.addIdToProject(mockUser, mockProject)
+      update.should.be.instanceOf(Object)
+      update.should.have.property('$push')
+      update.$push.should.have.property('students_ids')
+      update.$push.students_ids.should.be.equal(mockUser._id)
       project.students_ids.includes(mockUser._id).should.be.true
+    })
 
+    it('should return a valid update when the temp user id is not in the temp_ids array', async () => {
+      mockUser.type = 'temp'
+      let { project, update } = await helpers.addIdToProject(mockUser, mockProject)
+      update.should.be.instanceOf(Object)
+      update.should.have.property('$push')
+      update.$push.should.have.property('temp_ids')
+      update.$push.temp_ids.should.be.equal(mockUser._id)
+      project.temp_ids.includes(mockUser._id).should.be.true
     })
   })
 })
