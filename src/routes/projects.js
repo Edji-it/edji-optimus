@@ -1,6 +1,6 @@
 // library imports
-let express = require( "express")
-let mongoose = require( "mongoose")
+let express = require("express")
+let mongoose = require("mongoose")
 let Q = require("q")
 let rp = require("request-promise")
 const _ = require("underscore")
@@ -15,29 +15,29 @@ const pipolog = require('./../pipolog').pipoLog
 
 let router = express.Router()
 
-MountModelToRouter(router, Project, "project", {read:false, list:false, delete:false})
+MountModelToRouter(router, Project, "project", { read: false, list: false, delete: false })
 
-router.get("/", authRequired, function(req, res){
+router.get("/", authRequired, function (req, res) {
 
     var user = req.user
 
     Q(Project.find(
-        { $or: [{students_ids: user._id}, {temp_ids: user._id}] },
+        { $or: [{ students_ids: user._id }, { temp_ids: user._id }] },
         'reading_id teacher_id label code types tags updatedAt createdAt',
         { sort: { createdAt: -1 } }
     )
-    .populate('teacher_id','fullname email username')
-    .populate('reading_id','title'))
-    .then((projects) => {
-        return res.status(200).send(projects)
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
+        .populate('teacher_id', 'fullname email username')
+        .populate('reading_id', 'title'))
+        .then((projects) => {
+            return res.status(200).send(projects)
+        })
+        .catch((err) => {
+            console.error(err)
+            return res.status(500).send()
+        })
 })
 
-router.post("/", authRequired, function(req, res) {
+router.post("/", authRequired, function (req, res) {
     var project = req.body.project
 
     if (!project) {
@@ -52,7 +52,7 @@ router.post("/", authRequired, function(req, res) {
 
     var model = Project(project)
 
-    model.edjiSave(false, function(error, result) {
+    model.edjiSave(false, function (error, result) {
         if (error) {
             // constructs object with list of model-defined errors to send to user
             if (error.name === "ValidationError") {
@@ -78,7 +78,7 @@ router.post("/", authRequired, function(req, res) {
     })
 })
 
-router.get("/:id", function(req, res) {
+router.get("/:id", function (req, res) {
     let id = req.params.id
     let user = req.user
     let populate = req.query.pop || []
@@ -89,16 +89,16 @@ router.get("/:id", function(req, res) {
     let findParams = {}
 
     //creates flexibility to use with either project code or with project id
-    if (mongoose.Types.ObjectId.isValid(id)) {
+    if (mongoose.validateEdjiId(id)) {
         findParams._id = id
     } else {
         findParams.code = id.toLowerCase()
     }
 
     Q(Project.findOne(findParams)
-            .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id questions parent_id") // populate the reading_id if it was provided to query
-            .exec()
-        )
+        .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id questions parent_id") // populate the reading_id if it was provided to query
+        .exec()
+    )
         .then((project) => {
             return Q(Project.populate(project, { path: 'teacher', select: 'fullname username' }))
         })
@@ -138,9 +138,9 @@ router.get("/:id", function(req, res) {
                             hero: !!user.hero_status,
                             event_name: 'reading_joined'
                         })
-                        .catch((err) => {
-                            console.error('error from pipo :(', err)
-                        })
+                            .catch((err) => {
+                                console.error('error from pipo :(', err)
+                            })
                     }
                 }
             }
@@ -186,7 +186,7 @@ router.get("/:id", function(req, res) {
 })
 
 // currently only works for teacher deleting a project
-router.delete("/:id", authRequired, function(req, res) {
+router.delete("/:id", authRequired, function (req, res) {
     var id = req.params.id
     var user = req.user
 
@@ -195,21 +195,21 @@ router.delete("/:id", authRequired, function(req, res) {
         return
     }
 
-    Project.deleteOne({_id:req.params.id, teacher_id: user._id})
-    .then((obj) => {
-        if (obj.n < 1) {
-            return res.status(404).send()
-        } else {
-            return res.status(204).send()
-        }
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
+    Project.deleteOne({ _id: req.params.id, teacher_id: user._id })
+        .then((obj) => {
+            if (obj.n < 1) {
+                return res.status(404).send()
+            } else {
+                return res.status(204).send()
+            }
+        })
+        .catch((err) => {
+            console.error(err)
+            return res.status(500).send()
+        })
 })
 
-router.put("/:id", authRequired, function(req, res) {
+router.put("/:id", authRequired, function (req, res) {
     let user = req.user
     let id = req.params.id
     let project = req.body.project
@@ -227,66 +227,66 @@ router.put("/:id", authRequired, function(req, res) {
     Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
         new: true, runValidators: true, setDefaultsOnInsert: true
     }).exec())
-    .then((project) => {
-        // send 404 if the project doesn't exist
-        if (!project) {
-            return res.status(404).send()
-        } else {
-            res.status(200).send({ updated: update })
-        }
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
+        .then((project) => {
+            // send 404 if the project doesn't exist
+            if (!project) {
+                return res.status(404).send()
+            } else {
+                res.status(200).send({ updated: update })
+            }
+        })
+        .catch((err) => {
+            console.error(err)
+            return res.status(500).send()
+        })
 })
 
-router.put("/:id/user_id", authRequired, function(req, res) {
+router.put("/:id/user_id", authRequired, function (req, res) {
     let user = req.user
     let id = req.params.id
 
     if (!mongoose.Types.ObjectId.isValid(id)) { return res.status(400).send() }
 
     if (user.type === "temp") {
-        update = { $addToSet: { temp_ids: user._id }}
+        update = { $addToSet: { temp_ids: user._id } }
     } else {
-        update = { $addToSet: { students_ids: user._id }}
+        update = { $addToSet: { students_ids: user._id } }
     }
 
     Q(
         Project.findOneAndUpdate(
             {
                 _id: id,
-                teacher_id: { $not: { $eq: user._id }} // don't add a project owner to their own project as a student
+                teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
             },
             update,
             { new: true }
         )
-        .exec()
+            .exec()
     )
-    .then((update) => {
-        // log to pipo!
-        pipolog({
-            user_id: user._id,
-            teacher: user._id.equals(update.teacher_id),
-            hero: !!user.hero_status,
-            event_name: 'reading_joined'
+        .then((update) => {
+            // log to pipo!
+            pipolog({
+                user_id: user._id,
+                teacher: user._id.equals(update.teacher_id),
+                hero: !!user.hero_status,
+                event_name: 'reading_joined'
+            })
+                .catch((err) => {
+                    console.error('error from pipo :(', err)
+                })
+
+            if (update) { return res.status(200).send() }
+            else { return res.status(304).send() }
         })
         .catch((err) => {
-            console.error('error from pipo :(', err)
+            console.error(err)
+            return res.status(500).send()
         })
-
-        if (update) { return res.status(200).send() }
-        else { return res.status(304).send() }
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
 })
 
 // get projects for a single reading id
-router.get("/reading/:reading_id", authRequired, function(req, res){
+router.get("/reading/:reading_id", authRequired, function (req, res) {
     var reading_id = req.params.reading_id
     var user = req.user
 
@@ -310,7 +310,7 @@ router.get("/reading/:reading_id", authRequired, function(req, res){
     )
 })
 
-router.post("/:id/comments", authRequired, function(req, res) {
+router.post("/:id/comments", authRequired, function (req, res) {
     var _id = req.params.id
     var user = req.user
 
@@ -320,16 +320,16 @@ router.post("/:id/comments", authRequired, function(req, res) {
     }
 
     if (!req.body.comment) {
-        res.status(400).send({ validationErrors: { comment: "required" }})
+        res.status(400).send({ validationErrors: { comment: "required" } })
         return
     }
-    
+
     if (!req.body.comment.user_id) { req.body.comment.user_id = user._id }
     if (!req.body.comment.author) { req.body.comment.author = user.fullname }
     var comment = Comment(req.body.comment)
 
     //comment.user_id = req.logged_in_user.user_id
-    Project.findById({_id}, function(err, project){
+    Project.findById({ _id }, function (err, project) {
         if (err) {
             console.error(err)
             res.status(500).send()
@@ -341,18 +341,18 @@ router.post("/:id/comments", authRequired, function(req, res) {
             var currentComment = project.comments.id(comment._id) // if the comment already has an id, it already exists
 
             var successStatus // 200 if updating, 201 if creating
-            if (currentComment){
+            if (currentComment) {
                 // Preserve "createdAt"
                 comment.createdAt = currentComment.createdAt
                 Object.assign(currentComment, comment)
                 successStatus = 200
             }
-            else{
+            else {
                 project.comments.push(comment)
                 successStatus = 201
             }
 
-            project.edjiSave(false, function(error, project){
+            project.edjiSave(false, function (error, project) {
                 if (error) {
                     // constructs object with list of model-defined errors to send to user
                     if (error.name === "ValidationError") {
@@ -373,10 +373,10 @@ router.post("/:id/comments", authRequired, function(req, res) {
                         return
                     }
                 } else { res.status(successStatus).send({ comment: project.comments.id(comment._id) }) }
-                    
+
             })
         }
-        
+
     })
 })
 
@@ -385,7 +385,7 @@ router.post("/:id/comments", authRequired, function(req, res) {
  * @param url The url of the asset to delete (typically looks like //images.edji.it/something)
  * @returns Promise resolved with a response body from Grapple
  */
-let deleteFromS3 = function(url) {
+let deleteFromS3 = function (url) {
     let options = {
         method: 'DELETE',
         uri: [process.env.EDJI_GRAPPLE_DOMAIN, "v1", "s3", encodeURIComponent(url)].join("/"),
@@ -396,7 +396,7 @@ let deleteFromS3 = function(url) {
     return rp(options)
 }
 
-router.put("/:project_id/comments/:comment_id", authRequired, function(req, res) {
+router.put("/:project_id/comments/:comment_id", authRequired, function (req, res) {
     let user = req.user
     let project_id = req.params.project_id
     let comment_id = req.params.comment_id
@@ -404,87 +404,93 @@ router.put("/:project_id/comments/:comment_id", authRequired, function(req, res)
 
     // if the comment doesn't contain any valid update properties, then we can tell the user
     if (!req.body.comment) {
-        return res.status(400).send({ errors: { comment: "no valid update properties on comment" }})
+        return res.status(400).send({ errors: { comment: "no valid update properties on comment" } })
     }
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ errors: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" } })
         return
     } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ errors: { commentId: "invalid" }})
+        res.status(400).send({ errors: { commentId: "invalid" } })
         return
     }
 
     let query = {
         _id: project_id,
-        comments: { $elemMatch: {
-            _id: comment_id,
-            user_id: user._id
-        }}
+        comments: {
+            $elemMatch: {
+                _id: comment_id,
+                user_id: user._id
+            }
+        }
     }
 
     // the project's id must match, and it must have a comment w/ correct id and user_id
     Project.findOne(query)
-    .then((project) => {
-        if (!project) {
-            return res.status(404).send({ error: "project not found" })
-        }
+        .then((project) => {
+            if (!project) {
+                return res.status(404).send({ error: "project not found" })
+            }
 
-        let comment = project.comments.find((comm) => {
-            return comm._id == comment_id
+            let comment = project.comments.find((comm) => {
+                return comm._id == comment_id
+            })
+
+            // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
+            if (comment.url && comment_update.url && comment_update.url != comment.url) {
+                deleteFromS3(comment.url)
+                    .then((body) => {
+                        // do nothing here because we successfully deleted the object
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                    })
+            }
+
+            // update the fields from the comment_update onto the comment
+            Object.assign(comment, comment_update)
+
+            // save the entire project (DON'T JUST SAVE THE COMMENT)
+            project.edjiSave(false, (err, doc) => {
+                if (err) { console.error(err) }
+                else { /** do nothing */ }
+            })
+
+            return res.status(200).send({ comment: comment })
+
         })
-
-        // if they both have urls and the the url is getting updated, clean up the asset at the url that is being overwritten
-        if (comment.url && comment_update.url && comment_update.url != comment.url) {
-            deleteFromS3(comment.url)
-                .then((body) => {
-                    // do nothing here because we successfully deleted the object
-                })
-                .catch((err) => {
-                    console.error(err)
-                })
-        }
-
-        // update the fields from the comment_update onto the comment
-        Object.assign(comment, comment_update)
-
-        // save the entire project (DON'T JUST SAVE THE COMMENT)
-        project.edjiSave(false, (err, doc) => {
-            if (err) { console.error(err) }
-            else { /** do nothing */ }
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send()
         })
-
-        return res.status(200).send({ comment: comment })
-
-    })
-    .catch((err) => {
-        console.error(err)
-        res.status(500).send()
-    })
 })
 
-router.delete("/:project_id/comments/:comment_id", authRequired, function(req, res){
+router.delete("/:project_id/comments/:comment_id", authRequired, function (req, res) {
     let user = req.user
     let project_id = req.params.project_id
     let comment_id = req.params.comment_id
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ errors: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" } })
         return
     } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ errors: { commentId: "invalid" }})
+        res.status(400).send({ errors: { commentId: "invalid" } })
         return
     }
 
     Q(Project.findOneAndUpdate(
         {
             _id: project_id,
-            $or: [ 
+            $or: [
                 { teacher_id: user._id }, // this lets teachers delete a student's comment
-                { comments: { $elemMatch: { // this is likely a student deleting their own comment
-                    _id: comment_id,
-                    user_id: user._id
-                }}}
+                {
+                    comments: {
+                        $elemMatch: { // this is likely a student deleting their own comment
+                            _id: comment_id,
+                            user_id: user._id
+                        }
+                    }
+                }
             ]
         }, {
             $pull: {
@@ -525,7 +531,7 @@ router.delete("/:project_id/comments/:comment_id", authRequired, function(req, r
         })
 })
 
-router.post("/:id/answers", authRequired, function(req, res) {
+router.post("/:id/answers", authRequired, function (req, res) {
     var _id = req.params.id
     var user = req.user
 
@@ -535,16 +541,16 @@ router.post("/:id/answers", authRequired, function(req, res) {
     }
 
     if (!req.body.answer) {
-        res.status(400).send({ validationErrors: { answer: "required" }})
+        res.status(400).send({ validationErrors: { answer: "required" } })
         return
     }
-    
+
     if (!req.body.answer.user_id) { req.body.answer.user_id = user._id }
     if (!req.body.answer.author) { req.body.answer.author = user.fullname }
     var answer = Comment(req.body.answer)
 
     // find the project id 
-    Project.findById({_id}, function(err, project){
+    Project.findById({ _id }, function (err, project) {
         if (err) {
             console.error(err)
             res.status(500).send()
@@ -554,15 +560,15 @@ router.post("/:id/answers", authRequired, function(req, res) {
             return
         } else {
             var currentAnswer = project.answers.id(answer._id) // if the answer already has an id, it already exists
-            
+
             var successStatus // 200 if updating, 201 if creating
-            if (currentAnswer){
+            if (currentAnswer) {
                 // Preserve "createdAt"
                 answer.createdAt = currentAnswer.createdAt
                 Object.assign(currentAnswer, answer)
                 successStatus = 200
             }
-            else{
+            else {
                 project.answers.push(answer)
                 successStatus = 201
             }
@@ -588,13 +594,13 @@ router.post("/:id/answers", authRequired, function(req, res) {
                         return
                     }
                 } else { res.status(successStatus).send({ answer: project.answers.id(answer._id) }) }
-                    
+
             })
         }
     })
 })
 
-router.put("/:project_id/answers/:answer_id", authRequired, function(req, res) {
+router.put("/:project_id/answers/:answer_id", authRequired, function (req, res) {
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id
@@ -602,25 +608,27 @@ router.put("/:project_id/answers/:answer_id", authRequired, function(req, res) {
 
     // if the answer doesn't contain any valid update properties, then we can tell the user
     if (!req.body.answer) {
-        return res.status(400).send({ errors: { answer: "no valid update properties on answer" }})
+        return res.status(400).send({ errors: { answer: "no valid update properties on answer" } })
     }
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ errors: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" } })
         return
     } else if (!mongoose.Types.ObjectId.isValid(answer_id)) {
-        res.status(400).send({ errors: { answerId: "invalid" }})
+        res.status(400).send({ errors: { answerId: "invalid" } })
         return
     }
 
     // the project's id must match, and it must have a answer w/ correct id and user_id
-    Q(  Project.findOne({
-            _id: project_id,
-            answers: { $elemMatch: {
+    Q(Project.findOne({
+        _id: project_id,
+        answers: {
+            $elemMatch: {
                 _id: answer_id,
                 user_id: user._id
-            }}
-        })
+            }
+        }
+    })
         .exec())
         .then((project) => {
             if (!project) {
@@ -660,28 +668,32 @@ router.put("/:project_id/answers/:answer_id", authRequired, function(req, res) {
         })
 })
 
-router.delete("/:project_id/answers/:answer_id", authRequired, function(req, res){
+router.delete("/:project_id/answers/:answer_id", authRequired, function (req, res) {
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ errors: { projectId: "invalid" }})
+        res.status(400).send({ errors: { projectId: "invalid" } })
         return
     } else if (!mongoose.Types.ObjectId.isValid(answer_id)) {
-        res.status(400).send({ errors: { answerId: "invalid" }})
+        res.status(400).send({ errors: { answerId: "invalid" } })
         return
     }
 
     Q(Project.findOneAndUpdate(
         {
             _id: project_id,
-            $or: [ 
+            $or: [
                 { teacher_id: user._id }, // this lets teachers delete a student's answer
-                { answers: { $elemMatch: { // this is likely a student deleting their own answer
-                    _id: answer_id,
-                    user_id: user._id
-                }}}
+                {
+                    answers: {
+                        $elemMatch: { // this is likely a student deleting their own answer
+                            _id: answer_id,
+                            user_id: user._id
+                        }
+                    }
+                }
             ]
         }, {
             $pull: {
@@ -722,20 +734,20 @@ router.delete("/:project_id/answers/:answer_id", authRequired, function(req, res
         })
 })
 
-router.get("/:project_code/validate", function(req, res) {
+router.get("/:project_code/validate", function (req, res) {
     var project_code = req.params.project_code.toLowerCase()
 
-    Q(Project.findOne({code:project_code}, "_id").exec()).then(function(project) {
+    Q(Project.findOne({ code: project_code }, "_id").exec()).then(function (project) {
         if (project) {
-            res.status(200).send({ _id : project._id })
+            res.status(200).send({ _id: project._id })
         } else {
             res.status(404).send()
         }
     })
-    .catch(function(err) {
-        console.error(err)
-        res.status(500).send()
-    })
+        .catch(function (err) {
+            console.error(err)
+            res.status(500).send()
+        })
 })
 
 module.exports = router

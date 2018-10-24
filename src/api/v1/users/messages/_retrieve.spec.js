@@ -8,7 +8,6 @@ const mongoose = require('mongoose')
 // local imports
 const helpers = require('./_retrieve')
 const MessageList = require('./../../../../models/MessageList')
-const User = require('./../../../../models/User')
 
 describe('_retrieve', () => {
   // it does not make sense to have this method attached directly to the _retrieve route, but I don't know how to test it otherwise

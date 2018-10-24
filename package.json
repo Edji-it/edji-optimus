@@ -57,13 +57,15 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "mocha": "^5.2.0",
     "chai": "^4.0.0",
+    "chai-as-promised": "^7.1.1",
     "chai-http": "^3.0.0",
+    "mocha": "^5.2.0",
     "node-mocks-http": "^1.5.8",
     "nodemon": "^1.11.0",
     "randomstring": "^1.1.5",
     "sinon": "^4.4.6",
+    "sinon-as-promised": "^4.0.3",
     "sinon-mongoose": "^2.1.1"
   }
 }
