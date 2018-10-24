@@ -122,4 +122,42 @@ describe('projects _retrieve', () => {
       project.temp_ids.includes(mockUser._id).should.be.true
     })
   })
+
+  describe('decorateProject', () => {
+    let comments = []
+    for (let i = 0; i < 20; i++) {
+      comments.push({ _id: mongoose.Types.ObjectId() })
+    }
+    // give comment 0 three comments
+    comments[1].reply_to = comments[0]._id
+    comments[2].reply_to = comments[0]._id
+    comments[3].reply_to = comments[0]._id
+
+    // give comment 7 two comments
+    comments[8].reply_to = comments[7]._id
+    comments[9].reply_to = comments[7]._id
+
+    let mockProject
+    beforeEach(() => {
+      mockProject = {
+        comments: comments
+      }
+    })
+
+    it('should return the project', () => {
+      let result = helpers.decorateProject(mockProject)
+      result.should.be.equal(mockProject)
+    })
+
+    it('should add a replies array to comments with replies', () => {
+      let commentsWithReplies = [{ index: 0, count: 3 }, { index: 7, count: 2 }]
+      helpers.decorateProject(mockProject)
+
+      commentsWithReplies.forEach((comment) => {
+        mockProject.comments[comment.index].should.have.property('replies')
+        mockProject.comments[comment.index].replies.should.be.instanceOf(Array)
+        mockProject.comments[comment.index].replies.length.should.be.equal(comment.count)
+      })
+    })
+  })
 })
