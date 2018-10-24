@@ -153,10 +153,11 @@ describe('projects _retrieve', () => {
       let commentsWithReplies = [{ index: 0, count: 3 }, { index: 7, count: 2 }]
       helpers.decorateProject(mockProject)
 
-      commentsWithReplies.forEach((comment) => {
-        mockProject.comments[comment.index].should.have.property('replies')
-        mockProject.comments[comment.index].replies.should.be.instanceOf(Array)
-        mockProject.comments[comment.index].replies.length.should.be.equal(comment.count)
+      commentsWithReplies.forEach((testData) => {
+        let comment = mockProject.comments[testData.index]
+        comment.should.have.property('replies')
+        comment.replies.should.be.instanceOf(Array)
+        comment.replies.length.should.be.equal(testData.count)
       })
     })
   })
