@@ -5,7 +5,7 @@ const Q = require('q')
 const helpers = require('./_create')
 const stripe = require('./../_stripe')
 
-module.exports = function(req, res) {
+module.exports = function (req, res, next) {
   let user = req.user
   const body = helpers.validateBody(req.body)
   if (body.error) {
@@ -13,28 +13,23 @@ module.exports = function(req, res) {
   }
 
   stripe.retrieveOrCreateCustomer(req.user, body.value.token)
-  .then((customer) => {
-    return stripe.api.subscriptions.create({
-      customer: customer.id,
-      coupon: body.value.couponCode,
-      plan: 'yearly'
+    .then((customer) => {
+      return stripe.api.subscriptions.create({
+        customer: customer.id,
+        coupon: body.value.couponCode,
+        plan: 'yearly'
+      })
     })
-  })
-  .then((subscription) => {
-    user.stripe_customer_id = subscription.customer
-    user.hero_status = true
+    .then((subscription) => {
+      user.stripe_customer_id = subscription.customer
+      user.hero_status = true
 
-    user.edjiSave(false, (err, result) => {
-      if (err) {
-        console.error(err)
-        return res.status(500).send()
-      }
-
-      return res.status(200).send({ subscription: subscription, user: result.toPublic() })
+      return user.edjiSave(false)
+        .then((result) => {
+          return res.status(200).send({ subscription: subscription, user: result.toPublic() })
+        })
     })
-  })
-  .catch((err) => {
-    console.error(err)
-    return res.status(500).send()
-  })
+    .catch((err) => {
+      next(err)
+    })
 }

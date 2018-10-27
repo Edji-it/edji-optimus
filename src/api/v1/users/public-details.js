@@ -7,7 +7,7 @@ const User = require('../../../models/User')
 const TempUser = require('../../../models/TempUser')
 const helpers = require('./_public-details')
 
-module.exports = function(req, res) {
+module.exports = function (req, res, next) {
   // request query params for students_ids and temp_ids (either can be empty for this to work)
   const students = req.query.students_ids
   const temps = req.query.temp_ids
@@ -38,12 +38,12 @@ module.exports = function(req, res) {
   Q(
     User.aggregate([
       {
-        $match: { 
+        $match: {
           _id: {
             $in: students_ids
           }
         }
-      },{
+      }, {
         $project: {
           _id: 1,
           fullname: 1,
@@ -53,35 +53,34 @@ module.exports = function(req, res) {
       }
     ]).exec()
   )
-  .then((returnedUsers) => {
-    // set users
-    users = returnedUsers
-    return TempUser.aggregate([
-      {
-        $match: { 
-          _id: {
-            $in: temp_ids
+    .then((returnedUsers) => {
+      // set users
+      users = returnedUsers
+      return TempUser.aggregate([
+        {
+          $match: {
+            _id: {
+              $in: temp_ids
+            }
+          }
+        }, {
+          $project: {
+            _id: 1,
+            fullname: 1,
+            "userType": "temp"
           }
         }
-      },{
-        $project: {
-          _id: 1,
-          fullname: 1,
-          "userType": "temp"
-        }
-      }
-    ])
-  }).then((returnedTempUsers) => {
-    // set tempUsers
-    tempUsers = returnedTempUsers
-    // combine the user and temp info
-    totalUsers = helpers.combineArrays(users, tempUsers)
-    
-    // send back the users
-    return res.status(200).send({ users: totalUsers })
-  })
-  .catch((error)=> {
-    console.error(error)
-    return res.status(500).send()
-  })
+      ])
+    }).then((returnedTempUsers) => {
+      // set tempUsers
+      tempUsers = returnedTempUsers
+      // combine the user and temp info
+      totalUsers = helpers.combineArrays(users, tempUsers)
+
+      // send back the users
+      return res.status(200).send({ users: totalUsers })
+    })
+    .catch((err) => {
+      next(err)
+    })
 }

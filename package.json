@@ -26,6 +26,7 @@
     "node": "^8.9.4"
   },
   "dependencies": {
+    "@sentry/node": "4.2.3",
     "@types/request-promise": "^4.1.41",
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.18.2",
@@ -45,7 +46,6 @@
     "passport-google-oauth20": "^1.0.0",
     "q": "^1.4.1",
     "querystring": "^0.2.0",
-    "raven": "^2.6.3",
     "request": "^2.79.0",
     "request-promise": "^4.2.1",
     "require": "^2.4.20",

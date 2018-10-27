@@ -5,7 +5,7 @@ var mongoose = require("mongoose")
 // project imports
 const Institution = require('./../../../models/Institution')
 
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   // the institution_id is a param that will be used to find the institution
   let institutionId = req.params.institution_id
 
@@ -31,8 +31,7 @@ module.exports = function (req, res) {
 
       return res.status(200).send({ institution: institution })
     })
-    .catch((error) => {
-      console.error(error)
-      return res.status(500).send()
+    .catch((err) => {
+      next(err)
     })
 }

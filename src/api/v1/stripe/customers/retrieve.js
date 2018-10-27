@@ -1,7 +1,7 @@
 // library imports
 const stripe = require('./../_stripe').api
 
-module.exports = function(req, res) {
+module.exports = function (req, res, next) {
   let customer_id = req.params.stripe_id
   let user = req.user
 
@@ -11,11 +11,10 @@ module.exports = function(req, res) {
   if (customer_id != user.stripe_customer_id) { return res.status(401).send() }
 
   stripe.customers.retrieve(customer_id)
-  .then((customer) => {
-    return res.status(200).send({ customer: customer })
-  })
-  .catch((err) => {
-    console.error(err)
-    return res.status(500).send()
-  })
+    .then((customer) => {
+      return res.status(200).send({ customer: customer })
+    })
+    .catch((err) => {
+      next(err)
+    })
 }

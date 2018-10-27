@@ -1,9 +1,10 @@
 /**
  * Created by bvfergus on 3/5/16.
  */
-const express = require( "express")
-const mongoose = require( "mongoose")
+const express = require("express")
+const mongoose = require("mongoose")
 const Q = require("q")
+const Sentry = require('@sentry/node')
 const joi = require("joi")
 
 let Reading = require("./../models/Reading")
@@ -16,7 +17,7 @@ const Referral = require('./../models/Referral')
 
 let router = express.Router()
 
-router.post("/", authRequired, function(req, res) {
+router.post("/", authRequired, function (req, res, next) {
     let reading = req.body.reading
     let user = req.user
 
@@ -39,7 +40,7 @@ router.post("/", authRequired, function(req, res) {
     // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
     reading.teacher_ids = []
     reading.teacher_ids.push(user._id)
-    
+
     let model = Reading(reading)
 
     let errors = {}
@@ -62,31 +63,29 @@ router.post("/", authRequired, function(req, res) {
             // first, make the necessary update to the version in the linking table
             // the upsert: true makes sure that, if the version_id doesn't exist, it gets created
             Q(ReadingVersion.findOneAndUpdate({ // we can't use save here because of the special $push operation
-                    _id: model.version_id,
-                    owner_id: user._id
-                }, {
+                _id: model.version_id,
+                owner_id: user._id
+            }, {
                     $push: { readings: model._id },
                     updatedAt: Date.now()
                 }, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true })
                 .exec())
                 .then((version) => {
                     // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
-                    model.save((error, result) => {
-                        if (error) {
-                            console.error(error)
-                            return res.status(500).send()
-                        } else {
-                            
-                            if (user.referred_by && (!user.prefs || !user.prefs.onboarding || !user.prefs.onboarding.firstReadingCreated || !user.prefs.onboarding.firstReadingCreated.firstDone)) {
-                                updateUserReferral(user)
-                            }
-                            return res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
+                    model.save((err, result) => {
+                        if (err) {
+                            return next(err)
                         }
+
+                        if (user.referred_by && (!user.prefs || !user.prefs.onboarding || !user.prefs.onboarding.firstReadingCreated || !user.prefs.onboarding.firstReadingCreated.firstDone)) {
+                            updateUserReferral(user)
+                        }
+                        return res.status(201).send({ reading: { _id: result._id, version_id: result.version_id, success: true } })
+
                     })
                 })
                 .catch((err) => {
-                    console.error(err)
-                    res.status(500).send()
+                    next(err)
                 })
         }
     })
@@ -96,7 +95,7 @@ router.post("/", authRequired, function(req, res) {
  * Updates user and corresponding Referral object to record that the user has completed the referral process!!
  * @param {User} user user attached to req object, must have referred_by
  */
-let updateUserReferral = function(user) {
+let updateUserReferral = function (user) {
     if (!user.referred_by) { return console.error('no referral code for user') }
 
     if (!user.prefs) { user.prefs = {} }
@@ -104,30 +103,28 @@ let updateUserReferral = function(user) {
 
     // update and save the user to record that they've made their first reading
     user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
-    user.edjiSave(false, (err, result) => {
-        err && console.error(err)
-    })
-
-    // update the corresponding referral so that the referring user gets credit
-    Referral.findOneAndUpdate(
-        { 
-            "code": user.referred_by,
-            "users_referred.user_id": user._id
-        },
-        {
-            $set: {
-                "users_referred.$.status": "completed"
-            }
-        }
-    )
-    .exec()
-    .catch((err) => {
-        console.error(err)
-    })
+    user.edjiSave(false)
+        .then(() => {
+            // update the corresponding referral so that the referring user gets credit
+            Referral.findOneAndUpdate(
+                {
+                    "code": user.referred_by,
+                    "users_referred.user_id": user._id
+                },
+                {
+                    $set: {
+                        "users_referred.$.status": "completed"
+                    }
+                }
+            )
+        })
+        .catch((err) => {
+            Sentry.captureException(err)
+        })
 }
 
 // Update a reading if in draft
-router.put("/:reading_id", authRequired, function(req, res) {
+router.put("/:reading_id", authRequired, function (req, res, next) {
     var reading_upd = req.body.reading
     var reading_id = req.params.reading_id
     var user = req.user
@@ -150,31 +147,26 @@ router.put("/:reading_id", authRequired, function(req, res) {
     }
 
     if (invalidProperties.length > 0) {
-        return res.status(400).send({ validationErrors: { invalidProperties: invalidProperties }})
+        return res.status(400).send({ validationErrors: { invalidProperties: invalidProperties } })
     }
 
-    Q(Reading.findById(reading_id).exec())
+    Reading.findById(reading_id)
         .then((result) => {
             if (!result) { return res.status(404).send() }
             if (!user._id.equals(result.owner_id)) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
-            result.edjiSave(false, (err) => {
-                if (err) {
-                    console.error(err)
-                    return res.status(500).send()
-                } else {
+            result.edjiSave(false)
+                .then((result) => {
                     return res.status(200).send({ reading: result })
-                }
-            })
+                })
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
-router.delete("/:id", authRequired, function(req, res) {
+router.delete("/:id", authRequired, function (req, res, next) {
     let id = req.params.id
     let user = req.user
 
@@ -186,40 +178,41 @@ router.delete("/:id", authRequired, function(req, res) {
 
     let promises = []
     // remove all of the readings with the same id
-    promises.push(Reading.deleteOne({ _id: id, owner_id: user._id }).exec())
+    promises.push(Reading.deleteOne({ _id: id, owner_id: user._id }))
     // remove all projects associated with the reading
-    promises.push(Project.deleteMany({ reading_id: id, teacher_id: user._id }).exec())
+    promises.push(Project.deleteMany({ reading_id: id, teacher_id: user._id }))
     // remove the version id from all the version id places
     promises.push(ReadingVersion.update(
         { readings: id, owner_id: user._id },
-        { $pull: { readings: id }},
+        { $pull: { readings: id } },
         {}
-    ).exec())
+    ))
 
     // run all of the promises and return to client
     Q.all(promises)
-    .then((responses) => {
-        // if the delete reading response indicates that a reading has been deleted, assign properties and return 200
-        if (responses.length && responses[0].n > 0) {
-            let delReadings = responses[0].n
-            let delProjects = responses[1].n
+        .then((responses) => {
+            // if the delete reading response indicates that a reading has been deleted, assign properties and return 200
+            if (responses.length && responses[0].n > 0) {
+                let delReadings = responses[0].n
+                let delProjects = responses[1].n
 
-            return res.status(200).send({ results: {
-                deletedReadings: delReadings,
-                deletedProjects: delProjects
-            }})
-        } else {
-            return res.status(404).send()
-        }
+                return res.status(200).send({
+                    results: {
+                        deletedReadings: delReadings,
+                        deletedProjects: delProjects
+                    }
+                })
+            } else {
+                return res.status(404).send()
+            }
 
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
+        })
+        .catch((err) => {
+            next(err)
+        })
 })
 
-router.get("/versions/:version_id", authRequired, function(req, res) {
+router.get("/versions/:version_id", authRequired, (req, res, next) => {
     let version_id = req.params.version_id
     let user = req.user
 
@@ -231,41 +224,49 @@ router.get("/versions/:version_id", authRequired, function(req, res) {
 
     let promises = [
         Project.aggregate([
-            { $match: { $or: [{ teacher_id: user._id }, { students_ids: user._id }, { temp_ids: user._id }]}},
-            { $project: {
-                teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
-                comment_count: { $size: { $ifNull: [ "$comments", [] ]}},
-                student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", [] ]}}, { $size: { $ifNull: ["$temp_ids", [] ]}}] }
-            }}
-        ]).exec(),
+            { $match: { $or: [{ teacher_id: user._id }, { students_ids: user._id }, { temp_ids: user._id }] } },
+            {
+                $project: {
+                    teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
+                    comment_count: { $size: { $ifNull: ["$comments", []] } },
+                    student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", []] } }, { $size: { $ifNull: ["$temp_ids", []] } }] }
+                }
+            }
+        ]),
         ReadingVersion.aggregate([
-            { $match: { _id: mongoose.Types.ObjectId(version_id) }},
+            { $match: { _id: mongoose.Types.ObjectId(version_id) } },
             { $unwind: "$readings" },
-            { $project: {
-                _id: "$readings"
-            }},
-            { $lookup: {
-                from: "readings",
-                localField: "_id",
-                foreignField: "_id",
-                as: "reading"
-            }},
+            {
+                $project: {
+                    _id: "$readings"
+                }
+            },
+            {
+                $lookup: {
+                    from: "readings",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "reading"
+                }
+            },
             { $unwind: "$reading" },
-            { $project: {
-                _id: "$reading._id",
-                title: "$reading.title",
-                owner_id: "$reading.owner_id",
-                teacher_ids: "$reading.teacher_ids",
-                "public": "$reading.public",
-                source: "$reading.source",
-                cover_img: "$reading.cover_img",
-                draft: "$reading.draft",
-                createdAt: "$reading.createdAt",
-                updatedAt: "$reading.updatedAt",
-                versionCount: 1,
-                version_count: "$versionCount"
-            }},
-            { $sort: { _id: -1 }}
+            {
+                $project: {
+                    _id: "$reading._id",
+                    title: "$reading.title",
+                    owner_id: "$reading.owner_id",
+                    teacher_ids: "$reading.teacher_ids",
+                    "public": "$reading.public",
+                    source: "$reading.source",
+                    cover_img: "$reading.cover_img",
+                    draft: "$reading.draft",
+                    createdAt: "$reading.createdAt",
+                    updatedAt: "$reading.updatedAt",
+                    versionCount: 1,
+                    version_count: "$versionCount"
+                }
+            },
+            { $sort: { _id: -1 } }
         ])
     ]
 
@@ -284,65 +285,74 @@ router.get("/versions/:version_id", authRequired, function(req, res) {
 
             // check the first reading's owner_id to see if it matches the user._id
             if (!user._id.equals(readings[0].owner_id)) { return res.status(401).send() }
-            res.status(200).send({readings})
+            res.status(200).send({ readings })
         })
         .catch((err) => {
-            console.error(err)
-            res.status(500).send()
+            next(err)
         })
 })
 
-router.get("/all/projects", authRequired, function(req, res) {
+router.get("/all/projects", authRequired, function (req, res, next) {
     var user = req.user
 
     let promises = [
         Project.aggregate([
-            { $match: { $or: [{ teacher_id: user._id }, { students_ids: user._id }, { temp_ids: user._id }]}},
-            { $project: {
-                teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
-                comment_count: { $size: { $ifNull: [ "$comments", [] ]}},
-                student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", [] ]}}, { $size: { $ifNull: ["$temp_ids", [] ]}}] }
-            }}
-        ]).exec(),
+            { $match: { $or: [{ teacher_id: user._id }, { students_ids: user._id }, { temp_ids: user._id }] } },
+            {
+                $project: {
+                    teacher_id: 1, reading_id: 1, label: 1, code: 1, types: 1, createdAt: 1, updatedAt: 1,
+                    comment_count: { $size: { $ifNull: ["$comments", []] } },
+                    student_count: { $sum: [{ $size: { $ifNull: ["$students_ids", []] } }, { $size: { $ifNull: ["$temp_ids", []] } }] }
+                }
+            }
+        ]),
         ReadingVersion.aggregate([
-            { $match: { owner_id: user._id }},
-            { $project: {
-                versionCount: { $size: "$readings" },
-                readings: 1,
-                updatedAt: 1
-            }},
+            { $match: { owner_id: user._id } },
+            {
+                $project: {
+                    versionCount: { $size: "$readings" },
+                    readings: 1,
+                    updatedAt: 1
+                }
+            },
             { $unwind: "$readings" },
-            { $group: {
-                _id: "$_id",
-                reading: { $last: "$readings" },
-                versionCount: { $last: "$versionCount" },
-                updatedAt: { $last: "$updatedAt" },
-                promoter_count: { $last: "$promoter_count" }
-            }},
+            {
+                $group: {
+                    _id: "$_id",
+                    reading: { $last: "$readings" },
+                    versionCount: { $last: "$versionCount" },
+                    updatedAt: { $last: "$updatedAt" },
+                    promoter_count: { $last: "$promoter_count" }
+                }
+            },
             { $sort: { "updatedAt": -1 } },
-            { $lookup: {
-                from: "readings",
-                localField: "reading",
-                foreignField: "_id",
-                as: "reading"
-            }},
-            { $unwind: "$reading"},
-            { $project: {
-                _id: "$reading._id",
-                title: "$reading.title",
-                owner_id: "$reading.owner_id",
-                teacher_ids: "$reading.teacher_ids",
-                "public": "$reading.public",
-                source: "$reading.source",
-                subjects: "$reading.subjects",
-                grade_levels: "$reading.grade_levels",
-                cover_img: "$reading.cover_img",
-                draft: "$reading.draft",
-                version_id: "$reading.version_id",
-                createdAt: "$reading.createdAt",
-                updatedAt: "$reading.updatedAt",
-                versionCount: 1
-            }}
+            {
+                $lookup: {
+                    from: "readings",
+                    localField: "reading",
+                    foreignField: "_id",
+                    as: "reading"
+                }
+            },
+            { $unwind: "$reading" },
+            {
+                $project: {
+                    _id: "$reading._id",
+                    title: "$reading.title",
+                    owner_id: "$reading.owner_id",
+                    teacher_ids: "$reading.teacher_ids",
+                    "public": "$reading.public",
+                    source: "$reading.source",
+                    subjects: "$reading.subjects",
+                    grade_levels: "$reading.grade_levels",
+                    cover_img: "$reading.cover_img",
+                    draft: "$reading.draft",
+                    version_id: "$reading.version_id",
+                    createdAt: "$reading.createdAt",
+                    updatedAt: "$reading.updatedAt",
+                    versionCount: 1
+                }
+            }
         ])
     ]
 
@@ -358,11 +368,10 @@ router.get("/all/projects", authRequired, function(req, res) {
                 })
             })
 
-            res.status(200).send({readings})
+            res.status(200).send({ readings })
         })
         .catch((err) => {
-            console.error(err)
-            res.status(500).send()
+            next(err)
         })
 })
 
@@ -371,7 +380,7 @@ router.get("/all/projects", authRequired, function(req, res) {
  *  it also makes a few changes to clean the data on the query parameters supplied
  * @param {any} query The query parameters from the req object
  */
-let validateAndCleanSearchParams = function(query) {
+let validateAndCleanSearchParams = function (query) {
     // allowable parameters
     let allowedTypes = [
         'global',
@@ -410,7 +419,7 @@ let validateAndCleanSearchParams = function(query) {
                 value: query.size
             })
         }
-        
+
         if (sizeOk && (query.size < 0 || query.size > 100)) { // check that it's in range
             errors.push({
                 parameter: 'size',
@@ -434,7 +443,7 @@ let validateAndCleanSearchParams = function(query) {
             })
         }
 
-        if ( startOk && (query.start < 0 || query.start > 1000)) { // check value of start
+        if (startOk && (query.start < 0 || query.start > 1000)) { // check value of start
             errors.push({
                 parameter: 'start',
                 message: 'supplied start out of bounds [0, 1000]',
@@ -451,7 +460,7 @@ let validateAndCleanSearchParams = function(query) {
         }
         let gradesOk = true
 
-        for(let i = 0; i < query.grades.length; i++) {
+        for (let i = 0; i < query.grades.length; i++) {
             try {
                 query.grades[i] = parseInt(query.grades[i])
             } catch (e) {
@@ -525,7 +534,7 @@ let validateAndCleanSearchParams = function(query) {
 }
 
 // Get all Readings from users that requesting user follows
-router.get("/feed", function(req, res) {
+router.get("/feed", function (req, res, next) {
     let user = req.user
 
     // the aggregation pipeline we'll be building throughout this route
@@ -548,7 +557,7 @@ router.get("/feed", function(req, res) {
 
     let readingQuery = {
         $and: [
-            { draft: { $ne: true }},
+            { draft: { $ne: true } },
             { parent_id: { $exists: false } }
         ]
     }
@@ -570,7 +579,7 @@ router.get("/feed", function(req, res) {
 
             let len = followedUsers.length
             for (let i = 0; i < len; i++) {
-                typeQuery.$or.push({ "owner_id" : followedUsers[i] })
+                typeQuery.$or.push({ "owner_id": followedUsers[i] })
             }
             readingQuery.$and.push(typeQuery)
             break
@@ -582,11 +591,11 @@ router.get("/feed", function(req, res) {
 
     // filter down on grade level if it is given
     if (query.grades && query.grades.length > 0) {
-        readingQuery.$and.push({ grade_levels: { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) }})
+        readingQuery.$and.push({ grade_levels: { $gte: Math.min(...query.grades), $lte: Math.max(...query.grades) } })
     }
 
     // don't get readings that belong to the requesting user
-    user && readingQuery.$and.push({ owner_id: { $ne: user._id }})
+    user && readingQuery.$and.push({ owner_id: { $ne: user._id } })
 
     // finished creating readingQuery, it's the first step of the pipeline
     pipeline.push({ $match: readingQuery })
@@ -599,7 +608,7 @@ router.get("/feed", function(req, res) {
             as: 'owner'
         }
     })
-    
+
     projection = {
         'title': true,
         'owner_id': true,
@@ -620,47 +629,47 @@ router.get("/feed", function(req, res) {
         'version_id': true,
         'createdAt': true,
         'updatedAt': true,
-        'heroic': { $gt: [ { $size: "$questions" }, 0 ] } // see if the reading makes use of hero features,
+        'heroic': { $gt: [{ $size: "$questions" }, 0] } // see if the reading makes use of hero features,
     }
 
     // if the words_preview is requested, calculate this into the projection
-    query.populate.indexOf('words_preview') > -1 && ( projection.words_preview = { $slice: ["$words", 200] } )
+    query.populate.indexOf('words_preview') > -1 && (projection.words_preview = { $slice: ["$words", 200] })
 
     // finished with initial projection
     pipeline.push({ $project: projection })
     pipeline.push({ $unwind: '$owner' }) // owner will come back as an array, so we'll unwind it
-    pipeline.push({ $match: { 'owner.identities': 'teacher' }}) // only return readings with teacher identitiy
+    pipeline.push({ $match: { 'owner.identities': 'teacher' } }) // only return readings with teacher identitiy
 
     // pagination factors
     pipeline.push(
-        { $sort: { updatedAt: -1 }}, // sort by newly updated first - HAS TO BE CALLED BEFORE SKIP AND LIMIT
+        { $sort: { updatedAt: -1 } }, // sort by newly updated first - HAS TO BE CALLED BEFORE SKIP AND LIMIT
         { $limit: 1000 }, // this limits the total number returnable to 1000
-        { $group: {
-            _id: null,
-            total: { $sum: 1 },
-            readings: { $push: "$$ROOT" }
-        }},
-        { $project: {
-            total: true,
-            readings: { $slice: ["$readings", query.start, query.size] }
-        }}
+        {
+            $group: {
+                _id: null,
+                total: { $sum: 1 },
+                readings: { $push: "$$ROOT" }
+            }
+        },
+        {
+            $project: {
+                total: true,
+                readings: { $slice: ["$readings", query.start, query.size] }
+            }
+        }
     )
 
-    Q(
-        Reading.aggregate(pipeline)
-        .exec()
-    )
-    .then((results) => {
-        results = results[0] // aggregations return arrays, so take the first element
-        // return res.status(200).send({ readings: results, pipeline: pipeline })
-        return res.status(200).send({ total: results.total, readings: results.readings })
-    })
-    .catch((err) => {
-        console.error(err)
-        return res.status(500).send()
-    })
+    Reading.aggregate(pipeline)
+        .then((results) => {
+            results = results[0] // aggregations return arrays, so take the first element
+            // return res.status(200).send({ readings: results, pipeline: pipeline })
+            return res.status(200).send({ total: results.total, readings: results.readings })
+        })
+        .catch((err) => {
+            next(err)
+        })
 })
 
-MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create:false })
+MountModelToRouter(router, Reading, "reading", { list: false, read: true, delete: false, create: false })
 
 module.exports = router

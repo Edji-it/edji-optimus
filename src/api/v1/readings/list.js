@@ -5,11 +5,11 @@ const Q = require('q')
 const helpers = require('./_list')
 const ReadingVersion = require('./../../../models/ReadingVersion')
 
-module.exports = function(req, res) {
+module.exports = function (req, res, next) {
   const user = req.user
   const query = helpers.validateQuery(req.query)
   if (query.error) {
-      return res.status(400).send({ error: query.error })
+    return res.status(400).send({ error: query.error })
   }
 
   let dbQuery
@@ -43,8 +43,7 @@ module.exports = function(req, res) {
       total: results.total
     })
   })
-  .catch((err) => {
-    console.error(err)
-    return res.status(500).send()
-  })
+    .catch((err) => {
+      next(err)
+    })
 }
