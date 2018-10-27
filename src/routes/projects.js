@@ -17,7 +17,7 @@ let router = express.Router()
 
 MountModelToRouter(router, Project, "project", { read: false, list: false, delete: false })
 
-router.get("/", authRequired, function (req, res) {
+router.get("/", authRequired, function (req, res, next) {
 
     var user = req.user
 
@@ -32,12 +32,11 @@ router.get("/", authRequired, function (req, res) {
             return res.status(200).send(projects)
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
-router.post("/", authRequired, function (req, res) {
+router.post("/", authRequired, function (req, res, next) {
     var project = req.body.project
 
     if (!project) {
@@ -69,8 +68,7 @@ router.post("/", authRequired, function (req, res) {
                 res.status(406).send({ validationErrors: errors })
                 return
             } else {
-                res.status(500).send(error)
-                return
+                next(error)
             }
         } else {
             res.status(201).send({ project: result })
@@ -78,7 +76,7 @@ router.post("/", authRequired, function (req, res) {
     })
 })
 
-router.get("/:id", function (req, res) {
+router.get("/:id", function (req, res, next) {
     let id = req.params.id
     let user = req.user
     let populate = req.query.pop || []
@@ -179,14 +177,13 @@ router.get("/:id", function (req, res) {
                 }
             })
         })
-        .catch((error) => {
-            console.error(error)
-            res.status(500).send()
+        .catch((err) => {
+            next(err)
         })
 })
 
 // currently only works for teacher deleting a project
-router.delete("/:id", authRequired, function (req, res) {
+router.delete("/:id", authRequired, function (req, res, next) {
     var id = req.params.id
     var user = req.user
 
@@ -204,12 +201,11 @@ router.delete("/:id", authRequired, function (req, res) {
             }
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
-router.put("/:id", authRequired, function (req, res) {
+router.put("/:id", authRequired, function (req, res, next) {
     let user = req.user
     let id = req.params.id
     let project = req.body.project
@@ -236,12 +232,11 @@ router.put("/:id", authRequired, function (req, res) {
             }
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
-router.put("/:id/user_id", authRequired, function (req, res) {
+router.put("/:id/user_id", authRequired, function (req, res, next) {
     let user = req.user
     let id = req.params.id
 
@@ -280,13 +275,12 @@ router.put("/:id/user_id", authRequired, function (req, res) {
             else { return res.status(304).send() }
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
 // get projects for a single reading id
-router.get("/reading/:reading_id", authRequired, function (req, res) {
+router.get("/reading/:reading_id", authRequired, function (req, res, next) {
     var reading_id = req.params.reading_id
     var user = req.user
 
@@ -298,19 +292,17 @@ router.get("/reading/:reading_id", authRequired, function (req, res) {
         { reading_id: reading_id, teacher_id: user._id },
         {},
         // 'reading_id teacher_id label code types updatedAt createdAt',
-        { sort: { createdAt: -1 } },
-        (error, projects) => {
-            if (error) {
-                console.error(error)
-                res.status(500).send()
-            } else {
-                res.status(200).send({ projects: projects })
-            }
-        }
+        { sort: { createdAt: -1 } }
     )
+        .then((projects) => {
+            res.status(200).send({ projects: projects })
+        })
+        .catch((err) => {
+            next(err)
+        })
 })
 
-router.post("/:id/comments", authRequired, function (req, res) {
+router.post("/:id/comments", authRequired, function (req, res, next) {
     var _id = req.params.id
     var user = req.user
 
@@ -331,9 +323,7 @@ router.post("/:id/comments", authRequired, function (req, res) {
     //comment.user_id = req.logged_in_user.user_id
     Project.findById({ _id }, function (err, project) {
         if (err) {
-            console.error(err)
-            res.status(500).send()
-            return
+            return next(err)
         } else if (!project) {
             res.status(404).send()
             return
@@ -366,14 +356,13 @@ router.post("/:id/comments", authRequired, function (req, res) {
                             }
                         }
 
-                        res.status(406).send({ validationErrors: errors })
-                        return
+                        return res.status(406).send({ validationErrors: errors })
                     } else {
-                        res.status(500).send(error)
-                        return
+                        next(error)
                     }
-                } else { res.status(successStatus).send({ comment: project.comments.id(comment._id) }) }
-
+                } else {
+                    res.status(successStatus).send({ comment: project.comments.id(comment._id) })
+                }
             })
         }
 
@@ -396,7 +385,7 @@ let deleteFromS3 = function (url) {
     return rp(options)
 }
 
-router.put("/:project_id/comments/:comment_id", authRequired, function (req, res) {
+router.put("/:project_id/comments/:comment_id", authRequired, function (req, res, next) {
     let user = req.user
     let project_id = req.params.project_id
     let comment_id = req.params.comment_id
@@ -460,12 +449,11 @@ router.put("/:project_id/comments/:comment_id", authRequired, function (req, res
 
         })
         .catch((err) => {
-            console.error(err)
-            res.status(500).send()
+            next(err)
         })
 })
 
-router.delete("/:project_id/comments/:comment_id", authRequired, function (req, res) {
+router.delete("/:project_id/comments/:comment_id", authRequired, function (req, res, next) {
     let user = req.user
     let project_id = req.params.project_id
     let comment_id = req.params.comment_id
@@ -525,13 +513,12 @@ router.delete("/:project_id/comments/:comment_id", authRequired, function (req, 
                 }
             }
         })
-        .catch((error) => {
-            console.error(error)
-            res.status(500).send()
+        .catch((err) => {
+            next(err)
         })
 })
 
-router.post("/:id/answers", authRequired, function (req, res) {
+router.post("/:id/answers", authRequired, function (req, res, next) {
     var _id = req.params.id
     var user = req.user
 
@@ -552,9 +539,7 @@ router.post("/:id/answers", authRequired, function (req, res) {
     // find the project id 
     Project.findById({ _id }, function (err, project) {
         if (err) {
-            console.error(err)
-            res.status(500).send()
-            return
+            return next(err)
         } else if (!project) {
             res.status(404).send()
             return
@@ -590,17 +575,17 @@ router.post("/:id/answers", authRequired, function (req, res) {
                         res.status(406).send({ validationErrors: errors })
                         return
                     } else {
-                        res.status(500).send(error)
-                        return
+                        return next(error)
                     }
-                } else { res.status(successStatus).send({ answer: project.answers.id(answer._id) }) }
-
+                } else {
+                    res.status(successStatus).send({ answer: project.answers.id(answer._id) })
+                }
             })
         }
     })
 })
 
-router.put("/:project_id/answers/:answer_id", authRequired, function (req, res) {
+router.put("/:project_id/answers/:answer_id", authRequired, function (req, res, next) {
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id
@@ -663,12 +648,11 @@ router.put("/:project_id/answers/:answer_id", authRequired, function (req, res) 
 
         })
         .catch((err) => {
-            console.error(err)
-            res.status(500).send()
+            next(err)
         })
 })
 
-router.delete("/:project_id/answers/:answer_id", authRequired, function (req, res) {
+router.delete("/:project_id/answers/:answer_id", authRequired, function (req, res, next) {
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id
@@ -728,13 +712,12 @@ router.delete("/:project_id/answers/:answer_id", authRequired, function (req, re
                 }
             }
         })
-        .catch((error) => {
-            console.error(error)
-            res.status(500).send()
+        .catch((err) => {
+            next(err)
         })
 })
 
-router.get("/:project_code/validate", function (req, res) {
+router.get("/:project_code/validate", function (req, res, next) {
     var project_code = req.params.project_code.toLowerCase()
 
     Q(Project.findOne({ code: project_code }, "_id").exec()).then(function (project) {
@@ -744,9 +727,8 @@ router.get("/:project_code/validate", function (req, res) {
             res.status(404).send()
         }
     })
-        .catch(function (err) {
-            console.error(err)
-            res.status(500).send()
+        .catch((err) => {
+            next(err)
         })
 })
 

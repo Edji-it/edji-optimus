@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const Project = require('./../../../models/Project')
 
 // updates all of the temp user's information to be owned by the new user (the req.user), and removes the temp user
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   let user = req.user
   let temp_id = req.params.temp_id
 
@@ -39,7 +39,6 @@ module.exports = function (req, res) {
       return res.status(200).send({ updated: dbResponse })
     })
     .catch((err) => {
-      console.error(err)
-      return res.status(500).send()
+      next(err)
     })
 }

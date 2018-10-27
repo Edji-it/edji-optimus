@@ -5,7 +5,7 @@ var mongoose = require("mongoose")
 // project imports
 const License = require('./../../../models/License')
 
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   let user = req.user
 
   // the license_id is a param that will be passed in to add to the user's object
@@ -75,24 +75,23 @@ module.exports = function (req, res) {
         // save the updated user and return it back
         user.edjiSave(false, (err, user) => {
           if (err) {
-            console.error(err)
-            return res.status(500).send()
-          } else {
-            // make sure the license was added to the user object
-            let licensePos = findLicense(user.license_ids, license._id)
-            if (licensePos > -1) {
-              // send the updated user object back if the user is successfully updated
-              return res.status(200).send({ user: user.toPublic() })
-            } else {
-              return res.status(500).send()
-            }
+            return next(err)
           }
+
+          // make sure the license was added to the user object
+          let licensePos = findLicense(user.license_ids, license._id)
+          if (licensePos > -1) {
+            // send the updated user object back if the user is successfully updated
+            return res.status(200).send({ user: user.toPublic() })
+          } else {
+            return next(err)
+          }
+
         })
       })
     })
     .catch((err) => {
-      console.error(err)
-      return res.status(500).send()
+      next(err)
     })
 }
 

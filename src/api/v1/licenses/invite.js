@@ -8,7 +8,7 @@ const Institution = require('./../../../models/Institution')
 const emailService = require('./../../../services/email')
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   let user = req.user
   let subject = 'Welcome to Edji Academy!'
 
@@ -120,8 +120,7 @@ module.exports = function (req, res) {
     .then((success) => {
       return res.status(200).send({ license: licenseSend })
     })
-    .catch((error) => {
-      console.error(error)
-      return res.status(500).send()
+    .catch((err) => {
+      next(err)
     })
 }
