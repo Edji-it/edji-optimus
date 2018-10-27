@@ -5,7 +5,7 @@ const joi = require('joi')
 const emailService = require('./../../../services/email')
 const helpers = require('./_reports')
 
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   const body = helpers.validateBody(req.body)
   if (body.error) {
     return res.status(400).send({ error: body.error })
@@ -35,8 +35,7 @@ module.exports = function (req, res) {
   }).then((success) => {
     return res.status(200).send({ success: success })
   })
-    .catch((error) => {
-      console.error(error)
-      return res.status(500).send()
+    .catch((err) => {
+      next(err)
     })
 }

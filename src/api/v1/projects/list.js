@@ -6,7 +6,7 @@ const Project = require('./../../../models/Project')
 const helpers = require('./_list')
 const _agg = require('./../../../aggregations')
 
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   const user = req.user
   const query = helpers.validateQuery(req.query)
   if (query.error) {
@@ -37,7 +37,6 @@ module.exports = function (req, res) {
       return res.status(200).send({ total: response.total, projects: response.results })
     })
     .catch((err) => {
-      console.error(err)
-      return res.status(500).send()
+      next(err)
     })
 }

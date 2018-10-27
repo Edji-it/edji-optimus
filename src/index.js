@@ -9,7 +9,14 @@ const passport = require('passport') // passport gets configured elsewhere
 const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
 // set up all environment variables
-const config = require('./../config')
+require('./../config')
+
+// setup error logging
+const Sentry = require('@sentry/node')
+Sentry.init({
+    dsn: 'https://c581687e3838434b859f1249b31d5a26@sentry.io/299438',
+    environment: process.env.NODE_ENV
+})
 
 // local project imports
 const LoginController = require("./middleware/LoginController")
@@ -41,26 +48,7 @@ app.get('/healthcheck', require('./healthcheck'))
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
 // handler for oauth errors
-app.use((err, req, res, next) => {
-    if (err && err.type && err.type == 'oauth') {
-        switch (err.code) {
-            case "err_duplicate_user":
-                const redirect = req.protocol + ":" + process.env.CLIENT_URL + "/#/oauth/google?error=duplicate_user"
-                res.redirect(redirect)
-                break
-            default:
-                next(err)
-        }
-    } else {
-        next(err)
-    }
-})
-
-if (process.env.NODE_ENV === 'production') {
-    // install raven error handling
-    var Raven = require('raven')
-    Raven.config('https://c581687e3838434b859f1249b31d5a26@sentry.io/299438').install()
-}
+app.use(require('./error-handlers'))
 
 let port = process.env.PORT || 3354
 
