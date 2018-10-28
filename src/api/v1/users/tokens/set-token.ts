@@ -1,10 +1,11 @@
 // library imports
-import { Request, Response } from '../../../../express.interface'
+// import { EdjiRequest, EdjiResponse } from '../../../../express.interface'
+import { Request, Response, NextFunction } from 'express'
 
 // project imports
 import { EmailService } from '../../../../services/email'
 
-export async function SetTokenController(req: Request, res: Response) {
+export async function SetTokenController(req: Request, res: Response, next: NextFunction) {
   let user = req.user
   let tokenName: string = req.params.token_name
 
@@ -32,7 +33,6 @@ export async function SetTokenController(req: Request, res: Response) {
     })
     return res.status(200).send()
   } catch (err) {
-    console.error(err)
-    return res.status(500).send({ error: 'error while sending email to user' })
+    next(err)
   }
 }

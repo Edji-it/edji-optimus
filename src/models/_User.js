@@ -74,7 +74,6 @@ const createOneTimeTokenObject = function (validFor) {
     charset: 'hex'
   })
   let timeInMs = ms(validFor + 'h')
-
   let tokenObj = {
     token: bcrypt.hashSync(unhashedToken, ONE_TIME_TOKEN_SALT),
     expiration: Date.now() + timeInMs

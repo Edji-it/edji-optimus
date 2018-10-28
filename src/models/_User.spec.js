@@ -201,26 +201,25 @@ describe('_User', () => {
   })
 
   describe('create and validate one time use token workflow', () => {
-    it('should create and validate a one time use token with default expiration', () => {
-      // set randomstring.generate up to return the string we want
-      let unhashedToken = '1234567890fjklso'
-      let randomTokenStub = sinon.stub(randomstring, 'generate').returns(unhashedToken)
-
-      let { tokenStr, tokenObj } = _User.createOneTimeTokenObject(false)
-      let valid = _User.validateToken(tokenStr, tokenObj)
-      valid.should.be.true
+    let randomTokenStub
+    let unhashedToken = '1234567890fjklso'
+    beforeEach(() => {
+      randomTokenStub = sinon.stub(randomstring, 'generate').returns(unhashedToken)
+    })
+    afterEach(() => {
       randomTokenStub.restore()
     })
 
-    it('should create and validate a one time use token with custom expiration', () => {
-      // set randomstring.generate up to return the string we want
-      let unhashedToken = '1234567890fjklso'
-      let randomTokenStub = sinon.stub(randomstring, 'generate').returns(unhashedToken)
-
-      let { tokenStr, tokenObj } = _User.createOneTimeTokenObject(1)
-      let valid = _User.validateToken(tokenStr, tokenObj)
+    it('should create and validate a one time use token with default expiration', () => {
+      let { unhashedToken, tokenObj } = _User.createOneTimeTokenObject(false)
+      let valid = _User.validateToken(unhashedToken, tokenObj)
       valid.should.be.true
-      randomTokenStub.restore()
+    })
+
+    it('should create and validate a one time use token with custom expiration', () => {
+      let { unhashedToken, tokenObj } = _User.createOneTimeTokenObject(1)
+      let valid = _User.validateToken(unhashedToken, tokenObj)
+      valid.should.be.true
     })
   })
 })
