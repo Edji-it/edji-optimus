@@ -20,10 +20,10 @@ Sentry.init({
 
 // local project imports
 const LoginController = require("./middleware/LoginController")
-const headerManagement = require('./middleware/header-management')
 
 // configure express
 var app = express()
+app.use(Sentry.Handlers.requestHandler())
 app.use(responseTime())
 app.use(bodyParser.json({ limit: '20mb' }))
 
@@ -35,7 +35,10 @@ app.use(passport.initialize())
 app.use(LoginController.middleware)
 
 // Access allowed for development
-app.use(headerManagement)
+app.use(require('./middleware/header-management'))
+
+// sets user properties for sentry, if they exist
+app.use(require('./middleware/sentry'))
 
 // attach the new routes
 app.use('/api', require('./api'))
@@ -48,6 +51,7 @@ app.get('/healthcheck', require('./healthcheck'))
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
 // handler for oauth errors
+app.use(Sentry.Handlers.errorHandler())
 app.use(require('./error-handlers'))
 
 let port = process.env.PORT || 3354
