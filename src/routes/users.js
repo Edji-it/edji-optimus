@@ -23,7 +23,7 @@ let router = express.Router()
 
 MountModelToRouter(router, User, "user", { create: false, delete: false, read: false, list: false })
 
-router.post("/", function (req, res) {
+router.post("/", function (req, res, next) {
 
     var userData = req.body.user
 
@@ -46,8 +46,7 @@ router.post("/", function (req, res) {
             } else if (error.code === 11000) {
                 return res.status(406).send(duplicateFieldErrorHandler(error))
             } else {
-                console.error(error)
-                return res.status(500).send()
+                next(error)
             }
         } else {
             // update the referring user's Referral object to reflect their referral
@@ -62,14 +61,13 @@ router.post("/", function (req, res) {
                             }
                         }
                     }
-                ).exec()
+                )
                     .catch((err) => {
-                        console.error(err)
-                        // we don't actually mind if this doesn't execute all the way
+                        next(err)
                     })
             }
 
-            res.status(201).json(LoginController.generateLoginObjectForUser(result))
+            return res.status(201).json(LoginController.generateLoginObjectForUser(result))
         }
     })
 
@@ -90,7 +88,7 @@ let duplicateFieldErrorHandler = function (error) {
         message = 'duplicate key error for field: ' + path
     } else {
         message = 'error in determining duplicate path'
-        console.error('a duplicate error was returned, but it could not be identified.', err)
+        throw new Error('a duplicate error was returned, but it could not be identified.')
     }
 
     return {
@@ -101,7 +99,7 @@ let duplicateFieldErrorHandler = function (error) {
     }
 }
 
-router.put("/", authRequired, function (req, res) {
+router.put("/", authRequired, function (req, res, next) {
     let userData = req.body.user
     let user = req.user
 
@@ -146,8 +144,7 @@ router.put("/", authRequired, function (req, res) {
             } else if (error.code === 11000) {
                 return res.status(406).send(duplicateFieldErrorHandler(error))
             } else {
-                console.error(error)
-                return res.status(500).send()
+                return next(error)
             }
         } else if (!result) {
             return res.status(400).send({ error: 'no result returned from saving user' })
@@ -160,7 +157,7 @@ router.put("/", authRequired, function (req, res) {
 /**
  * Search route for followers
  */
-router.get("/following", authRequired, (req, res) => {
+router.get("/following", authRequired, (req, res, next) => {
     let user = req.user
 
     let allowedTypes = ['popular']
@@ -188,8 +185,7 @@ router.get("/following", authRequired, (req, res) => {
             return res.status(200).send({ users: users })
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
@@ -199,7 +195,7 @@ router.get("/:id", authRequired, function (req, res) {
 
     if (!mongoose.Types.ObjectId.isValid(_id)) { return res.status(400).send() }
 
-    if (user._id != _id) { return res.status(401).send() }
+    if (!user._id.equals(_id)) { return res.status(401).send() }
 
     return res.status(200).send({ user: user.toPublic() })
 })
@@ -210,18 +206,15 @@ router.get("/:id", authRequired, function (req, res) {
  * @param {string} type the oauth provider's name
  */
 let oauthSingleUseQuery = function (token, type) {
-    return Q(
-        User.findOne({
-            'oauth.singleUseToken': token,
-            'oauth.singleUseTokenExpiration': { $gte: Date.now() },
-            'oauth.type': type
-        })
-            .exec()
-    )
+    return User.findOne({
+        'oauth.singleUseToken': token,
+        'oauth.singleUseTokenExpiration': { $gte: Date.now() },
+        'oauth.type': type
+    })
 }
 
 // this route doesn't currently have tests, which is bad... but I don't know how to test oauth
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
     let userQuery
     if (req.query.oauth_type && req.query.oauth_token) {
         userQuery = oauthSingleUseQuery(req.query.oauth_token, req.query.oauth_type)
@@ -238,12 +231,11 @@ router.get("/", (req, res) => {
         }
     })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
-router.delete("/:id", function (req, res) {
+router.delete("/:id", function (req, res, next) {
     var id = req.params.id
     var user = req.user
 
@@ -251,7 +243,7 @@ router.delete("/:id", function (req, res) {
         return res.status(400).send()
     }
 
-    Q(User.findById(user._id).exec())
+    User.findById(user._id)
         .then((dbUser) => {
             if (!dbUser) {
                 return res.status(400).send()
@@ -281,20 +273,18 @@ router.delete("/:id", function (req, res) {
             }
         })
         .catch((err) => {
-            console.error(err)
-            return res.status(500).send()
+            next(err)
         })
 })
 
 // this is a replacement for the user conversion route which updates all of the users projects to have their new user's data
 router.put("/convert/:temp_id", authRequired, require("./../api/v1/temp_users/convert"))
 
-router.post("/login", function (req, res) {
+router.post("/login", function (req, res, next) {
     var user = req.body.user // note this is coming from the request's body, not the req.user
 
     if (!user || !user.username || !user.password) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     LoginController.login(user)
@@ -307,10 +297,9 @@ router.post("/login", function (req, res) {
                 return res.status(401).send()
             }
         })
-
 })
 
-router.post("/reset_password", function (req, res) {
+router.post("/reset_password", function (req, res, next) {
     var user = req.user
     var oldPassword = req.body.resetObject.oldPassword
     var newPassword = req.body.resetObject.newPassword
@@ -321,43 +310,33 @@ router.post("/reset_password", function (req, res) {
     }
 
     if (oldPassword && newPassword) {
-        bcrypt.compare(oldPassword, user.password, function (error, result) {
-            if (error) {
-                res.status(500).send()
-                return
-            } else if (!result) {
+        bcrypt.compare(oldPassword, user.password, function (err, result) {
+            if (err) {
+                return next(err)
+            }
+            if (!result) {
                 res.status(400).send()
                 return
-            } else {
-                Q(User.findById(user._id).exec())
-                    .then((userRes) => {
-                        userRes.password = newPassword
-                        userRes.edjiSave(false, (err, doc) => {
-                            if (err) {
-                                console.error(err)
-                                return res.status(500).send({ error: 'error occurred while saving user' })
-                            }
-                            else {
-                                res.status(200).send(LoginController.generateLoginObjectForUser(userRes))
-                            }
-                        })
-                    })
-                    .catch((error) => {
-                        console.error(error)
-                        res.status(500).send()
-                    })
             }
 
-
+            User.findById(user._id)
+                .then((userRes) => {
+                    userRes.password = newPassword
+                    userRes.edjiSave(false)
+                        .then((user) => {
+                            return res.status(200).send(LoginController.generateLoginObjectForUser(user))
+                        })
+                })
+                .catch((err) => {
+                    next(err)
+                })
         })
-        return
     } else if (token && newPassword) {
         //passively validates token and date
-        Q(User.findOne({
+        User.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gte: Date.now() }
         })
-            .exec())
             .then(function (user) {
                 if (!user) {
                     throw new Error("No user found")
@@ -366,35 +345,31 @@ router.post("/reset_password", function (req, res) {
                 user.password = newPassword
                 user.edjiSave(false, (err, doc) => {
                     if (err) {
-                        console.error(err)
-                        return res.status(500).send({ error: 'error occurred while saving user' })
+                        return next(err)
                     }
                     else {
                         return res.status(200).send(LoginController.generateLoginObjectForUser(user))
                     }
                 })
-            }).catch(function (e) {
-                console.error(e)
-                res.status(500).send()
+            }).catch((err) => {
+                next(err)
             })
         return
     } else {
         res.status(400).send()
     }
-
 })
 
 // replacement route for old password recovery
 router.post('/recover_password', require('./../api/v1/users/password_recovery'))
 
 /** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
-router.post("/verify", function (req, res) {
+router.post("/verify", function (req, res, next) {
     var submittedPassword = req.body.password // should have password and username properties
     var user = req.user
 
     if (!user) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     // construct a new user to make sure we're not messing with any mongo objects
@@ -404,31 +379,30 @@ router.post("/verify", function (req, res) {
     }
 
     // try to log that user in
-    LoginController.login(trialUser).then((userObject) => {
+    LoginController.login(trialUser)
+        .then((userObject) => {
 
-        if (!userObject.user) {
-            // this should never happen anyway
-            res.status(400).send()
-            return
-        }
+            if (!userObject.user) {
+                // this should never happen anyway
+                return res.status(400).send()
+            }
 
-        Q(User.findById(userObject.user._id).exec())
-            .then((dbUser) => {
-                if (!dbUser) {
-                    res.status(400).send()
-                }
+            User.findById(userObject.user._id)
+                .then((dbUser) => {
+                    if (!dbUser) {
+                        return res.status(400).send()
+                    }
 
-                //by this point, we pretty much think the user is the real deal set that user's token and send back the thumbs up
-                dbUser.accountArchiveToken = Date.now() + 300000
-                dbUser.edjiSave(false, (err) => {
-                    if (err) { throw new Error(err) }
-                    res.status(204).send()
+                    //by this point, we pretty much think the user is the real deal set that user's token and send back the thumbs up
+                    dbUser.accountArchiveToken = Date.now() + 300000
+                    dbUser.edjiSave(false, (err) => {
+                        if (err) { throw new Error(err) }
+                        res.status(204).send()
+                    })
                 })
-            })
-    })
-        .catch((error) => {
-            console.error(error)
-            res.status(500).send()
+        })
+        .catch((err) => {
+            next(err)
         })
 })
 
@@ -439,14 +413,6 @@ let getAssetOnUser = function (user, type, id) {
         return asset._id == id
     })
     return assetToDelete
-    // switch (type) {
-    //     case 'images':
-    //         return [assetToDelete.url]
-    //     case 'documents':
-    //         return assetToDelete.pages || []
-    //     default:
-    //         return []
-    // }
 }
 
 let getAssetFileLocations = function (asset, type) {
@@ -460,7 +426,7 @@ let getAssetFileLocations = function (asset, type) {
     }
 }
 
-router.delete('/assets/:type/:asset_id', authRequired, (req, res) => {
+router.delete('/assets/:type/:asset_id', authRequired, (req, res, next) => {
     let user = req.user
     let assetId = req.params.asset_id
     let type = req.params.type
@@ -491,33 +457,18 @@ router.delete('/assets/:type/:asset_id', authRequired, (req, res) => {
     user.media[type].splice(user.media[type].indexOf(assetToDelete), 1)
 
     // make sure to save the user without the asset which will be deleted
-    user.edjiSave(false, (err, doc) => {
-        if (err) { console.error(err) }
-        else { /** do nothing b/c it worked */ }
-    })
+    user.edjiSave(false)
+        .catch((err) => {
+            next(err)
+        })
 
     res.status(200).send({ file_locations: fileLocations })
 })
 
-// router.get("/heroes/count", (req, res) => {
-//     Q(User.count({ "hero.subscription_label": "HERO_LAUNCH" }).exec())
-//         .then((count) => {
-//             if (!count) {
-//                 count = 0
-//             }
-
-//             return res.status(200).send({ count: count })
-//         })
-//         .catch((err) => {
-//             console.error(err)
-//             return res.status(500).send()
-//         })
-// })
-
 /**
  * Adds a user id to a user's "following" array
  */
-router.put("/following", authRequired, function (req, res) {
+router.put("/following", authRequired, function (req, res, next) {
     let user = req.user
     let user_id = req.body.user_id
     let follow = req.body.action == "follow"
@@ -565,7 +516,7 @@ router.put("/following", authRequired, function (req, res) {
 
     user.edjiSave(false, (err, result) => {
         if (err) {
-            return res.status(500).send({ error: err })
+            return next(err)
         }
         return res.status(200).send({ user: result.toPublic() })
     })

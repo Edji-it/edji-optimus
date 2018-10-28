@@ -8,7 +8,7 @@ const Institution = require('./../../../models/Institution')
 const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   let user = req.user
   let subject = 'Welcome to Edji Academy!'
 
@@ -23,7 +23,7 @@ module.exports = function (req, res) {
   }
 
   // we cannot add a license id to the user's object if it is not passed in
-  if (!mongoose.Types.ObjectId.isValid(license_id)) {
+  if (!mongoose.validateEdjiId(license_id)) {
     return res.status(403).send()
   }
 
@@ -120,8 +120,7 @@ module.exports = function (req, res) {
     .then((success) => {
       return res.status(200).send({ license: licenseSend })
     })
-    .catch((error) => {
-      console.error(error)
-      return res.status(500).send()
+    .catch((err) => {
+      next(err)
     })
 }

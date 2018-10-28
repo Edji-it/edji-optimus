@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs')
 // constants
 const PASSWORD_HASH_EXPIRES = /* hours */ 1 * /* seconds */ 3600 * /* ms */ 1000
 
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
   let query = helpers.createQuery(req.body)
 
   if (!query) {
@@ -61,7 +61,6 @@ module.exports = function (req, res) {
       return res.status(status).send(body) // either 400 or 204
     })
     .catch((err) => {
-      console.error(err)
-      return res.status(500).send()
+      next(err)
     })
 }

@@ -1,7 +1,7 @@
 var db = require("./../db")
 
 //all models are created through this function
-module.exports = function(modelName, schemaJson, schemaDecorator){
+module.exports = function (modelName, schemaJson, schemaDecorator) {
 
     schemaJson.createdAt = { type: Date, default: Date.now }
     schemaJson.updatedAt = { type: Date, default: Date.now }
@@ -15,19 +15,19 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
         }
     )
 
-    Schema.pre('edjiSave', function(next) {
+    Schema.pre('edjiSave', function (next) {
         var now = new Date()
         this.updatedAt = now
         next()
-    })    
+    })
 
-    if (typeof schemaDecorator === "function"){
+    if (typeof schemaDecorator === "function") {
         schemaDecorator(Schema)
     }
 
     Schema.methods.forceSave = Schema.methods.save
 
-    Schema.methods.edjiSave = function(options, callback) {
+    Schema.methods.edjiSave = function (options, callback) {
         if (!options) {
             options = {
                 forceSave: this._id ? false : true
@@ -49,7 +49,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator){
             },
                 options
             )
-            
+
             return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions)
         }
     }

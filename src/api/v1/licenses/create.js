@@ -7,7 +7,7 @@ const License = require('./../../../models/License')
 const Instituion = require('./../../../models/Institution')
 const User = require('./../../../models/User')
 
-module.exports = function(req, res) {
+module.exports = function (req, res, next) {
   let new_license = req.body.license
 
   if (!new_license) {
@@ -27,36 +27,36 @@ module.exports = function(req, res) {
   }
 
   license.edjiSave(false)
-  .then((license) => {
-    // add the newly created license _id to the institution
-    Instituion.findByIdAndUpdate(
-      license.owning_institution,
-      {
-        $push: { 
-          license_ids: license._id
-        }
-      }
-    )
-    .then((institution) => {
-      return User.findByIdAndUpdate(
-        license.roles[0].user_id,
+    .then((license) => {
+      // add the newly created license _id to the institution
+      Instituion.findByIdAndUpdate(
+        license.owning_institution,
         {
           $push: {
-            license_ids: {
-              license_id: license._id,
-              joined: new Date()
-            },
-            institution_ids: license.owning_institution
+            license_ids: license._id
           }
         }
       )
+        .then((institution) => {
+          return User.findByIdAndUpdate(
+            license.roles[0].user_id,
+            {
+              $push: {
+                license_ids: {
+                  license_id: license._id,
+                  joined: new Date()
+                },
+                institution_ids: license.owning_institution
+              }
+            }
+          )
+        })
+        .then((user) => {
+          // send the new license object back after updating the institution to include the new license_id
+          return res.status(200).send({ license: license })
+        })
     })
-    .then((user) => {
-      // send the new license object back after updating the institution to include the new license_id
-      return res.status(200).send({ license: license })
+    .catch((err) => {
+      next(err)
     })
-  })
-  .catch((err) => {
-    return res.status(500).send({ error: err })
-  })
 }

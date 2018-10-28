@@ -1,7 +1,7 @@
 const joi = require('joi')
 
 const envSchema = joi.object({
-  NODE_ENV: joi.strict()
+  NODE_ENV: joi.string()
     .allow(['development', 'production', 'test'])
     .required(),
   PORT: joi.number()

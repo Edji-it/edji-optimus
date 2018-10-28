@@ -6,7 +6,7 @@ var router = express.Router()
 
 // MountModelToRouter(router, TempUser, "tempuser", {read: false, delete: false, list: false})
 
-router.post("/", function(req, res) {
+router.post("/", function (req, res, next) {
     var userData = req.body.user
 
     if (!userData) {
@@ -35,9 +35,7 @@ router.post("/", function(req, res) {
                 res.status(409).send()
                 return
             } else {
-                console.error(error)
-                res.status(500).send()
-                return
+                next(err)
             }
         } else {
             res.status(201).send(LoginController.generateLoginObjectForUser(result))
