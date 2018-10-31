@@ -15,23 +15,23 @@ export async function SetTokenController(req: Request, res: Response, next: Next
 
   let unhashedToken: string = await user.setOneTimeToken(tokenName, 24)
   if (!unhashedToken) {
-    return res.status(400).send({ error: 'not a valid token property' }) // the error, in this case, is a custom string that I wrote
+    // a token is only created if the name is valid
+    return res.status(400).send({ error: 'not a valid token property' })
   }
 
-
   let varsObj: any = {
-    token_url: `https://edji.it/redeem-tokens/${tokenName}/${unhashedToken}`
+    token_url: `https://edji.it/redeem-token/${tokenName}/${unhashedToken}`
   }
 
   try {
     await EmailService.sendEmail({
-      email_template: 'reset-email',
+      email_template: tokenName,
       name: user.fullname,
       email: user.email,
       from: 'Edji <recovery@edji.it>',
       vars_object: varsObj
     })
-    return res.status(200).send()
+    return res.status(204).send()
   } catch (err) {
     next(err)
   }
