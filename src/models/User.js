@@ -235,17 +235,16 @@ let model = ModelCreator("User", {
     /**
      * Validates and a token stored on the User based on provided property name
      * @param {string} propertyName property name on user object which contains the token to be used
-     * @returns {boolean} indicating whether the token was found to be valid or not
      */
-    schema.methods.useOneTimeToken = async function (propertyName, referToken) {
+    schema.methods.useOneTimeToken = async function (propertyName, unhashedToken) {
         if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
-            return false
+            throw new Error('ERR_INVALID_PROPERTY')
         }
 
-        let isValidToken = helpers.validateToken(this[propertyName].token, referToken)
+        let isValidToken = helpers.validateToken(this[propertyName].token, unhashedToken)
 
         if (!isValidToken) {
-            return false
+            throw new Error('ERR_INVALID_TOKEN')
         }
 
         // get rid of the token so we're not storing old tokens on purpose
@@ -256,7 +255,6 @@ let model = ModelCreator("User", {
                 }
             }
         })
-        return isValidToken
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)

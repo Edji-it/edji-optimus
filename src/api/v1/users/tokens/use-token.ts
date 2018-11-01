@@ -1,11 +1,24 @@
 import { Request, Response, NextFunction } from 'express'
 
-export function UseTokenController(req: Request, res: Response, next: NextFunction) {
-  // return res.status(200).send({
-  //   token_name: req.params.token_name,
-  //   unhashed_token: req.params.unhashed_token
-  // })
+export async function UseTokenController(req: Request, res: Response, next: NextFunction) {
   let { token_name, unhashed_token } = req.params
   let user = req.user
 
+  if (!token_name || !unhashed_token) {
+    return res.status(400).send({ error: `cannot use token ${token_name}, as token_name and unhashed_token do not both exist` })
+  }
+
+  try {
+    await user.useOneTimeToken(token_name, unhashed_token)
+  } catch (err) {
+    switch (err) {
+      case 'ERR_INVALID_PROPERTY':
+        return res.status(404).send({ error: `requested token be set for invalid property name: ${token_name}` })
+      case 'ERR_INVALID_TOKEN':
+        return res.status(400).send({ error: 'token found to be invalid' })
+      default:
+        // handle any other errors by sending 500 and logging to sentry
+        next(err)
+    }
+  }
 }
