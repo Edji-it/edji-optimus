@@ -36,7 +36,7 @@ describe('GET /users/public-details', () => {
         should.exist(err)
 
         res.should.not.have.status(200)
-        res.should.have.status(401)
+        res.should.have.status(400)
         done()
       })
   })
