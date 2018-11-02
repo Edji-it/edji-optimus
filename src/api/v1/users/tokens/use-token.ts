@@ -10,6 +10,7 @@ export async function UseTokenController(req: Request, res: Response, next: Next
 
   try {
     await user.useOneTimeToken(token_name, unhashed_token)
+    return res.status(204).send()
   } catch (err) {
     switch (err) {
       case 'ERR_INVALID_PROPERTY':
@@ -18,7 +19,7 @@ export async function UseTokenController(req: Request, res: Response, next: Next
         return res.status(400).send({ error: 'token found to be invalid' })
       default:
         // handle any other errors by sending 500 and logging to sentry
-        next(err)
+        return next(err)
     }
   }
 }

@@ -31,8 +31,9 @@ export async function SetTokenController(req: Request, res: Response, next: Next
       from: 'Edji <recovery@edji.it>',
       vars_object: varsObj
     })
-    return res.status(204).send()
   } catch (err) {
-    next(err)
+    return next(err)
   }
+
+  return res.status(204).send()
 }
