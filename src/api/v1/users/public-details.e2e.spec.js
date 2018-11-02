@@ -16,18 +16,6 @@ const EMPTY_REQUEST = "?students_ids[]=&temp_ids[]="
 const BAD_REQUEST = "?students[]="
 
 describe('GET /users/public-details', () => {
-  it('should get a 401 without auth', (done) => {
-    chai.request(TEST.SERVER)
-      .get(ENDPOINT_URL + ONE_STUDENT)
-      .end((err, res) => {
-        should.exist(err)
-
-        res.should.not.have.status(200)
-        res.should.have.status(401)
-        done()
-      })
-  })
-
   it('should get a 400 for a request that does not have any _ids', (done) => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + EMPTY_REQUEST)
@@ -48,7 +36,7 @@ describe('GET /users/public-details', () => {
         should.exist(err)
 
         res.should.not.have.status(200)
-        res.should.have.status(401)
+        res.should.have.status(400)
         done()
       })
   })
