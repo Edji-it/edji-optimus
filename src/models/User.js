@@ -156,7 +156,8 @@ let model = ModelCreator("User", {
             'prefs',
             'media',
             'createdAt',
-            'updatedAt'
+            'updatedAt',
+            'school_name'
         ]
 
         // return all of the properties in the above array
