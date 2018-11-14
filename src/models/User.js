@@ -9,12 +9,12 @@ const helpers = require('./_User')
 
 // tests email against regex
 let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-let validateEmail = function(email) {
+let validateEmail = function (email) {
     return emailRe.test(email)
 }
 
 // let nameRe = /(?:([^a-zA-Z0-9\s]))/g
-let validateName = function(name) {
+let validateName = function (name) {
     // needs to return true for good names
     let listOfWordsItCantContainAtAll = [
         'fuck',
@@ -71,18 +71,19 @@ let oauthEnum = {
 }
 
 let model = ModelCreator("User", {
-    username:{ type:String, set:toLower, unique:true, sparse: true, validate: usernameValidator },
-    fullname:{ type:String, required:true, validate: {validator: validateName, message: "Invalid name", kind: "badWords"} },
-    password:{ type:String },
+    username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
+    fullname: { type: String, required: true, validate: { validator: validateName, message: "Invalid name", kind: "badWords" } },
+    password: { type: String },
     oauth: [{
         type: { type: String, enum: oauthEnum },
         id: String,
         singleUseToken: String,
         singleUseTokenExpiration: Date
     }],
-    email:{ type: String, set:toLower, required:true, unique:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }},
+    email: { type: String, set: toLower, required: true, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
     identities: [String],
     school_name: String,
+    sales_can_contact: Boolean,
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
     referred_by: { type: String },
@@ -102,7 +103,7 @@ let model = ModelCreator("User", {
     avatar: String,
     following: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     prefs: {
-        recentEmoji: [ String ],
+        recentEmoji: [String],
         onboarding: {
             highlighting: {
                 firstDone: Date,
@@ -122,21 +123,21 @@ let model = ModelCreator("User", {
         }
     },
     media: {
-        images: [ {
+        images: [{
             title: String,
-            url:  String
-        } ],
+            url: String
+        }],
         documents: [
             {
                 title: String,
-                pages: [ String ]
+                pages: [String]
             }
         ]
     },
     institution_ids: [{ type: mongoose.Schema.ObjectId, ref: "Institution" }] // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
-}, function(schema) {
+}, function (schema) {
     // add custom method which returns only the properties which we want to be viewable by the client
-    schema.methods.toPublic = function() {
+    schema.methods.toPublic = function () {
         // list out the properties it is ok to return to the front-end
         const clientProperties = [
             '_id',
@@ -157,7 +158,8 @@ let model = ModelCreator("User", {
             'media',
             'createdAt',
             'updatedAt',
-            'school_name'
+            'school_name',
+            'sales_can_contact'
         ]
 
         // return all of the properties in the above array
@@ -166,66 +168,66 @@ let model = ModelCreator("User", {
         })
     }
 
-    schema.pre("edjiSave", function(next) {
+    schema.pre("edjiSave", function (next) {
         if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
-    
-        if (this.password && this.isModified("password")){
+
+        if (this.password && this.isModified("password")) {
             this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
         }
-    
+
         next()
     })
-    
+
     // add custom validator to make sure user has either oauth type or username/password
-    schema.pre('validate', function(next) {
+    schema.pre('validate', function (next) {
         // make sure it has a password or an oauth type
         let hasPassword = !!this.password
         let hasUsername = !!this.username
         let hasOauth = !!(this.oauth && this.oauth.length > 0)
         let isValid = (hasPassword && hasUsername) || hasOauth
-    
+
         if (!isValid) {
             // this is a mongoose method which provides the error to the mongoose error aggrigator
             this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
         }
-    
+
         next()
     })
 
     /**
      * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
      */
-    schema.methods.refresh = function() {
+    schema.methods.refresh = function () {
         return new Promise((resolve, reject) => {
             helpers.getUserHeroStatus(this)
-            .then((validHero) => {
-                this.hero_status = validHero
-                this.last_refresh_time = Date.now()
+                .then((validHero) => {
+                    this.hero_status = validHero
+                    this.last_refresh_time = Date.now()
 
-                this.edjiSave(false, (err, result) => {
-                    if (err) { reject(err) }
-                    else { resolve(result) }
+                    this.edjiSave(false, (err, result) => {
+                        if (err) { reject(err) }
+                        else { resolve(result) }
+                    })
                 })
-            })
-            .catch((err) => {
-                reject(err)
-            })
+                .catch((err) => {
+                    reject(err)
+                })
         })
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
     schema
-    .virtual('refresh_required')
-    .get(function() {
-        if (!this.last_refresh_time) { console.log('no last_refresh_time on ' + this.username) }
-        return helpers.refreshRequired(this.last_refresh_time)
-    })
+        .virtual('refresh_required')
+        .get(function () {
+            if (!this.last_refresh_time) { console.log('no last_refresh_time on ' + this.username) }
+            return helpers.refreshRequired(this.last_refresh_time)
+        })
 
     schema
-    .virtual('message_check_required')
-    .get(function() {
-        return helpers.messageCheckRequired(this.last_message_check_time)
-    })
+        .virtual('message_check_required')
+        .get(function () {
+            return helpers.messageCheckRequired(this.last_message_check_time)
+        })
 })
 
 module.exports = model
