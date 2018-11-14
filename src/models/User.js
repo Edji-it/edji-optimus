@@ -82,6 +82,8 @@ let model = ModelCreator("User", {
     }],
     email:{ type: String, set:toLower, required:true, unique:true, validate: { validator: validateEmail, message: "Invalid email", kind:"emailRegex" }},
     identities: [String],
+    school_name: String,
+    phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
     referred_by: { type: String },
     resetPasswordToken: String,
@@ -154,7 +156,8 @@ let model = ModelCreator("User", {
             'prefs',
             'media',
             'createdAt',
-            'updatedAt'
+            'updatedAt',
+            'school_name'
         ]
 
         // return all of the properties in the above array
