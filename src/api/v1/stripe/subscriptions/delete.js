@@ -3,6 +3,7 @@ const STRIPE_KEY = process.env.STRIPE_API_TOKEN
 const stripe = require('stripe')(STRIPE_KEY)
 
 // project imports
+const User = require('./../../../../models/User')
 
 module.exports = function (req, res, next) {
   let user = req.user
@@ -23,14 +24,27 @@ module.exports = function (req, res, next) {
   // first we need to get the subscription for the customer_id
   stripe.customers.retrieve(customer_id)
   .then((customer) => {
-    subscription = customer.subscriptions.data[0]
+    let len = customer.subscriptions.data.length
+    subscription = customer.subscriptions.data[len-1]
     if (!subscription.plan.active) {
       return res.status(200).send({ user: user.toPublic() })
     }
     // once we get the subscription_id we can cancel it
     stripe.subscriptions.del(subscription.id)
     .then((cancelled) => {
-      return res.status(200).send({ user: user.toPublic() })
+      return User.findByIdAndUpdate(
+        user._id,
+        {
+          hero_cancelled: new Date()
+        },
+        {
+          new: true
+        }
+      )
+    })
+    .then((updatedUser) => {
+      // send the new license object back after updating the institution to include the new license_id
+      return res.status(200).send({ user: updatedUser.toPublic() })
     })
   })
   .catch((err) => {

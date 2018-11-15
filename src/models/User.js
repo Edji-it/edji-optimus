@@ -95,6 +95,7 @@ let model = ModelCreator("User", {
     last_refresh_time: { type: Date, default: Date.now() },
     message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
+    hero_cancelled: Date,
     stripe_customer_id: String, // the user's stripe customer id
     license_ids: [{
         license_id: { type: mongoose.Schema.ObjectId, ref: 'License', required: true },
@@ -159,7 +160,8 @@ let model = ModelCreator("User", {
             'createdAt',
             'updatedAt',
             'school_name',
-            'sales_can_contact'
+            'sales_can_contact',
+            'hero_cancelled'
         ]
 
         // return all of the properties in the above array
