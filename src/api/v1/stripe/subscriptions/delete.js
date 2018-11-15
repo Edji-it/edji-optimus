@@ -32,6 +32,7 @@ module.exports = function (req, res, next) {
     // once we get the subscription_id we can cancel it
     stripe.subscriptions.del(subscription.id)
     .then((cancelled) => {
+      // then we update the user to show when the cancelled their subscription for display and tracking purposes
       return User.findByIdAndUpdate(
         user._id,
         {
