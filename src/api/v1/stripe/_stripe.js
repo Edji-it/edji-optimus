@@ -1,17 +1,17 @@
 const STRIPE_KEY = process.env.STRIPE_API_TOKEN
 const stripe = require('stripe')(STRIPE_KEY) // this will crash without an API key
-const joi = require('joi')
+const sentry = require('@sentry/node')
 
 /**
  * Takes a user object and returns the Stripe customer in a promise
  * @param {Object} user the user attached to the request body by auth middleware
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
-const retrieveOrCreateCustomer = function(user, paymentToken) {
+const retrieveOrCreateCustomer = function (user, paymentToken) {
   // get the user if they've already got a customer_id
   if (user && user.stripe_customer_id) {
     return stripe.customers.retrieve(user.stripe_customer_id)
-  } else if(user && user.email) {
+  } else if (user && user.email) {
     let customer = {
       email: user.email,
       source: paymentToken
@@ -20,6 +20,30 @@ const retrieveOrCreateCustomer = function(user, paymentToken) {
     return stripe.customers.create(customer)
   } else {
     return Promise.reject({ error: 'user object missing required properties for customer creation' })
+  }
+}
+
+const getHeroSubscription = async function (customerId) {
+  const plan = 'Hero Yearly'
+  try {
+    let subscriptions = await stripe.customers.list(
+      {
+        customer: customerId,
+        plan: plan
+      }
+    )
+
+    // this tests if there is at least one subscription for this customer
+    if (subscriptions.data && subscriptions.data.length === 1) {
+      return subscriptions.data[0]
+    } else if (subscriptions.data && subscriptions.data.length > 1) {
+      sentry.captureException(new Error('more than one Hero subscription in stripe'))
+      return subscriptions.data[subscriptions.data.length - 1]
+    } else {
+      return undefined
+    }
+  } catch (err) {
+    throw new Error(err)
   }
 }
 
