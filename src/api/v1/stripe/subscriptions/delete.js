@@ -1,7 +1,7 @@
 // library imports
+const Q = require('q')
 
 // project imports
-const User = require('./../../../../models/User')
 const stripe = require('./../_stripe').api
 const helper = require('./../_stripe')
 
@@ -36,12 +36,12 @@ module.exports = function (req, res, next) {
       user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
       user.edjiSave(false).then((updatedUser) => {
         // make sure the correct hero cancellation date was added to the user object
-        console.log(updatedUser.hero_cancelled, cancelDate)
-        if (updatedUser.hero_cancelled===cancelDate) {
+        if (updatedUser.hero_cancelled.toString()===cancelDate.toString()) {
           // send the updated user object back if the user is successfully updated
           return res.status(200).send({ user: updatedUser.toPublic() })
         } else {
-          return next({error: 'user not updated with cancellation date'})
+          // sends our rejection to the catch
+          return Q.reject("user not updated with cancellation date")
         }
       })
     })
