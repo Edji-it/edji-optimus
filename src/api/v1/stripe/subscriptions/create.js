@@ -8,7 +8,7 @@ const stripe = require('./../_stripe')
 module.exports = function (req, res, next) {
   let user = req.user
   const body = helpers.validateBody(req.body)
-  if (body.error) {
+  if (body.error && !user.stripe_customer_id) {
     return res.status(400).send({ error: body.error })
   }
 
