@@ -1,9 +1,8 @@
 // library imports
-const STRIPE_KEY = process.env.STRIPE_API_TOKEN
-const stripe = require('stripe')(STRIPE_KEY)
 
 // project imports
 const User = require('./../../../../models/User')
+const stripe = require('./../_stripe')
 
 module.exports = function (req, res, next) {
   let user = req.user
@@ -32,20 +31,20 @@ module.exports = function (req, res, next) {
     // once we get the subscription_id we can cancel it
     stripe.subscriptions.del(subscription.id)
     .then((cancelled) => {
-      // then we update the user to show when the cancelled their subscription for display and tracking purposes
-      return User.findByIdAndUpdate(
-        user._id,
-        {
-          hero_cancelled: new Date()
-        },
-        {
-          new: true
+      let cancelDate = new Date()
+      user['hero_cancelled'] = cancelDate
+      user.edjiSave(false, (err, user) => {
+        if (err) {
+          return next(err)
         }
-      )
-    })
-    .then((updatedUser) => {
-      // send the new license object back after updating the institution to include the new license_id
-      return res.status(200).send({ user: updatedUser.toPublic() })
+        // make sure the correct hero cancellation date was added to the user object
+        if (user.hero_cancelled===cancelDate) {
+          // send the updated user object back if the user is successfully updated
+          return res.status(200).send({ user: user.toPublic() })
+        } else {
+          return next({error: 'user not updated with cancellation date'})
+        }
+      })
     })
   })
   .catch((err) => {
