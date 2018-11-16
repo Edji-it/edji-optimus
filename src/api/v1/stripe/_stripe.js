@@ -49,5 +49,6 @@ const getHeroSubscription = async function (customerId) {
 
 module.exports = {
   api: stripe,
-  retrieveOrCreateCustomer: retrieveOrCreateCustomer
+  retrieveOrCreateCustomer: retrieveOrCreateCustomer,
+  getHeroSubscription: getHeroSubscription
 }
