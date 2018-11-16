@@ -2,7 +2,8 @@
 
 // project imports
 const User = require('./../../../../models/User')
-const stripe = require('./../_stripe')
+const stripe = require('./../_stripe').api
+const helper = require('./../_stripe')
 
 module.exports = function (req, res, next) {
   let user = req.user
@@ -21,10 +22,9 @@ module.exports = function (req, res, next) {
    * active until the would-be next billing
    */
   // first we need to get the subscription for the customer_id
-  stripe.customers.retrieve(customer_id)
-  .then((customer) => {
-    let len = customer.subscriptions.data.length
-    subscription = customer.subscriptions.data[len-1]
+  helper.getHeroSubscription(customer_id)
+  .then((subscription) => {
+    // if the subscription is still under the customer and not active, then they are already cancelled
     if (!subscription.plan.active) {
       return res.status(200).send({ user: user.toPublic() })
     }
