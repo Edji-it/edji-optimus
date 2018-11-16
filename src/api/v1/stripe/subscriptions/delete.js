@@ -33,6 +33,7 @@ module.exports = function (req, res, next) {
     .then((cancelled) => {
       let cancelDate = new Date()
       user['hero_cancelled'] = cancelDate
+      user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
       user.edjiSave(false, (err, user) => {
         if (err) {
           return next(err)

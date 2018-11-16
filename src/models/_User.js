@@ -15,6 +15,9 @@ const getUserHeroStatus = function(user) {
   // if a user has a license_id, we'll assume that they're all set
   if (user.license_ids && user.license_ids.length > 0) {
     return Promise.resolve(true)
+  } else if (user.stripe_customer_id && user.hero_expiration && user.hero_expiration > new Date()) { 
+    // when a user cancels their subscription, we don't remove their hero_status until the end of the subscription
+    return Promise.resolve(true)
   } else if (!user.stripe_customer_id) {
     return Promise.resolve(false)
   }

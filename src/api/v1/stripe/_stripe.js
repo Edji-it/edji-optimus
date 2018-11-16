@@ -47,8 +47,16 @@ const getHeroSubscription = async function (customerId) {
   }
 }
 
+const getStripeDate = function(utcSeconds) {
+  // Stripe sends the date back as the UTC Epoch, so we'll convert it here
+  let date = new Date(0)
+  date.setUTCSeconds(utcSeconds)
+  return date.toDateString()
+}
+
 module.exports = {
   api: stripe,
   retrieveOrCreateCustomer: retrieveOrCreateCustomer,
-  getHeroSubscription: getHeroSubscription
+  getHeroSubscription: getHeroSubscription,
+  getStripeDate: getStripeDate
 }
