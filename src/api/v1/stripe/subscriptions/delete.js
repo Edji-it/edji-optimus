@@ -34,14 +34,12 @@ module.exports = function (req, res, next) {
       let cancelDate = new Date()
       user['hero_cancelled'] = cancelDate
       user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
-      user.edjiSave(false, (err, user) => {
-        if (err) {
-          return next(err)
-        }
+      user.edjiSave(false).then((updatedUser) => {
         // make sure the correct hero cancellation date was added to the user object
-        if (user.hero_cancelled===cancelDate) {
+        console.log(updatedUser.hero_cancelled, cancelDate)
+        if (updatedUser.hero_cancelled===cancelDate) {
           // send the updated user object back if the user is successfully updated
-          return res.status(200).send({ user: user.toPublic() })
+          return res.status(200).send({ user: updatedUser.toPublic() })
         } else {
           return next({error: 'user not updated with cancellation date'})
         }

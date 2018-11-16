@@ -24,10 +24,9 @@ const retrieveOrCreateCustomer = function (user, paymentToken) {
 }
 
 const getHeroSubscription = async function (customerId) {
-  const plan = 'Hero Yearly'
+  const plan = 'yearly'
   try {
-    let subscriptions = await stripe.customers.list(
-      {
+    let subscriptions = await stripe.subscriptions.list({
         customer: customerId,
         plan: plan
       }
