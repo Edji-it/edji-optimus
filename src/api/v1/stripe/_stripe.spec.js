@@ -13,7 +13,9 @@ describe('_stripe', () => {
 
     const propertiesToCheck = [
       'api',
-      'retrieveOrCreateCustomer'
+      'retrieveOrCreateCustomer',
+      'getHeroSubscription',
+      'getStripeDate'
     ]
 
     for(let key of Object.keys(_stripe)) {
