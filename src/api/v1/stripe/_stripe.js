@@ -32,12 +32,12 @@ const getHeroSubscription = async function (customerId) {
       }
     )
 
-    // this tests if there is at least one subscription for this customer
+    // this tests if there is at least one subscription for this customer, but will return all subscriptions
     if (subscriptions.data && subscriptions.data.length === 1) {
-      return subscriptions.data[0]
+      return subscriptions.data
     } else if (subscriptions.data && subscriptions.data.length > 1) {
       sentry.captureException(new Error('more than one Hero subscription in stripe'))
-      return subscriptions.data[subscriptions.data.length - 1]
+      return subscriptions.data
     } else {
       return undefined
     }

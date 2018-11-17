@@ -23,26 +23,28 @@ module.exports = function (req, res, next) {
    */
   // first we need to get the subscription for the customer_id
   helper.getHeroSubscription(customer_id)
-  .then((subscription) => {
-    // if the subscription is still under the customer and not active, then they are already cancelled
-    if (!subscription.plan.active) {
+  .then((subscriptions) => {
+    // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
+    if (subscriptions.length<1) {
       return res.status(200).send({ user: user.toPublic() })
     }
-    // once we get the subscription_id we can cancel it
-    stripe.subscriptions.del(subscription.id)
-    .then((cancelled) => {
-      let cancelDate = new Date()
-      user['hero_cancelled'] = cancelDate
-      user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
-      user.edjiSave(false).then((updatedUser) => {
-        // make sure the correct hero cancellation date was added to the user object
-        if (updatedUser.hero_cancelled.toString()===cancelDate.toString()) {
-          // send the updated user object back if the user is successfully updated
-          return res.status(200).send({ user: updatedUser.toPublic() })
-        } else {
-          // sends our rejection to the catch
-          return Q.reject("user not updated with cancellation date")
-        }
+    // once we get the subscription_id we can cancel it - if there are multiple, cancel them all
+    subscriptions.forEach((subscription) => {
+      stripe.subscriptions.del(subscription.id)
+      .then((cancelled) => {
+        let cancelDate = new Date()
+        user['hero_cancelled'] = cancelDate
+        user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
+        user.edjiSave(false).then((updatedUser) => {
+          // make sure the correct hero cancellation date was added to the user object
+          if (updatedUser.hero_cancelled.toString()===cancelDate.toString()) {
+            // send the updated user object back if the user is successfully updated
+            return res.status(200).send({ user: updatedUser.toPublic() })
+          } else {
+            // sends our rejection to the catch
+            return Q.reject("user not updated with cancellation date")
+          }
+        })
       })
     })
   })
