@@ -23,14 +23,13 @@ const retrieveOrCreateCustomer = function (user, paymentToken) {
   }
 }
 
-const getHeroSubscription = async function (customerId) {
+const getHeroSubscriptions = async function (customerId) {
   const plan = 'yearly'
   try {
     let subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        plan: plan
-      }
-    )
+      customer: customerId,
+      plan: plan
+    })
 
     // this tests if there is at least one subscription for this customer, but will return all subscriptions
     if (subscriptions.data && subscriptions.data.length === 1) {
@@ -39,14 +38,14 @@ const getHeroSubscription = async function (customerId) {
       sentry.captureException(new Error('more than one Hero subscription in stripe'))
       return subscriptions.data
     } else {
-      return undefined
+      return []
     }
   } catch (err) {
     throw new Error(err)
   }
 }
 
-const getStripeDate = function(utcSeconds) {
+const getStripeDate = function (utcSeconds) {
   // Stripe sends the date back as the UTC Epoch, so we'll convert it here
   let date = new Date(0)
   date.setUTCSeconds(utcSeconds)
@@ -55,7 +54,7 @@ const getStripeDate = function(utcSeconds) {
 
 module.exports = {
   api: stripe,
-  retrieveOrCreateCustomer: retrieveOrCreateCustomer,
-  getHeroSubscription: getHeroSubscription,
-  getStripeDate: getStripeDate
+  retrieveOrCreateCustomer,
+  getHeroSubscriptions,
+  getStripeDate
 }
