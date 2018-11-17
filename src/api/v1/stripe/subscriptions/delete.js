@@ -31,21 +31,19 @@ module.exports = function (req, res, next) {
     // once we get the subscription_id we can cancel it - if there are multiple, cancel them all
     subscriptions.forEach((subscription) => {
       stripe.subscriptions.del(subscription.id)
-      .then((cancelled) => {
-        let cancelDate = new Date()
-        user['hero_cancelled'] = cancelDate
-        user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
-        user.edjiSave(false).then((updatedUser) => {
-          // make sure the correct hero cancellation date was added to the user object
-          if (updatedUser.hero_cancelled.toString()===cancelDate.toString()) {
-            // send the updated user object back if the user is successfully updated
-            return res.status(200).send({ user: updatedUser.toPublic() })
-          } else {
-            // sends our rejection to the catch
-            return Q.reject("user not updated with cancellation date")
-          }
-        })
-      })
+    })
+    let cancelDate = new Date()
+    user['hero_cancelled'] = cancelDate
+    user['hero_expiration'] = helper.getStripeDate(subscription.current_period_end)
+    user.edjiSave(false).then((updatedUser) => {
+      // make sure the correct hero cancellation date was added to the user object
+      if (updatedUser.hero_cancelled.toString()===cancelDate.toString()) {
+        // send the updated user object back if the user is successfully updated
+        return res.status(200).send({ user: updatedUser.toPublic() })
+      } else {
+        // sends our rejection to the catch
+        return Q.reject("user not updated with cancellation date")
+      }
     })
   })
   .catch((err) => {
