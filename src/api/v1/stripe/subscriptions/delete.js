@@ -21,7 +21,7 @@ module.exports = function (req, res, next) {
    * active until the would-be next billing
    */
   // first we need to get the subscription for the customer_id
-  helper.getHeroSubscriptions(customer_id)
+  helper.getHeroSubscriptions(customer_id, 'active')
     .then((subscriptions) => {
       // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
       if (subscriptions.length < 1) {

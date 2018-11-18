@@ -23,13 +23,16 @@ const retrieveOrCreateCustomer = function (user, paymentToken) {
   }
 }
 
-const getHeroSubscriptions = async function (customerId) {
+const getHeroSubscriptions = async function (customerId, status) {
   const plan = 'yearly'
+  if (!status || status==='') {
+    status = 'active'
+  }
   try {
     let subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       plan: plan,
-      status: 'all'
+      status: status
     })
 
     // this tests if there is at least one subscription for this customer, but will return all subscriptions
