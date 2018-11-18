@@ -28,8 +28,7 @@ const getHeroSubscriptions = async function (customerId) {
   try {
     let subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      plan: plan,
-      status: 'all'
+      plan: plan
     })
 
     // this tests if there is at least one subscription for this customer, but will return all subscriptions
