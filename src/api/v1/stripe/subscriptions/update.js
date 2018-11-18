@@ -3,7 +3,7 @@ const sentry = require('@sentry/node')
 
 // project imports
 const stripe = require('./../_stripe').api
-const _stripe = requite('./../_stripe')
+const helpers = require('./../_stripe')
 
 module.exports = function (req, res, next) {
   let user = req.user
@@ -13,7 +13,7 @@ module.exports = function (req, res, next) {
     return res.status(400).send({ error: 'invalid parameters: missing customer_id' })
   }
 
-  _stripe.getHeroSubscriptions(customer_id, 'active')
+  helpers.getHeroSubscriptions(customer_id, 'active')
     .then((subscriptions) => {
       // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
       if (subscriptions.length < 1) {
@@ -30,7 +30,7 @@ module.exports = function (req, res, next) {
 
       // send an update to stripe to make sure we remove the cancellation
       stripe.subscriptions.update(subscription.id, { cancel_at_period_end: false }).then((subscription) => {
-        return res.status(200).send({subscription: subscription})
+        return res.status(200).send({user: user, subscription: subscription})
       })
     })
 }
