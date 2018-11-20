@@ -1,7 +1,7 @@
 // library imports
 
 // project imports
-const stripe = require('./../api/v1/stripe/_stripe').api
+const _stripe = require('./../api/v1/stripe/_stripe')
 
 // constants
 const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
@@ -19,15 +19,11 @@ const getUserHeroStatus = function(user) {
     return Promise.resolve(false)
   }
 
-  return stripe.subscriptions.list({
-    customer: user.stripe_customer_id, // get subscriptions for this customer
-    plan: 'yearly', // only subscriptions to the yearly Hero plan
-    status: 'active' // ask for only active subscriptions
-  })
+  return _stripe.getHeroSubscriptions(user.stripe_customer_id, 'active')
   .then((subscriptions) => {
     // data is where the list of subscriptions comes back - our query should leave us with only active yearly Hero subs
     //  so if the length is greater than 1, we should be all good for whether the user is a Hero or not
-    if (subscriptions && subscriptions.data && subscriptions.data.length > 0) {
+    if (subscriptions && subscriptions.length > 0) {
       return true
     } else {
       return false
