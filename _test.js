@@ -27,7 +27,8 @@ module.exports = {
     },
     API_EMAIL_SUCCESS: {
       username: "api_email_success",
-      password: "tester"
+      password: "tester",
+      _id: "5b9d7c0c52f859090c9a5f98"
     },
     GOOGLE_OAUTH_USER: {
       email: "edji.oauth.test@gmail.com"

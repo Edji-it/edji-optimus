@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@sentry/node": "4.2.3",
+    "@types/chai-http": "^3.0.5",
     "@types/request-promise": "^4.1.41",
     "bcryptjs": "^2.3.0",
     "body-parser": "^1.18.2",
@@ -66,14 +67,14 @@
     "@types/sinon": "^5.0.2",
     "chai": "^4.0.0",
     "chai-as-promised": "^7.1.1",
-    "chai-http": "^3.0.0",
+    "chai-http": "^4.2.0",
     "mocha": "^5.2.0",
     "node-mocks-http": "^1.5.8",
     "nodemon": "^1.11.0",
     "randomstring": "^1.1.5",
     "sinon": "^4.4.6",
+    "sinon-as-promised": "^4.0.3",
     "sinon-mongoose": "^2.1.1",
-    "ts-node": "^7.0.1",
-    "sinon-as-promised": "^4.0.3"
+    "ts-node": "^7.0.1"
   }
 }

@@ -1,4 +1,4 @@
-module.exports = function(req, res, next) {
+module.exports = function (req, res, next) {
   let user = req.user
   let user_id = req.params.user_id
 
@@ -9,6 +9,6 @@ module.exports = function(req, res, next) {
   if (user._id.equals(user_id)) {
     return next()
   } else {
-    return res.status(401).send({})
+    return res.status(401).send()
   }
 }

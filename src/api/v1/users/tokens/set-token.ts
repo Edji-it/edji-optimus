@@ -9,10 +9,6 @@ export async function SetTokenController(req: Request, res: Response, next: Next
   let user = req.user
   let tokenName: string = req.params.token_name
 
-  if (!tokenName) {
-    return res.status(400).send({ error: 'no token name provided' })
-  }
-
   let unhashedToken: string = await user.setOneTimeToken(tokenName, 24)
   if (!unhashedToken) {
     // a token is only created if the name is valid
