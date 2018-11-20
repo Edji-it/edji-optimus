@@ -95,8 +95,6 @@ let model = ModelCreator("User", {
     last_refresh_time: { type: Date, default: Date.now() },
     message_list_id: { type: mongoose.Schema.ObjectId, ref: "MessageList" },
     hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
-    hero_cancelled: Date, // date the user cancelled their subscription
-    hero_expiration: Date, // date the user's hero was set to expire before cancelling, cron job will set hero_status to false if we slip past the date
     stripe_customer_id: String, // the user's stripe customer id
     license_ids: [{
         license_id: { type: mongoose.Schema.ObjectId, ref: 'License', required: true },
