@@ -25,7 +25,7 @@ const retrieveOrCreateCustomer = function (user, paymentToken) {
 
 const getHeroSubscriptions = async function (customerId, status) {
   const plan = 'yearly'
-  if (!status || status==='') {
+  if (!status) {
     status = 'active'
   }
   try {
