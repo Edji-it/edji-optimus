@@ -1,6 +1,5 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
@@ -14,24 +13,24 @@ describe('GET /api/v1/referrals/:referral_code', () => {
     let requestCode = 'ct8zh'
 
     chai.request(TEST.SERVER)
-    .get(ENDPOINT_URL + '/' + requestCode)
-    .end((err, res) => {
-      err && done(err)
+      .get(ENDPOINT_URL + '/' + requestCode)
+      .end((err, res) => {
+        err && done(err)
 
-      res.should.have.status(200)
-      res.body.should.have.property('user')
-      let user = res.body.user
+        res.should.have.status(200)
+        res.body.should.have.property('user')
+        let user = res.body.user
 
-      let propertiesToCheck = [
-        'fullname'
-      ]
+        let propertiesToCheck = [
+          'fullname'
+        ]
 
-      // make sure that more properties than intended are not being returned
-      for(let key in user) {
-        propertiesToCheck.indexOf(key).should.be.above(-1)
-      }
+        // make sure that more properties than intended are not being returned
+        for (let key in user) {
+          propertiesToCheck.indexOf(key).should.be.above(-1)
+        }
 
-      done()
-    })
+        done()
+      })
   })
 })

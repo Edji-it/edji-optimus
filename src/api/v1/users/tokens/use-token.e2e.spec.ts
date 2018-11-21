@@ -29,9 +29,9 @@ describe('POST api/v1/users/:user_id/tokens/:token_name/:unhashed_token', () => 
     let res = await request('not-my-user-id', validResetProperty, exampleUnhashedToken, validUserToken)
     res.should.have.status(401)
   })
-  it('should receive a 400 for a request to set an invalid property name', async () => {
+  it('should receive a 404 for a request to set an invalid property name', async () => {
     let res = await request(validUserId, 'def_not_a_property', exampleUnhashedToken, validUserToken)
-    res.should.have.status(400)
+    res.should.have.status(404)
   })
   it('should receive a 400 for an invalid unhashed token', async () => {
     let res = await request(validUserId, validResetProperty, exampleUnhashedToken, validUserToken)

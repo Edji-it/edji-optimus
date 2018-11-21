@@ -1,6 +1,5 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
@@ -22,8 +21,6 @@ describe('PUT /api/v1/licenses/invite', () => {
         name: "apitesthero2"
       })
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(403)
         done()
@@ -43,8 +40,6 @@ describe('PUT /api/v1/licenses/invite', () => {
         name: "apitesthero2"
       })
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(404)
         done()

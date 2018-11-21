@@ -1,6 +1,5 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
@@ -185,8 +184,6 @@ describe('GET /projects/:project_id', () => {
       .get(ENDPOINT_URL + BAD_PROJECT)
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(404)
         done()
@@ -211,8 +208,6 @@ describe('GET /projects/:project_id', () => {
       .get(ENDPOINT_URL + BAD_PROJECT_CODE)
       .set("Authorization", TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(404)
         done()

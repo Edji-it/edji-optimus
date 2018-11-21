@@ -1,7 +1,6 @@
 const chai = require("chai")
 const chaiHttp = require("chai-http")
 const server = "http://localhost:3354"
-const should = chai.should()
 const Q = require("q")
 const uuid = require("uuid")
 
@@ -23,16 +22,16 @@ describe("Users", () => {
     describe('POST /users', () => {
         describe("Standard registration", () => {
             it("should register a user", (done) => {
-                
+
                 chai.request(server)
                     .post("/users")
-                    .send({user: data.users.newUser})
+                    .send({ user: data.users.newUser })
                     .end((err, res) => {
                         //initial validation
                         res.should.have.status(201)
                         res.body.should.be.a("object")
                         res.body.should.have.property("token")
-                        
+
                         //user validation
                         var user = res.body.user
                         user.should.have.property("_id")
@@ -53,7 +52,7 @@ describe("Users", () => {
                         token.should.not.equal("")
 
                         testUsers.newUser = res.body
-                        
+
                         done()
                     })
             })
@@ -225,42 +224,42 @@ describe("Users", () => {
             chai.request(server)
                 .put("/users")
                 .set("Authorization", testUsers.testStudent.token)
-                .send({ user: userUpdate})
+                .send({ user: userUpdate })
                 .end((err, res) => {
                     // initial validation
                     res.should.have.status(200)
                     res.body.should.be.a("object")
-                    
+
                     // properties a user should have
                     var user = res.body.user
                     user.should.have.property("_id")
                     user.should.have.property("username")
                     user.should.have.property("fullname")
-                        user.fullname.should.be.equal(userUpdate.fullname)
+                    user.fullname.should.be.equal(userUpdate.fullname)
                     user.should.have.property("email")
-                        user.email.should.be.equal(userUpdate.email)
+                    user.email.should.be.equal(userUpdate.email)
                     user.should.have.property("createdAt")
                     user.should.have.property("updatedAt")
                     user.should.have.property("prefs")
                     user.prefs.should.have.property("recentEmoji")
-                        user.prefs.recentEmoji.should.be.instanceOf(Array)
-                        user.prefs.recentEmoji.length.should.be.equal(2)
-                        user.prefs.recentEmoji[0].should.be.equal(userUpdate.prefs.recentEmoji[0])
-                        user.prefs.recentEmoji[1].should.be.equal(userUpdate.prefs.recentEmoji[1])
+                    user.prefs.recentEmoji.should.be.instanceOf(Array)
+                    user.prefs.recentEmoji.length.should.be.equal(2)
+                    user.prefs.recentEmoji[0].should.be.equal(userUpdate.prefs.recentEmoji[0])
+                    user.prefs.recentEmoji[1].should.be.equal(userUpdate.prefs.recentEmoji[1])
                     user.should.have.property("media")
                     user.media.should.have.property("images")
-                        user.media.images.should.be.instanceOf(Array)
-                        user.media.images[0].should.have.property("title")
-                            user.media.images[0].title.should.be.equal(userUpdate.media.images[0].title)
-                        user.media.images[0].should.have.property("url")
-                            user.media.images[0].url.should.be.equal(userUpdate.media.images[0].url),
-                    user.media.should.have.property("documents")
-                        user.media.documents.should.be.instanceOf(Array)
-                        user.media.documents[0].should.have.property("title")
-                            user.media.documents[0].title.should.be.equal(userUpdate.media.documents[0].title)
-                        user.media.documents[0].should.have.property("pages")
-                            user.media.documents[0].pages.should.be.instanceOf(Array)
-                            user.media.documents[0].pages[0].should.be.equal(userUpdate.media.documents[0].pages[0])
+                    user.media.images.should.be.instanceOf(Array)
+                    user.media.images[0].should.have.property("title")
+                    user.media.images[0].title.should.be.equal(userUpdate.media.images[0].title)
+                    user.media.images[0].should.have.property("url")
+                    user.media.images[0].url.should.be.equal(userUpdate.media.images[0].url),
+                        user.media.should.have.property("documents")
+                    user.media.documents.should.be.instanceOf(Array)
+                    user.media.documents[0].should.have.property("title")
+                    user.media.documents[0].title.should.be.equal(userUpdate.media.documents[0].title)
+                    user.media.documents[0].should.have.property("pages")
+                    user.media.documents[0].pages.should.be.instanceOf(Array)
+                    user.media.documents[0].pages[0].should.be.equal(userUpdate.media.documents[0].pages[0])
 
                     // properties a user should not have
                     user.should.not.have.property("password")
@@ -318,7 +317,7 @@ describe("Users", () => {
                     text.validationErrors.should.have.property("fullname")
                     text.validationErrors.fullname.should.be.a("string")
                     text.validationErrors.fullname.should.be.equal("badWords")
-                    
+
                     done()
                 })
         })
@@ -397,7 +396,7 @@ describe("Users", () => {
                 })
         })
     })
-    
+
     describe("POST /users/login", () => {
         it("should login an existing user", (done) => {
 
@@ -410,7 +409,7 @@ describe("Users", () => {
                     res.body.should.be.a("object")
                     res.body.should.have.property("user")
                     res.body.should.have.property("token")
-                    
+
                     //user validation
                     var user = res.body.user
                     user.should.have.property("_id")
@@ -423,12 +422,12 @@ describe("Users", () => {
                     user.should.not.have.property("resetPasswordToken")
                     user.should.not.have.property("resetPasswordExpires")
                     user.should.not.have.property("accountArchiveToken")
-                    
+
                     //token validation
                     var token = res.body.token
                     token.should.be.a("string")
                     token.should.not.equal("")
-                    
+
                     done()
                 })
         })
@@ -444,7 +443,7 @@ describe("Users", () => {
                     res.body.should.be.a("object")
                     res.body.should.have.property("user")
                     res.body.should.have.property("token")
-                    
+
                     done()
                 })
         })

@@ -1,6 +1,5 @@
 // package imports
 const chai = require('chai')
-const should = chai.should()
 const sinon = require('sinon')
 const mongoose = require('mongoose')
 require('sinon-mongoose')
@@ -33,35 +32,35 @@ describe('createUniqueReferralCode', () => {
     referralSaveStub.yields(false, fakeReferral)
 
     ReferralMock
-    .expects('find')
-    .chain('exec')
-    .resolves([])
+      .expects('find')
+      .chain('exec')
+      .resolves([])
 
     helpers.createUniqueReferral()
-    .then((referral) => {
-      referral.code.should.be.equal(fakeReferral.code)
-      referral._id.should.be.equal(fakeReferral._id)
-      done()
-    })
-    .catch((err) => {
-      done(err)
-    })
+      .then((referral) => {
+        referral.code.should.be.equal(fakeReferral.code)
+        referral._id.should.be.equal(fakeReferral._id)
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
   })
 
   it('should re-call 5 times before exit', (done) => {
     referralSaveStub.yields(false, fakeReferral)
 
     ReferralMock
-    .expects('find').exactly(5)
-    .chain('exec').exactly(5)
-    .resolves([{ code: 'some_code' }])
+      .expects('find').exactly(5)
+      .chain('exec').exactly(5)
+      .resolves([{ code: 'some_code' }])
 
     helpers.createUniqueReferral()
-    .then(() => {
-      done(new Error('should not have resolved with referral'))
-    })
-    .catch((err) => {
-      done()
-    })
+      .then(() => {
+        done(new Error('should not have resolved with referral'))
+      })
+      .catch((err) => {
+        done()
+      })
   })
 })

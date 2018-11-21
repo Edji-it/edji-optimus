@@ -1,7 +1,6 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
 var server = "http://localhost:3354"
-var should = chai.should()
 var Q = require("q")
 
 var data = require("./data")
@@ -44,7 +43,7 @@ describe("Readings", () => {
           // initial validation
           res.should.have.status(201)
           res.body.should.have.property("reading")
-          
+
           // reading validation
           var reading = res.body.reading
           testReading = reading // stores reading for later tests
@@ -77,7 +76,7 @@ describe("Readings", () => {
           // initial validation
           res.should.have.status(201)
           res.body.should.have.property("reading")
-          
+
           // reading validation
           var reading = res.body.reading
           testReading = reading // stores reading for later tests
@@ -308,7 +307,7 @@ describe("Readings", () => {
               // things a project SHOULD have
               project.should.have.property("_id")
               project.should.have.property("teacher_id")
-                project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
+              project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
               project.should.have.property("comment_count")
               project.should.have.property("student_count")
               project.should.have.property("label")
@@ -432,10 +431,10 @@ describe("Readings", () => {
     before((done) => {
       // create a project associated with the reading, which we will later check is deleted
       functions.createProject({
-          reading_id: testReading._id,
-          label: "label for project",
-          types: ["emoji"]
-        }, testUsers.testTeacher.token)
+        reading_id: testReading._id,
+        label: "label for project",
+        types: ["emoji"]
+      }, testUsers.testTeacher.token)
         .then((res) => {
           // check to make sure it comes back with a project
           res.should.have.property("project")
@@ -497,12 +496,12 @@ describe("Readings", () => {
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.property("results")
-          
+
           let results = res.body.results
           results.should.have.property("deletedReadings")
-            results.deletedReadings.should.be.gt(0)
+          results.deletedReadings.should.be.gt(0)
           results.should.have.property("deletedProjects")
-            results.deletedProjects.should.be.gt(0)
+          results.deletedProjects.should.be.gt(0)
 
           done()
         })

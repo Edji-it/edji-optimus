@@ -1,6 +1,5 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
@@ -16,8 +15,6 @@ describe('PUT /api/v1/licenses/accept', () => {
       .put(ENDPOINT_URL + '/123/accept') // this is a call with no id
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(403)
         done()
@@ -30,8 +27,6 @@ describe('PUT /api/v1/licenses/accept', () => {
       .put(ENDPOINT_URL + '5afe2acc9dbfbf137ec0df77/accept') // this is a call with a bad license_id
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(403)
         done()
@@ -45,8 +40,6 @@ describe('PUT /api/v1/licenses/accept', () => {
       .put(ENDPOINT_URL + '5afe2acc9dbfbf137ec0df22/accept') // this is a call with a good license_id, but the user's email is not in the pending_invitations
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(403)
         done()

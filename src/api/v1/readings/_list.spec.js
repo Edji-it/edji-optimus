@@ -17,7 +17,7 @@ describe('readings _list helpers', () => {
       'paginate'
     ]
 
-    for(key of Object.keys(helpers)) {
+    for (key of Object.keys(helpers)) {
       propertiesToCheck.indexOf(key).should.be.above(-1)
     }
   })
@@ -25,7 +25,7 @@ describe('readings _list helpers', () => {
   describe('validateQuery', () => {
     // initial validation
     it('should be a function', () => {
-      ( typeof helpers.validateQuery ).should.be.equal('function')
+      (typeof helpers.validateQuery).should.be.equal('function')
     })
     it('should return an object', () => {
       let query = helpers.validateQuery({})

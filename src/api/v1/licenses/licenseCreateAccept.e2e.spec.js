@@ -1,6 +1,5 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports

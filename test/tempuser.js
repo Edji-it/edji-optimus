@@ -1,7 +1,6 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
 var server = "http://localhost:3354"
-var should = chai.should()
 var Q = require("q")
 
 var data = require("./data")

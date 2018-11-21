@@ -1,14 +1,12 @@
 var chai = require("chai")
 var chaiHttp = require("chai-http")
-var server = "http://localhost:3354"
-// var should = chai.should()
 
 chai.use(chaiHttp)
 
 var Q = require("q")
 
 var users = {
-  newUser:{
+  newUser: {
     username: Date.now().toString(),
     fullname: "newApiTestUser",
     password: "codycodycody",
@@ -68,14 +66,14 @@ var readings = {
   newReading: {
     title: "Test Reading",
     html: "This is test content",
-    words: [{"styles" : [ "p", "p-first"],"str" : "This"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "is"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p"],"str" : "test"},{"styles" : [ "p", "space"],"str" : " "},{"styles" : [ "p", "p-last"],"str" : "content"},{"styles" : [ "br"],"str" : ""}]
+    words: [{ "styles": ["p", "p-first"], "str": "This" }, { "styles": ["p", "space"], "str": " " }, { "styles": ["p"], "str": "is" }, { "styles": ["p", "space"], "str": " " }, { "styles": ["p"], "str": "test" }, { "styles": ["p", "space"], "str": " " }, { "styles": ["p", "p-last"], "str": "content" }, { "styles": ["br"], "str": "" }]
   },
   testReading: {
     _id: "59bd93285239f3001105dbab"
   },
   updateReading: { // this reading contains properties acceptable to update by PUT /readings/:id
     html: "<p>This is definitely new content</p>",
-    words: [{"styles": ["p", "p-first"], "str": "Done!"}],
+    words: [{ "styles": ["p", "p-first"], "str": "Done!" }],
     title: "Test reading updated title",
     public: true,
     source: "http://something.com",

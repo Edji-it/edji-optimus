@@ -15,7 +15,7 @@ describe('subscriptions _create helpers', () => {
       'retrieveOrCreateCustomer'
     ]
 
-    for(let key of Object.keys(helpers)) {
+    for (let key of Object.keys(helpers)) {
       propertiesToCheck.indexOf(key).should.be.above(-1)
     }
   })
