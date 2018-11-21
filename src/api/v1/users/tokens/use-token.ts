@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-export async function UseTokenController(req: Request, res: Response, next: NextFunction) {
+export async function UseTokenMiddleware(req: Request, res: Response, next: NextFunction) {
   let { token_name, unhashed_token } = req.params
   let user = req.user
 

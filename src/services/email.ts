@@ -3,7 +3,7 @@ import * as rp from 'request-promise'
 
 export class EmailService {
 
-  public static sendEmail({ email_template, name, email, from, vars_object }: EmailOptions): rp.RequestPromise {
+  public static sendEmail({ email_template, name, subject, email, from, vars_object }: EmailOptions): rp.RequestPromise {
     if (!from) {
       from = "brennen"
     }
@@ -13,7 +13,7 @@ export class EmailService {
       headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
       body: {
         "from": from,
-        "subject": "Welcome to Edji Academy!",
+        "subject": subject,
         "recipients": [
           {
             "name": name,
@@ -33,6 +33,7 @@ export class EmailService {
 export interface EmailOptions {
   email_template: string
   name: string
+  subject: string
   email: string
   from: string
   vars_object: { [key: string]: string }

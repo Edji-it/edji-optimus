@@ -34,8 +34,7 @@ module.exports = function (req, res, next) {
     from: "Edji <academy@edji.it>"
   }).then((success) => {
     return res.status(200).send({ success: success })
+  }).catch((err) => {
+    next(err)
   })
-    .catch((err) => {
-      next(err)
-    })
 }

@@ -10,6 +10,7 @@ describe('EmailService', () => {
   const emailParams: EmailOptions = {
     email_template: 'fake-template',
     name: 'corbin',
+    subject: 'Test subject',
     from: 'fake@edji.it',
     email: 'something@gmail.com',
     vars_object: {
@@ -33,6 +34,7 @@ describe('EmailService', () => {
         let params: EmailOptions = emailStub.firstCall.args[0]
         params.email_template.should.be.equal(emailParams.email_template)
         params.name.should.be.equal(emailParams.name)
+        params.subject.should.be.equal(emailParams.subject)
         params.from.should.be.equal(emailParams.from)
         params.email.should.be.equal(emailParams.email)
 

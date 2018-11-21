@@ -82,6 +82,7 @@ describe('_password_recovery', () => {
           let emailOptions = emailServiceStub.firstCall.args[0]
           emailOptions.email.should.be.equal(user.email)
           emailOptions.name.should.be.equal(user.fullname)
+          emailOptions.should.have.property('subject')
           emailOptions.should.have.property('vars_object')
           emailOptions.vars_object.name.should.be.equal(user.fullname)
           emailOptions.vars_object.reset_link.should.be.equal(createResetLinkReturn)
