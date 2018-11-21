@@ -24,15 +24,13 @@ const requestUseToken = function (unhashedToken: string) {
 }
 
 describe('POST api/v1/users/:user_id/tokens/reset_email/:unhashed_token', () => {
-  // error handling for this route is done by the use-token middleware
-  it('should successfully use a token which has just been set', async () => {
+  // parameter validation for this route is done by the use-token middleware
+  it('should successfully set and then use a token', async () => {
     let setTokenRes = await requestSetToken()
     // more explanation on the set-token route logic - we're passed an encrypted version of the token so that we can decrypt it
     //  and make sure we're e2e testing this route w/o using the email sent to the SES inbox
     let encryptedToken: string = setTokenRes.body.requestId
-    console.log('encrypted:', encryptedToken, 'secret:', process.env.OPTIMUS_TOKEN_SIGNING_SECRET)
-    let decryptedToken: string = AES.decrypt(encryptedToken, process.env.OPTIMUS_TOKEN_SIGNING_SECRET).toString()
-    console.log('decryptedToken:', decryptedToken)
+    let decryptedToken: string = AES.decrypt(encryptedToken, process.env.OPTIMUS_TOKEN_SIGNING_SECRET).toString(enc.Utf8)
     let useTokenRes = await requestUseToken(decryptedToken)
     useTokenRes.should.have.status(200)
   })

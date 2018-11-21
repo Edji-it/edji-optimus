@@ -72,7 +72,7 @@ let oauthEnum = {
 
 let OneTimeTokenObject = mongoose.Schema({
     token: { type: String, required: true },
-    expiration: { type: String, required: true, default: Date.now() + 1000 /* s */ * 3600 /* h */ * 24 }
+    expiration: { type: Date, required: true, default: Date.now() + 1000 /* s */ * 3600 /* h */ * 24 }
 })
 
 let model = ModelCreator("User", {
@@ -246,7 +246,7 @@ let model = ModelCreator("User", {
             throw new Error('ERR_INVALID_PROPERTY')
         }
 
-        let isValidToken = helpers.validateToken(this[propertyName].token, unhashedToken)
+        let isValidToken = helpers.validateToken(unhashedToken, this[propertyName])
 
         if (!isValidToken) {
             throw new Error('ERR_INVALID_TOKEN')

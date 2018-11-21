@@ -85,7 +85,7 @@ const createOneTimeTokenObject = function (validFor) {
 const validateToken = function (unhashedToken, tokenObj) {
   // check to see if the current time is past the expiration
   //  past this, the expiration is valid and we just have to compare tokens
-  if (!tokenObj.expiration || Date.now() > tokenObj.expiration) {
+  if (!tokenObj.expiration || Date.now() > new Date(tokenObj.expiration).getTime()) {
     return false
   }
 
