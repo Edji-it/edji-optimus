@@ -105,10 +105,6 @@ const isValidTokenProperty = function (propertyName) {
   ]
   let isValidProperty = validProperties.indexOf(propertyName) > -1
 
-  if (!isValidProperty) {
-    console.error('property: ' + propertyName + ' is not allowed to be updated by setToken')
-  }
-
   return isValidProperty
 }
 
