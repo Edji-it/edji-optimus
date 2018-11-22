@@ -17,21 +17,25 @@ const requestSetToken = function () {
   return req
 }
 const requestUseToken = function (unhashedToken: string) {
+  let newEmail: string = 'success+email_reset_' + Date.now() + '@simulator.amazonses.com'
+
   let req = chai.request(data.SERVER)
     .post(`/api/v1/users/${testUserId}/tokens/reset_email/${unhashedToken}`)
     .set('Authorization', testUserToken)
+    .send({ newEmail: newEmail })
   return req
 }
 
 describe('POST api/v1/users/:user_id/tokens/reset_email/:unhashed_token', () => {
   // parameter validation for this route is done by the use-token middleware
-  it('should successfully set and then use a token', async () => {
+  it('should successfully set and then use a token', async function () {
+    this.timeout(6000) // set a little bit of a longer timeout, since there are so many calls going on in this test
     let setTokenRes = await requestSetToken()
     // more explanation on the set-token route logic - we're passed an encrypted version of the token so that we can decrypt it
     //  and make sure we're e2e testing this route w/o using the email sent to the SES inbox
     let encryptedToken: string = setTokenRes.body.requestId
     let decryptedToken: string = AES.decrypt(encryptedToken, process.env.OPTIMUS_TOKEN_SIGNING_SECRET).toString(enc.Utf8)
     let useTokenRes = await requestUseToken(decryptedToken)
-    useTokenRes.should.have.status(200)
+    useTokenRes.should.have.status(204)
   })
 })
