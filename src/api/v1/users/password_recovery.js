@@ -39,9 +39,9 @@ module.exports = function (req, res, next) {
             }
           })
         } else {
-          let ERROR = 'account has no credentials or oauth: ' + user._id
-          console.error(ERROR)
-          return Promise.resolve({ status: 500, body: { error: ERROR } })
+          let err = new Error('account has no credentials or oauth: ' + user._id)
+          err.name = 'ERR_NO_ACCOUNT'
+          return next(err)
         }
       }
 
