@@ -3,7 +3,7 @@ const chai = require("chai")
 chai.use(require("chai-http"))
 
 // project imports
-const TEST = require('./../../../../_test')
+const TEST = require('../../../test/constants')
 const PROJECT_ID = TEST.PROJECT_REF.TEST_PROJECT.project_id
 const BAD_PROJECT = TEST.PROJECT_REF.BAD_PROJECT.project_id
 const PROJECT_CODE = TEST.PROJECT_REF.TEST_PROJECT.code

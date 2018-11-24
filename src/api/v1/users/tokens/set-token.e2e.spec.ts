@@ -2,7 +2,7 @@
 import 'mocha'
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
-import data = require('./../../../../../_test')
+import data = require('../../../../test/constants')
 
 // prep for http calls
 chai.use(chaiHttp)

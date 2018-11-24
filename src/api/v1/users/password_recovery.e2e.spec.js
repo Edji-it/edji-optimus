@@ -3,7 +3,7 @@ const chai = require("chai")
 chai.use(require("chai-http"))
 
 // project imports
-const TEST = require('./../../../../_test')
+const TEST = require('../../../test/constants')
 
 // constants
 const SUCCESS_USER = {
