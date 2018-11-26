@@ -3,7 +3,6 @@ import chaiHttp = require('chai-http')
 import data = require('./constants')
 
 chai.use(chaiHttp)
-const request: ChaiHttp.Agent = chai.request(data.SERVER)
 
 const createUserInfo: () => any = function () {
   return {
@@ -18,7 +17,8 @@ const createUserInfo: () => any = function () {
 
 export class UserAPI {
   static async login(username: string, password: string): Promise<any> {
-    let res: ChaiHttp.Response = await request.post('/users/login')
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .post('/users/login')
       .send({
         user: {
           username,
@@ -28,7 +28,8 @@ export class UserAPI {
     return res.body
   }
   static async create(): Promise<any> {
-    let res: ChaiHttp.Response = await request.post('/users')
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .post('/users')
       .send({
         user: createUserInfo()
       })
