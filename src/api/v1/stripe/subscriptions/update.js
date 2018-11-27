@@ -12,7 +12,6 @@ module.exports = function (req, res, next) {
 
   // send back an error if this endpoint is being called without a subscription_id
   if (!subscription_id) {
-    Sentry.captureException(new Error(`user: ${user._id} made request to resubscribe without a subscription_id`))
     return res.status(400).send({ error: 'invalid parameters: missing subscription_id' })
   }
 
