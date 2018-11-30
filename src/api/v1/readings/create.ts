@@ -40,4 +40,5 @@ export async function CreateReadingHandler(req: Request, res: Response, next: Ne
   } catch (err) {
     captureException(err)
   }
+  return res.status(201).send({ reading })
 }

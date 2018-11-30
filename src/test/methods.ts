@@ -36,3 +36,12 @@ export class UserAPI {
     return res.body
   }
 }
+
+export class ReadingAPI {
+  static async delete(readingId: string): Promise<any> {
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .del(`/readings/${readingId}`)
+
+    return res.body
+  }
+}
