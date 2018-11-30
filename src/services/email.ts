@@ -4,10 +4,6 @@ import * as rp from 'request-promise'
 export class EmailService {
 
   public static sendEmail({ email_template, name, subject, email, from, vars_object }: EmailOptions): rp.RequestPromise {
-    if (!from) {
-      from = "brennen"
-    }
-
     const options: rp.OptionsWithUri = {
       uri: [process.env.EDJI_BLUESTREAK_DOMAIN, "api", "v1", "emails", "sendmail", email_template].join("/"),
       headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
