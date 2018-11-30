@@ -70,6 +70,11 @@ let oauthEnum = {
     message: 'oauth type invalid'
 }
 
+let OneTimeTokenObject = mongoose.Schema({
+    token: { type: String, required: true },
+    expiration: { type: Date, required: true, default: Date.now() + 1000 /* s */ * 3600 /* h */ * 24 }
+})
+
 let model = ModelCreator("User", {
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
     fullname: { type: String, required: true, validate: { validator: validateName, message: "Invalid name", kind: "badWords" } },
@@ -89,7 +94,7 @@ let model = ModelCreator("User", {
     referred_by: { type: String },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    accountArchiveToken: Date,
+    reset_email: { type: OneTimeTokenObject },
     last_action_time: Date, // the time the user last hit the server with an Authorization token
     last_message_check_time: { type: Date, default: Date.now() },
     last_refresh_time: { type: Date, default: Date.now() },
@@ -212,6 +217,48 @@ let model = ModelCreator("User", {
                 .catch((err) => {
                     reject(err)
                 })
+        })
+    }
+
+    /**
+     * Generates and assigns a one time use token based on provided property
+     * @param {string} propertyName the property to assign as a one time use token
+     * @param {number} expiration the number of hours that the expiration should last
+     * @returns {string} that was set on the user
+     */
+    schema.methods.setOneTimeToken = async function (propertyName, expiration) {
+        if (!helpers.isValidTokenProperty(propertyName)) {
+            return
+        }
+
+        const { unhashedToken, tokenObj } = helpers.createOneTimeTokenObject(expiration)
+        this[propertyName] = tokenObj
+        await this.edjiSave(false)
+        return unhashedToken
+    }
+
+    /**
+     * Validates and a token stored on the User based on provided property name
+     * @param {string} propertyName property name on user object which contains the token to be used
+     */
+    schema.methods.useOneTimeToken = async function (propertyName, unhashedToken) {
+        if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
+            throw new Error('ERR_INVALID_PROPERTY')
+        }
+
+        let isValidToken = helpers.validateToken(unhashedToken, this[propertyName])
+
+        if (!isValidToken) {
+            throw new Error('ERR_INVALID_TOKEN')
+        }
+
+        // get rid of the token so we're not storing old tokens on purpose
+        await this.edjiSave({
+            update: {
+                $unset: {
+                    [propertyName]: 1
+                }
+            }
         })
     }
 

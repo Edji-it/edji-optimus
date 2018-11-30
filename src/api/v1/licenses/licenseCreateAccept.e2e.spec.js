@@ -1,10 +1,9 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
-const TEST = require('./../../../../_test')
+const TEST = require('../../../test/constants')
 
 // local variables
 const ENDPOINT_URL = '/api/v1/licenses/'

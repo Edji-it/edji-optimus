@@ -1,7 +1,6 @@
 const chai = require("chai")
 const chaiHttp = require("chai-http")
 const server = "http://localhost:3354"
-const should = chai.should()
 const Q = require("q")
 
 let data = require("./data")
@@ -43,7 +42,7 @@ describe("Projects", () => {
           testProject = project // store the project for use in later tests!
           project.should.have.property("_id")
           project.should.have.property("teacher_id")
-            project.teacher_id.should.equal(testUsers.testTeacher.user._id)
+          project.teacher_id.should.equal(testUsers.testTeacher.user._id)
           project.should.have.property("reading_id")
           project.should.have.property("label")
           project.should.have.property("code")
@@ -82,7 +81,7 @@ describe("Projects", () => {
       chai.request(server)
         .post("/projects")
         .set("Authorization", testUsers.testTeacher.token)
-        .send({ project: {missing: "everything"} })
+        .send({ project: { missing: "everything" } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(406)
@@ -152,7 +151,7 @@ describe("Projects", () => {
             // make sure it's a project
             project.should.have.property("_id")
             project.should.have.property("teacher_id")
-              project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
+            project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
 
             // TODO: front end uses these for count of comments and count of students - need to find a lighter way!
             // // make sure it doesn't come with too much data
@@ -216,12 +215,12 @@ describe("Projects", () => {
 
     it("should validate an existing project with incorrect capitalization", (done) => {
       chai.request(server)
-      .get("/projects/" + testProject.code.toUpperCase() + "/validate")
-      .end((err, res) => {
-        res.should.have.status(200)
-        res.body.should.have.property("_id")
-        done()
-      })
+        .get("/projects/" + testProject.code.toUpperCase() + "/validate")
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.property("_id")
+          done()
+        })
     })
 
     it("should return 404 for invalid project", (done) => {
@@ -250,13 +249,13 @@ describe("Projects", () => {
           testComments.emojiComment = comment
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
-            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.user_id.should.equal(testUsers.testStudent.user._id)
           comment.should.have.property("author")
-            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.author.should.equal(testUsers.testStudent.user.fullname)
           comment.should.have.property("start")
           comment.should.have.property("end")
           comment.should.have.property("type")
-            comment.type.should.be.equal("emoji")
+          comment.type.should.be.equal("emoji")
           comment.should.have.property("end")
           comment.should.have.property("data")
           comment.should.have.property("text")
@@ -286,13 +285,13 @@ describe("Projects", () => {
           testComments.textComment = comment
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
-            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.user_id.should.equal(testUsers.testStudent.user._id)
           comment.should.have.property("author")
-            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.author.should.equal(testUsers.testStudent.user.fullname)
           comment.should.have.property("start")
           comment.should.have.property("end")
           comment.should.have.property("type")
-            comment.type.should.be.equal("text")
+          comment.type.should.be.equal("text")
           comment.should.have.property("end")
           comment.should.have.property("data")
           comment.should.have.property("text")
@@ -319,13 +318,13 @@ describe("Projects", () => {
           testComments.emptyComment = comment
           comment.should.have.property("_id")
           comment.should.have.property("user_id")
-            comment.user_id.should.equal(testUsers.testStudent.user._id)
+          comment.user_id.should.equal(testUsers.testStudent.user._id)
           comment.should.have.property("author")
-            comment.author.should.equal(testUsers.testStudent.user.fullname)
+          comment.author.should.equal(testUsers.testStudent.user.fullname)
           comment.should.have.property("start")
           comment.should.have.property("end")
           comment.should.have.property("type")
-            comment.type.should.be.equal("text")
+          comment.type.should.be.equal("text")
           comment.should.have.property("end")
           comment.should.have.property("text")
           comment.should.have.property("updatedAt")
@@ -464,7 +463,7 @@ describe("Projects", () => {
           var project = res.body.project
           project.should.have.property("students_ids")
           var students_ids = project.students_ids
-          
+
           students_ids.should.be.instanceof(Array)
           students_ids.forEach((stuId) => {
             stuId.should.not.equal(testUsers.testTeacher.user._id)
@@ -484,7 +483,7 @@ describe("Projects", () => {
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.property("project")
-          
+
           // project validation
           var project = res.body.project
           project.should.have.property("_id")
@@ -498,12 +497,12 @@ describe("Projects", () => {
 
           // test comment replies
           project.should.have.property("comments")
-            let reply = project.comments.find((comment) => {
-              return comment._id == testComments.textComment._id
-            })
-            reply.should.be.ok // assert that the reply exists
-            reply.should.have.property("reply_to")
-          
+          let reply = project.comments.find((comment) => {
+            return comment._id == testComments.textComment._id
+          })
+          reply.should.be.ok // assert that the reply exists
+          reply.should.have.property("reply_to")
+
           project.comments.forEach((comment) => {
             comment.should.have.property("replies")
             // make sure that the reply id exists in the comment's replies array
@@ -511,7 +510,7 @@ describe("Projects", () => {
               comment.replies.indexOf(reply._id).should.be.above(-1)
             }
           })
-            
+
 
           project.should.have.property("updatedAt")
           project.should.have.property("createdAt")
@@ -602,7 +601,7 @@ describe("Projects", () => {
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.property("project")
-          
+
           // project validation
           var project = res.body.project
           project.should.have.property("_id")
@@ -721,7 +720,7 @@ describe("Projects", () => {
 
   describe("PUT /projects/:project_id/comments/:comment_id", () => {
     // I like this idea of making an endpoint function for each of these tests - will probably avoid a lot of errors I've made in the past
-    let endpoint = function(project_id, comment_id) {
+    let endpoint = function (project_id, comment_id) {
       return "/" + ['projects', project_id, 'comments', comment_id].join("/")
     }
 
@@ -750,7 +749,7 @@ describe("Projects", () => {
       chai.request(server)
         .put(endpoint(testProject._id, testComments.emojiComment._id))
         .set("Authorization", testUsers.testStudent.token)
-        .send({ }) // leave the body empty here
+        .send({}) // leave the body empty here
         .end((err, res) => {
           res.should.have.status(400)
 
@@ -984,12 +983,12 @@ describe("Projects", () => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
-        .send({ project: { heat_vision: true }})
+        .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
           res.body.should.have.property("project")
-          
+
           // project validation
           let project = res.body.project
           project.should.have.property("heat_vision")
@@ -1003,32 +1002,32 @@ describe("Projects", () => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
-        .send({ notProject: { heat_vision: true }})
+        .send({ notProject: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(400)
           done()
-      })
+        })
     })
 
     it("should reject an invalid id", (done) => {
       chai.request(server)
         .put("/projects/brennen")
         .set("Authorization", testUsers.testTeacher.token)
-        .send({ project: { heat_vision: true }})
+        .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(400)
 
           done()
-      })
+        })
     })
 
     it("should return 404 for a non-existant id", (done) => {
       chai.request(server)
         .put("/projects/" + testUsers.testTeacher.user._id) // this id shouldn't exist in projects
         .set("Authorization", testUsers.testTeacher.token)
-        .send({ project: { heat_vision: true }})
+        .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
@@ -1041,12 +1040,12 @@ describe("Projects", () => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testTeacher.token)
-        .send({ project: { non_existant: true }})
+        .send({ project: { non_existant: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
           res.body.should.have.property("project")
-          
+
           // project validation
           let project = res.body.project
           project.should.not.have.property("non_existant")
@@ -1059,7 +1058,7 @@ describe("Projects", () => {
       chai.request(server)
         .put("/projects/" + testProject._id)
         .set("Authorization", testUsers.testStudent.token)
-        .send({ project: { heat_vision: true }})
+        .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
@@ -1071,7 +1070,7 @@ describe("Projects", () => {
     it("should reject an unauthorized user", (done) => {
       chai.request(server)
         .put("/projects/" + testProject._id)
-        .send({ project: { heat_vision: true }})
+        .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)

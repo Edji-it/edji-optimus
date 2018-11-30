@@ -1,10 +1,9 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
-const TEST = require('./../../../../_test')
+const TEST = require('../../../test/constants')
 
 // constants
 const SUCCESS_USER = {
@@ -49,8 +48,6 @@ describe('PUT /api/v1/users/password_recovery', () => {
         email: TEST.LOGIN_INFO.GOOGLE_OAUTH_USER.email
       })
       .end((err, res) => {
-        should.exist(err)
-
         res.should.have.status(400)
 
         res.body.should.have.property('error')
@@ -71,8 +68,6 @@ describe('PUT /api/v1/users/password_recovery', () => {
         username: 'idk_if_this_exists_but_it_probably_doesnt'
       })
       .end((err, res) => {
-        should.exist(err)
-
         res.should.have.status(404)
         done()
       })
@@ -85,8 +80,6 @@ describe('PUT /api/v1/users/password_recovery', () => {
         email: 'idk_if_this_exists_but_it_probably_doesnt'
       })
       .end((err, res) => {
-        should.exist(err)
-
         res.should.have.status(404)
         done()
       })
@@ -99,8 +92,6 @@ describe('PUT /api/v1/users/password_recovery', () => {
       //   not_a_username: 'idk_if_this_exists_but_it_probably_doesnt'
       // })
       .end((err, res) => {
-        should.exist(err)
-
         res.should.have.status(400)
         done()
       })

@@ -1,11 +1,10 @@
 // package imports
 const chai = require('chai')
-const should = chai.should()
 const sinon = require('sinon')
 
 // project imports
 const helpers = require('./_password_recovery')
-const emailService = require('../../../services/email')
+const emailService = require('../../../services/email').EmailService
 
 // constants
 process.env.CLIENT_URL = 'localhost:3354'
@@ -82,6 +81,7 @@ describe('_password_recovery', () => {
           let emailOptions = emailServiceStub.firstCall.args[0]
           emailOptions.email.should.be.equal(user.email)
           emailOptions.name.should.be.equal(user.fullname)
+          emailOptions.should.have.property('subject')
           emailOptions.should.have.property('vars_object')
           emailOptions.vars_object.name.should.be.equal(user.fullname)
           emailOptions.vars_object.reset_link.should.be.equal(createResetLinkReturn)

@@ -1,6 +1,5 @@
 // package imports
 const chai = require('chai')
-const should = chai.should()
 const sinon = require('sinon')
 const mongoose = require('mongoose')
 // require('sinon-mongoose')

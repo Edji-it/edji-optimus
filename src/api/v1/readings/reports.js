@@ -2,7 +2,7 @@
 const joi = require('joi')
 
 // project imports
-const emailService = require('./../../../services/email')
+const emailService = require('./../../../services/email').EmailService
 const helpers = require('./_reports')
 
 module.exports = function (req, res, next) {
@@ -31,11 +31,10 @@ module.exports = function (req, res, next) {
     name: req.body.person_receiving,
     email: req.body.email,
     vars_object: varsObject,
-    from: "academy@edji.it"
+    from: "Edji <academy@edji.it>"
   }).then((success) => {
     return res.status(200).send({ success: success })
+  }).catch((err) => {
+    next(err)
   })
-    .catch((err) => {
-      next(err)
-    })
 }

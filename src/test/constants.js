@@ -1,5 +1,5 @@
 module.exports = {
-  SERVER: require('./src'),
+  SERVER: require('..'),
   LOGIN_TOKENS: {
     API_TEACHER: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjU5YmQ5Mzk1NTIzOWYzMDAxMTA1ZGJiMCIsImlhdCI6MTUyMDE5NDA3Mn0.e4t227lzqTXU3kYEQmfeyqKxUi9xQaWGgv1hVGyM04k",
     API_HERO: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjVhYjViMjg1MTcxNDcyMDAyM2YxMjM2MiIsImlhdCI6MTUyMTg1NzE1N30.PEdowRFeeAnUw0e9cyP2eXkRV8-OWp2a3DSAUAfYAaM",
@@ -27,7 +27,8 @@ module.exports = {
     },
     API_EMAIL_SUCCESS: {
       username: "api_email_success",
-      password: "tester"
+      password: "tester",
+      _id: "5b9d7c0c52f859090c9a5f98"
     },
     GOOGLE_OAUTH_USER: {
       email: "edji.oauth.test@gmail.com"

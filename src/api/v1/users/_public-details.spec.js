@@ -1,6 +1,5 @@
 // package imports
 const chai = require('chai')
-const should = chai.should()
 
 // project imports
 const helpers = require('./_public-details')

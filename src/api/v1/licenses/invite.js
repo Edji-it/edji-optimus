@@ -5,7 +5,7 @@ var mongoose = require("mongoose")
 // project imports
 const License = require('./../../../models/License')
 const Institution = require('./../../../models/Institution')
-const emailService = require('./../../../services/email')
+const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function (req, res, next) {
@@ -114,7 +114,7 @@ module.exports = function (req, res, next) {
         name,
         email,
         vars_object: varsObject,
-        from: "academy@edji.it"
+        from: "Edji <academy@edji.it>"
       })
     })
     .then((success) => {

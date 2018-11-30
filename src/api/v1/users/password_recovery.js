@@ -1,6 +1,5 @@
 // project imports
 const User = require('../../../models/User')
-const emailService = require('../../../services/email')
 const helpers = require('./_password_recovery')
 const bcrypt = require('bcryptjs')
 
@@ -58,7 +57,6 @@ module.exports = function (req, res, next) {
           return Promise.resolve({ status: 204, body: {} })
         })
     })
-
     .then(({ status, body }) => {
       return res.status(status).send(body) // either 400 or 204
     })

@@ -18,7 +18,7 @@ describe('projects _list helpers', () => {
       'populateTeachers'
     ]
 
-    for(key of Object.keys(helpers)) {
+    for (key of Object.keys(helpers)) {
       propertiesToCheck.indexOf(key).should.be.above(-1)
     }
   })
@@ -26,7 +26,7 @@ describe('projects _list helpers', () => {
   describe('validateQuery', () => {
     // initial validation
     it('should be a function', () => {
-      ( typeof helpers.validateQuery ).should.be.equal('function')
+      (typeof helpers.validateQuery).should.be.equal('function')
     })
     it('should return an object', () => {
       let query = helpers.validateQuery({})
@@ -81,7 +81,7 @@ describe('projects _list helpers', () => {
       query.should.have.property('error')
       should.exist(query.error)
     })
-    
+
     // start property validation
     it('should accept a valid start value', () => {
       let query = helpers.validateQuery({

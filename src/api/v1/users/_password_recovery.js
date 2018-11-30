@@ -1,5 +1,5 @@
 // library imports
-const emailService = require('../../../services/email')
+const emailService = require('../../../services/email').EmailService
 
 let createQuery = function ({ username, email }) {
   if (username) {
@@ -17,7 +17,7 @@ let sendRecoveryEmail = function (user) {
     subject: 'Password Recovery - Edji',
     name: user.fullname,
     email: user.email,
-    from: 'recovery@edji.it',
+    from: 'Account Recovery <recovery@edji.it>',
     vars_object: {
       name: user.fullname,
       reset_link: this.createResetLink(user.resetPasswordToken)

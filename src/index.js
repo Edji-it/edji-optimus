@@ -50,7 +50,6 @@ app.get('/healthcheck', require('./healthcheck'))
 
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
-// handler for oauth errors
 app.use(Sentry.Handlers.errorHandler())
 app.use(require('./error-handlers'))
 

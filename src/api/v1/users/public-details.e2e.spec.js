@@ -1,10 +1,9 @@
 // library import
 const chai = require("chai")
-const should = chai.should()
 chai.use(require("chai-http"))
 
 // project imports
-const TEST = require('./../../../../_test')
+const TEST = require('../../../test/constants')
 
 // local variables
 const ENDPOINT_URL = '/api/v1/users/public-details'
@@ -21,8 +20,6 @@ describe('GET /users/public-details', () => {
       .get(ENDPOINT_URL + EMPTY_REQUEST)
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(400)
         done()
@@ -33,8 +30,6 @@ describe('GET /users/public-details', () => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + BAD_REQUEST)
       .end((err, res) => {
-        should.exist(err)
-
         res.should.not.have.status(200)
         res.should.have.status(400)
         done()

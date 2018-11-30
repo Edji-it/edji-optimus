@@ -1,6 +1,6 @@
 // library imports
 const chai = require('chai').use(require('chai-as-promised'))
-const should = require('chai').should()
+const should = chai.should()
 const mongoose = require('mongoose')
 const sinon = require('sinon')
 
