@@ -62,14 +62,15 @@ router.post("/", authRequired, function (req, res, next) {
         } else {
             // first, make the necessary update to the version in the linking table
             // the upsert: true makes sure that, if the version_id doesn't exist, it gets created
-            Q(ReadingVersion.findOneAndUpdate({ // we can't use save here because of the special $push operation
-                _id: model.version_id,
-                owner_id: user._id
-            }, {
+            ReadingVersion.findOneAndUpdate(
+                { // we can't use save here because of the special $push operation
+                    _id: model.version_id,
+                    owner_id: user._id
+                },
+                {
                     $push: { readings: model._id },
                     updatedAt: Date.now()
                 }, { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true })
-                .exec())
                 .then((version) => {
                     // This call will always overwrite (avoiding performance issues with findOneAndUpdate)
                     model.save((err, result) => {

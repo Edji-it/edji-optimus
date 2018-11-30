@@ -43,5 +43,65 @@ module.exports = {
       project_id: "59bd9bda8e0867dcf65ed46",
       code: "notarealcodeidjrugnrie"
     }
+  },
+  READINGS: {
+    NEW_READING: {
+      "title": "Test Create Reading",
+      "source": 'https://dev.edji.it',
+      "html": "<div>&nbsp;</div><img src=\"//image-dev.edji.it/pdf/b9bdbd6d-01f6-4e34-b12b-dce48e158e38/b9bdbd6d-01f6-4e34-b12b-dce48e158e38-0.jpg\" title=\"undefined\"><br><p></p><img src=\"//image-dev.edji.it/pdf/b9bdbd6d-01f6-4e34-b12b-dce48e158e38/b9bdbd6d-01f6-4e34-b12b-dce48e158e38-1.jpg\" title=\"undefined\"><br><p></p>",
+      "words": [
+        null,
+        {
+          "styles": [
+            "br"
+          ],
+          "str": ""
+        },
+        {
+          "styles": [
+            "img"
+          ],
+          "url": "//image-dev.edji.it/pdf/b9bdbd6d-01f6-4e34-b12b-dce48e158e38/b9bdbd6d-01f6-4e34-b12b-dce48e158e38-0.jpg",
+          "str": ""
+        },
+        {
+          "styles": [
+            "br"
+          ],
+          "str": ""
+        },
+        {
+          "styles": [
+            "br"
+          ],
+          "str": ""
+        },
+        {
+          "styles": [
+            "br"
+          ],
+          "str": ""
+        },
+        {
+          "styles": [
+            "img"
+          ],
+          "url": "//image-dev.edji.it/pdf/b9bdbd6d-01f6-4e34-b12b-dce48e158e38/b9bdbd6d-01f6-4e34-b12b-dce48e158e38-1.jpg",
+          "str": ""
+        },
+        {
+          "styles": [
+            "br"
+          ],
+          "str": ""
+        },
+        {
+          "styles": [
+            "br"
+          ],
+          "str": ""
+        }
+      ]
+    }
   }
 }
