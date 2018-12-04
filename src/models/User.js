@@ -94,7 +94,7 @@ let model = ModelCreator("User", {
     referred_by: { type: String },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    reset_email: { type: OneTimeTokenObject },
+    reset_email: { type: OneTimeTokenObject, default: null },
     last_action_time: Date, // the time the user last hit the server with an Authorization token
     last_message_check_time: { type: Date, default: Date.now() },
     last_refresh_time: { type: Date, default: Date.now() },
