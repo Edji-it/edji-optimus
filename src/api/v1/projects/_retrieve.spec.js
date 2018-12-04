@@ -2,7 +2,6 @@
 const chai = require('chai').use(require('chai-as-promised'))
 const should = chai.should()
 const mongoose = require('mongoose')
-const sinon = require('sinon')
 
 // project imports
 const helpers = require('./_retrieve')
