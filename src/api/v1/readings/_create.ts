@@ -41,16 +41,8 @@ export async function assignVersionId(reading: any, userId: ObjectId) {
   reading.owner_id = userId
 }
 
-export async function recordUserReferral(user) {
-  if (
-    user.referred_by &&
-    (
-      !user.prefs ||
-      !user.prefs.onboarding ||
-      !user.prefs.onboarding.firstReadingCreated ||
-      !user.prefs.onboarding.firstReadingCreated.firstDone
-    )
-  ) {
+export async function recordUserReferral(user: any): Promise<void> {
+  if (shouldRedeemReferral(user)) {
     if (!user.prefs) user.prefs = {}
     if (!user.prefs.onboarding) user.prefs.onboarding = {}
 
@@ -70,4 +62,14 @@ export async function recordUserReferral(user) {
       }
     )
   }
+}
+
+function shouldRedeemReferral(user: any): boolean {
+  return !!user.referred_by &&
+    (
+      !user.prefs ||
+      !user.prefs.onboarding ||
+      !user.prefs.onboarding.firstReadingCreated ||
+      !user.prefs.onboarding.firstReadingCreated.firstDone
+    )
 }
