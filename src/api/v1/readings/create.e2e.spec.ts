@@ -31,7 +31,7 @@ describe('POST /api/v1/readings', () => {
   })
   afterEach(async () => {
     if (createdReadingId) {
-      await ReadingAPI.delete(createdReadingId)
+      await ReadingAPI.delete(createdReadingId, authToken)
       createdReadingId = undefined
     }
   })

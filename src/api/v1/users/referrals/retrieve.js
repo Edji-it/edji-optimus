@@ -5,28 +5,31 @@ const Referral = require('./../../../../models/Referral')
 module.exports = function (req, res, next) {
   let user = req.user
 
+  console.log('handling...')
+
   if (!user.referral_code) {
+    console.log('no referral code')
     // create a new referral object for the user
     helpers.createUniqueReferral()
       .then((referral) => {
+        console.log('i have a referral')
         // update the user with the new referral's code
         user.referral_code = referral.code
-        user.edjiSave(false).then((result) => {
-          return res.status(200).send(referral)
-        })
+        return user.edjiSave(false)
+      })
+      .then((result) => {
+        return res.status(200).send(referral)
       })
       .catch((err) => {
         next(err)
       })
   } else {
+    console.log('looking for:', user.referral_code)
     // just go get that user's referral object
-    Referral.find({ code: user.referral_code }).exec()
+    Referral.findOne({ code: user.referral_code })
       .then((referral) => {
-        if (referral.length < 1) {
-          return res.status(500).send({ error: 'no referral exists for specified users code' })
-        }
 
-        return res.status(200).send(referral[0])
+        return res.status(200).send(referral)
       })
       .catch((err) => {
         next(err)
