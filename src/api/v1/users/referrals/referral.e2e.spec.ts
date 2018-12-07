@@ -5,10 +5,10 @@ import data = require('../../../../test/constants')
 import { UserAPI, ReadingAPI, LoginObject } from '../../../../test/methods'
 
 const createReferral: (userId: string, authToken: string) => any = async function (userId, authToken) {
-  let { body } = await chai.request(data.SERVER)
+  return chai.request(data.SERVER)
     .get(`/api/v1/users/${userId}/referrals`)
     .set('Authorization', authToken)
-  return body
+  // return body
 }
 
 describe('retrieve referrals', () => {
@@ -17,13 +17,13 @@ describe('retrieve referrals', () => {
     let { user, token }: LoginObject = await UserAPI.create()
     user.should.not.have.property('referred_by')
 
-    let res = await chai.request(data.SERVER)
-      .get(`/api/v1/users/${user._id}/referrals`)
-      .set('Authorization', token)
+    let res = await createReferral(user._id, token)
+    // let res = await chai.request(data.SERVER)
+    //   .get(`/api/v1/users/${user._id}/referrals`)
+    //   .set('Authorization', token)
     res.should.have.status(200)
-    res.body.should.have.property('referral')
 
-    let referral = res.body.referral
+    let referral = res.body
 
     // initialize referral
     // let { referral } = await createReferral(user._id, token)
