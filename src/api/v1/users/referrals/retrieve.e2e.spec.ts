@@ -1,5 +1,6 @@
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
+import { ObjectId } from 'mongodb'
 
 import data = require('../../../../test/constants')
 import { UserAPI, ReadingAPI, LoginObject } from '../../../../test/methods'
@@ -50,6 +51,12 @@ describe('retrieve referrals', () => {
   it('should reject an unauthorized request', async () => {
     let { user } = newLoginObj
     let res = await createReferral(user._id)
+    res.should.have.status(401)
+  })
+  it('should reject a request for referrals that does not correspond with the logged in user id', async () => {
+    let fakeId = new ObjectId()
+    let { token } = newLoginObj
+    let res = await createReferral(fakeId, token)
     res.should.have.status(401)
   })
 })
