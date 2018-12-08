@@ -54,7 +54,7 @@ describe('retrieve referrals', () => {
     res.should.have.status(401)
   })
   it('should reject a request for referrals that does not correspond with the logged in user id', async () => {
-    let fakeId = new ObjectId()
+    let fakeId: string = new ObjectId().toString()
     let { token } = newLoginObj
     let res = await createReferral(fakeId, token)
     res.should.have.status(401)

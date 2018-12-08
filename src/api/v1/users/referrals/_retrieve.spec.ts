@@ -12,7 +12,7 @@ import { createUniqueReferral } from './_retrieve'
 
 describe('createUniqueReferralCode', () => {
   let fakeReferral = {
-    _id: ObjectId(),
+    _id: new ObjectId(),
     code: '12345',
     users_referred: []
   }
