@@ -28,39 +28,31 @@ describe('createUniqueReferralCode', () => {
     referralSaveStub.restore()
   })
 
-  it('should return a generated code', (done) => {
-    referralSaveStub.yields(false, fakeReferral)
+  it('should return a generated code', async () => {
+    referralSaveStub.resolves(fakeReferral)
 
     ReferralMock
-      .expects('find')
-      .chain('exec')
-      .resolves([])
+      .expects('findOne')
+      .resolves(undefined)
 
-    helpers.createUniqueReferral()
-      .then((referral) => {
-        referral.code.should.be.equal(fakeReferral.code)
-        referral._id.should.be.equal(fakeReferral._id)
-        done()
-      })
-      .catch((err) => {
-        done(err)
-      })
+    let referral = await helpers.createUniqueReferral()
+    referral.code.should.be.equal(fakeReferral.code)
+    referral._id.should.be.equal(fakeReferral._id)
   })
 
-  it('should re-call 5 times before exit', (done) => {
-    referralSaveStub.yields(false, fakeReferral)
+  it('should attempt to find a unique code 5 times before throwing an error', async () => {
+    referralSaveStub.resolves(fakeReferral)
 
     ReferralMock
-      .expects('find').exactly(5)
-      .chain('exec').exactly(5)
+      .expects('findOne').exactly(5)
       .resolves([{ code: 'some_code' }])
 
-    helpers.createUniqueReferral()
-      .then(() => {
-        done(new Error('should not have resolved with referral'))
-      })
-      .catch((err) => {
-        done()
-      })
+    try {
+      await helpers.createUniqueReferral()
+    } catch (err) {
+      return // we expect this to throw an error
+    }
+
+    throw new Error('did not throw expected error')
   })
 })
