@@ -1,7 +1,7 @@
 // library imports
 import 'mocha'
 import * as chai from 'chai'
-import { stub, mock } from 'sinon'
+import { stub, mock, SinonStub, SinonMock } from 'sinon'
 import { ObjectId } from 'mongodb'
 require('sinon-mongoose')
 
@@ -16,8 +16,8 @@ describe('createUniqueReferralCode', () => {
     code: '12345',
     users_referred: []
   }
-  let ReferralMock = mock(Referral)
-  let referralSaveStub
+  let ReferralMock: SinonMock = mock(Referral)
+  let referralSaveStub: SinonStub
 
   beforeEach(() => {
     ReferralMock = mock(Referral)
@@ -37,7 +37,7 @@ describe('createUniqueReferralCode', () => {
       .expects('findOne')
       .resolves(undefined)
 
-    let referral = await createUniqueReferral()
+    let referral: any = await createUniqueReferral()
     referral.code.should.be.equal(fakeReferral.code)
     referral._id.should.be.equal(fakeReferral._id)
   })
