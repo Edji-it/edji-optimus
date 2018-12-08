@@ -1,16 +1,16 @@
 // library imports
-const randomstring = require('randomstring')
+import { generate } from 'randomstring'
 
 // project imports
-const Referral = require('./../../../../models/Referral')
+import * as Referral from './../../../../models/Referral'
 
 /**
  * Generates and saves a unique referral code, meant to be called recursively
  * @param {number} callCount The number of times this function has been called in an attempt to generate a unique code
  */
-const createUniqueReferral = async function () {
+export async function createUniqueReferral(): Promise<any> {
   for (let i = 0; i < 5; i++) {
-    const possibleCode = randomstring.generate({
+    const possibleCode = generate({
       readable: true,
       length: 5,
       capitalization: 'lowercase'
@@ -22,8 +22,4 @@ const createUniqueReferral = async function () {
     }
   }
   throw new Error('referral code was not able to be generated after 5 attempts')
-}
-
-module.exports = {
-  createUniqueReferral: createUniqueReferral
 }

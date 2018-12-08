@@ -1,25 +1,27 @@
-// package imports
-const chai = require('chai')
-const sinon = require('sinon')
-const mongoose = require('mongoose')
+// library imports
+import 'mocha'
+import * as chai from 'chai'
+import { stub, mock } from 'sinon'
+import { ObjectId } from 'mongodb'
 require('sinon-mongoose')
 
 // project imports
-const Referral = require('./../../../../models/Referral')
-const helpers = require('./_retrieve')
+import * as Referral from './../../../../models/Referral'
+// const helpers = require('./_retrieve')
+import { createUniqueReferral } from './_retrieve'
 
 describe('createUniqueReferralCode', () => {
   let fakeReferral = {
-    _id: mongoose.Types.ObjectId(),
+    _id: ObjectId(),
     code: '12345',
     users_referred: []
   }
-  let ReferralMock = sinon.mock(Referral)
+  let ReferralMock = mock(Referral)
   let referralSaveStub
 
   beforeEach(() => {
-    ReferralMock = sinon.mock(Referral)
-    referralSaveStub = sinon.stub(Referral.prototype, 'edjiSave')
+    ReferralMock = mock(Referral)
+    referralSaveStub = stub(Referral.prototype, 'edjiSave')
   })
 
   afterEach(() => {
@@ -35,7 +37,7 @@ describe('createUniqueReferralCode', () => {
       .expects('findOne')
       .resolves(undefined)
 
-    let referral = await helpers.createUniqueReferral()
+    let referral = await createUniqueReferral()
     referral.code.should.be.equal(fakeReferral.code)
     referral._id.should.be.equal(fakeReferral._id)
   })
@@ -48,7 +50,7 @@ describe('createUniqueReferralCode', () => {
       .resolves([{ code: 'some_code' }])
 
     try {
-      await helpers.createUniqueReferral()
+      await createUniqueReferral()
     } catch (err) {
       return // we expect this to throw an error
     }
