@@ -4,10 +4,11 @@ import chaiHttp = require('chai-http')
 import data = require('../../../../test/constants')
 import { UserAPI, ReadingAPI, LoginObject } from '../../../../test/methods'
 
-const createReferral: (userId: string, authToken: string) => any = async function (userId, authToken) {
+const createReferral: (userId: string, authToken?: string) => any = async function (userId, authToken) {
   let req = chai.request(data.SERVER)
     .get(`/api/v1/users/${userId}/referrals`)
-    .set('Authorization', authToken)
+
+  authToken && req.set('Authorization', authToken)
   return req
 }
 
@@ -45,6 +46,11 @@ describe('retrieve referrals', () => {
     resReferral.should.have.property('users_referred')
     resReferral.users_referred.should.be.instanceOf(Array)
     resReferral.users_referred.length.should.be.equal(0)
+  })
+  it('should reject an unauthorized request', async () => {
+    let { user } = newLoginObj
+    let res = await createReferral(user._id)
+    res.should.have.status(401)
   })
 })
 
