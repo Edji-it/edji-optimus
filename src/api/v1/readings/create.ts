@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { ObjectId } from 'mongodb'
 
 import * as Reading from './../../../models/Reading'
 import { assignVersionId, recordUserReferral } from './_create'
@@ -12,6 +13,10 @@ export async function CreateReadingHandler(req: Request, res: Response, next: Ne
   if (!reading) {
     return res.status(400).send({ validationErrors: { reading: "required" } })
   }
+
+  // We need to assign an object ID to the reading since this is the first time a reading 
+  // document will be created and ReadingVersion needs to know this to populate in to the readings array
+  reading._id = new ObjectId()
 
   try {
     await assignVersionId(reading, user._id)

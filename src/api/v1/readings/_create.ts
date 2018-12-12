@@ -26,7 +26,7 @@ export async function assignVersionId(reading: any, userId: ObjectId) {
         owner_id: userId
       },
       {
-        $push: { readings: reading.version_id },
+        $push: { readings: reading._id },
         updatedAt: Date.now()
       }, {
         new: true,
