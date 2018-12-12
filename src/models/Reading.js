@@ -3,17 +3,16 @@
  */
 const mongoose = require("mongoose")
 let ModelCreator = require("./ModelCreator")
-let Comment = require("./Comment")
 let Question = require("./Question")
 let Tags = require("./Tags")
 
 module.exports = ModelCreator("Reading", {
-    html:{type: String, required: true},
-    words: {type: [], required: true},
-    title:{type: String, required: true},
+    html: { type: String, required: true },
+    words: { type: [], required: true },
+    title: { type: String, required: true },
     parent_id: { type: mongoose.Schema.ObjectId, ref: "Reading" },
     owner_id: { type: mongoose.Schema.ObjectId, required: true, ref: "User" },
-    teacher_ids: [String], // no longer used 3/20/18
+    teacher_ids: { type: [String], required: true, default: [] }, // no longer used 3/20/18
     public: Boolean,
     questions: [Question.schema],
     promoter_ids: [String],

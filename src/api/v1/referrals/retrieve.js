@@ -2,7 +2,6 @@
 const _ = require('underscore')
 
 // project imports
-const Referral = require('./../../../models/Referral')
 const User = require('./../../../models/User')
 
 module.exports = function (req, res, next) {
