@@ -31,11 +31,9 @@ module.exports = function (req, res, next) {
     })
   }
 
-  // the arrays that we'll get from searching both collections -- needs to initialize as an empty array 
-  let users = []
-  let tempUsers = []
+  let promises = []
 
-  Q(
+  promises.push(
     User.aggregate([
       {
         $match: {
@@ -48,37 +46,39 @@ module.exports = function (req, res, next) {
           _id: 1,
           fullname: 1,
           username: 1,
+          hero_status: 1,
+          archive_readings_before: 1,
           "userType": "registered"
         }
       }
-    ]).exec()
+    ])
   )
-    .then((returnedUsers) => {
-      // set users
-      users = returnedUsers
-      return TempUser.aggregate([
-        {
-          $match: {
-            _id: {
-              $in: temp_ids
-            }
-          }
-        }, {
-          $project: {
-            _id: 1,
-            fullname: 1,
-            "userType": "temp"
+
+  promises.push(
+    TempUser.aggregate([
+      {
+        $match: {
+          _id: {
+            $in: temp_ids
           }
         }
-      ])
-    }).then((returnedTempUsers) => {
-      // set tempUsers
-      tempUsers = returnedTempUsers
-      // combine the user and temp info
-      totalUsers = helpers.combineArrays(users, tempUsers)
+      }, {
+        $project: {
+          _id: 1,
+          fullname: 1,
+          "userType": "temp"
+        }
+      }
+    ])
+  )
+
+  Promise.all(promises)
+    .then((results) => {
+      // totalUsers = helpers.combineArrays(results[0], results[1])
+      let users = results[0].concat(results[1])
 
       // send back the users
-      return res.status(200).send({ users: totalUsers })
+      return res.status(200).send({ users })
     })
     .catch((err) => {
       next(err)
