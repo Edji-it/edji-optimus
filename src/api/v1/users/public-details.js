@@ -74,7 +74,6 @@ module.exports = function (req, res, next) {
 
   Promise.all(promises)
     .then((results) => {
-      // totalUsers = helpers.combineArrays(results[0], results[1])
       let users = results[0].concat(results[1])
 
       // send back the users
