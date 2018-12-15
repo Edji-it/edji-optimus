@@ -15,6 +15,5 @@ let _idNull = function (_ids) {
 
 module.exports = {
   validateRequest,
-  _idNull,
-  combineArrays
+  _idNull
 }
