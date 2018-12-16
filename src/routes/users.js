@@ -121,7 +121,8 @@ router.put("/", authRequired, function (req, res, next) {
         'referred_by',
         'school_name',
         'phone_number',
-        'sales_can_contact'
+        'sales_can_contact',
+        'archive_readings_before'
     ]
 
     UPDATABLE_PROPERTIES.forEach((property) => {

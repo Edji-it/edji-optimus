@@ -6,20 +6,8 @@ let validateRequest = function (students_ids, temp_ids) {
   return true
 }
 
-let combineArrays = function (users, tempUsers) {
-  if (users && tempUsers) {
-    return users.concat(tempUsers)
-  } else if (users && !tempUsers) {
-    return users
-  } else if (!users && tempUsers) {
-    return tempUsers
-  } else {
-    return []
-  }
-}
-
 let _idNull = function (_ids) {
-  if (!_ids || (_ids && _ids[0]==='')) {
+  if (!_ids || (_ids && _ids[0] === '')) {
     return true
   }
   return false
@@ -27,6 +15,5 @@ let _idNull = function (_ids) {
 
 module.exports = {
   validateRequest,
-  _idNull,
-  combineArrays
+  _idNull
 }
