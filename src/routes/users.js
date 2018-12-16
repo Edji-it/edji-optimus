@@ -309,7 +309,16 @@ router.post("/reset_password", function (req, res, next) {
     var token = req.body.resetObject.token
 
     if ((!oldPassword && !newPassword) || (!newPassword && token)) {
-        res.status(400).send()
+        return res.status(400).send()
+    }
+    
+    if (!user.password) {
+        let error = {
+            message: 'no password for user',
+            code: 'err_no_password'
+        }
+        if (user.type ==='temp') error.message += '; user is a temp'
+        return res.status(400).send(error)
     }
 
     if (oldPassword && newPassword) {
