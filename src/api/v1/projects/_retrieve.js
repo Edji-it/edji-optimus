@@ -43,7 +43,8 @@ const populationProperties = {
       "teacher": {
         _id: { $arrayElemAt: ["$teacherRef._id", 0] },
         fullname: { $arrayElemAt: ["$teacherRef.fullname", 0] },
-        username: { $arrayElemAt: ["$teacherRef.username", 0] }
+        username: { $arrayElemAt: ["$teacherRef.username", 0] },
+        archive_readings_before: { $arrayElemAt: ["$teacherRef.archive_readings_before", 0] }
       }
     }
   }]
