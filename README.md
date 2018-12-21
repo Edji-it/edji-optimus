@@ -68,3 +68,11 @@ yarn test:projects
 ### Removing Properties
 - Must clean the property from the database
 - Increment server as a Major version
+
+## Local DB Setup
+If you'd like to run with a local mongodb so that you can do devleopment offline, check this out:
+
+`yarn install` should take care of downloading the correct `mongodb` version, as long as you're running commands from this directory
+run `yarn start:local` to run the database locally and connect to it on your local server. The only complicated part is shutdown:
+
+run `mongo` to connect to the locally running mongo instance, and then run `db.shutdownServer()` to stop the serving of the database cleanly (we'll put a command together to do this automatically later)

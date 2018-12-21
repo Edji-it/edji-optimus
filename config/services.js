@@ -2,8 +2,6 @@ const joi = require('joi')
 
 const serviceSchema = joi.object({
   MONGO_HOST: joi.string().required(),
-  MONGO_USER: joi.string().required(),
-  MONGO_PWD: joi.string().required(),
   MANDRILL_API_KEY: joi.string().required(),
   OAUTH2_GOOGLE_CLIENT_ID: joi.string().required(),
   OAUTH2_GOOGLE_CLIENT_SECRET: joi.string().required(),
@@ -24,9 +22,7 @@ if (error) {
 
 const config = {
   MONGO: {
-    HOST: serviceVars.MONGO_HOST,
-    USER: serviceVars.MONGO_USER,
-    PWD: serviceVars.MONGO_PWD
+    HOST: serviceVars.MONGO_HOST
   },
   MANDRILL: {
     API_KEY: serviceVars.MANDRILL_API_KEY
