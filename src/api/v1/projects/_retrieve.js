@@ -27,7 +27,8 @@ const populationProperties = {
         draft: { $arrayElemAt: ["$reading.draft", 0] },
         version_id: { $arrayElemAt: ["$reading.version_id", 0] },
         questions: { $arrayElemAt: ["$reading.questions", 0] },
-        parent_id: { $arrayElemAt: ["$reading.parent_id", 0] }
+        parent_id: { $arrayElemAt: ["$reading.parent_id", 0] },
+        createdAt: { $arrayElemAt: ["$reading.createdAt", 0] }
       }
     }
   }],
@@ -43,7 +44,9 @@ const populationProperties = {
       "teacher": {
         _id: { $arrayElemAt: ["$teacherRef._id", 0] },
         fullname: { $arrayElemAt: ["$teacherRef.fullname", 0] },
-        username: { $arrayElemAt: ["$teacherRef.username", 0] }
+        username: { $arrayElemAt: ["$teacherRef.username", 0] },
+        archive_readings_before: { $arrayElemAt: ["$teacherRef.archive_readings_before", 0] },
+        hero_status: { $arrayElemAt: ["$teacherRef.hero_status", 0] }
       }
     }
   }]
