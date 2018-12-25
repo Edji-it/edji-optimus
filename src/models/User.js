@@ -165,7 +165,8 @@ let model = ModelCreator("User", {
             'createdAt',
             'updatedAt',
             'school_name',
-            'sales_can_contact'
+            'sales_can_contact',
+            'archive_readings_before'
         ]
 
         // return all of the properties in the above array
