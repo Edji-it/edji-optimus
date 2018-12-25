@@ -7,7 +7,7 @@ build/
 yarn-error.*
 
 #database stuff
-data
+data/*
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
