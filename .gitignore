@@ -6,6 +6,9 @@ dist/
 build/
 yarn-error.*
 
+#database stuff
+data
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
