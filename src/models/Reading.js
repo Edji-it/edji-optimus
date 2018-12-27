@@ -22,5 +22,6 @@ module.exports = ModelCreator("Reading", {
     draft: { type: Boolean },
     grade_levels: [Number],
     subjects: [String],
-    version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true }
+    version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true },
+    owner_bookmarked: { type: Boolean }
 })
