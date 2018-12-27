@@ -60,7 +60,7 @@ const responseShape = {
  */
 const baseAggregation = function (userId) {
   return [
-    { $match: { owner_id: userId } },
+    { $match: { owner_id: userId, draft: { $ne: true } } },
     {
       $project: {
         version_count: { $size: "$readings" },
