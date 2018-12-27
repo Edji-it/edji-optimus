@@ -63,6 +63,9 @@ describe('GET /readings', () => {
           reading.should.have.property("version_count")
           reading.should.have.property("createdAt")
           reading.should.have.property("updatedAt")
+          if (reading.hasOwnProperty('draft')) {
+            reading.draft.should.not.be.true
+          }
 
           // things the reading should NOT have
           reading.should.not.have.property("words")
