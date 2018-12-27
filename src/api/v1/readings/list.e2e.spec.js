@@ -67,6 +67,7 @@ describe('GET /readings', () => {
           // things the reading should NOT have
           reading.should.not.have.property("words")
           reading.should.not.have.property("html")
+          reading.should.not.have.property("draft")
 
           let thisReadingDate = new Date(reading.updatedAt)
           if (lastReadingDate) {

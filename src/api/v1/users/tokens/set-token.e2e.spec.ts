@@ -2,11 +2,12 @@
 import 'mocha'
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
+import { Request } from 'superagent'
 import data = require('../../../../test/constants')
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (userId: string, tokenName: string, authToken?: string) {
+const request = function (userId: string, tokenName: string, authToken?: string): Request {
   let req = chai.request(data.SERVER)
     .get(`/api/v1/users/${userId}/tokens/${tokenName}`)
 
