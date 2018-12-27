@@ -139,7 +139,7 @@ router.put("/:reading_id", authRequired, function (req, res, next) {
     }
 
     // now we need to make sure they are not trying to update anything we don't want them to
-    validProperties = ["html", "words", "title", "public", "source", "cover_img", "tags", "draft", "questions", "subjects", "grade_levels"]
+    validProperties = ['html', 'words', 'title', 'public', 'source', 'cover_img', 'tags', 'draft', 'questions', 'subjects', 'grade_levels', 'owner_bookmarked']
     let invalidProperties = []
     for (let property in reading_upd) {
         if (validProperties.indexOf(property) < 0) {
