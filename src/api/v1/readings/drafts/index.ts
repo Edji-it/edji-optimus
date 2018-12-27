@@ -3,6 +3,6 @@ import { ListDraftsHandler } from './list'
 
 const router = Router()
 
-router.use('/', ListDraftsHandler)
+router.get('/', ListDraftsHandler)
 
 export const DraftsRouter = router
