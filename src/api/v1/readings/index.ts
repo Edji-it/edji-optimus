@@ -8,7 +8,7 @@ import { DraftsRouter } from './drafts'
 const router = Router()
 
 // attach route handlers
-router.use('/drafts', authRequired, DraftsRouter)
+router.use('/drafts', DraftsRouter)
 router.get('/', authRequired, ListReadingsHandler)
 router.post('/', authRequired, CreateReadingHandler)
 router.post('/reports', authRequired, SendReportHandler)
