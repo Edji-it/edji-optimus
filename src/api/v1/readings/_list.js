@@ -108,7 +108,7 @@ const baseAggregation = function (userId) {
         createdAt: "$reading.createdAt",
         updatedAt: "$reading.updatedAt",
         version_count: 1,
-        owner_bookmarked: 1
+        owner_bookmarked: "$reading.owner_bookmarked"
       }
     },
     {
