@@ -8,8 +8,6 @@ const connect = function (mongooseInstance) {
         connectionTimeout: 120000
     })
 
-    console.log('connected with ' + process.env.MONGO_HOST)
-
     mongooseInstance.connection.on("error", console.error.bind(console, "connection error:"))
     mongooseInstance.connection.once("open", function () {
         console.log("Connected to Mongo!")

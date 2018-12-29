@@ -3,13 +3,13 @@ import * as authRequired from './../../../middleware/auth-required'
 import * as ListReadingsHandler from './list'
 import { CreateReadingHandler } from './create'
 import * as SendReportHandler from './reports'
-import { DraftsRouter } from './drafts'
+import { TempTypeHandler } from './temp'
 
 const router = Router()
 
 // attach route handlers
-router.use('/drafts', DraftsRouter)
 router.get('/', authRequired, ListReadingsHandler)
+router.get('/:temp_type', authRequired, TempTypeHandler)
 router.post('/', authRequired, CreateReadingHandler)
 router.post('/reports', authRequired, SendReportHandler)
 
