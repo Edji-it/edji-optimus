@@ -53,6 +53,7 @@ describe('GET /readings/:temp_type', () => {
       // things the reading should NOT have
       reading.should.not.have.property('words')
       reading.should.not.have.property('html')
+      reading.should.not.have.property('projects')
     })
   })
   it('should return bookmarked readings', async () => {
@@ -77,6 +78,7 @@ describe('GET /readings/:temp_type', () => {
       // things the reading should NOT have
       reading.should.not.have.property('words')
       reading.should.not.have.property('html')
+      reading.should.not.have.property('projects')
     })
   })
   it('should populate projects', async () => {
