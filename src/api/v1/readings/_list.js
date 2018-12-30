@@ -73,20 +73,20 @@ const baseAggregation = function (userId) {
       }
     },
     { $unwind: "$readings" },
-    {
-      $group: {
-        _id: "$_id",
-        reading: { $last: "$readings" },
-        version_count: { $last: "$version_count" },
-        updatedAt: { $last: "$updatedAt" },
-        promoter_count: { $last: "$promoter_count" }
-      }
-    },
+    // {
+    //   $group: {
+    //     _id: "$_id",
+    //     reading: { $last: "$readings" },
+    //     version_count: "version_count",
+    //     updatedAt: { $last: "$updatedAt" },
+    //     promoter_count: { $last: "$promoter_count" }
+    //   }
+    // },
     { $sort: { "updatedAt": -1 } },
     {
       $lookup: {
         from: "readings",
-        localField: "reading",
+        localField: "readings",
         foreignField: "_id",
         as: "reading"
       }
