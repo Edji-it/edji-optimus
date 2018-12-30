@@ -125,16 +125,19 @@ const baseAggregation = function (userId) {
  */
 const populateProjectAggregation = function (userId) {
   let aggregation = baseAggregation(userId)
-  aggregation.push({
-    $lookup: {
-      from: 'projects',
-      localField: '_id',
-      foreignField: 'reading_id',
-      as: 'projects'
-    }
-  }, {
+  aggregation.push(
+    {
+      $lookup: {
+        from: 'projects',
+        localField: '_id',
+        foreignField: 'reading_id',
+        as: 'projects'
+      }
+    },
+    {
       $addFields: responseShape
-    })
+    }
+  )
   return aggregation
 }
 
