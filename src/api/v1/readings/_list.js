@@ -69,24 +69,15 @@ const baseAggregation = function (userId) {
       $project: {
         version_count: { $size: "$readings" },
         readings: 1,
-        updatedAt: 1
+        createdAt: 1
       }
     },
     { $unwind: "$readings" },
-    {
-      $group: {
-        _id: "$_id",
-        reading: { $last: "$readings" },
-        version_count: { $last: "$version_count" },
-        updatedAt: { $last: "$updatedAt" },
-        promoter_count: { $last: "$promoter_count" }
-      }
-    },
-    { $sort: { "updatedAt": -1 } },
+    { $sort: { "createdAt": -1 } },
     {
       $lookup: {
         from: "readings",
-        localField: "reading",
+        localField: "readings",
         foreignField: "_id",
         as: "reading"
       }
@@ -149,7 +140,7 @@ const populateProjectAggregation = function (userId) {
  */
 const paginate = function (pipeline, skip, limit) {
   return pipeline.concat([
-    { $sort: { updatedAt: -1 } },
+    { $sort: { createdAt: -1 } },
     {
       $group: {
         _id: null,
