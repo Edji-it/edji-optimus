@@ -139,7 +139,8 @@ router.put("/:reading_id", authRequired, function (req, res, next) {
     }
 
     // now we need to make sure they are not trying to update anything we don't want them to
-    validProperties = ['html', 'words', 'title', 'public', 'source', 'cover_img', 'tags', 'draft', 'questions', 'subjects', 'grade_levels', 'owner_bookmarked']
+    //  createdAt is in here because we update that property when the reading is published, so that it becomes the time it was shared instead of the time it was drafted
+    validProperties = ['html', 'words', 'title', 'public', 'source', 'cover_img', 'tags', 'draft', 'questions', 'subjects', 'grade_levels', 'owner_bookmarked', 'createdAt']
     let invalidProperties = []
     for (let property in reading_upd) {
         if (validProperties.indexOf(property) < 0) {
