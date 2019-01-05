@@ -5,7 +5,13 @@ import data = require('./constants')
 chai.use(chaiHttp)
 
 export class UserAPI {
-  static async login(username: string, password: string): Promise<LoginObject> {
+  static async login(
+    username: string,
+    password: string,
+    options: {
+      returnRoot?: boolean
+    } = {}
+  ): Promise<LoginObject> {
     let res: ChaiHttp.Response = await chai.request(data.SERVER)
       .post('/users/login')
       .send({
@@ -14,22 +20,43 @@ export class UserAPI {
           password
         }
       })
-    return res.body
+    let returnVal // this typing isn't exactly right...
+    if (options.returnRoot) {
+      returnVal = res
+    } else {
+      returnVal = res.body
+    }
+
+    return returnVal
   }
-  static async create(overrideProperties: any = {}): Promise<LoginObject> {
+  static async create(
+    overrideProperties: any = {},
+    options: {
+      returnCreds?: boolean
+    } = {}
+  ): Promise<ApiLoginObject> {
+    let userProperties: any = {
+      username: Date.now().toString(),
+      fullname: "newApiTestUser",
+      password: "codycodycody",
+      email: 'auto_' + Date.now().toString() + "@edji.it",
+      identities: ["robot", "business"],
+      avatar: "//image-dev.edji.it/avatar/test.png",
+      ...overrideProperties
+    }
+
     let res: ChaiHttp.Response = await chai.request(data.SERVER)
       .post('/users')
       .send({
-        user: {
-          username: Date.now().toString(),
-          fullname: "newApiTestUser",
-          password: "codycodycody",
-          email: 'auto_' + Date.now().toString() + "@edji.it",
-          identities: ["robot", "business"],
-          avatar: "//image-dev.edji.it/avatar/test.png",
-          ...overrideProperties
-        }
+        user: userProperties
       })
+    if (options.returnCreds) {
+      res.body.credentials = {
+        username: userProperties.username,
+        password: userProperties.password
+      }
+    }
+
     return res.body
   }
 
@@ -66,5 +93,12 @@ export class ReadingAPI {
       .set('Authorization', authToken)
 
     return res.body
+  }
+}
+
+interface ApiLoginObject extends LoginObject {
+  credentials: {
+    username: string
+    password: string
   }
 }
