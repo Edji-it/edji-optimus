@@ -34,7 +34,7 @@ describe('GET api/v1/users/:user_id/tokens/:token_name', () => {
     res.should.have.status(400)
   })
   it('should receive a 200 for an authorized user setting an email reset token', async () => {
-    let res = await request(validUserId, 'reset_email', validUserToken)
+    let res = await request(validUserId, 'email', validUserToken)
     res.should.have.status(200)
   })
 })
