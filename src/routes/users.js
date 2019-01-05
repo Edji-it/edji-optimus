@@ -312,13 +312,13 @@ router.post("/reset_password", function (req, res, next) {
     if ((!oldPassword && !newPassword) || (!newPassword && token)) {
         return res.status(400).send()
     }
-    
+
     if (!user.password) {
         let error = {
             message: 'no password for user',
             code: 'err_no_password'
         }
-        if (user.type ==='temp') error.message += '; user is a temp'
+        if (user.type === 'temp') error.message += '; user is a temp'
         return res.status(400).send(error)
     }
 
@@ -345,6 +345,7 @@ router.post("/reset_password", function (req, res, next) {
                 })
         })
     } else if (token && newPassword) {
+        console.log('token', token)
         //passively validates token and date
         User.findOne({
             resetPasswordToken: token,

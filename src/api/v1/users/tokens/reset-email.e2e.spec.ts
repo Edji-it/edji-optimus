@@ -28,7 +28,7 @@ const requestUseToken = function (unhashedToken: string, newEmail: string) {
 
 describe('POST api/v1/users/:user_id/tokens/reset_email/:unhashed_token', () => {
   before(async () => {
-    let { user, token } = await UserAPI.create()
+    let { user, token } = await UserAPI.create({ email: `success+reset${Date.now()}@simulator.amazonses.com` })
     testUserToken = token
     testUserId = user._id
   })
@@ -36,7 +36,7 @@ describe('POST api/v1/users/:user_id/tokens/reset_email/:unhashed_token', () => 
   // parameter validation for this route is done by the use-token middleware
   it('should successfully set and then use a token', async function () {
     this.timeout(6000) // set a little bit of a longer timeout, since there are so many calls going on in this test
-    let newEmail: string = 'success+email_reset_' + Date.now() + '@simulator.amazonses.com'
+    let newEmail: string = `success+reset2${Date.now()}@simulator.amazonses.com`
     let setTokenRes = await requestSetToken()
     // more explanation on the set-token route logic - we're passed an encrypted version of the token so that we can decrypt it
     //  and make sure we're e2e testing this route w/o using the email sent to the SES inbox

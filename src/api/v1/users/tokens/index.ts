@@ -1,18 +1,16 @@
 import { Router } from 'express'
 import { SetTokenController } from './set-token'
 import { UseTokenMiddleware } from './use-token'
-import { ResetEmailHandler } from './reset-email'
+import { ResetPropertyHandler } from './reset-property'
 
 const router: Router = Router()
 
-router.get('/:token_name', SetTokenController)
-router.post('/reset_email/:unhashed_token',
-  (req, res, next) => {
-    req.params.token_name = 'reset_email'
-    next()
-  },
+router.get('/:reset_property', SetTokenController)
+
+router.post(
+  '/:reset_property/:unhashed_token',
   UseTokenMiddleware,
-  ResetEmailHandler
+  ResetPropertyHandler()
 )
 
 export const TokenController: Router = router

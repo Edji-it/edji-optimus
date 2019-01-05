@@ -92,9 +92,8 @@ let model = ModelCreator("User", {
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
     referred_by: { type: String },
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
     reset_email: { type: OneTimeTokenObject, default: null },
+    reset_password: { type: OneTimeTokenObject, default: null },
     archive_readings_before: { type: Date },
     last_action_time: Date, // the time the user last hit the server with an Authorization token
     last_message_check_time: { type: Date, default: Date.now() },
