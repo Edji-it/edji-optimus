@@ -309,8 +309,8 @@ router.post("/reset_password", function (req, res, next) {
     var newPassword = req.body.resetObject.newPassword
     var token = req.body.resetObject.token
 
-    if ((!oldPassword && !newPassword) || (!newPassword && token)) {
-        return res.status(400).send()
+    if (!oldPassword || !newPassword) {
+        return res.status(400).send({ error: 'oldPassword and newPassword required to reset password' })
     }
 
     if (!user.password) {
@@ -322,60 +322,28 @@ router.post("/reset_password", function (req, res, next) {
         return res.status(400).send(error)
     }
 
-    if (oldPassword && newPassword) {
-        bcrypt.compare(oldPassword, user.password, function (err, result) {
-            if (err) {
-                return next(err)
-            }
-            if (!result) {
-                res.status(400).send()
-                return
-            }
+    bcrypt.compare(oldPassword, user.password, function (err, result) {
+        if (err) {
+            return next(err)
+        }
+        if (!result) {
+            res.status(400).send()
+            return
+        }
 
-            User.findById(user._id)
-                .then((userRes) => {
-                    userRes.password = newPassword
-                    userRes.edjiSave(false)
-                        .then((user) => {
-                            return res.status(200).send(LoginController.generateLoginObjectForUser(user))
-                        })
-                })
-                .catch((err) => {
-                    next(err)
-                })
-        })
-    } else if (token && newPassword) {
-        console.log('token', token)
-        //passively validates token and date
-        User.findOne({
-            resetPasswordToken: token,
-            resetPasswordExpires: { $gte: Date.now() }
-        })
-            .then(function (user) {
-                if (!user) {
-                    throw new Error("No user found")
-                }
-
-                user.password = newPassword
-                user.edjiSave(false, (err, doc) => {
-                    if (err) {
-                        return next(err)
-                    }
-                    else {
+        User.findById(user._id)
+            .then((userRes) => {
+                userRes.password = newPassword
+                userRes.edjiSave(false)
+                    .then((user) => {
                         return res.status(200).send(LoginController.generateLoginObjectForUser(user))
-                    }
-                })
-            }).catch((err) => {
+                    })
+            })
+            .catch((err) => {
                 next(err)
             })
-        return
-    } else {
-        res.status(400).send()
-    }
+    })
 })
-
-// replacement route for old password recovery
-router.post('/recover_password', require('./../api/v1/users/password_recovery'))
 
 /** Used to validate credentials with a user that is already logged in and set accountArchiveToken */
 router.post("/verify", function (req, res, next) {
