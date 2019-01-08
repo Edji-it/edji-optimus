@@ -82,17 +82,21 @@ const addIdToProject = async function (user, project) {
   if (!project) {
     throw new Error(`no project sent to addIdToProject - user: ${user && user._id}, project: ${project && project._id}`)
   }
+  console.log('checking the project')
 
   // obvi, we don't want to add the teacher to the students array if they're the teacher
   //  there is also sometimes not a user when this endpoint is called, like when someone doesn't yet have an account
   if (!user || user._id.equals(project.teacher_id)) {
+    console.log('no user here', !user, user._id.equals(project.teacher_id))
     return { project }
   }
+  console.log('check 1')
 
   let id = user._id
   let update
   // add temp users to the temp_ids array
   if (user.type && user.type === 'temp') {
+    console.log('check 4')
     if (!project.temp_ids.includes(id)) {
       update = {
         $push: {
@@ -103,6 +107,7 @@ const addIdToProject = async function (user, project) {
     }
     // add logged in users to the students_ids array
   } else if (!project.students_ids.includes(id)) {
+    console.log('check 2')
     update = {
       $push: {
         students_ids: id
@@ -110,6 +115,7 @@ const addIdToProject = async function (user, project) {
     }
     project.students_ids.push(user._id)
   } else {
+    console.log('check 3')
     return { project }
   }
 

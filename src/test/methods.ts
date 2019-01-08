@@ -96,6 +96,23 @@ export class ReadingAPI {
   }
 }
 
+export class ProjectAPI {
+  static async create(
+    project: {
+      reading_id: string,
+      label: string
+    },
+    authToken: string
+  ): Promise<any> {
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .post('/projects')
+      .set('Authorization', authToken)
+      .send({ project })
+
+    return res.body
+  }
+}
+
 interface ApiLoginObject extends LoginObject {
   credentials: {
     username: string

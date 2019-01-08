@@ -3,7 +3,7 @@ import chaiHttp = require('chai-http')
 import { AES, enc } from 'crypto-js'
 
 import data = require('../../../../test/constants')
-import { UserAPI, LoginObject } from '../../../../test/methods'
+import { UserAPI } from '../../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
