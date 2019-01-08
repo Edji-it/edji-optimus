@@ -7,36 +7,39 @@ import { UserAPI, LoginObject } from '../../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
-const requestSetToken = function (userId: string, propertyName: string, authToken: string) {
+const requestSetToken = function (propertyName: string, authToken?: string, identifier?: string) {
+  let url = `/api/v1/users/tokens/${propertyName}`
   let req = chai.request(data.SERVER)
-    .get(`/api/v1/users/${userId}/tokens/${propertyName}`)
+    .get(url)
     .set('Authorization', authToken)
 
   return req
 }
-const requestUseToken = function (userId: string, unhashedToken: string, propertyName: string, propertyValue: string, authToken: string) {
+const requestUseToken = function (unhashedToken: string, propertyName: string, propertyValue: string, authToken?: string, userId?: string) {
+  let url = `/api/v1/users/tokens/${propertyName}/${unhashedToken}`
+  userId && (url += `?user_id=${userId}`)
   let req = chai.request(data.SERVER)
-    .post(`/api/v1/users/${userId}/tokens/${propertyName}/${unhashedToken}`)
+    .post(url)
     .set('Authorization', authToken)
     .send({ [propertyName]: propertyValue })
   return req
 }
 
 const validateUseToken = async function (userId: string, propertyName: string, propertyValue: string, authToken: string) {
-  let setTokenRes = await requestSetToken(userId, propertyName, authToken)
+  let setTokenRes = await requestSetToken(propertyName, authToken)
   // more explanation on the set-token route logic - we're passed an encrypted version of the token so that we can decrypt it
   //  and make sure we're e2e testing this route w/o using the email sent to the SES inbox
   setTokenRes.should.have.status(200)
   setTokenRes.body.should.have.property('request_id')
   let encryptedToken: string = setTokenRes.body.request_id
   let decryptedToken: string = AES.decrypt(encryptedToken, process.env.OPTIMUS_TOKEN_SIGNING_SECRET).toString(enc.Utf8)
-  let useTokenRes1 = await requestUseToken(userId, decryptedToken, propertyName, propertyValue, authToken)
+  let useTokenRes1 = await requestUseToken(decryptedToken, propertyName, propertyValue, authToken, userId)
   useTokenRes1.should.have.status(204)
-  let useTokenRes2 = await requestUseToken(userId, decryptedToken, propertyName, propertyValue, authToken)
+  let useTokenRes2 = await requestUseToken(decryptedToken, propertyName, propertyValue, authToken, userId)
   useTokenRes2.should.have.status(400) // make sure the token is deleted and we can't use it twice
 }
 
-describe('POST api/v1/users/:user_id/tokens/:reset_property/:unhashed_token', () => {
+describe('POST api/v1/users/tokens/:reset_property/:unhashed_token', () => {
   // data used in tests
   let testToken: string
   let testUser: any

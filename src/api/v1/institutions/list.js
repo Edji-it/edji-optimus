@@ -5,7 +5,6 @@ const Q = require('q')
 const Institution = require('./../../../models/Institution')
 
 module.exports = function (req, res, next) {
-  console.log('hit it')
   Q(
     Institution.find().exec()
   )
