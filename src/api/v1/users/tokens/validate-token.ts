@@ -13,11 +13,13 @@ export async function ValidateTokenMiddleware(req: Request, res: Response, next:
     return res.status(400).send({ error: `${reset_property} required and must be a string` })
   }
 
+  console.log('user', user)
   // if the user isn't attached to the request, like in the case of password reset, go and find it using the token
   if (!user) {
+    console.log('no user!')
     let { user_id } = req.query
     // if we can't find the user we'll just stop
-    if (!user_id) return res.status(404).send()
+    if (!user_id) return res.status(400).send({ error: 'unauthenticated requests must specific a correct user_id' })
     user = await User.findById(user_id)
     req.user = user
     // if there's not a user that is under that id, get out!
