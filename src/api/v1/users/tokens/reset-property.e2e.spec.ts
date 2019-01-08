@@ -5,13 +5,20 @@ import { AES, enc } from 'crypto-js'
 import data = require('../../../../test/constants')
 import { UserAPI, LoginObject } from '../../../../test/methods'
 
+interface UserIdentifier {
+  name: string
+  value: string
+}
+
 // prep for http calls
 chai.use(chaiHttp)
-const requestSetToken = function (propertyName: string, authToken?: string, identifier?: string) {
+const requestSetToken = function (propertyName: string, authToken?: string, identifier?: UserIdentifier) {
   let url = `/api/v1/users/tokens/${propertyName}`
+  identifier && (url += `?${identifier.name}=${encodeURIComponent(identifier.value)}`)
   let req = chai.request(data.SERVER)
     .get(url)
-    .set('Authorization', authToken)
+
+  authToken && req.set('Authorization', authToken)
 
   return req
 }
@@ -20,13 +27,15 @@ const requestUseToken = function (unhashedToken: string, propertyName: string, p
   userId && (url += `?user_id=${userId}`)
   let req = chai.request(data.SERVER)
     .post(url)
-    .set('Authorization', authToken)
     .send({ [propertyName]: propertyValue })
+
+  authToken && (req.set('Authorization', authToken))
+
   return req
 }
 
-const validateUseToken = async function (userId: string, propertyName: string, propertyValue: string, authToken: string) {
-  let setTokenRes = await requestSetToken(propertyName, authToken)
+const validateUseToken = async function (userId: string, propertyName: string, propertyValue: string, authToken: string, identifier?: UserIdentifier) {
+  let setTokenRes = await requestSetToken(propertyName, authToken, identifier)
   // more explanation on the set-token route logic - we're passed an encrypted version of the token so that we can decrypt it
   //  and make sure we're e2e testing this route w/o using the email sent to the SES inbox
   setTokenRes.should.have.status(200)
@@ -50,15 +59,23 @@ describe('POST api/v1/users/tokens/:reset_property/:unhashed_token', () => {
     testToken = obj.token
     credentials = obj.credentials
   })
+  it('should reset password when given a user\'s email', async () => {
+    let newPass: string = Date.now().toString()
+    await validateUseToken(testUser._id, 'password', newPass, testToken, { name: 'email', value: testUser.email })
+    let loginRes = await UserAPI.login(testUser.username, newPass, { returnRoot: true })
+    loginRes.should.have.status(200)
+  })
+  it('should reset password when given a user\'s username', async () => {
+    let newPass: string = Date.now().toString()
+    await validateUseToken(testUser._id, 'password', newPass, undefined, { name: 'username', value: testUser.username })
+    let loginRes = await UserAPI.login(testUser.username, newPass, { returnRoot: true })
+    loginRes.should.have.status(200)
+    credentials.password = newPass // update this for the email test that's about to happen and needs to log in
+  })
+  // so this test has to come last in sequence because it changes the email used in the above email test
   it('should reset email', async () => {
     await validateUseToken(testUser._id, 'email', `success+reset2${Date.now()}@simulator.amazonses.com`, testToken)
     let loginRes = await UserAPI.login(credentials.username, credentials.password, { returnRoot: true })
-    loginRes.should.have.status(200)
-  })
-  it('should reset password', async () => {
-    let newPass: string = Date.now().toString()
-    await validateUseToken(testUser._id, 'password', newPass, testToken)
-    let loginRes = await UserAPI.login(testUser.username, newPass, { returnRoot: true })
     loginRes.should.have.status(200)
   })
 })
