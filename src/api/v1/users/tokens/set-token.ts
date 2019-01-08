@@ -17,7 +17,7 @@ export async function SetTokenController(req: Request, res: Response, next: Next
   }
 
   let varsObj: any = {
-    token_url: `https://edji.it/redeem-token/${reset_property}/${unhashedToken}`
+    token_url: `https://edji.it/redeem-token/${reset_property}/${unhashedToken}?user_id=${user._id}`
   }
 
   try {

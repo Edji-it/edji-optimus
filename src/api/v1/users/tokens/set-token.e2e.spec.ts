@@ -7,9 +7,9 @@ import data = require('../../../../test/constants')
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (userId: string, tokenName: string, authToken?: string): Request {
+const request = function (tokenName: string, authToken?: string): Request {
   let req = chai.request(data.SERVER)
-    .get(`/api/v1/users/${userId}/tokens/${tokenName}`)
+    .get(`/api/v1/users/tokens/${tokenName}`)
 
   authToken && req.set('Authorization', authToken)
   return req
@@ -21,20 +21,12 @@ const validUserId: string = data.LOGIN_INFO.API_EMAIL_SUCCESS._id
 const validResetProperty: string = 'reset_email' // an example of a valid token to be used with error testing
 
 describe('GET api/v1/users/:user_id/tokens/:token_name', () => {
-  it('should receive a 401 for a request without an authorization header', async () => {
-    let res = await request(validUserId, validResetProperty)
-    res.should.have.status(401)
-  })
-  it('should receive a 401 for a request from a user id that does not match the url given on the endpoint', async () => {
-    let res = await request('not-my-user-id', validResetProperty, validUserToken)
-    res.should.have.status(401)
-  })
   it('should receive a 400 for a request to set an invalid token', async () => {
-    let res = await request(validUserId, 'def_not_a_property', validUserToken)
+    let res = await request('def_not_a_property', validUserToken)
     res.should.have.status(400)
   })
   it('should receive a 200 for an authorized user setting an email reset token', async () => {
-    let res = await request(validUserId, 'email', validUserToken)
+    let res = await request('email', validUserToken)
     res.should.have.status(200)
   })
 })
