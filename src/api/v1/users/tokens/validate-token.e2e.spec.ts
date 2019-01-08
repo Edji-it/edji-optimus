@@ -7,8 +7,10 @@ import data = require('../../../../test/constants')
 // prep for http calls
 chai.use(chaiHttp)
 const request = function (tokenName: string, unhashedToken: string, authToken?: string, user_id?: string) {
+  let url = `/api/v1/users/tokens/${tokenName}/${unhashedToken}`
+  user_id && (url += `?user_id=${user_id}`)
   let req = chai.request(data.SERVER)
-    .post(`/api/v1/users/tokens/${tokenName}/${unhashedToken}?user_id=${user_id}`)
+    .post(url)
     .send({ [validResetProperty]: 'someValue' })
 
   authToken && req.set('Authorization', authToken)
