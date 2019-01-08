@@ -1,15 +1,27 @@
 import { Request, Response, NextFunction } from 'express'
+import User = require('../../../../models/User')
 
 export async function ValidateTokenMiddleware(req: Request, res: Response, next: NextFunction) {
   let { reset_property, unhashed_token } = req.params
+  let resetValue: string = req.body[reset_property]
   let { user } = req
 
   if (!reset_property || !unhashed_token) {
     return res.status(400).send({ error: `cannot use token ${reset_property}, as reset_property and unhashed_token do not both exist` })
   }
-  let resetValue: string = req.body[reset_property]
   if (!resetValue || typeof resetValue !== 'string') {
     return res.status(400).send({ error: `${reset_property} required and must be a string` })
+  }
+
+  // if the user isn't attached to the request, like in the case of password reset, go and find it using the token
+  if (!user) {
+    let { user_id } = req.query
+    // if we can't find the user we'll just stop
+    if (!user_id) return res.status(404).send()
+    user = await User.findById(user_id)
+    req.user = user
+    // if there's not a user that is under that id, get out!
+    if (!user) return res.status(404).send()
   }
 
   try {

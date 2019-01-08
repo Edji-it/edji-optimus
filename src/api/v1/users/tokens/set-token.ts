@@ -9,6 +9,7 @@ import { EmailService } from '../../../../services/email'
 export async function SetTokenController(req: Request, res: Response, next: NextFunction) {
   let user = req.user
   let { reset_property } = req.params
+  console.log('prop', reset_property)
 
   let unhashedToken: string = await user.setOneTimeToken(`reset_${reset_property}`, 24)
   if (!unhashedToken) {
@@ -17,7 +18,7 @@ export async function SetTokenController(req: Request, res: Response, next: Next
   }
 
   let varsObj: any = {
-    token_url: `https://edji.it/redeem-token/${reset_property}/${unhashedToken}`
+    token_url: `https://edji.it/redeem-token/${reset_property}/${unhashedToken}?user_id=${user._id}`
   }
 
   try {
