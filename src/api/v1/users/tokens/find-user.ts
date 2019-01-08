@@ -6,11 +6,8 @@ import User = require('../../../../models/User')
 import { createQuery, userCanResetPass } from './_find-user'
 
 export async function PasswordHandler(req: Request, res: Response, next: NextFunction) {
-  // since this is only called on the password route, set this param which will be used in further middleware
-  req.params.reset_property = 'password'
-
-  // if the user is already logged in, skip the search and move on
-  if (req.user) {
+  // this type of user lookup is only applicable to users resetting their password
+  if (req.params.reset_property !== 'password') {
     return next()
   }
 
