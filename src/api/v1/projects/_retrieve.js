@@ -113,7 +113,6 @@ const addIdToProject = async function (user, project) {
     return { project }
   }
 
-  console.log('returning update value:', update)
 
   return { project, update }
 }
