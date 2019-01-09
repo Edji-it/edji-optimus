@@ -92,9 +92,8 @@ let model = ModelCreator("User", {
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
     referred_by: { type: String },
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
     reset_email: { type: OneTimeTokenObject, default: null },
+    reset_password: { type: OneTimeTokenObject, default: null },
     archive_readings_before: { type: Date },
     last_action_time: Date, // the time the user last hit the server with an Authorization token
     last_message_check_time: { type: Date, default: Date.now() },
@@ -243,7 +242,7 @@ let model = ModelCreator("User", {
      * Validates and a token stored on the User based on provided property name
      * @param {string} propertyName property name on user object which contains the token to be used
      */
-    schema.methods.useOneTimeToken = async function (propertyName, unhashedToken) {
+    schema.methods.validateOneTimeToken = async function (propertyName, unhashedToken) {
         if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
             throw new Error('ERR_INVALID_PROPERTY')
         }
@@ -254,14 +253,14 @@ let model = ModelCreator("User", {
             throw new Error('ERR_INVALID_TOKEN')
         }
 
-        // get rid of the token so we're not storing old tokens on purpose
-        await this.edjiSave({
-            update: {
-                $unset: {
-                    [propertyName]: 1
-                }
-            }
-        })
+        // // get rid of the token so we're not storing old tokens on purpose
+        // await this.edjiSave({
+        //     update: {
+        //         $unset: {
+        //             [propertyName]: 1
+        //         }
+        //     }
+        // })
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)

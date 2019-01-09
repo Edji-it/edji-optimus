@@ -1,18 +1,19 @@
 import { Router } from 'express'
 import { SetTokenController } from './set-token'
-import { UseTokenMiddleware } from './use-token'
-import { ResetEmailHandler } from './reset-email'
+import { ValidateTokenMiddleware } from './validate-token'
+import { ResetPropertyHandler } from './reset-property'
+import * as authRequired from './../../../../middleware/auth-required'
+import { PasswordHandler } from './find-user'
 
 const router: Router = Router()
 
-router.get('/:token_name', SetTokenController)
-router.post('/reset_email/:unhashed_token',
-  (req, res, next) => {
-    req.params.token_name = 'reset_email'
-    next()
-  },
-  UseTokenMiddleware,
-  ResetEmailHandler
+// resetting password is the only property allowed to be done without auth
+router.get('/:reset_property', PasswordHandler, authRequired, SetTokenController)
+
+router.post(
+  '/:reset_property/:unhashed_token',
+  ValidateTokenMiddleware,
+  ResetPropertyHandler
 )
 
 export const TokenController: Router = router
