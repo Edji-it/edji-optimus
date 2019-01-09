@@ -110,7 +110,6 @@ const addIdToProject = async function (user, project) {
     }
     project.students_ids.push(user._id)
   } else {
-    console.log('the user already exists in the project!')
     return { project }
   }
 
