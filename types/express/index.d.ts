@@ -6,4 +6,8 @@ declare namespace Express {
   export interface Request {
     user?: any
   }
+  export interface Errback {
+    type?: string
+    code?: string
+  }
 }

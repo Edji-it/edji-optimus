@@ -7,7 +7,7 @@ const GOOGLE_CALLBACK_URL = process.env.OPTIMUS_URL + "/auth/google/callback"
 
 let User = require("./models/User")
 
-function extractProfile (profile) {
+function extractProfile(profile) {
     let imageUrl = ''
     let singleUseToken = bcrypt.hashSync(profile.id + Date.now().toString(), 4) // important to use syncronus hashing here
     if (profile.photos && profile.photos.length) {
@@ -39,7 +39,7 @@ passport.use('google', new GoogleStrategy({
     callbackURL: GOOGLE_CALLBACK_URL,
     accessType: 'offline',
     passReqToCallback: true
-}, (req, accessToken, refreshToken, profile, done) => {
+}, async (req, accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
     // provided by Google and turn that into a User object
     let user = User(extractProfile(profile))
@@ -62,17 +62,15 @@ passport.use('google', new GoogleStrategy({
             if (err) {
                 console.error(err)
                 return done(err)
-            }
-            else if (!dbUser) {
+            } else if (!dbUser) {
                 // here we know it's a new user, and we need to create them!!
                 user.edjiSave(
                     { forceSave: true },
                     (err, newUser) => {
                         if (err) {
                             return done({ error: err, type: "oauth", code: "err_duplicate_user" })
-                        } else {
-                            return done(null, newUser)
                         }
+                        return done(null, newUser)
                     }
                 )
             } else {
