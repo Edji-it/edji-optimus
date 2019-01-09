@@ -23,9 +23,16 @@ router.get(
 
     // Redirect back to the original page, if any
     (req, res) => {
+        console.log('handling...')
+        if (req.oauth_error) {
+            return res.status(400).send(req.oauth_error)
+        }
+
+        console.log('redirecting...')
+
         const oauthToken = encodeURIComponent(
             req.user.oauth.find((obj) => {
-                return obj.type == 'google'
+                return obj.type === 'google'
             }).singleUseToken
         )
 
@@ -33,8 +40,6 @@ router.get(
         const redirect = req.protocol + ":" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
 
         res.redirect(redirect)
-
-
     }
 )
 
