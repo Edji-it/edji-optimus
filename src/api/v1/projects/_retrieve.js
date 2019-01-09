@@ -103,7 +103,6 @@ const addIdToProject = async function (user, project) {
     }
     // add logged in users to the students_ids array
   } else if (!project.students_ids.includes(id)) {
-    console.log('the user is a real student!')
     update = {
       $push: {
         students_ids: id
