@@ -1,12 +1,6 @@
 // these are oauth routes
 
 const express = require('express')
-const passport = require('passport')
-const GoogleStrategy = require('passport-google-oauth20').Strategy
-const LoginController = require('./../middleware/LoginController')
-const Q = require('q')
-
-let User = require("./../models/User")
 let Passport = require("./../passport")
 let router = express.Router()
 
