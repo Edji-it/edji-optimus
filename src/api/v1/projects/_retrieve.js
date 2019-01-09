@@ -93,7 +93,6 @@ const addIdToProject = async function (user, project) {
   let update
   // add temp users to the temp_ids array
   if (user.type && user.type === 'temp') {
-    console.log('the user is a temp!')
     if (!project.temp_ids.includes(id)) {
       update = {
         $push: {
