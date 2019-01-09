@@ -42,9 +42,9 @@ describe('create and list projects workflow', () => {
     let { username: studentUsn, password: studentPw } = data.LOGIN_INFO.API_STUDENT
     let { token: studentToken } = await UserAPI.login(studentUsn, studentPw)
     let res1 = await requestProjects(studentToken)
-    res1.body.projects.should.be.above(1)
+    res1.body.projects.length.should.be.above(1)
     res1.body.projects.forEach((project) => {
-      project._id.equals(createdProject._id).should.be.false
+      project._id.should.not.be.equal(createdProject._id)
     })
 
     // make call to get project from student
@@ -52,10 +52,10 @@ describe('create and list projects workflow', () => {
 
     // check to make sure it appears on the student's dashboard
     let res2 = await requestProjects(studentToken)
-    res2.body.projects.should.be.above(1)
+    res2.body.projects.length.should.be.above(1)
     let projectFound: boolean = false
     res2.body.projects.forEach((project) => {
-      if (project._id.equals(createdProject._id)) {
+      if (project._id === createdProject._id) {
         projectFound = true
       }
     })

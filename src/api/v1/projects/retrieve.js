@@ -39,7 +39,7 @@ module.exports = async function (req, res, next) {
     // clear out the properties that we don't need
     delete project.teacherRef
     delete project.reading
-    let { update } = helpers.addIdToProject(user, project)
+    let { update } = await helpers.addIdToProject(user, project)
     if (update) {
       let updatedNum = await Project.update(
         { _id: project._id },
