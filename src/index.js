@@ -50,7 +50,7 @@ app.get('/healthcheck', require('./healthcheck'))
 
 // error handlers should come last!
 app.use(methodOverride()) // this passes the errors through middleware
-app.use(require('./error-handlers'))
+app.use(require('./error-handlers').GeneralErrorHandlers)
 
 let port = process.env.PORT || 3354
 
