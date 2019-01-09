@@ -113,7 +113,6 @@ const addIdToProject = async function (user, project) {
     return { project }
   }
 
-
   return { project, update }
 }
 
