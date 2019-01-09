@@ -11,7 +11,8 @@ const ENDPOINT_URL = '/api/v1/licenses/'
 
 describe('GET /api/v1/licenses/', () => {
   // should get a 200 response from the server which means we got all licenses for that user
-  it('should GET all licenses for the test user', (done) => {
+  it('should GET all licenses for the test user', function (done) {
+    this.timeout(6000)
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL)
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
