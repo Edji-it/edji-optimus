@@ -20,7 +20,11 @@ export async function ValidateTokenMiddleware(req: Request, res: Response, next:
     if (!user_id) {
       return res.status(400).send({ error: 'unauthenticated requests must specific a correct user_id' })
     }
-    user = await User.findById(user_id)
+    try {
+      user = await User.findById(user_id)
+    } catch (err) {
+      return next(err)
+    }
     req.user = user
     // if there's not a user that is under that id, get out!
     if (!user) return res.status(404).send()
