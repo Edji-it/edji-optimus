@@ -18,7 +18,8 @@ export const StandardSchema = new Schema({
 const Standard = mongoose.model<Standard>('Standard', StandardSchema)
 export default Standard
 
-// Main interface
+// Main interface -- anytime we add to the main Schema above, we need to add to the interface here
+// TODO: look in to the typegoose package to streamline this
 export interface Standard extends mongoose.Document {
   identifier: string
   description: string
