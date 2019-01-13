@@ -25,4 +25,6 @@ export default Standard
 export interface iStandard extends mongoose.Document {
   identifier: string
   description: string
+  standard_type: string
+  grade_level: string
 }
