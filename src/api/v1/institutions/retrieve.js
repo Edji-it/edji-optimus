@@ -19,7 +19,8 @@ module.exports = function (req, res, next) {
       institutionId,
       {
         name: 1,
-        abbreviation: 1
+        abbreviation: 1,
+        outcomes: 1
       }
     ).exec()
   )
