@@ -1,15 +1,18 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
-import * as mongoose from 'mongoose'
+var mongoose = require("mongoose")
 
 // project imports
 import Standard, { iStandard } from '../../../models/Standard'
 import Institution = require('../../../models/Institution')
 
-// all of the error handling 
 export async function GetOutcomes(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
-  let user = req.user
+  
+  // validation for the passed in institution ID
+  if (!mongoose.validateEdjiId(institution_id)) {
+    return res.status(403).send()
+  }
   
   try {
     let outcomes: any = await Institution.aggregate([
