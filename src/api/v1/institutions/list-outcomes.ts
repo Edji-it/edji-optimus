@@ -11,7 +11,7 @@ export async function GetOutcomes(req: Request, res: Response, next: NextFunctio
   
   // validation for the passed in institution ID
   if (!mongoose.validateEdjiId(institution_id)) {
-    return res.status(403).send()
+    return res.status(404).send()
   }
   
   try {
