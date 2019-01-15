@@ -6,7 +6,7 @@ var mongoose = require("mongoose")
 import Standard, { iStandard } from '../../../models/Standard'
 import Institution = require('../../../models/Institution')
 
-export async function ModifyOutcomes(req: Request, res: Response, next: NextFunction) {
+export async function AddOutcome(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
   let new_outcomes: Outcomes[] = req.body.outcomes
   
@@ -26,10 +26,14 @@ export async function ModifyOutcomes(req: Request, res: Response, next: NextFunc
       {
         $push: { outcomes: new_outcomes }
       }, {
-        new: true
+        new: true,
+        fields: { 
+          outcomes: 1
+        }
       }
     )
-    return res.status(200).send({outcomes: outcomes})
+    // the following return object looks odd, but it is how it should return back to the requester
+    return res.status(200).send({ outcomes: outcomes.outcomes })
   } catch (err) {
     return next(err)
   }
