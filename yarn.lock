@@ -121,6 +121,10 @@
   version "3.1.43"
   resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-3.1.43.tgz#b859347d6289ba13e347c335a4c9efa63337a748"
 
+"@types/elasticsearch@^5.0.30":
+  version "5.0.30"
+  resolved "https://registry.yarnpkg.com/@types/elasticsearch/-/elasticsearch-5.0.30.tgz#3c52f7119e3a20a47e2feb8e2b4cc54030a54e23"
+
 "@types/events@*":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-1.2.0.tgz#81a6731ce4df43619e5c8c945383b3e62a89ea86"
@@ -244,6 +248,12 @@ addressparser@1.0.1, addressparser@^1.0.1:
 after@0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/after/-/after-0.8.2.tgz#fedb394f9f0e02aa9768e702bda23b505fae7e1f"
+
+agentkeepalive@^3.4.1:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/agentkeepalive/-/agentkeepalive-3.5.2.tgz#a113924dd3fa24a0bc3b78108c450c2abee00f67"
+  dependencies:
+    humanize-ms "^1.2.1"
 
 amdefine@>=0.0.4:
   version "1.0.1"
@@ -879,6 +889,14 @@ ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
 
+elasticsearch@^15.3.0:
+  version "15.3.0"
+  resolved "https://registry.yarnpkg.com/elasticsearch/-/elasticsearch-15.3.0.tgz#7a478d23e8af02b60fd03201f1c65fd5657bf7d3"
+  dependencies:
+    agentkeepalive "^3.4.1"
+    chalk "^1.0.0"
+    lodash "^4.17.10"
+
 encodeurl@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
@@ -1351,6 +1369,12 @@ httpntlm@1.6.1:
 httpreq@>=0.4.22:
   version "0.4.22"
   resolved "https://registry.yarnpkg.com/httpreq/-/httpreq-0.4.22.tgz#27097c8ad95ea9679190530c9c0f66b8c7aafb18"
+
+humanize-ms@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/humanize-ms/-/humanize-ms-1.2.1.tgz#c46e3159a293f6b896da29316d8b6fe8bb79bbed"
+  dependencies:
+    ms "^2.0.0"
 
 i@0.3.x:
   version "0.3.6"
@@ -1969,7 +1993,7 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
-ms@^2.1.1:
+ms@^2.0.0, ms@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
 

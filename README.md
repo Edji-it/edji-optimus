@@ -28,7 +28,21 @@ yarn install
 yarn global add mocha
 ```
 
+### Get Environment Variables
+
+Node environment variables are used in order to configure differences in the application between local development, test, and production sites. We use the `dotenv` package to apply environment variables, so they are stored in the root directory in the a file called ".env". They can be obtained from another Edji team member. Your project will not run if it is missing one of the required environment variables.
+
+## Continuous Integration
+
+Optimus is auto-deployed to https://optimus-dev.edji.it from the `dev` branch, and to https://optimus.edji.it from the `master` branch. Committing directly to the `dev` branch is blocked, and must be done through a pull request in Github. Before any pull request can be merged, all server unit and e2e tests must pass in circleci.
+
+### CircleCI
+
+The configuration for CircleCI is stored in .circleci. The link to the current build can be found in the build status bar at the top of this page. 
+
 ## Heroku
+
+Heroku configuration is only necessary if you'd like to follow logs for the Heroku apps or otherwise use the Heroku CLI to interface with the applications
 
 Add the remotes
 ```bash
@@ -62,12 +76,6 @@ Run a single endpoint's tests is done with a colon and the endpoint name.
 ```bash
 yarn test:projects
 ```
-
-## Modifying Models
-
-### Removing Properties
-- Must clean the property from the database
-- Increment server as a Major version
 
 ## Local DB Setup
 If you'd like to run with a local mongodb so that you can do devleopment offline, check this out:
