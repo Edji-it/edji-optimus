@@ -10,5 +10,6 @@ router.use('/referrals', require('./referrals'))
 router.use('/licenses', require('./licenses'))
 router.use('/institutions', require('./institutions'))
 router.use('/temp_users', require('./temp_users'))
+router.use('/_search', require('./_search')._SearchRouter)
 
 module.exports = router
