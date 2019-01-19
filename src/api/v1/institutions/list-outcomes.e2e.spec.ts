@@ -3,7 +3,6 @@ import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
 import data = require('../../../test/constants')
-import { UserAPI } from '../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
