@@ -23,7 +23,6 @@ describe('GET api/v1/institutions/:institution_id/outcomes', () => {
   
   it('should return a 200 with an array of outcomes if passed an active institution that has outcomes', async () => {
     let res = await request(institution_id, validUserToken)
-    console.log(res.status)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('outcomes')
 
@@ -48,7 +47,7 @@ describe('GET api/v1/institutions/:institution_id/outcomes', () => {
   })
 
   it('should return a 200 with an empty array an active institution that has no outcomes', async () => {
-    let res = await request('5b006d759dbfbf137ec0df23', validUserToken)
+    let res = await request('5b8897e472aaa60cb2d8ffeb', validUserToken)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('outcomes')
     let outcomes = res.body.outcomes

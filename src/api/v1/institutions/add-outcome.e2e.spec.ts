@@ -41,34 +41,36 @@ describe('POST api/v1/institutions/:institution_id/outcomes', () => {
   it('should return a 200 with an array of outcomes if successfully adding an outcome', async () => {
     let res = await request(institution_id, validUserToken, outcomeBody)
     res.should.have.status(200)
-    res.should.haveOwnProperty('outcomes')
+    res.body.should.haveOwnProperty('outcomes')
 
     // check outcomes for valid response properties
     let outcomes = res.body.outcomes
     outcomes.should.be.instanceOf(Array)
     outcomes.length.should.be.above(0)
-    outcomes.should.have.property("standard")
-    outcomes.should.have.property("short_name")
-    outcomes.should.have.property("outcome_statement")
-    outcomes.should.have.property("rubric")
+    let outcome = outcomes[0]
+    outcome.should.have.property("standard")
+    outcome.should.have.property("short_name")
+    outcome.should.have.property("outcome_statement")
+    outcome.should.have.property("rubric")
 
     // check rubric for valid response properties
-    let rubric = outcomes.rubric[0]
-    rubric.should.be.instanceOf(Array)
-    rubric.length.should.be.above(0)
+    let rubrics = outcome.rubric
+    rubrics.should.be.instanceOf(Array)
+    rubrics.length.should.be.above(0)
+    let rubric = rubrics[0]
     rubric.should.have.property("grade")
     rubric.should.have.property("rubric_statement")
   })
 
   it('should return a 500 if no new outcomes are passed in to the body', async () => {
-    let badReqBody = outcomeBody
-    delete badReqBody['standard']
-    let res = await request('5b006d759dbfbf137ec0df23', validUserToken, badReqBody)
+    let res = await request('5b006d759dbfbf137ec0df23', validUserToken, [])
     res.should.have.status(500)
   })
 
   it('should return a 500 if outcomes are passed in, but missing a property', async () => {
-    let res = await request('5b006d759dbfbf137ec0df23', validUserToken, [])
+    let badReqBody = outcomeBody
+    delete badReqBody[0]['standard']
+    let res = await request('5b006d759dbfbf137ec0df23', validUserToken, badReqBody)
     res.should.have.status(500)
   })
 
