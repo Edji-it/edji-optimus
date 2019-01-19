@@ -1,10 +1,22 @@
-/**
- * Created by bvfergus on 3/5/16.
- */
+const elastic = require('./../elasticsearch')
 const mongoose = require("mongoose")
 let ModelCreator = require("./ModelCreator")
 let Question = require("./Question")
 let Tags = require("./Tags")
+
+const indexableProperties = [
+    "html",
+    "title",
+    "parent_id",
+    "owner_id",
+    "teacher_ids",
+    "public",
+    "source",
+    "grade_levels",
+    "subjects",
+    "version_id",
+    "owner_bookmarked"
+]
 
 module.exports = ModelCreator("Reading", {
     html: { type: String, required: true },
@@ -12,7 +24,6 @@ module.exports = ModelCreator("Reading", {
     title: { type: String, required: true },
     parent_id: { type: mongoose.Schema.ObjectId, ref: "Reading" },
     owner_id: { type: mongoose.Schema.ObjectId, required: true, ref: "User" },
-    teacher_ids: { type: [String], required: true, default: [] }, // no longer used 3/20/18
     public: Boolean,
     questions: [Question.schema],
     promoter_ids: [String],
@@ -24,4 +35,19 @@ module.exports = ModelCreator("Reading", {
     subjects: [String],
     version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true },
     owner_bookmarked: { type: Boolean }
+}, function (schema) {
+    schema.methods.indexMyself = function () {
+        let body = {}
+        let len = indexableProperties.length
+        for (let i = 0; i < len; i++) {
+            let propertyName = indexableProperties[i]
+            body[propertyName] = this[propertyName]
+        }
+        return elastic.default.index({
+            index: 'readings',
+            type: 'default',
+            id: this._id.toString(),
+            body
+        })
+    }
 })

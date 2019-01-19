@@ -27,15 +27,18 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
 
     Schema.methods.forceSave = Schema.methods.save
 
-    Schema.methods.edjiSave = function (options, callback) {
+    Schema.methods.edjiSave = async function (options, callback) {
         if (!options) {
             options = {
                 forceSave: this._id ? false : true
             }
         }
 
+        let promises = []
+
+        // push the first promise, which is the mongoose interaction
         if (options.forceSave) {
-            this.save(callback)
+            promises.puth(this.save(callback))
         } else {
             let queryOptions = Object.assign({
                 query: { _id: this._id },
@@ -50,8 +53,21 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
                 options
             )
 
-            return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions)
+            promises.push(Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions))
         }
+
+        // if the model has a function for indexing itself, run it
+        if (this.indexMyself) {
+            promises.push(this.indexMyself())
+        }
+        // create array of promises
+        // push the model indexing itself
+        // push the findoneandupdate
+        // return results of findoneandupdate
+        // return Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions)
+        let results = await Promise.all(promises)
+        results.length > 1 && console.log('elasticsearch results', results[1])
+        return results[0] // return only the results of the mongoose save operation
     }
 
     var Model = db.model(modelName, Schema)
