@@ -20,6 +20,7 @@ const isValidId = function (id) {
 }
 
 mongoose.validateEdjiId = isValidId
+mongoose.Promise = Promise
 
 connect(mongoose)
 
