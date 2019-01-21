@@ -1,3 +1,5 @@
+import { executeSaveAndIndex } from "./_ModelCreator";
+
 var db = require("./../db")
 
 //all models are created through this function
@@ -38,9 +40,12 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
 
         // push the first promise, which is the mongoose interaction
         if (options.forceSave) {
-            promises.push(this.save())
+            executeSaveAndIndex(
+                this.save(),
+                this.indexMyself()
+            )
         } else {
-            let queryOptions = Object.assign({
+            let queryOptions = {
                 query: { _id: this._id },
                 update: this,
                 mongooseOptions: {
@@ -48,18 +53,21 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
                     runValidators: true,
                     upsert: true,
                     setDefaultsOnInsert: true
-                }
-            },
-                options
+                },
+                ...options
+            }
+
+            console.log('running findOneAndUpdate')
+            executeSaveAndIndex(
+                Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions),
+                this.indexMyself()
             )
-
-            promises.push(Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions))
         }
 
-        // if the model has a function for indexing itself, run it
-        if (this.indexMyself) {
-            promises.push(this.indexMyself())
-        }
+        // // if the model has a function for indexing itself, run it
+        // if (this.indexMyself) {
+        //     promises.push(this.indexMyself())
+        // }
         // create array of promises
         // push the model indexing itself
         // push the findoneandupdate

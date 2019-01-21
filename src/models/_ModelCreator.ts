@@ -4,6 +4,7 @@ export async function executeSaveAndIndex(save: Promise<any>, index?: Promise<an
   index && queue.push(index)
 
   let results = await Promise.all(queue)
+  index && console.log(results[1])
   return results[0]
 }
 
