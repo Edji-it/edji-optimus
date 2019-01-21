@@ -27,7 +27,7 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
 
     Schema.methods.forceSave = Schema.methods.save
 
-    Schema.methods.edjiSave = async function (options, callback) {
+    Schema.methods.edjiSave = async function (options) {
         if (!options) {
             options = {
                 forceSave: this._id ? false : true
@@ -38,7 +38,7 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
 
         // push the first promise, which is the mongoose interaction
         if (options.forceSave) {
-            promises.puth(this.save(callback))
+            promises.push(this.save())
         } else {
             let queryOptions = Object.assign({
                 query: { _id: this._id },
