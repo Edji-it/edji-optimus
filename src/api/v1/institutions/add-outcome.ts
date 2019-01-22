@@ -4,7 +4,7 @@ var mongoose = require("mongoose")
 
 // project imports
 import Institution = require('../../../models/Institution')
-import { validateOutcomes, validateRubric } from './_add-outcomes'
+import { validateRubric } from './_add-outcomes'
 
 export async function AddOutcome(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
@@ -14,12 +14,6 @@ export async function AddOutcome(req: Request, res: Response, next: NextFunction
   if (!mongoose.validateEdjiId(institution_id)) {
     return res.status(404).send()
   }
-
-  // validation for the outcomes body
-  const outcomesValidation = validateOutcomes(new_outcomes)
-  if (outcomesValidation.error) {
-    return next(outcomesValidation.error)
-  }
   
   // validation for the rubric in the outcomes
   const rubricValidation = validateRubric(new_outcomes)
@@ -28,21 +22,17 @@ export async function AddOutcome(req: Request, res: Response, next: NextFunction
   }
   
   try {
-    let outcomes: any = await Institution.findOneAndUpdate(
-      {
-        _id: institution_id
-      },
+    let institution: any = await Institution.findByIdAndUpdate(
+        institution_id,
       {
         $push: { outcomes: new_outcomes }
       }, {
         new: true,
-        fields: { 
-          outcomes: 1
-        }
+        runValidators: true
       }
     )
     // the following return object looks odd, but it is how it should return back to the requester
-    return res.status(200).send({ outcomes: outcomes.outcomes })
+    return res.status(200).send({ institution: institution })
   } catch (err) {
     return next(err)
   }

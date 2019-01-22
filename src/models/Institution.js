@@ -11,13 +11,13 @@ var Model =  ModelCreator("Institution", {
   license_ids: [{ type: mongoose.Schema.ObjectId }], // license id's which belong to this institution
   parent_institution: { type: mongoose.Schema.ObjectId }, // id of the overarching institution
   outcomes: [{
-    short_name: { type: String, maxlength: 50 },
-    outcome_statement: { type: String },
+    short_name: { type: String, maxlength: 50, required: true },
+    outcome_statement: { type: String, required: true },
     rubric: [{
-      grade: Number,
-      rubric_statement: String
+      grade: { type: Number, required: true },
+      rubric_statement: { type: String, required: true }
     }],
-    standard: { type: mongoose.Schema.ObjectId, ref: "Standard" }
+    standard: { type: mongoose.Schema.ObjectId, required: true, ref: "Standard" }
   }]
 })
 
