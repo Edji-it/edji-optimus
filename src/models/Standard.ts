@@ -3,21 +3,16 @@ import * as mongoose from 'mongoose'
 import { Schema } from 'mongoose'
 
 // Project Imports
+import ModelCreator = require('./ModelCreator')
 
 // The Main Schema
-export const StandardSchema = new Schema({
+const Standard =  ModelCreator("Standard", {
   standard_type: { type: String, required: true },
   grade_level: { type: String },
   identifier: { type: String, required: true },
   description: { type: String, required: true }
-},{
-  timestamps: { 
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
-  }
 })
 
-const Standard = mongoose.model<iStandard>('Standard', StandardSchema)
 export default Standard
 
 // Main interface -- anytime we add to the main Schema above, we need to add to the interface here

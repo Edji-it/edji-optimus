@@ -8,7 +8,7 @@ import Standard, { iStandard } from '../../../models/Standard'
 export async function GetStandards(req: Request, res: Response, next: NextFunction) {
   try {
     let standards: iStandard[] = await Standard.find()
-    return res.status(200).send({standard: standards})
+    return res.status(200).send({ standards })
   } catch (err) {
     return next(err)
   }
