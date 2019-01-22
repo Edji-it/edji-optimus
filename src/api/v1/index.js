@@ -1,6 +1,9 @@
 // package imports
 const router = require('express').Router()
 
+// project imports
+import { StandardsController } from './standards'
+
 // attach routes
 router.use('/readings', require('./readings').ReadingsRouter)
 router.use('/projects', require('./projects'))
@@ -11,5 +14,6 @@ router.use('/licenses', require('./licenses'))
 router.use('/institutions', require('./institutions'))
 router.use('/temp_users', require('./temp_users'))
 router.use('/_search', require('./_search')._SearchRouter)
+router.use('/standards', StandardsController)
 
 module.exports = router
