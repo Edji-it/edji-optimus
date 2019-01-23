@@ -35,7 +35,7 @@ export async function CreateReadingHandler(req: Request, res: Response, next: Ne
   }
 
   try {
-    await reading.edjiSave({ forceSave: true })
+    await reading.edjiSave()
   } catch (err) {
     return next(err)
   }

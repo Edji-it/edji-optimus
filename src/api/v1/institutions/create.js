@@ -1,7 +1,7 @@
 // project imports
 const Instituion = require('./../../../models/Institution')
 
-module.exports = function (req, res, next) {
+module.exports = async function (req, res, next) {
   let new_institution = req.body.institution
 
   if (!new_institution) {
@@ -19,12 +19,6 @@ module.exports = function (req, res, next) {
     return res.status(400).send({ error: error.errors })
   }
 
-  institution.edjiSave(false, function (err, institution) {
-    if (err) {
-      return next(err)
-    }
-
-    // send the new institution object back 
-    return res.status(200).send({ institution: institution })
-  })
+  let results = await institution.edjiSave()
+  return res.status(200).send({ institution: institution })
 }
