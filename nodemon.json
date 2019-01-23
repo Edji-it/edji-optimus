@@ -1,12 +1,4 @@
 {
   "ext": "js,ts,json",
-  "ignore": [
-    "./build",
-    "./build/",
-    "src/**/*.spec.ts",
-    "src/**/*.spec.js",
-    "./node_modules",
-    "./yarn-error.log",
-    "./yarn.lock"
-  ]
+  "ignore": ["./build", "./build/", "./node_modules", "./yarn-error.log", "./yarn.lock"]
 }
