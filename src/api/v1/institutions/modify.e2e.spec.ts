@@ -31,7 +31,7 @@ const institutionBody = {
     }
   ]
 }
-const short_name_test = new Date().toString()
+const short_name_test = new Date().getTime().toString()
 const request = function (institution_id: string, authToken?: string, requestBody?: any) {
   let url = `/api/v1/institutions/${institution_id}`
   let req = chai.request(data.SERVER)
@@ -52,7 +52,7 @@ describe('PUT api/v1/institutions/:institution_id', () => {
     let institution_update = institutionBody
     // update the short_name property of the first outcome to the value above so we can verify it changed
     institution_update.outcomes[0].short_name = short_name_test
-    let res = await request(institution_id, validUserToken, institutionBody)
+    let res = await request(institution_id, validUserToken, institution_update)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('institution')
 
@@ -74,6 +74,7 @@ describe('PUT api/v1/institutions/:institution_id', () => {
     let outcome = outcomes[0]
     outcome.should.have.property("standard")
     outcome.should.have.property("short_name")
+    outcome.short_name.should.equal(short_name_test)
     outcome.should.have.property("outcome_statement")
     outcome.should.have.property("rubric")
 
@@ -84,11 +85,6 @@ describe('PUT api/v1/institutions/:institution_id', () => {
     let rubric = rubrics[0]
     rubric.should.have.property("grade")
     rubric.should.have.property("rubric_statement")
-  })
-
-  it('should return a 500 if an updated institution is not passed in', async () => {
-    let res = await request('5b006d759dbfbf137ec0df23', validUserToken, {})
-    res.should.have.status(500)
   })
 
   it('should return a 404 if passed an incorrect institution_id', async () => {
