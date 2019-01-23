@@ -4,11 +4,11 @@ var mongoose = require("mongoose")
 
 // project imports
 import Institution = require('../../../models/Institution')
-import { validateRubric } from './_add-outcomes'
+import { validateRubric } from './_modify'
 
-export async function AddOutcome(req: Request, res: Response, next: NextFunction) {
+export async function modifyInstitution(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
-  let new_outcomes: Outcomes[] = req.body.outcomes
+  let updated_institution = req.body.institution
   
   // validation for the passed in institution ID
   if (!mongoose.validateEdjiId(institution_id)) {
@@ -16,16 +16,18 @@ export async function AddOutcome(req: Request, res: Response, next: NextFunction
   }
   
   // validation for the rubric in the outcomes
-  const rubricValidation = validateRubric(new_outcomes)
-  if (rubricValidation.error) {
-    return next(rubricValidation.error)
+  if (updated_institution.outcomes) {
+    const rubricValidation = validateRubric(updated_institution.outcomes)
+    if (rubricValidation.error) {
+      return next(rubricValidation.error)
+    }
   }
   
   try {
     let institution: any = await Institution.findByIdAndUpdate(
         institution_id,
       {
-        $push: { outcomes: new_outcomes }
+        updated_institution
       }, {
         new: true,
         runValidators: true
@@ -36,16 +38,4 @@ export async function AddOutcome(req: Request, res: Response, next: NextFunction
   } catch (err) {
     return next(err)
   }
-}
-
-interface Outcomes {
-  standard: string
-  short_name: string
-  outcome_statement: string
-  rubric: Rubric[]
-}
-
-interface Rubric {
-  grade: Number
-  rubric_statement: string
 }
