@@ -56,7 +56,6 @@ describe("Readings", () => {
           reading.should.not.have.property("html")
           reading.should.not.have.property("promoter_ids")
           reading.should.not.have.property("comments")
-          reading.should.not.have.property("teacher_ids")
           reading.should.not.have.property("createdAt")
           reading.should.not.have.property("updatedAt")
 
@@ -89,7 +88,6 @@ describe("Readings", () => {
           reading.should.not.have.property("html")
           reading.should.not.have.property("promoter_ids")
           reading.should.not.have.property("comments")
-          reading.should.not.have.property("teacher_ids")
           reading.should.not.have.property("createdAt")
           reading.should.not.have.property("updatedAt")
 
@@ -156,37 +154,6 @@ describe("Readings", () => {
     })
   })
 
-  // describe("GET /readings/feed", () => {
-  //   it("should get a list of readings", (done) => {
-  //     chai.request(server)
-  //       .get("/readings/feed")
-  //       .set("Authorization", testUsers.testTeacher.token)
-  //       .end((err, res) => {
-  //         // initial validation
-  //         res.should.have.status(200)
-  //         res.body.should.have.property("readings")
-  //         res.body.readings.should.be.instanceof(Array)
-
-  //         // readings validation
-  //         let readings = res.body.readings
-  //         readings.length.should.be.above(1)
-  //         readings.length.should.be.below(16)
-  //         readings.forEach((reading) => {
-  //           reading.should.have.property("_id")
-  //           reading.should.have.property("owner_id")
-  //           reading.should.have.property("title")
-  //           reading.should.have.property("teacher_ids")
-  //           reading.should.have.property("createdAt")
-  //           reading.should.have.property("updatedAt")
-
-  //           // things the reading should NOT have
-  //           reading.should.not.have.property("words")
-  //           reading.should.not.have.property("html")
-  //         })
-  //       })
-  //   })
-  // })
-
   describe("GET /readings/versions/:version_id", () => {
     it("should return all of the readings for a version id", (done) => {
       chai.request(server)
@@ -205,7 +172,6 @@ describe("Readings", () => {
             reading.should.have.property("_id")
             reading.should.have.property("owner_id")
             reading.should.have.property("title")
-            reading.should.have.property("teacher_ids")
             // reading.should.have.property("public") // not a required field
             // reading.should.have.property("source") // not a required field
             // reading.should.have.property("cover_img") // not a required field
@@ -289,7 +255,6 @@ describe("Readings", () => {
             reading.should.have.property("owner_id")
             reading.should.have.property("title")
             // reading.should.have.property("promoter_count")
-            reading.should.have.property("teacher_ids")
             // reading.should.have.property("public") // not a required field
             // reading.should.have.property("source") // not a required field
             // reading.should.have.property("cover_img") // not a required field

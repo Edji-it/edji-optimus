@@ -52,7 +52,6 @@ describe('POST /api/v1/readings', () => {
     reading.should.have.property("words")
     reading.should.have.property("html")
     reading.should.have.property("promoter_ids")
-    reading.should.have.property("teacher_ids")
     reading.should.have.property("createdAt")
     reading.should.have.property("updatedAt")
   })
