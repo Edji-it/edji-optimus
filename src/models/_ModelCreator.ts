@@ -1,3 +1,5 @@
+import { captureException } from '@sentry/node'
+
 export interface SaveAndIndexOptions {
   save: Promise<any>
   index?: Promise<any>
@@ -9,29 +11,27 @@ interface SaveAndIndexResults {
 
 export async function executeSaveAndIndex({ save, index }: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
   let queue: Array<Promise<any>> = []
-  queue.push(save)
-  index && queue.push(index)
+  queue.push(wrapSave(save))
+  index && queue.push(wrapSave(index))
 
-  let results = await Promise.all(queue)
+  let [saveResults, indexResults] = await Promise.all(queue)
+  if (saveResults.error) {
+    // roll delete the indexed object
+  }
+  if (indexResults.error) {
+    captureException(new Error('error during elastic indexing of document'))
+  }
   return {
-    saveResults: results[0],
-    indexResults: results[1] // can be undefined so watch out!
-  }
-  // index && console.log(results[1])
-  // return results[0]
-}
-
-let wrapMongooseUpdate = ({ query, update, mongooseOptions }) => {
-  try {
-    return this.findOneAndUpdate(query, update, mongooseOptions)
-  } catch (error) {
-    return { error }
+    saveResults,
+    indexResults // can be undefined so watch out!
   }
 }
 
-let wrapMongooseSave = () => {
+// we return errors in the success path so that we can tell exactly what errored out when we call Promise.all
+//  and handle that error specifically
+let wrapSave = async (save: Promise<any>): Promise<any> => {
   try {
-    return this.save()
+    return await save
   } catch (error) {
     return { error }
   }
