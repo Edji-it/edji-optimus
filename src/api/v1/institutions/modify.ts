@@ -16,10 +16,9 @@ export async function modifyInstitution(req: Request, res: Response, next: NextF
   
   try {
     let institution: any = await Institution.findByIdAndUpdate(
-        institution_id,
+      institution_id,
+      updated_institution, 
       {
-        updated_institution
-      }, {
         new: true,
         runValidators: true
       }
