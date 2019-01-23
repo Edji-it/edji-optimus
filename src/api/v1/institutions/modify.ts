@@ -4,7 +4,6 @@ var mongoose = require("mongoose")
 
 // project imports
 import Institution = require('../../../models/Institution')
-import { validateRubric } from './_modify'
 
 export async function modifyInstitution(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
@@ -13,14 +12,6 @@ export async function modifyInstitution(req: Request, res: Response, next: NextF
   // validation for the passed in institution ID
   if (!mongoose.validateEdjiId(institution_id)) {
     return res.status(404).send()
-  }
-  
-  // validation for the rubric in the outcomes
-  if (updated_institution.outcomes) {
-    const rubricValidation = validateRubric(updated_institution.outcomes)
-    if (rubricValidation.error) {
-      return next(rubricValidation.error)
-    }
   }
   
   try {
