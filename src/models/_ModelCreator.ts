@@ -1,4 +1,5 @@
 import { captureException } from '@sentry/node'
+import elastic from './../elasticsearch'
 
 export interface SaveAndIndexOptions {
   save: Promise<any>
@@ -9,18 +10,20 @@ interface SaveAndIndexResults {
   indexResults?: any
 }
 
-export async function executeSaveAndIndex({ save, index }: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
+export async function executeSaveAndIndex(id: string, { save, index }: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
   let queue: Array<Promise<any>> = []
   queue.push(wrapSave(save))
   index && queue.push(wrapSave(index))
 
   let [saveResults, indexResults] = await Promise.all(queue)
   if (saveResults.error) {
+
     // roll delete the indexed object
   }
-  if (indexResults.error) {
+  if (indexResults && indexResults.error) {
     captureException(new Error('error during elastic indexing of document'))
   }
+
   return {
     saveResults,
     indexResults // can be undefined so watch out!

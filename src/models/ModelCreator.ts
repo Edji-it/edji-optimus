@@ -55,7 +55,7 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
             operations.save = this.save()
         }
 
-        let { saveResults, indexResults } = await executeSaveAndIndex(operations)
+        let { saveResults, indexResults } = await executeSaveAndIndex(this._id, operations)
         return saveResults
     }
 
