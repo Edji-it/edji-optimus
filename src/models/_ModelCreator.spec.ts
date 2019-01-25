@@ -75,5 +75,18 @@ describe('_ModelCreator', () => {
       expect(indexResults).to.be.undefined
       assert.calledOnce(sentryStub)
     })
+    it('should capture an error in sentry if the delete operation fails', async () => {
+      let elasticError = { error: 'some error in elastic' }
+      elasticStub.rejects(elasticError)
+      let save = Promise.reject(rejectErr)
+      let index = Promise.resolve(indexData)
+      try {
+        let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save, index })
+        expect(true, 'expected to receive an error but received success instead').to.be.false
+      } catch (err) {
+        assert.calledOnce(elasticStub)
+        assert.calledOnce(sentryStub)
+      }
+    })
   })
 })

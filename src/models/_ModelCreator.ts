@@ -23,12 +23,16 @@ export async function executeSaveAndIndex(_id: string, indexName: string, { save
     // reject stuff
     return Promise.reject(saveResults)
   } else if (saveResults.isError) {
-    // roll back the index
-    await elastic.delete({
-      index: 'readings',
-      type: 'default',
-      id: _id
-    })
+    try {
+      // roll back the index
+      await elastic.delete({
+        index: 'readings',
+        type: 'default',
+        id: _id
+      })
+    } catch (err) {
+      captureException(err)
+    }
     return Promise.reject(saveResults)
   } else if (indexResults && indexResults.isError) {
     // log error but return a success
@@ -49,7 +53,6 @@ let wrapSave = async (save: Promise<any>): Promise<any> => {
     return await save
   } catch (error) {
     error.isError = true
-    console.log('error:', error instanceof Error)
     return error
   }
 }
