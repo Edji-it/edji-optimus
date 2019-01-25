@@ -1,4 +1,3 @@
-const elastic = require('./../elasticsearch')
 const mongoose = require("mongoose")
 let ModelCreator = require("./ModelCreator")
 let Question = require("./Question")
@@ -37,19 +36,20 @@ module.exports = ModelCreator(
         version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true },
         owner_bookmarked: { type: Boolean }
     }, function (schema) {
-        schema.methods.indexMyself = function () {
+        schema.methods.getIndexOptions = function () {
             let body = {}
             let len = indexableProperties.length
             for (let i = 0; i < len; i++) {
                 let propertyName = indexableProperties[i]
                 body[propertyName] = this[propertyName]
             }
-            return elastic.default.index({
+            return {
                 index: 'readings',
                 type: 'default',
                 id: this._id.toString(),
                 body
-            })
+            }
         }
+
     }
 )

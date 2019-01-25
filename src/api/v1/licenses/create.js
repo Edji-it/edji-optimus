@@ -26,7 +26,7 @@ module.exports = function (req, res, next) {
     return res.status(400).send({ error: error.errors })
   }
 
-  license.edjiSave(false)
+  license.edjiSave()
     .then((license) => {
       // add the newly created license _id to the institution
       Instituion.findByIdAndUpdate(

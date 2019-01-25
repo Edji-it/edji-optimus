@@ -11,6 +11,7 @@ describe('_ModelCreator', () => {
   describe('executeSaveAndIndex', () => {
     let saveData = { customProp: 'unique value 123' }
     let indexData = { customIndex: 'unique' }
+    let indexName = 'readings'
     let fakeId = '123456789012'
     let rejectErr = { error: 'something went horribly wrong' }
     let elasticStub: SinonStub
@@ -25,7 +26,7 @@ describe('_ModelCreator', () => {
     })
     it('should return the results of a save only operation', async () => {
       let save = Promise.resolve(saveData)
-      let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save })
+      let { saveResults, indexResults } = await executeSaveAndIndex({ save })
       expect(saveResults).to.have.property('customProp')
       expect(saveResults.customProp).to.be.equal(saveData.customProp)
       expect(indexResults).to.be.undefined
@@ -33,7 +34,7 @@ describe('_ModelCreator', () => {
     it('should return the results of a save and index operation', async () => {
       let save = Promise.resolve(saveData)
       let index = Promise.resolve(indexData)
-      let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save, index })
+      let { saveResults, indexResults } = await executeSaveAndIndex({ save, index, indexName, id: fakeId })
       expect(saveResults).to.have.property('customProp')
       expect(saveResults.customProp).to.be.equal(saveData.customProp)
       expect(indexResults).to.have.property('customIndex')
@@ -43,7 +44,7 @@ describe('_ModelCreator', () => {
       let save = Promise.reject(rejectErr)
       let index = Promise.reject(rejectErr)
       try {
-        let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save, index })
+        let { saveResults, indexResults } = await executeSaveAndIndex({ save, index, indexName, id: fakeId })
         expect(true, 'expected to receive an error but received success instead').to.be.false
       } catch (err) {
         expect(err).to.have.property('isError')
@@ -56,7 +57,7 @@ describe('_ModelCreator', () => {
       let save = Promise.reject(rejectErr)
       let index = Promise.resolve(indexData)
       try {
-        let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save, index })
+        let { saveResults, indexResults } = await executeSaveAndIndex({ save, index, indexName, id: fakeId })
         expect(true, 'expected to receive an error but received success instead').to.be.false
       } catch (err) {
         assert.calledOnce(elasticStub)
@@ -69,7 +70,7 @@ describe('_ModelCreator', () => {
     it('should capture an exception with sentry if there is an error only in indexing', async () => {
       let save = Promise.resolve(saveData)
       let index = Promise.reject(rejectErr)
-      let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save, index })
+      let { saveResults, indexResults } = await executeSaveAndIndex({ save, index, indexName, id: fakeId })
       expect(saveResults).to.have.property('customProp')
       expect(saveResults.customProp).to.be.equal(saveData.customProp)
       expect(indexResults).to.be.undefined
@@ -81,7 +82,7 @@ describe('_ModelCreator', () => {
       let save = Promise.reject(rejectErr)
       let index = Promise.resolve(indexData)
       try {
-        let { saveResults, indexResults } = await executeSaveAndIndex(fakeId, 'readings', { save, index })
+        let { saveResults, indexResults } = await executeSaveAndIndex({ save, index, indexName, id: fakeId })
         expect(true, 'expected to receive an error but received success instead').to.be.false
       } catch (err) {
         assert.calledOnce(elasticStub)

@@ -1,22 +1,24 @@
 import { captureException } from '@sentry/node'
 import elastic from './../elasticsearch'
+import { IndexOptions } from './ModelCreator'
 
 export interface SaveAndIndexOptions {
   save: Promise<any>
   index?: Promise<any>
+  indexName?: string
+  id?: string
 }
 interface SaveAndIndexResults {
   saveResults: any
   indexResults?: any
 }
 
-export async function executeSaveAndIndex(_id: string, indexName: string, { save, index }: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
+export async function executeSaveAndIndex({ save, index, indexName, id }: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
   let queue: Array<Promise<any>> = []
   queue.push(wrapSave(save))
   index && queue.push(wrapSave(index))
 
   let [saveResults, indexResults] = await Promise.all(queue)
-  // console.log('saveResults', saveResults, 'indexResults', indexResults)
 
   if (saveResults.isError && indexResults && indexResults.isError) {
     captureException(indexResults) // might remove this later, but for now i'm very interested to know whenever indexing fails
@@ -26,9 +28,9 @@ export async function executeSaveAndIndex(_id: string, indexName: string, { save
     try {
       // roll back the index
       await elastic.delete({
-        index: 'readings',
+        index: indexName,
         type: 'default',
-        id: _id
+        id
       })
     } catch (err) {
       captureException(err)

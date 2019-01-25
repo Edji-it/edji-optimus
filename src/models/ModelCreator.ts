@@ -1,4 +1,5 @@
-import { executeSaveAndIndex, SaveAndIndexOptions } from "./_ModelCreator";
+import { executeSaveAndIndex, SaveAndIndexOptions } from "./_ModelCreator"
+import elastic from './../elasticsearch'
 
 const db = require("./../db")
 
@@ -45,17 +46,21 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
             ...options
         }
 
-        let operations: SaveAndIndexOptions = {
+        let saveOptions: SaveAndIndexOptions = {
             save: Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions)
         }
-        if (this.indexMyself)
-            operations.index = this.indexMyself()
-
-        if (options.forceSave) {
-            operations.save = this.save()
+        if (this.getIndexOptions) {
+            let indexOptions: IndexOptions = this.getIndexOptions()
+            saveOptions.index = elastic.index(indexOptions)
+            saveOptions.id = indexOptions.id
+            saveOptions.indexName = indexOptions.index
         }
 
-        let { saveResults, indexResults } = await executeSaveAndIndex(this._id, 'readings', operations)
+        if (options.forceSave) {
+            saveOptions.save = this.save()
+        }
+
+        let { saveResults, indexResults } = await executeSaveAndIndex(saveOptions)
         return saveResults
     }
 
@@ -73,4 +78,11 @@ interface EdjiSaveOptions {
         setDefaultsOnInsert: boolean
     }
     forceSave?: boolean
+}
+
+export interface IndexOptions {
+    index: string
+    type: string
+    id: string
+    body: string
 }
