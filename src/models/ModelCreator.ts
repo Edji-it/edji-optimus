@@ -29,8 +29,8 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
         //  the function returns a promise, but somehow we're not doing that right so I'm just going to
         //  make sure it throws an error if you're gonna use it wrong.
         //  p.s. I think it has something to do with using Model before it is defined
-        if (typeof options === 'function') {
-            return Promise.reject('no callback passed')
+        if (typeof options !== 'object') {
+            return Promise.reject(`edjiSave expected to receive an options object, but instead receive typeof ${typeof options}`)
         }
 
         let queryOptions = {
@@ -55,7 +55,7 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
             operations.save = this.save()
         }
 
-        let { saveResults, indexResults } = await executeSaveAndIndex(this._id, operations)
+        let { saveResults, indexResults } = await executeSaveAndIndex(this._id, 'readings', operations)
         return saveResults
     }
 
