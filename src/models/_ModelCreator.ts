@@ -20,26 +20,31 @@ export async function executeSaveAndIndex({ save, index, indexName, id }: SaveAn
 
   let [saveResults, indexResults] = await Promise.all(queue)
 
-  if (saveResults.isError && indexResults && indexResults.isError) {
-    captureException(indexResults) // might remove this later, but for now i'm very interested to know whenever indexing fails
-    // reject stuff
-    return Promise.reject(saveResults)
-  } else if (saveResults.isError) {
-    try {
-      // roll back the index
-      await elastic.delete({
-        index: indexName,
-        type: 'default',
-        id
-      })
-    } catch (err) {
-      captureException(err)
+  let indexFailed: boolean = !!(indexResults && indexResults.isError)
+  let saveFailed: boolean = saveResults.isError
+
+  if (saveFailed || indexFailed) {
+    if (saveFailed && indexFailed) {
+      captureException(indexResults) // might remove this later, but for now i'm very interested to know whenever indexing fails
+      // reject stuff
+      return Promise.reject(saveResults)
+    } else if (saveFailed) {
+      try {
+        // roll back the index
+        await elastic.delete({
+          index: indexName,
+          type: 'default',
+          id
+        })
+      } catch (err) {
+        captureException(err)
+      }
+      return Promise.reject(saveResults)
+    } else if (indexFailed) {
+      // log error but return a success
+      captureException(indexResults)
+      return { saveResults }
     }
-    return Promise.reject(saveResults)
-  } else if (indexResults && indexResults.isError) {
-    // log error but return a success
-    captureException(indexResults)
-    return { saveResults }
   } else {
     return {
       saveResults,
