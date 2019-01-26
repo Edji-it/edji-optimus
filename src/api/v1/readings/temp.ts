@@ -4,7 +4,6 @@ import * as Reading from '../../../models/Reading'
 const responseShape = {
   title: 1,
   owner_id: 1,
-  teacher_ids: 1,
   "public": 1,
   source: 1,
   subjects: 1,
