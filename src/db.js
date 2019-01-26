@@ -23,4 +23,6 @@ mongoose.validateEdjiId = isValidId
 
 connect(mongoose)
 
+mongoose.Promise = Promise
+
 module.exports = mongoose
