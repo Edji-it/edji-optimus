@@ -1,19 +1,20 @@
 // library imports
-let express = require("express")
-let mongoose = require("mongoose")
-let Q = require("q")
-let rp = require("request-promise")
+const express = require("express")
+const mongoose = require("mongoose")
+const Q = require("q")
+const rp = require("request-promise")
 const _ = require("underscore")
+const sentry = require('@sentry/node')
 
 // project imports
-let Project = require("./../models/Project")
-let Comment = require("./../models/Comment")
-let User = require("./../models/User")
-let MountModelToRouter = require("./MountModelToRouter")
+const Project = require("./../models/Project")
+const Comment = require("./../models/Comment")
+const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError
+const MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
 const pipolog = require('./../pipolog').pipoLog
 
-let router = express.Router()
+const router = express.Router()
 
 MountModelToRouter(router, Project, "project", { read: false, list: false, delete: false })
 
@@ -36,8 +37,8 @@ router.get("/", authRequired, function (req, res, next) {
         })
 })
 
-router.post("/", authRequired, function (req, res, next) {
-    var project = req.body.project
+router.post("/", authRequired, async function (req, res, next) {
+    let project = req.body.project
 
     if (!project) {
         res.status(400).send({ validationErrors: { project: "required" } })
@@ -49,137 +50,17 @@ router.post("/", authRequired, function (req, res, next) {
         project.teacher_id = req.user._id
     }
 
-    var model = Project(project)
-
-    model.edjiSave(false, function (error, result) {
-        if (error) {
-            // constructs object with list of model-defined errors to send to user
-            if (error.name === "ValidationError") {
-                var errors = {}
-
-                for (var property in error.errors) {
-                    if (error.errors[property].kind === "user defined") {
-                        errors[property] = error.errors[property].properties.kind
-                    } else {
-                        errors[property] = error.errors[property].kind
-                    }
-                }
-
-                res.status(406).send({ validationErrors: errors })
-                return
-            } else {
-                next(error)
-            }
+    try {
+        let result = Project(project).edjiSave()
+        return res.status(201).send({ project: result })
+    } catch (err) {
+        if (err.name === "ValidationError") {
+            let validationErrors = cleanMongoValidationError(err)
+            return res.status(406).send({ validationErrors })
         } else {
-            res.status(201).send({ project: result })
+            next(error)
         }
-    })
-})
-
-router.get("/:id", function (req, res, next) {
-    let id = req.params.id
-    let user = req.user
-    let populate = req.query.pop || []
-    if (typeof populate == 'string') { // otherwise it's going to be an array of strings, which is what we want
-        populate = [populate]
     }
-
-    let findParams = {}
-
-    //creates flexibility to use with either project code or with project id
-    if (mongoose.validateEdjiId(id)) {
-        findParams._id = id
-    } else {
-        findParams.code = id.toLowerCase()
-    }
-
-    Q(Project.findOne(findParams)
-        .populate(populate.indexOf("reading_id") > -1 ? 'reading_id' : "", "words title owner_id teacher_ids public promoter_ids source cover_img tags draft version_id questions parent_id") // populate the reading_id if it was provided to query
-        .exec()
-    )
-        .then((project) => {
-            return Q(Project.populate(project, { path: 'teacher', select: 'fullname username' }))
-        })
-        .then((project) => {
-
-            if (!project) {
-                res.status(404).send()
-                return
-            }
-
-            // to have a list of students who have been to a reading, regardless of whether or not they comment,
-            //  we add them to the temp_ids or students_ids array
-            if (user) {
-                // don't add the teacher to the students array of their own project
-                if (!user._id.equals(project.teacher_id)) {
-                    let logJoinToPipo = false
-                    if (user.type && user.type === "temp") {
-                        // only add the user's id if it's not already in the project
-                        if (project.temp_ids.indexOf(req.user._id) < 0) {
-                            project.temp_ids.push(req.user._id)
-                            logJoinToPipo = true
-                        }
-
-                        // should call update here
-                    } else {
-                        // only add the user's id if it's not already in the project
-                        if (project.students_ids.indexOf(req.user._id) < 0) {
-                            project.students_ids.push(req.user._id)
-                            logJoinToPipo = true
-                        }
-                    }
-
-                    if (logJoinToPipo) {
-                        pipolog({
-                            user_id: user._id,
-                            teacher: user._id.equals(project.teacher_id),
-                            hero: !!user.hero_status,
-                            event_name: 'reading_joined'
-                        })
-                            .catch((err) => {
-                                console.error('error from pipo :(', err)
-                            })
-                    }
-                }
-            }
-
-            // here we're going to do a little curation for the returned project to make sure the comments come back with a replies array
-            var repliesObj = []
-            let size = project.comments.length
-            for (let i = 0; i < size; i++) {
-                let comment = project.comments[i]
-                if (comment.reply_to) {
-                    if (!repliesObj[comment.reply_to]) {
-                        repliesObj[comment.reply_to] = []
-                    }
-
-                    repliesObj[comment.reply_to].push(comment._id)
-                }
-            }
-
-            // assign the array of reply _id's to the applicable comment
-            for (let reply_to_id in repliesObj) {
-                let comment = project.comments.find((comment) => {
-                    return comment._id == reply_to_id
-                })
-                if (comment) {
-                    comment.replies = repliesObj[reply_to_id]
-                }
-            }
-
-            res.status(200).send({ project: project })
-
-            // we save it afterward so that we don't obstruct returning the data
-            //  if this fails, we won't have their username in the array, but oh well
-            project.edjiSave(false, (err) => {
-                if (err) {
-                    console.error(err)
-                }
-            })
-        })
-        .catch((err) => {
-            next(err)
-        })
 })
 
 // currently only works for teacher deleting a project
@@ -220,9 +101,9 @@ router.put("/:id", authRequired, function (req, res, next) {
 
     let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags', 'report_evals'])
 
-    Q(Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
+    Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
         new: true, runValidators: true, setDefaultsOnInsert: true
-    }).exec())
+    })
         .then((project) => {
             // send 404 if the project doesn't exist
             if (!project) {
@@ -302,9 +183,9 @@ router.get("/reading/:reading_id", authRequired, function (req, res, next) {
         })
 })
 
-router.post("/:id/comments", authRequired, function (req, res, next) {
-    var _id = req.params.id
-    var user = req.user
+router.post("/:id/comments", authRequired, async function (req, res, next) {
+    let _id = req.params.id
+    let user = req.user
 
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         res.status(400).send()
@@ -318,55 +199,36 @@ router.post("/:id/comments", authRequired, function (req, res, next) {
 
     if (!req.body.comment.user_id) { req.body.comment.user_id = user._id }
     if (!req.body.comment.author) { req.body.comment.author = user.fullname }
-    var comment = Comment(req.body.comment)
+    let comment = Comment(req.body.comment)
 
-    //comment.user_id = req.logged_in_user.user_id
-    Project.findById({ _id }, function (err, project) {
-        if (err) {
-            return next(err)
-        } else if (!project) {
-            res.status(404).send()
-            return
+    try {
+        let project = await Project.findById({ _id })
+        if (!project) {
+            return res.status(404).send()
+        }
+        let currentComment = project.comments.id(comment._id) // if the comment already has an id, it already exists
+
+        let successStatus // 200 if updating, 201 if creating
+        if (currentComment) {
+            // Preserve "createdAt"
+            comment.createdAt = currentComment.createdAt
+            Object.assign(currentComment, comment)
+            successStatus = 200
         } else {
-            var currentComment = project.comments.id(comment._id) // if the comment already has an id, it already exists
-
-            var successStatus // 200 if updating, 201 if creating
-            if (currentComment) {
-                // Preserve "createdAt"
-                comment.createdAt = currentComment.createdAt
-                Object.assign(currentComment, comment)
-                successStatus = 200
-            }
-            else {
-                project.comments.push(comment)
-                successStatus = 201
-            }
-
-            project.edjiSave(false, function (error, project) {
-                if (error) {
-                    // constructs object with list of model-defined errors to send to user
-                    if (error.name === "ValidationError") {
-                        var errors = {}
-
-                        for (var property in error.errors) {
-                            if (error.errors[property].kind === "user defined") {
-                                errors[property] = error.errors[property].properties.kind
-                            } else {
-                                errors[property] = error.errors[property].kind
-                            }
-                        }
-
-                        return res.status(406).send({ validationErrors: errors })
-                    } else {
-                        next(error)
-                    }
-                } else {
-                    res.status(successStatus).send({ comment: project.comments.id(comment._id) })
-                }
-            })
+            project.comments.push(comment)
+            successStatus = 201
         }
 
-    })
+        await project.edjiSave()
+        return res.status(successStatus).send({ comment: project.comments.id(comment._id) })
+    } catch (error) {
+        if (error.name === "ValidationError") {
+            let validationErrors = cleanMongoValidationError(error)
+            return res.status(406).send({ validationErrors })
+        } else {
+            return next(error)
+        }
+    }
 })
 
 /**
@@ -440,10 +302,10 @@ router.put("/:project_id/comments/:comment_id", authRequired, function (req, res
             Object.assign(comment, comment_update)
 
             // save the entire project (DON'T JUST SAVE THE COMMENT)
-            project.edjiSave(false, (err, doc) => {
-                if (err) { console.error(err) }
-                else { /** do nothing */ }
-            })
+            project.edjiSave()
+                .catch((err) => {
+                    sentry.captureException(err)
+                })
 
             return res.status(200).send({ comment: comment })
 
@@ -518,9 +380,9 @@ router.delete("/:project_id/comments/:comment_id", authRequired, function (req, 
         })
 })
 
-router.post("/:id/answers", authRequired, function (req, res, next) {
-    var _id = req.params.id
-    var user = req.user
+router.post("/:id/answers", authRequired, async function (req, res, next) {
+    let _id = req.params.id
+    let user = req.user
 
     if (!mongoose.Types.ObjectId.isValid(_id)) {
         res.status(400).send()
@@ -534,58 +396,42 @@ router.post("/:id/answers", authRequired, function (req, res, next) {
 
     if (!req.body.answer.user_id) { req.body.answer.user_id = user._id }
     if (!req.body.answer.author) { req.body.answer.author = user.fullname }
-    var answer = Comment(req.body.answer)
+    let answer = Comment(req.body.answer)
 
-    // find the project id 
-    Project.findById({ _id }, function (err, project) {
-        if (err) {
-            return next(err)
-        } else if (!project) {
-            res.status(404).send()
-            return
-        } else {
-            var currentAnswer = project.answers.id(answer._id) // if the answer already has an id, it already exists
-
-            var successStatus // 200 if updating, 201 if creating
-            if (currentAnswer) {
-                // Preserve "createdAt"
-                answer.createdAt = currentAnswer.createdAt
-                Object.assign(currentAnswer, answer)
-                successStatus = 200
-            }
-            else {
-                project.answers.push(answer)
-                successStatus = 201
-            }
-
-            project.edjiSave(false, (error, project) => {
-                if (error) {
-                    // constructs object with list of model-defined errors to send to user
-                    if (error.name === "ValidationError") {
-                        var errors = {}
-
-                        for (var property in error.errors) {
-                            if (error.errors[property].kind === "user defined") {
-                                errors[property] = error.errors[property].properties.kind
-                            } else {
-                                errors[property] = error.errors[property].kind
-                            }
-                        }
-
-                        res.status(406).send({ validationErrors: errors })
-                        return
-                    } else {
-                        return next(error)
-                    }
-                } else {
-                    res.status(successStatus).send({ answer: project.answers.id(answer._id) })
-                }
-            })
+    try {
+        let project = await Project.findById({ _id })
+        if (!project) {
+            return res.status(404).send()
         }
-    })
+
+        let currentAnswer = project.answers.id(answer._id) // if the answer already has an id, it already exists
+
+        let successStatus // 200 if updating, 201 if creating
+        if (currentAnswer) {
+            // Preserve "createdAt"
+            answer.createdAt = currentAnswer.createdAt
+            Object.assign(currentAnswer, answer)
+            successStatus = 200
+        }
+        else {
+            project.answers.push(answer)
+            successStatus = 201
+        }
+
+        project = await project.edjiSave()
+        return res.status(successStatus).send({ answer: project.answers.id(answer._id) })
+    } catch (error) {
+        // constructs object with list of model-defined errors to send to user
+        if (error.name === "ValidationError") {
+            let validationErrors = cleanMongoValidationError(error)
+            return res.status(406).send({ validationErrors })
+        } else {
+            return next(error)
+        }
+    }
 })
 
-router.put("/:project_id/answers/:answer_id", authRequired, function (req, res, next) {
+router.put("/:project_id/answers/:answer_id", authRequired, async function (req, res, next) {
     let user = req.user
     let project_id = req.params.project_id
     let answer_id = req.params.answer_id
@@ -605,7 +451,7 @@ router.put("/:project_id/answers/:answer_id", authRequired, function (req, res, 
     }
 
     // the project's id must match, and it must have a answer w/ correct id and user_id
-    Q(Project.findOne({
+    Project.findOne({
         _id: project_id,
         answers: {
             $elemMatch: {
@@ -614,7 +460,6 @@ router.put("/:project_id/answers/:answer_id", authRequired, function (req, res, 
             }
         }
     })
-        .exec())
         .then((project) => {
             if (!project) {
                 return res.status(404).send({ error: "project not found" })
@@ -638,11 +483,11 @@ router.put("/:project_id/answers/:answer_id", authRequired, function (req, res, 
             // update the fields from the answer_update onto the answer
             Object.assign(answer, answer_update)
 
-            // save the entire project (DON'T JUST SAVE THE ANSWER)
-            project.edjiSave(false, (err, doc) => {
-                if (err) { console.error(err) }
-                else { /** do nothing b/c it worked */ }
-            })
+            // save the entire project (DON'T JUST SAVE THE COMMENT)
+            project.edjiSave()
+                .catch((err) => {
+                    sentry.captureException(err)
+                })
 
             return res.status(200).send({ answer: answer })
 
@@ -658,14 +503,12 @@ router.delete("/:project_id/answers/:answer_id", authRequired, function (req, re
     let answer_id = req.params.answer_id
 
     if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ errors: { projectId: "invalid" } })
-        return
+        return res.status(400).send({ errors: { projectId: "invalid" } })
     } else if (!mongoose.Types.ObjectId.isValid(answer_id)) {
-        res.status(400).send({ errors: { answerId: "invalid" } })
-        return
+        return res.status(400).send({ errors: { answerId: "invalid" } })
     }
 
-    Q(Project.findOneAndUpdate(
+    Project.findOneAndUpdate(
         {
             _id: project_id,
             $or: [
@@ -687,7 +530,6 @@ router.delete("/:project_id/answers/:answer_id", authRequired, function (req, re
             }
         }, {
         })
-        .exec())
         .then((project) => { // the project that gets passed is the project before the update
 
             if (!project) {

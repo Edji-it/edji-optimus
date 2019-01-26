@@ -18,7 +18,8 @@ const indexableProperties = [
 ]
 
 module.exports = ModelCreator(
-    "Reading", {
+    "Reading",
+    {
         html: { type: String, required: true },
         words: { type: [], required: true },
         title: { type: String, required: true },
@@ -35,7 +36,8 @@ module.exports = ModelCreator(
         subjects: [String],
         version_id: { type: mongoose.Schema.ObjectId, ref: "ReadingVersion", required: true },
         owner_bookmarked: { type: Boolean }
-    }, function (schema) {
+    },
+    function (schema) {
         schema.methods.getIndexOptions = function () {
             let body = {}
             let len = indexableProperties.length

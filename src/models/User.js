@@ -174,16 +174,15 @@ let model = ModelCreator("User", {
         })
     }
 
-    schema.pre("edjiSave", function (next) {
-        if (!this._id) { return next() } // get out of here object without an id (at one point, this was returning the entire node process)
+    schema.methods.preEdjiSave = async function () {
+        if (!this._id) { return } // get out of here object without an id (at one point, this was returning the entire node process)
         if (this.password && this.isModified("password")) {
             this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
         }
-        next()
-    })
+    }
 
     // add custom validator to make sure user has either oauth type or username/password
-    schema.pre('validate', function (next) {
+    schema.pre('validate', async function () {
         // make sure it has a password or an oauth type
         let hasPassword = !!this.password
         let hasUsername = !!this.username
@@ -194,29 +193,17 @@ let model = ModelCreator("User", {
             // this is a mongoose method which provides the error to the mongoose error aggrigator
             this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
         }
-
-        next()
     })
 
     /**
      * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
      */
-    schema.methods.refresh = function () {
-        return new Promise((resolve, reject) => {
-            helpers.getUserHeroStatus(this)
-                .then((validHero) => {
-                    this.hero_status = validHero
-                    this.last_refresh_time = Date.now()
+    schema.methods.refresh = async function () {
+        let validHero = await helpers.getUserHeroStatus(this)
+        this.hero_status = validHero
+        this.last_refresh_time = Date.now()
 
-                    this.edjiSave(false, (err, result) => {
-                        if (err) { reject(err) }
-                        else { resolve(result) }
-                    })
-                })
-                .catch((err) => {
-                    reject(err)
-                })
-        })
+        return this.edjiSave()
     }
 
     /**
@@ -232,7 +219,7 @@ let model = ModelCreator("User", {
 
         const { unhashedToken, tokenObj } = helpers.createOneTimeTokenObject(expiration)
         this[propertyName] = tokenObj
-        await this.edjiSave(false)
+        await this.edjiSave()
         return unhashedToken
     }
 
@@ -250,15 +237,6 @@ let model = ModelCreator("User", {
         if (!isValidToken) {
             throw new Error('ERR_INVALID_TOKEN')
         }
-
-        // // get rid of the token so we're not storing old tokens on purpose
-        // await this.edjiSave({
-        //     update: {
-        //         $unset: {
-        //             [propertyName]: 1
-        //         }
-        //     }
-        // })
     }
 
     // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)

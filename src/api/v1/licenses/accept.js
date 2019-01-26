@@ -16,8 +16,6 @@ module.exports = async function (req, res, next) {
     return res.status(403).send({ error: 'invalid license' })
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   try {
     let license = await License.findOne({ "pending_invitations._id": userInviteId })
     // if license is null (meaning it did not exist in the collection)
@@ -81,7 +79,7 @@ module.exports = async function (req, res, next) {
       throw new Error('no license found after updating user')
     }
   } catch (err) {
-    next(err)
+    return res.status(500).send({ err: err })
   }
 }
 

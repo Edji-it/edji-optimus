@@ -48,36 +48,32 @@ passport.use('google', new GoogleStrategy({
     const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
 
     // using the user's id given by oauth, try and look them up and update the single use token and expiration
-    User.findOneAndUpdate(
-        userQuery,
-        {
-            $set: {
-                'oauth.$.singleUseToken': user.oauth[0].singleUseToken,
-                'oauth.$.singleUseTokenExpiration': user.oauth[0].singleUseTokenExpiration
+    try {
+        let dbUser = await User.findOneAndUpdate(
+            userQuery,
+            {
+                $set: {
+                    'oauth.$.singleUseToken': user.oauth[0].singleUseToken,
+                    'oauth.$.singleUseTokenExpiration': user.oauth[0].singleUseTokenExpiration
+                }
+            }, {
+                new: true,
+                runValidators: true
+            })
+        if (!dbUser) {
+            // here we know it's a new user, and we need to create them!!
+            try {
+                let newUser = await user.edjiSave({ forceSave: true })
+                return done(null, newUser)
+            } catch (err) {
+                return done({ error: err, type: "oauth", code: "err_duplicate_user" })
             }
-        }, {
-            new: true,
-            runValidators: true
-        }, (err, dbUser) => {
-            if (err) {
-                console.error(err)
-                return done(err)
-            } else if (!dbUser) {
-                // here we know it's a new user, and we need to create them!!
-                user.edjiSave(
-                    { forceSave: true },
-                    (err, newUser) => {
-                        if (err) {
-                            return done({ error: err, type: "oauth", code: "err_duplicate_user" })
-                        }
-                        return done(null, newUser)
-                    }
-                )
-            } else {
-                return done(null, dbUser)
-            }
+        } else {
+            return done(null, dbUser)
         }
-    )
+    } catch (err) {
+        return done(err)
+    }
 }))
 
 module.exports = passport

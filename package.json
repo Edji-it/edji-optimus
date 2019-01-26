@@ -30,7 +30,7 @@
   "dependencies": {
     "@sentry/node": "4.2.3",
     "@types/elasticsearch": "^5.0.30",
-    "bcryptjs": "^2.3.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^5.0.0",

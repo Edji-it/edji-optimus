@@ -54,7 +54,7 @@ module.exports = function MountModelToRouter(router, Model, name, _options) {
         })
 
     options.create &&
-        router.post("/", function (req, res) {
+        router.post("/", function (req, res, next) {
             if (!req.body[name]) {
                 //send error
                 return
@@ -63,10 +63,13 @@ module.exports = function MountModelToRouter(router, Model, name, _options) {
             var instanceData = req.body[name]
             var model = Model(instanceData)
 
-            model.edjiSave(false, (error, result) => {
-                console.error(error)
-                res.json(result)
-            })
+            model.edjiSave()
+                .then(() => {
+                    return res.json(result)
+                })
+                .catch((err) => {
+                    return next(err)
+                })
 
         })
 }

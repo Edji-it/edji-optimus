@@ -49,7 +49,7 @@ module.exports = function (req, res, next) {
       user.resetPasswordExpires = Date.now() + PASSWORD_HASH_EXPIRES
 
       // update user with reset variables
-      return user.edjiSave(false)
+      return user.edjiSave()
         .then((user) => {
           return helpers.sendRecoveryEmail(user) // returns the user object
         })

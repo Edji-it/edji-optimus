@@ -35,28 +35,14 @@ var Model = ModelCreator("Project", {
     group_instructions: String
 }, (schema) => {
     // grab a session code and add it to the project before saving
-    schema.pre("edjiSave", function (next) {
-        if (this.code) { next() }
-        else {
-            SessionCode.findOne({ active: false })
-                .then((result) => {
-                    this.code = result.code
-                    result.active = true
-                    result.edjiSave(false, (err, result) => {
-                        if (!err) {
-                            next()
-                        } else {
-                            console.error(err)
-                            next(err)
-                        }
-                    })
-                })
-                .catch((err) => {
-                    console.error(err)
-                    next(err)
-                })
-        }
-    })
+    schema.methods.preEdjiSave = async function () {
+        if (this.code) return
+        let result = await SessionCode.findOne({ active: false })
+        this.code = result.code
+        result.active = true
+        result.edjiSave()
+        return
+    }
 
     // add population of user object
     schema.virtual('teacher', {

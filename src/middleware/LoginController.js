@@ -1,36 +1,31 @@
+// library imports
 const jwt = require("jsonwebtoken")
+const bcrypt = require("bcryptjs")
+const sentry = require('@sentry/node')
+
+// project imports
 const User = require("./../models/User")
 const TempUser = require("./../models/TempUser")
-const bcrypt = require("bcryptjs")
-const Q = require("q")
 
-//TODO: need something more secret than this
+// constants
 const secret = process.env.OPTIMUS_PW_SECRET
 
 const LoginController = {
-    login: function (user) {
-        let me = this
-
-        return Q(
-            User.findOne({ username: user.username.toLowerCase().trim() })
-                .exec()
-        )
-            .then((dbUser) => {
-                return new Promise((resolve, reject) => {
-                    bcrypt.compare(user.password, dbUser.password, function (error, result) {
-                        if (result) {
-                            result = me.generateLoginObjectForUser(dbUser)
-                            if (result.user && !result.token) {
-                                reject({ status: 500 })
-                            } else {
-                                resolve(result)
-                            }
-                        } else {
-                            reject({ status: 401 })
-                        }
-                    })
-                })
-            })
+    login: async function ({ username, password }) {
+        let dbUser = await User.findOne({ username: username.toLowerCase().trim() })
+        let match = await bcrypt.compare(password, dbUser.password)
+        if (match) {
+            let { user, token } = this.generateLoginObjectForUser(dbUser)
+            if (!user || !token) {
+                throw { status: 401 }
+            } else if (user && !token) {
+                sentry.captureException(`got user object but not token for id: ${user._id}`)
+                throw { status: 500 }
+            }
+            return { user, token }
+        } else {
+            throw { status: 401 }
+        }
     },
     generateLoginObjectForUser: function (user) {
         let token = this.generateTokenForUser(user)

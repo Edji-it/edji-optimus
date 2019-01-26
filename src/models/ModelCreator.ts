@@ -5,7 +5,6 @@ const db = require("./../db")
 
 //all models are created through this function
 module.exports = function (modelName, schemaJson, schemaDecorator) {
-
     schemaJson.createdAt = { type: Date, default: Date.now }
     schemaJson.updatedAt = { type: Date, default: Date.now }
 
@@ -19,6 +18,7 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
     )
 
     Schema.methods.edjiSave = async function (options: EdjiSaveOptions = {}, next) {
+        this.preEdjiSave && await this.preEdjiSave()
         // console.log('options', options)
         // console.log('next', next)
         this.updatedAt = Date.now()

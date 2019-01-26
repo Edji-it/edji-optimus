@@ -1,12 +1,14 @@
-var express = require("express")
-var TempUser = require("./../models/TempUser")
-var LoginController = require("./../middleware/LoginController")
-// var MountModelToRouter = require("./MountModelToRouter")
-var router = express.Router()
+// library imports
+const express = require("express")
 
-// MountModelToRouter(router, TempUser, "tempuser", {read: false, delete: false, list: false})
+// project imports
+const TempUser = require("./../models/TempUser")
+const LoginController = require("./../middleware/LoginController")
+const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError
 
-router.post("/", function (req, res, next) {
+const router = express.Router()
+
+router.post("/", async function (req, res, next) {
     var userData = req.body.user
 
     if (!userData) {
@@ -14,35 +16,20 @@ router.post("/", function (req, res, next) {
         return
     }
 
-    //create and save temp user
-    var model = TempUser(userData)
-    model.edjiSave(false, (error, result) => {
-        if (error) {
-            if (error.name === "ValidationError") {
-                var errors = {}
-
-                for (var property in error.errors) {
-                    if (error.errors[property].kind === "user defined") {
-                        errors[property] = error.errors[property].properties.kind
-                    } else {
-                        errors[property] = error.errors[property].kind
-                    }
-                }
-
-                res.status(406).send({ validationErrors: errors })
-                return
-            } else if (error.code === 11000) {
-                res.status(409).send()
-                return
-            } else {
-                next(err)
-            }
+    try {
+        let result = await TempUser(userData).edjiSave()
+        return res.status(201).send(LoginController.generateLoginObjectForUser(result))
+    } catch (error) {
+        // constructs object with list of model-defined errors to send to user
+        if (error.name === "ValidationError") {
+            let validationErrors = cleanMongoValidationError(error)
+            return res.status(406).send({ validationErrors })
+        } else if (error.code === 11000) {
+            return res.status(409).send()
         } else {
-            res.status(201).send(LoginController.generateLoginObjectForUser(result))
+            return next(error)
         }
-
-    })
-
+    }
 })
 
 module.exports = router
