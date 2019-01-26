@@ -18,11 +18,9 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
         }
     )
 
-    if (typeof schemaDecorator === "function") {
-        schemaDecorator(Schema)
-    }
-
     Schema.methods.edjiSave = async function (options: EdjiSaveOptions = {}, next) {
+        // console.log('options', options)
+        // console.log('next', next)
         this.updatedAt = Date.now()
         // mongoose does this stupid thing where it overwrites the last parameter as a callback
         //  if the method has hooks. So, if you don't pass a callback, then it will overwrite options and
@@ -62,6 +60,10 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
 
         let { saveResults, indexResults } = await executeSaveAndIndex(saveOptions)
         return saveResults
+    }
+
+    if (typeof schemaDecorator === "function") {
+        schemaDecorator(Schema)
     }
 
     const Model = db.model(modelName, Schema)
