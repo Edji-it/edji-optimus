@@ -122,7 +122,6 @@ describe('GET /projects/:project_id', () => {
         reading.words.length.should.be.above(0)
         reading.should.have.property("title")
         reading.should.have.property("owner_id")
-        reading.should.have.property("teacher_ids")
         reading.should.have.property("public")
         reading.should.have.property("promoter_ids")
         reading.should.have.property("source")

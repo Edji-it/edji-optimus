@@ -8,7 +8,6 @@ const indexableProperties = [
     "title",
     "parent_id",
     "owner_id",
-    "teacher_ids",
     "public",
     "source",
     "grade_levels",
