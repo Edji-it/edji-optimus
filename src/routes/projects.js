@@ -37,31 +37,10 @@ router.get("/", authRequired, function (req, res, next) {
         })
 })
 
-router.post("/", authRequired, async function (req, res, next) {
-    let project = req.body.project
-
-    if (!project) {
-        res.status(400).send({ validationErrors: { project: "required" } })
-        return
-    }
-
-    // if a specific id isn't passed, go ahead and set it as the creating user's id
-    if (!project.teacher_id) {
-        project.teacher_id = req.user._id
-    }
-
-    try {
-        let result = Project(project).edjiSave()
-        return res.status(201).send({ project: result })
-    } catch (err) {
-        if (err.name === "ValidationError") {
-            let validationErrors = cleanMongoValidationError(err)
-            return res.status(406).send({ validationErrors })
-        } else {
-            next(error)
-        }
-    }
-})
+/**
+ * @deprecated 1/26/19
+ */
+router.post("/", authRequired, require('./../api/v1/projects/create').default)
 
 // currently only works for teacher deleting a project
 router.delete("/:id", authRequired, function (req, res, next) {
