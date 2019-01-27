@@ -4,7 +4,7 @@ import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
-import { UserAPI } from './../../../test/methods'
+import { UserAPI, ProjectAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
 
 // prep for http calls
@@ -26,6 +26,7 @@ const defaultProject = {
 
 let authToken: string
 let userId: any
+let createdProjects: any[] = []
 
 describe("POST /api/v1/projects", () => {
   before(async () => {
@@ -34,16 +35,17 @@ describe("POST /api/v1/projects", () => {
     authToken = token
     userId = user._id
   })
-
+  after(async () => {
+    createdProjects.forEach(async (project) => {
+      let status = await ProjectAPI.delete(project._id, authToken)
+      status.should.be.equal(204)
+    })
+  })
 
   it("should create a new project", async () => {
-    let res = await request({ project: defaultProject }, authToken)
-    // initial validation
+    const res = await request(defaultProject, authToken)
     res.should.have.status(201)
-    res.body.should.have.property("project")
-
-    // project validation
-    var project = res.body.project
+    const project = res.body
     project.should.have.property("_id")
     project.should.have.property("teacher_id")
     project.teacher_id.should.equal(userId)
@@ -56,43 +58,30 @@ describe("POST /api/v1/projects", () => {
     project.should.have.property("comments")
     project.should.have.property("updatedAt")
     project.should.have.property("createdAt")
-  })
 
-  it("should reject a request without a project", async () => {
-    let res = await request({ nothing: 'not a project, thats for sure' }, authToken)
-    res.should.have.status(400)
-    let error = res.body
-    error.should.have.property("validationErrors")
-    error.validationErrors.should.have.property("project")
-    error.validationErrors.project.should.equal("required")
+    createdProjects.push(project)
   })
-
   it("should return 'required' errors for all missing fields that are required", async () => {
-    let res = await request({ project: { missing: "everything" } }, authToken)
-    // initial validation
+    const res = await request({ missing: "everything" }, authToken)
     res.should.have.status(406)
-    let error = res.body
+    const error = res.body
     error.should.have.property("validationErrors")
     error.validationErrors.should.have.property("label")
     error.validationErrors.label.should.equal("required")
     error.validationErrors.should.have.property("reading_id")
     error.validationErrors.reading_id.should.equal("required")
   })
-
   it("should catch invalid types in `types` array", async () => {
     let project = { ...defaultProject, types: ['not_a_type'] }
-    let res = await request({ project }, authToken)
-
-    // initial validation
+    let res = await request(project, authToken)
     res.should.have.status(406)
     let error = res.body
     error.should.have.property("validationErrors")
     error.validationErrors.should.have.property("types.0")
     error.validationErrors["types.0"].should.equal("enum")
   })
-
   it("should reject an unauthorized user", async () => {
-    let res = await request({ project: defaultProject })
+    let res = await request(defaultProject)
     res.should.have.status(401)
   })
 })

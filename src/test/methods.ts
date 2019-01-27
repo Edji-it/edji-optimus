@@ -108,7 +108,7 @@ export class ProjectAPI {
     let res: ChaiHttp.Response = await chai.request(data.SERVER)
       .post('/api/v1/projects')
       .set('Authorization', authToken)
-      .send({ project })
+      .send(project)
 
     return res.body
   }

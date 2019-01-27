@@ -33,7 +33,7 @@ describe("PUT /api/v1/projects/:project_id", () => {
     userId = user._id
   })
   before(async () => {
-    const { project } = await ProjectAPI.create({
+    const project = await ProjectAPI.create({
       teacher_id: userId,
       reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
       label: 'PUT /api/v1/projects/:project_id test project'
