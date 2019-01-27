@@ -119,16 +119,13 @@ router.put("/:id/user_id", authRequired, function (req, res, next) {
         update = { $addToSet: { students_ids: user._id } }
     }
 
-    Q(
-        Project.findOneAndUpdate(
-            {
-                _id: id,
-                teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
-            },
-            update,
-            { new: true }
-        )
-            .exec()
+    Project.findOneAndUpdate(
+        {
+            _id: id,
+            teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
+        },
+        update,
+        { new: true }
     )
         .then((update) => {
             // log to pipo!

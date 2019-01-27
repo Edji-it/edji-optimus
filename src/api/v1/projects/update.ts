@@ -1,5 +1,6 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
+import { ObjectId } from 'mongodb'
 import { pick } from 'underscore'
 
 // project imports
@@ -11,8 +12,9 @@ export async function UpdateProjectController(req: Request, res: Response, next:
     const PROJECT_ID = req.params.project_id
     let user = req.user
     let updateData: any = req.body
-    if (!updateData) {
-      return res.status(400).send({ error: 'no project passed' })
+
+    if (!ObjectId.isValid(PROJECT_ID)) {
+      return res.status(400).send({ error: 'invalid project id passed' })
     }
 
     const propertiesToUpdate: any = pick(updateData, SIMPLY_UPDATABLE_PROPERTIES)
@@ -47,11 +49,13 @@ export async function UpdateProjectController(req: Request, res: Response, next:
 
 export async function UpdatePropertyController(req: Request, res: Response, next: NextFunction) {
   let { update_property } = req.params
-  let update = req.body
+  let updateData = req.body
 
-  if (!UPDATABLE_PROPERTIES.includes(update_property)) {
+  if (!CUSTOM_UPDATABLE_PROPERTIES.includes(update_property)) {
     return res.status(400).send({ error: 'requested update of a property which could not be updated' })
   }
+
+
 }
 
 const UPDATE_CONTROLLERS: { [key: string]: (update: any) => void } = {
@@ -60,6 +64,6 @@ const UPDATE_CONTROLLERS: { [key: string]: (update: any) => void } = {
   }
 }
 
-const UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
+const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
 
 const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals']

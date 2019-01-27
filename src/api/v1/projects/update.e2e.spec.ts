@@ -79,6 +79,10 @@ describe("PUT /api/v1/projects/:project_id", () => {
     const res = await request(projectState._id, { non_esiste: 'this doesnt exist bro' }, authToken)
     expect(res).to.have.status(400)
   })
+  it('should receive a 400 if passed an invalid project id', async () => {
+    const res = await request('abcdefg', { heat_vision: true }, authToken)
+    expect(res).to.have.status(400)
+  })
   it('should reject an unauthorized request', async () => {
     const res = await request(projectState._id, { heat_vision: true })
     expect(res).to.have.status(401)
