@@ -40,7 +40,18 @@ router.get("/", authRequired, function (req, res, next) {
 /**
  * @deprecated 1/26/19
  */
-router.post("/", authRequired, require('./../api/v1/projects/create').default)
+router.post(
+    "/",
+    authRequired,
+    // the new api endpoint does not use a nested project property, so this keeps us consistent during transition time
+    (req, res, next) => {
+        if (req.body && req.body.project) {
+            req.body = req.body.project
+        }
+        next()
+    },
+    require('./../api/v1/projects/create').default
+)
 
 // currently only works for teacher deleting a project
 router.delete("/:id", authRequired, function (req, res, next) {
