@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon -L --exec yarn serve:dev",
     "start:local": "yarn mongo && MONGO_HOST='mongodb://localhost:27017/edji' yarn start",
-    "test": "yarn build:dev && mocha 'build/src/**/*.spec.js' --timeout 4000 --exit",
+    "test": "yarn build:dev && mocha 'build/src/**/*.spec.js' --timeout 4000",
     "test:ci": "yarn build:prod && mocha 'build/src/**/*.spec.js' --timeout 4000 --exit",
     "bump": "npm run bump:patch",
     "serve:dev": "yarn build:dev && node ./build/src",

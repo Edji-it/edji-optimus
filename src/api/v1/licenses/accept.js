@@ -63,7 +63,7 @@ module.exports = async function (req, res, next) {
     }
 
     // update the user object to add the owning_institution if the owning_institution doesn't already exist on their object
-    if (user.institution_ids.indexOf(license.owning_institution) == -1) {
+    if (!user.institution_ids.some(id => id.equals(license.owning_institution))) {
       user.institution_ids.push(license.owning_institution)
     }
 
