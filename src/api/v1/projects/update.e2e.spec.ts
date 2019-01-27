@@ -71,4 +71,27 @@ describe("PUT /api/v1/projects/:project_id", () => {
       expect(returnedUpdated.includes(key), `expected to be able to update ${key}, but the key was not returned from update endpoint`).to.be.true
     ])
   })
+  it('should return 400 if the request does not send any properties to update', async () => {
+    const res = await request(projectState._id, {}, authToken)
+    expect(res).to.have.status(400)
+  })
+  it('should return 400 if the request is not attempting to update any updatable properties', async () => {
+    const res = await request(projectState._id, { non_esiste: 'this doesnt exist bro' }, authToken)
+    expect(res).to.have.status(400)
+  })
+  it('should reject an unauthorized request', async () => {
+    const res = await request(projectState._id, { heat_vision: true })
+    expect(res).to.have.status(401)
+  })
+  it('should return 404 if requesting to update a project which does not exist', async () => {
+    const res = await request(userId, { heat_vision: true }, authToken)
+    expect(res).to.have.status(404)
+  })
+  it('should return 404 if the user is attempting to update a real project which they do not own', async () => {
+    let { username, password } = data.LOGIN_INFO.API_HERO
+    let { token } = await UserAPI.login(username, password)
+    expect(token).not.to.be.undefined
+    const res = await request(projectState._id, { heat_vision: true }, token)
+    expect(res).to.have.status(404)
+  })
 })

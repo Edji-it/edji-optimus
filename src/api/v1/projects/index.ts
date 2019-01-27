@@ -12,7 +12,7 @@ const router = Router()
 router.get('/', authRequired, require('./list'))
 router.post('/', authRequired, createProject)
 router.get('/:project_id', require('./retrieve'))
-router.put('/:project_id', UpdateProjectController)
-router.put('/:project_id/:update_property', UpdatePropertyController)
+router.put('/:project_id', authRequired, UpdateProjectController)
+router.put('/:project_id/:update_property', authRequired, UpdatePropertyController)
 
 export default router
