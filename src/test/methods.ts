@@ -99,6 +99,7 @@ export class ReadingAPI {
 export class ProjectAPI {
   static async create(
     project: {
+      teacher_id: string,
       reading_id: string,
       label: string
     },
@@ -109,6 +110,18 @@ export class ProjectAPI {
       .set('Authorization', authToken)
       .send({ project })
 
+    return res.body
+  }
+  static async delete(projectId: string, authToken: string): Promise<number> {
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .del(`/projects/${projectId}`)
+      .set('Authorization', authToken)
+    return res.status
+  }
+  static async retrieve(projectId: string, authToken: string): Promise<any> {
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .get(`/api/v1/projects/${projectId}`)
+      .set('Authorization', authToken)
     return res.body
   }
 }

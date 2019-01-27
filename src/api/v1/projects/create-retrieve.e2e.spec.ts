@@ -28,11 +28,12 @@ describe('create and list projects workflow', () => {
   it('should list a project in a user\'s dashboard after the user joins the project', async () => {
     // log in teacher and create new reading with a project
     let { username: heroUsn, password: heroPw } = data.LOGIN_INFO.API_HERO
-    let { token: heroToken } = await UserAPI.login(heroUsn, heroPw)
+    let { token: heroToken, user: heroUser } = await UserAPI.login(heroUsn, heroPw)
     let { reading: createdReading } = await ReadingAPI.create(heroToken)
     let { project: createdProject } = await ProjectAPI.create(
       {
         reading_id: createdReading._id,
+        teacher_id: heroUser._id,
         label: 'create and list projects workflow'
       },
       heroToken
