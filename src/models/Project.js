@@ -16,8 +16,8 @@ var typesEnum = {
 }
 
 var Model = ModelCreator("Project", {
-    reading_id: { type: mongoose.Schema.ObjectId, ref: "Reading" },
     teacher_id: { type: mongoose.Schema.ObjectId, required: true, ref: "User" },
+    reading_id: { type: mongoose.Schema.ObjectId, required: true, ref: "Reading" },
     comments: [Comment.schema],
     answers: [Comment.schema],
     students_ids: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
@@ -26,7 +26,7 @@ var Model = ModelCreator("Project", {
     code: { type: String, unique: true },
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
     tags: [Tags.schema],
-    heat_vision: Boolean,
+    heat_vision: { type: Boolean },
     report_evals: [{
         user_id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
         evaluation: { type: String, required: true },
