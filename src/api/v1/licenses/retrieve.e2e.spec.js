@@ -58,7 +58,7 @@ describe('GET /api/v1/licenses/', () => {
       })
   })
 
-  // should get a 404 response from the server which means we could not find any licenses for that user
+  // student should not be attributed to any institutions
   it('should get an error when attempting to GET all licenses for the test user', (done) => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + '')
