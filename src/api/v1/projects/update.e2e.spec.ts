@@ -46,10 +46,10 @@ describe("PUT /api/v1/projects/:project_id", () => {
   afterEach(async () => {
     const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
     expect(project._id).to.be.equal(projectState._id) // just verify we got back the project we expected
-    projectState = project // update projectState 
+    projectState = project // make sure projectState is consistent with the database after every test
   })
   after(async () => {
-    const status = await ProjectAPI.delete(projectState._id, authToken)
+    const status = await ProjectAPI.delete(projectState._id, authToken) // clean it up
     expect(status, 'test project deletion failed').to.be.equal(204)
   })
   it('should update a single property', async () => {
@@ -58,5 +58,17 @@ describe("PUT /api/v1/projects/:project_id", () => {
     expect(res).to.have.status(200)
     expect(res.body).to.have.property('heat_vision')
     expect(res.body.heat_vision).not.to.be.equal(initialValue)
+  })
+  it('should return the state of all updatable properties', async () => {
+    const expectedUpdatable = ['heat_vision', 'tags', 'report_evals']
+    const res = await request(projectState._id, projectState, authToken)
+    expect(res).to.have.status(200)
+    const returnedUpdated = Object.keys(res.body)
+    returnedUpdated.forEach((key) => {
+      expect(expectedUpdatable.includes(key), `expected not to be able to update ${key}, but the key was returned from update endpoint`).to.be.true
+    })
+    expectedUpdatable.forEach((key) => [
+      expect(returnedUpdated.includes(key), `expected to be able to update ${key}, but the key was not returned from update endpoint`).to.be.true
+    ])
   })
 })
