@@ -5,15 +5,16 @@ import { pick } from 'underscore'
 
 // project imports
 import * as Project from '../../../models/Project'
+import * as Comment from '../../../models/Comment'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
 
 export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
   try {
-    const PROJECT_ID = req.params.project_id
+    const { project_id } = req.params.project_id
     let user = req.user
     let updateData: any = req.body
 
-    if (!ObjectId.isValid(PROJECT_ID)) {
+    if (!ObjectId.isValid(project_id)) {
       return res.status(400).send({ error: 'invalid project id passed' })
     }
 
@@ -24,7 +25,7 @@ export async function UpdateProjectController(req: Request, res: Response, next:
     }
     let project = await Project.findOneAndUpdate(
       {
-        _id: PROJECT_ID,
+        _id: project_id,
         teacher_id: user._id
       },
       propertiesToUpdate,
@@ -48,19 +49,64 @@ export async function UpdateProjectController(req: Request, res: Response, next:
 }
 
 export async function UpdatePropertyController(req: Request, res: Response, next: NextFunction) {
-  let { update_property } = req.params
-  let updateData = req.body
+  try {
+    // project_id and update_property are required by express routing
+    const { project_id, update_property } = req.params
+    const { user } = req
+    const update: any = req.body
 
-  if (!CUSTOM_UPDATABLE_PROPERTIES.includes(update_property)) {
-    return res.status(400).send({ error: 'requested update of a property which could not be updated' })
+    if (!ObjectId.isValid(project_id)) {
+      return res.status(400).send({ error: 'invalid project or property id passed' })
+    }
+
+    if (!CUSTOM_UPDATABLE_PROPERTIES.includes(update_property)) {
+      return res.status(400).send({ error: 'requested update of a property which could not be updated' })
+    }
+
+    const updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user_id: user._id, update })
+    return res.status(200).send(updateObj)
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      let validationErrors = cleanMongoValidationError(err)
+      return res.status(406).send({ validationErrors })
+    } else if (err.message === 'err_no_project') {
+      return res.status(404).send({ error: 'no project found for that id' })
+    }
+    return next(err)
   }
-
-
 }
 
-const UPDATE_CONTROLLERS: { [key: string]: (update: any) => void } = {
-  comment: function (comment) {
+const UPDATE_CONTROLLERS: {
+  [key: string]: (props: { project_id: string, user_id: string, update: any }) => Promise<any>
+} = {
+  comments: async function ({ project_id, user_id, update: commentData }) {
+    /**
+     * just validate comment to avoid running validators on entire project in findOneAndUpdate
+     *  this will throw an error which should be caught by the route's catch
+     */
+    let project = await Project.findById(project_id)
+    if (!project) throw new Error('err_no_project')
 
+
+    let comment
+    if (commentData._id) {
+      // this method only works because it's an array of subdocuments in mongoose
+      comment = project.comments.id(commentData._id)
+    }
+
+    // we still might not find the comment, so we'll create it here if we didn't find it in the project
+    if (comment) {
+      // make all of the updates
+      for (let prop in commentData) {
+        comment[prop] = commentData[prop]
+      }
+    } else {
+      comment = new Comment(commentData)
+      project.comments.push(comment)
+    }
+    await comment.validate() // validate here
+    await project.edjiSave({ mongooseOptions: { new: true, runValidators: false } })
+    return comment
   }
 }
 
