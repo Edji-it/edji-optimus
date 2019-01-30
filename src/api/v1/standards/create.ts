@@ -10,7 +10,7 @@ export async function AddStandard(req: Request, res: Response, next: NextFunctio
 
   try {
     let standard = new Standard(new_standard)
-    await standard.save()
+    await standard.edjiSave(false)
     return res.status(200).send({standard: standard})
   } catch (err) {
     return next(err)
