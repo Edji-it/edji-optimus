@@ -248,7 +248,6 @@ describe("update projects", () => {
         const { token } = await UserAPI.login(username, password)
         const commentId = createdComments[0]._id
         // this comment will not have this student's user_id and therefore shouldn't be allowed to be updated
-        console.log('attempting for comment:' + commentId)
         const commentData = {
           _id: commentId,
           start: 10

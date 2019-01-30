@@ -115,7 +115,7 @@ const updateCommentArray = async function ({ project_id, user_id, update: commen
   } else {
     comment = new Comment(commentData)
     comment.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
-    project.comments.push(comment)
+    project[commentArrayName].push(comment)
   }
   comment.updatedAt = Date.now() // also manually update updatedAt
   await comment.validate() // validate here
