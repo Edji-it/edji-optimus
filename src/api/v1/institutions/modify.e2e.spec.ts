@@ -2,57 +2,53 @@ import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 
 import data = require('../../../test/constants')
+import { UserAPI } from './../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
 const institutionBody = {
-  "abbreviation": "WS",
-  "name": "William Stewart IV Academy",
-  "license_ids": [
-    "5b8c29c40ca7b2ef83ffe845",
-    "5b8c2cbf74eaa2f0e5cd66b4",
-    "5b8c2ce0b064def11229ad27"
-  ],
   "outcomes": [
     {
-      "standard": "5c3bc4ebb7e315268ee4d73f",
-      "short_name": "Understanding of Cultural Diversity",
-      "outcome_statement": "Recount stories, including fables, folktales, and myths from diverse cultures; determine the central message, lesson, or moral and explain how it is conveyed through key details in the text.",
       "rubric": [
         {
           "grade": 0,
-          "rubric_statement": "Did not follow instructions. Please try again."
-        },
-        {
-          "grade": 1,
-          "rubric_statement": "Solid understanding of cultural diversity. Great job!"
+          "rubric_statement": "Please try again."
         }
-      ]
+      ],
+      "short_name": "Use Text",
+      "outcome_statement": "I can ask and answer questions",
+      "standard": "5c3bc4c648bf8f26594db29c"
     }
   ]
 }
+
 const short_name_test = new Date().getTime().toString()
 const request = function (institution_id: string, authToken?: string, requestBody?: any) {
   let url = `/api/v1/institutions/${institution_id}`
   let req = chai.request(data.SERVER)
     .put(url)
-    .send({ institution: requestBody })
+    .send({ requestBody })
   authToken && req.set('Authorization', authToken)
   return req
 }
 
+let authToken: string
+let institution_id: string
+
 describe('PUT api/v1/institutions/:institution_id', () => {
-  // data used in tests
-  const validUserToken: string = data.LOGIN_TOKENS.API_HERO2
-  // the following institution_id has outcomes tied to it, do not modify without first verifying
-  // the institution you change it with has outcomes in the correct format as the model schema denotes
-  const institution_id: string = '5b8c2249120385ed34084b99'
-  
+  // get us a user so we can pass that authToken to the request
+  before(async () => {
+    let { username, password } = data.LOGIN_INFO.API_HERO
+    let { token, user } = await UserAPI.login(username, password)
+    authToken = token
+    institution_id = user.institution_ids[0]
+  })
+
   it('should return a 200 with an updated institution', async () => {
     let institution_update = institutionBody
     // update the short_name property of the first outcome to the value above so we can verify it changed
     institution_update.outcomes[0].short_name = short_name_test
-    let res = await request(institution_id, validUserToken, institution_update)
+    let res = await request(institution_id, authToken, institution_update)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('institution')
 
@@ -65,7 +61,6 @@ describe('PUT api/v1/institutions/:institution_id', () => {
     // check license_ids
     let license_ids = institution.license_ids
     license_ids.should.be.instanceOf(Array)
-    license_ids.length.should.be.above(0)
 
     // check outcomes
     let outcomes = institution.outcomes
@@ -88,7 +83,7 @@ describe('PUT api/v1/institutions/:institution_id', () => {
   })
 
   it('should return a 404 if passed an incorrect institution_id', async () => {
-    let res = await request('5b8c2249120385ed34084b9', validUserToken, institutionBody)
+    let res = await request('5b8c2249120385ed34084b9', authToken, institutionBody)
     res.should.have.status(404)
   })
 

@@ -7,7 +7,7 @@ import Institution = require('../../../models/Institution')
 
 export async function modifyInstitution(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
-  let updated_institution = req.body.institution
+  let updated_institution = req.body
   
   // validation for the passed in institution ID
   if (!mongoose.validateEdjiId(institution_id)) {
@@ -23,7 +23,6 @@ export async function modifyInstitution(req: Request, res: Response, next: NextF
         runValidators: true
       }
     )
-    // the following return object looks odd, but it is how it should return back to the requester
     return res.status(200).send({ institution: institution })
   } catch (err) {
     return next(err)
