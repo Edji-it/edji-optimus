@@ -7,27 +7,27 @@ import { UserAPI } from './../../../test/methods'
 // prep for http calls
 chai.use(chaiHttp)
 const institutionBody = {
-  "outcomes": [
-    {
-      "rubric": [
-        {
-          "grade": 0,
-          "rubric_statement": "Please try again."
-        }
-      ],
-      "short_name": "Use Text",
-      "outcome_statement": "I can ask and answer questions",
-      "standard": "5c3bc4c648bf8f26594db29c"
-    }
-  ]
+	"outcomes": [
+		{
+			"rubric": [
+				{
+					"grade": 0,
+					"rubric_statement": "Please try again."
+				}
+			],
+			"short_name": "Use Text",
+			"outcome_statement": "I can ask and answer questions",
+			"standard": "5c3bc4c648bf8f26594db29c"
+		}
+	]
 }
 
-const short_name_test = new Date().getTime().toString()
+const short_name_test = new Date().toUTCString()
 const request = function (institution_id: string, authToken?: string, requestBody?: any) {
   let url = `/api/v1/institutions/${institution_id}`
   let req = chai.request(data.SERVER)
     .put(url)
-    .send({ requestBody })
+    .send(requestBody)
   authToken && req.set('Authorization', authToken)
   return req
 }
@@ -47,26 +47,26 @@ describe('PUT api/v1/institutions/:institution_id', () => {
   it('should return a 200 with an updated institution', async () => {
     let institution_update = institutionBody
     // update the short_name property of the first outcome to the value above so we can verify it changed
-    institution_update.outcomes[0].short_name = short_name_test
-    let res = await request(institution_id, authToken, institution_update)
+    institution_update.outcomes[0]['short_name'] = short_name_test
+    const res = await request(institution_id, authToken, institution_update)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('institution')
 
     // check outcomes for valid response properties
-    let institution = res.body.institution
+    const institution = res.body.institution
     institution.should.have.property("abbreviation")
     institution.should.have.property("name")
     institution.should.have.property("license_ids")
 
     // check license_ids
-    let license_ids = institution.license_ids
+    const license_ids = institution.license_ids
     license_ids.should.be.instanceOf(Array)
 
     // check outcomes
-    let outcomes = institution.outcomes
+    const outcomes = institution.outcomes
     outcomes.should.be.instanceOf(Array)
     outcomes.length.should.be.above(0)
-    let outcome = outcomes[0]
+    const outcome = outcomes[0]
     outcome.should.have.property("standard")
     outcome.should.have.property("short_name")
     outcome.short_name.should.equal(short_name_test)
@@ -74,21 +74,21 @@ describe('PUT api/v1/institutions/:institution_id', () => {
     outcome.should.have.property("rubric")
 
     // check rubric for valid response properties
-    let rubrics = outcome.rubric
+    const rubrics = outcome.rubric
     rubrics.should.be.instanceOf(Array)
     rubrics.length.should.be.above(0)
-    let rubric = rubrics[0]
+    const rubric = rubrics[0]
     rubric.should.have.property("grade")
     rubric.should.have.property("rubric_statement")
   })
 
   it('should return a 404 if passed an incorrect institution_id', async () => {
-    let res = await request('5b8c2249120385ed34084b9', authToken, institutionBody)
+    const res = await request('5b8c2249120385ed34084b9', authToken, institutionBody)
     res.should.have.status(404)
   })
 
   it('should return a 401 if no auth token is passed', async () => {
-    let res = await request(institution_id, undefined, institutionBody)
+    const res = await request(institution_id, undefined, institutionBody)
     res.should.have.status(401)
   })
 })
