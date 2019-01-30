@@ -55,7 +55,12 @@ const LoginController = {
     decodeTokenToUser: function (token, callback) {
         var decodedJWT = this.decodeToken(token)
         if (decodedJWT.type === "temp") {
-            TempUser.findById(decodedJWT.id, callback)
+            TempUser.findByIdAndUpdate(
+                decodedJWT.id,
+                { $set: { last_action_time: Date.now() } },
+                { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
+                callback
+            )
         } else if (decodedJWT) {
             // set their last action time! Whoo this is so exciting!
             User.findByIdAndUpdate(

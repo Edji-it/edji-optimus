@@ -68,7 +68,6 @@ describe('GET /readings/:temp_type', () => {
       reading.owner_id.should.be.equal(user._id.toString())
       reading.should.have.property('owner_id')
       reading.should.have.property('title')
-      reading.should.have.property('teacher_ids')
       reading.should.have.property('createdAt')
       reading.should.have.property('updatedAt')
       reading.should.have.property('owner_bookmarked')

@@ -36,11 +36,6 @@ router.post("/", authRequired, function (req, res, next) {
     // going to just always set owner_id for now. don't see any reason that the front end would set it
     reading.owner_id = user._id
 
-    // Readings show on a Teacher's dashboard if they exist in the teacher_ids array
-    // Even the owner needs to exist in this array (since an owner can later abandon a reading but teachers or students can continue using it)
-    reading.teacher_ids = []
-    reading.teacher_ids.push(user._id)
-
     let model = Reading(reading)
 
     let errors = {}
@@ -257,7 +252,6 @@ router.get("/versions/:version_id", authRequired, (req, res, next) => {
                     _id: "$reading._id",
                     title: "$reading.title",
                     owner_id: "$reading.owner_id",
-                    teacher_ids: "$reading.teacher_ids",
                     "public": "$reading.public",
                     source: "$reading.source",
                     cover_img: "$reading.cover_img",
@@ -342,7 +336,6 @@ router.get("/all/projects", authRequired, function (req, res, next) {
                     _id: "$reading._id",
                     title: "$reading.title",
                     owner_id: "$reading.owner_id",
-                    teacher_ids: "$reading.teacher_ids",
                     "public": "$reading.public",
                     source: "$reading.source",
                     subjects: "$reading.subjects",
@@ -614,7 +607,6 @@ router.get("/feed", function (req, res, next) {
     projection = {
         'title': true,
         'owner_id': true,
-        'teacher_ids': true,
         'public': true,
         'owner._id': true,
         'owner.fullname': true,
