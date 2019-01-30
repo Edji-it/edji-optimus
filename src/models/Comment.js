@@ -2,9 +2,10 @@
  * Comment Model
  * - Attached to Project objects
  */
-var mongoose = require("mongoose")
+const mongoose = require('mongoose')
+const ModelCreator = require('./ModelCreator')
 
-var Model = mongoose.model("Comment", {
+const Model = ModelCreator("Comment", {
     user_id: { type: String, required: true }, // could be any type of user, maybe we want to add a user_type field?
     start: { type: Number, required: true, default: -1 },
     end: { type: Number, required: true, default: -1 },

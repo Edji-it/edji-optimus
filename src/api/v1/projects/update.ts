@@ -1,6 +1,6 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
-import { ObjectId } from 'mongodb'
+import * as mongoose from 'mongoose'
 import { pick } from 'underscore'
 
 // project imports
@@ -10,11 +10,12 @@ import { cleanMongoValidationError } from '../../../error-handlers/mongo-validat
 
 export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
   try {
-    const { project_id } = req.params.project_id
+    const { project_id } = req.params
     let user = req.user
     let updateData: any = req.body
 
-    if (!ObjectId.isValid(project_id)) {
+    // I couldn't figure out how to get typescript to allow me to call `validateEdjiId` on mongoose because it doesn't exist in mongoose types
+    if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project id passed' })
     }
 
@@ -55,7 +56,7 @@ export async function UpdatePropertyController(req: Request, res: Response, next
     const { user } = req
     const update: any = req.body
 
-    if (!ObjectId.isValid(project_id)) {
+    if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project or property id passed' })
     }
 
@@ -102,8 +103,10 @@ const UPDATE_CONTROLLERS: {
       }
     } else {
       comment = new Comment(commentData)
+      comment.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
       project.comments.push(comment)
     }
+    comment.updatedAt = Date.now() // also manually update updatedAt
     await comment.validate() // validate here
     await project.edjiSave({ mongooseOptions: { new: true, runValidators: false } })
     return comment

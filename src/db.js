@@ -16,7 +16,7 @@ const connect = function (mongooseInstance) {
 
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
 const isValidId = function (id) {
-  return id.length === 24 && checkForHexRegExp.test(id)
+  return id && id.length === 24 && checkForHexRegExp.test(id)
 }
 
 mongoose.validateEdjiId = isValidId
