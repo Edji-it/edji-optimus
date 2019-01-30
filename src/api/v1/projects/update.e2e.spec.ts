@@ -213,7 +213,7 @@ describe("update projects", () => {
     })
     it('should reject a comment that does not have required properties', async () => {
       const res = await request(projectState._id, { data: 'haha this wont work' }, authToken)
-      expect(res).to.have.status(400)
+      expect(res).to.have.status(406)
       expect(res.body).to.have.property('validationErrors')
     })
     it('should update an existing comment if passed an id', async () => {
