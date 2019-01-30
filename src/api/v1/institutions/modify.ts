@@ -23,15 +23,35 @@ export async function modifyInstitution(req: Request, res: Response, next: NextF
       return res.status(400).send({ error: 'no valid update properties in project body' })
     }
 
-    let institution: any = await Institution.findByIdAndUpdate(
-      institution_id,
-      propertiesToUpdate, 
-      {
-        new: true,
-        runValidators: true
+    // if the outcome passed in has an _id on it, then we need to update this outcome
+    const outcome_id = propertiesToUpdate.outcomes[0]._id
+    if (outcome_id) {
+      const outcomeUpdate = {
+        $set: {
+          "outcomes.$": propertiesToUpdate.outcomes
+        }
       }
-    )
-    return res.status(200).send({ institution: institution })
+      let institution: any = await Institution.findOneAndUpdate(
+        {_id: institution_id, "outcomes._id": outcome_id},
+        outcomeUpdate, 
+        {
+          new: true,
+          runValidators: true
+        }
+      )
+      return res.status(200).send({ institution: institution })
+    } else {
+      // if the outcome(s) passed in does not have an _id on it, then we need to add it to the array
+      let institution: any = await Institution.findByIdAndUpdate(
+        institution_id,
+        { $push: { outcomes: propertiesToUpdate.outcomes } }, 
+        {
+          new: true,
+          runValidators: true
+        }
+      )
+      return res.status(200).send({ institution: institution })
+    }
   } catch (err) {
     return next(err)
   }
