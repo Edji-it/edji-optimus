@@ -8,6 +8,7 @@ import { ObjectId } from 'mongodb'
 import * as Project from '../../../models/Project'
 import * as Comment from '../../../models/Comment'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
+import { deleteFromS3 } from './_update'
 
 export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -112,6 +113,7 @@ const updateCommentArray = async function ({ project_id, user_id, update: commen
     for (let prop in commentData) {
       comment[prop] = commentData[prop]
     }
+    if (comment.url && comment.isModified('url')) deleteFromS3(comment.url)
   } else {
     comment = new Comment(commentData)
     comment.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt

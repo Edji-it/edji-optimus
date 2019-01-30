@@ -1,6 +1,6 @@
 // import * as proxyquire from 'proxyquire'
 import * as sinon from 'sinon'
-import * as rp from 'request-promise'
+import * as rp from 'request-promise-native'
 import 'mocha'
 
 import { EmailService, EmailOptions } from './email'

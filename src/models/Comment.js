@@ -22,6 +22,11 @@ const Model = ModelCreator("Comment", {
     reply_to: { type: mongoose.Schema.ObjectId, ref: "Comment" },
     replies: Array,
     questionId: String
+}, (schema) => {
+    schema.path('url').set(function (val) {
+        this._oldUrl = this.url
+        this.url = val
+    })
 })
 
 module.exports = Model
