@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 import * as mongoose from 'mongoose'
 import { pick } from 'underscore'
+import { ObjectId } from 'mongodb'
 
 // project imports
 import * as Project from '../../../models/Project'
@@ -72,13 +73,15 @@ export async function UpdatePropertyController(req: Request, res: Response, next
       return res.status(406).send({ validationErrors })
     } else if (err.message === 'err_no_project') {
       return res.status(404).send({ error: 'no project found for that id' })
+    } else if (err.message === 'err_not_authorized') {
+      return res.status(403).send()
     }
     return next(err)
   }
 }
 
 const UPDATE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, user_id: string, update: any }) => Promise<any>
+  [key: string]: (props: { project_id: string, user_id: ObjectId, update: any }) => Promise<any>
 } = {
   comments: async function ({ project_id, user_id, update: commentData }) {
     /**
@@ -97,6 +100,7 @@ const UPDATE_CONTROLLERS: {
 
     // we still might not find the comment, so we'll create it here if we didn't find it in the project
     if (comment) {
+      if (!user_id.equals(comment.user_id)) throw new Error('err_not_authorized')
       // make all of the updates
       for (let prop in commentData) {
         comment[prop] = commentData[prop]

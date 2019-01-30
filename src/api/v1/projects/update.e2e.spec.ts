@@ -4,6 +4,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
+import { ObjectId } from 'mongodb'
 
 import { UserAPI, ProjectAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
@@ -17,8 +18,8 @@ let projectState: any // keep track of the updates we make to the project along 
 
 describe("update projects", () => {
   before(async () => {
-    let { username, password } = data.LOGIN_INFO.API_TEACHER
-    let { user, token } = await UserAPI.login(username, password)
+    const { username, password } = data.LOGIN_INFO.API_TEACHER
+    const { user, token } = await UserAPI.login(username, password)
     authToken = token
     expect(authToken).not.to.be.undefined
     userId = user._id
@@ -102,7 +103,7 @@ describe("update projects", () => {
   })
   describe("PUT /api/v1/projects/:project_id/comments", () => {
     let createdComments = []
-    const request = function (projectId: string, body: any, { commentId, authToken }: { commentId?: string, authToken?: string } = {}): Request {
+    const request = function (projectId: string, body: any, authToken?: string): Request {
       let req = chai.request(data.SERVER)
         .put(`/api/v1/projects/${projectId}/comments`)
         .send(body)
@@ -110,13 +111,26 @@ describe("update projects", () => {
       authToken && req.set('Authorization', authToken)
       return req
     }
+    // add at least one comment before all tests so that any test can be successful if run by itself
+    before(async () => {
+      const comment = {
+        user_id: userId,
+        start: 5,
+        end: 100
+      }
+      const res = await ProjectAPI.createComment(projectState._id, comment, authToken)
+      // just validate we got a good object back from the service
+      expect(res).to.have.property('start')
+      expect(res.start).to.be.equal(comment.start)
+      createdComments.push(res)
+    })
     it('should create a new comment with minimal parameters', async () => {
       const minComment = {
         user_id: userId,
         start: 5,
         end: 100
       }
-      const res = await request(projectState._id, minComment, { authToken })
+      const res = await request(projectState._id, minComment, authToken)
       expect(res).to.have.status(200)
       const comment = res.body
       expect(comment).to.have.property('_id')
@@ -148,7 +162,7 @@ describe("update projects", () => {
         reply_to: createdComments[0]._id,
         replies: []
       }
-      const res = await request(projectState._id, maxComment, { authToken })
+      const res = await request(projectState._id, maxComment, authToken)
       expect(res).to.have.status(200)
       const comment = res.body
       expect(comment).to.have.property('_id')
@@ -181,10 +195,59 @@ describe("update projects", () => {
       expect(comment.replies.length).to.be.equal(maxComment.replies.length)
       expect(comment).to.have.property('updatedAt')
       expect(comment).to.have.property('createdAt')
+      createdComments.push(comment)
     })
-    it('should create a new comment if the _id of the comment that was passed does not exist in the comments array')
-    it('should update an existing comment if passed an id')
-    it('should reject edits to a comment if the authenticated user id does not match the user_id of the comment')
-    it('should reject an unauthorized request')
+    it('should create a new comment if the _id of the comment that was passed does not exist in the comments array', async () => {
+      const commentData = {
+        _id: new ObjectId().toHexString(),
+        user_id: userId,
+        start: 5,
+        end: 100
+      }
+      const res = await request(projectState._id, commentData, authToken)
+      expect(res).to.have.status(200)
+      const comment = res.body
+      expect(comment).to.have.property('_id')
+      expect(comment._id).to.be.equal(commentData._id)
+      createdComments.push(comment)
+    })
+    it('should reject a comment that does not have required properties', async () => {
+      const res = await request(projectState._id, { data: 'haha this wont work' }, authToken)
+      expect(res).to.have.status(400)
+      expect(res.body).to.have.property('validationErrors')
+    })
+    it('should update an existing comment if passed an id', async () => {
+      let testedComments = 0
+      for (let i = 0; i < createdComments.length; i++) {
+        const comment = createdComments[i]
+        if (comment.user_id !== userId) continue // get out of this loop if we're going to get a 401 because of unmatched user_id's
+        const body = { _id: comment._id, data: Date.now().toString() }
+        const res = await request(projectState._id, body, authToken)
+        expect(res).to.have.status(200)
+        expect(res.body).to.have.property('_id')
+        expect(res.body._id).to.be.equal(body._id)
+        expect(res.body).to.have.property('data')
+        expect(res.body.data).to.be.equal(body.data)
+        expect(res.body).to.have.property('start') // test that it's returning at least one property that we didn't just submit in the update
+        testedComments++
+      }
+      expect(testedComments, 'did not attempt to update any comments').to.be.greaterThan(0)
+    })
+    it('should reject edits to a comment if the authenticated user id does not match the user_id of the comment', async () => {
+      const { username, password } = data.LOGIN_INFO.API_STUDENT
+      const { token } = await UserAPI.login(username, password)
+      const commentId = createdComments[0]._id
+      // this comment will not have this student's user_id and therefore shouldn't be allowed to be updated
+      const commentData = {
+        _id: commentId,
+        start: 10
+      }
+      const res = await request(projectState._id, commentData, token)
+      expect(res).to.have.status(403)
+    })
+    it('should reject an unauthorized request', async () => {
+      const res = await request(projectState._id, { doesnt_matter: 'nothing' })
+      expect(res).to.have.status(401)
+    })
   })
 })
