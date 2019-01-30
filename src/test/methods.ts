@@ -124,9 +124,9 @@ export class ProjectAPI {
       .set('Authorization', authToken)
     return res.body
   }
-  static async createComment(projectId: string, body: any, authToken: string): Promise<any> {
+  static async createComment(projectId: string, body: any, authToken: string, commentType = 'comments'): Promise<any> {
     let res: ChaiHttp.Response = await chai.request(data.SERVER)
-      .put(`/api/v1/projects/${projectId}/comments`)
+      .put(`/api/v1/projects/${projectId}/${commentType}`)
       .set('Authorization', authToken)
       .send(body)
     return res.body
