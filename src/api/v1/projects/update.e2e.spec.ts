@@ -230,9 +230,6 @@ describe("update projects", () => {
           if (comment.user_id !== userId) continue // get out of this loop if we're going to get a 401 because of unmatched user_id's
           const body = { _id: comment._id, data: Date.now().toString() }
           const res = await request(projectState._id, body, authToken)
-          if (res.status !== 200) {
-            console.log(res.body)
-          }
           expect(res).to.have.status(200)
           expect(res.body).to.have.property('_id')
           expect(res.body._id).to.be.equal(body._id)
