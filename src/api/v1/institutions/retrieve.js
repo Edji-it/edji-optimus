@@ -13,16 +13,14 @@ module.exports = function (req, res, next) {
   if (!mongoose.validateEdjiId(institutionId)) {
     return res.status(403).send()
   }
-
-  Q(
-    Institution.findById(
-      institutionId,
-      {
-        name: 1,
-        abbreviation: 1,
-        outcomes: 1
-      }
-    ).exec()
+  
+  Institution.findById(
+    institutionId,
+    {
+      name: 1,
+      abbreviation: 1,
+      outcomes: 1
+    }
   )
     .then((institution) => {
       // if instituion is null (meaning it did not exist in the collection)
