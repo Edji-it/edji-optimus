@@ -161,5 +161,5 @@ const updateOutcomeArray = async ({ institution_id, update }) => {
   }
 }
 
-const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['outcomes']
+const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['name', 'abbreviation']
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
