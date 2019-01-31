@@ -48,16 +48,13 @@ describe('update project helpers', () => {
   //   beforeEach(() => {
   //     saveProjectStub = stub(Project.prototype, 'edjiSave')
   //     projectMock = mock(Project)
-  //     // findProjectStub = stub(Project.prototype, 'findById')
   //     validateCommentStub = stub(Comment.prototype, 'validate').resolves()
   //     deleteFromS3Stub = stub(helpers, 'deleteFromS3')
   //   })
   //   afterEach(() => {
-  //     // findProjectStub.restore()
   //     saveProjectStub.restore()
   //     projectMock.verify()
   //     projectMock.restore()
-  //     // validateCommentStub.restore()
   //     Comment.prototype.validate.restore()
   //     deleteFromS3Stub.restore()
   //   })
