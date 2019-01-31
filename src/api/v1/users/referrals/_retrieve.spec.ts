@@ -16,7 +16,7 @@ describe('createUniqueReferralCode', () => {
     code: '12345',
     users_referred: []
   }
-  let ReferralMock: SinonMock = mock(Referral)
+  let ReferralMock: SinonMock
   let referralSaveStub: SinonStub
 
   beforeEach(() => {

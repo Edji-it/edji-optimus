@@ -6,9 +6,8 @@ import { ObjectId } from 'mongodb'
 
 // project imports
 import * as Project from '../../../models/Project'
-import * as Comment from '../../../models/Comment'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
-import { deleteFromS3 } from './_update'
+import { updateCommentArray } from './_update'
 
 export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -90,39 +89,6 @@ const UPDATE_CONTROLLERS: {
   answers: function (props) {
     return updateCommentArray(props, 'answers')
   }
-}
-
-const updateCommentArray = async function ({ project_id, user_id, update: commentData }, commentArrayName) {
-  /**
-   * just validate comment to avoid running validators on entire project in findOneAndUpdate
-   *  this will throw an error which should be caught by the route's catch
-   */
-  let project = await Project.findById(project_id)
-  if (!project) throw new Error('err_no_project')
-
-  let comment
-  if (commentData._id) {
-    // this method only works because it's an array of subdocuments in mongoose
-    comment = project[commentArrayName].id(commentData._id)
-  }
-
-  // we still might not find the comment, so we'll create it here if we didn't find it in the project
-  if (comment) {
-    if (!user_id.equals(comment.user_id)) throw new Error('err_not_authorized')
-    // make all of the updates
-    for (let prop in commentData) {
-      comment[prop] = commentData[prop]
-    }
-    if (comment.url && comment.isModified('url')) deleteFromS3(comment.url)
-  } else {
-    comment = new Comment(commentData)
-    comment.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
-    project[commentArrayName].push(comment)
-  }
-  comment.updatedAt = Date.now() // also manually update updatedAt
-  await comment.validate() // validate here
-  await project.edjiSave({ mongooseOptions: { new: true, runValidators: false } })
-  return comment
 }
 
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)

@@ -11,7 +11,7 @@ const Model = ModelCreator("Comment", {
     end: { type: Number, required: true, default: -1 },
     data: String,
     dataArray: Array,
-    url: String,
+    url: { type: String },
     author: String, // user's name, stored for easy access
     text: String, // the text which the comment is on!
     type: String, // type of comment (should be required)
@@ -23,10 +23,11 @@ const Model = ModelCreator("Comment", {
     replies: Array,
     questionId: String
 }, (schema) => {
-    schema.path('url').set(function (val) {
-        this._oldUrl = this.url
-        this.url = val
-    })
+    // schema.path('url').set(function (val) {
+    //     console.log('setting url as', val)
+    //     this._oldUrl = this.url
+    //     return val
+    // })
 })
 
 module.exports = Model

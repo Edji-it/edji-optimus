@@ -1,9 +1,14 @@
 import * as rp from 'request-promise-native'
 import * as sentry from '@sentry/node'
+import { ObjectId } from 'mongodb'
 import { expect } from 'chai'
-import { stub, SinonStub, assert } from 'sinon'
+import { assert, stub, mock, SinonStub, SinonMock } from 'sinon'
+require('sinon-mongoose')
 
-import { deleteFromS3 } from './_update'
+import { deleteFromS3, updateCommentArray } from './_update'
+import * as helpers from './_update'
+import * as Project from './../../../models/Project'
+import * as Comment from './../../../models/Comment'
 
 describe('update project helpers', () => {
   describe('deleteFromS3', () => {
@@ -32,4 +37,61 @@ describe('update project helpers', () => {
       exceptionStub.restore()
     })
   })
+  // describe('updateCommentArray', () => {
+  //   const project_id = new ObjectId().toHexString()
+  //   const user_id = new ObjectId()
+  //   let projectMock: SinonMock
+  //   // let findProjectStub: SinonStub
+  //   let saveProjectStub: SinonStub
+  //   let validateCommentStub: SinonStub
+  //   let deleteFromS3Stub: SinonStub
+  //   beforeEach(() => {
+  //     saveProjectStub = stub(Project.prototype, 'edjiSave')
+  //     projectMock = mock(Project)
+  //     // findProjectStub = stub(Project.prototype, 'findById')
+  //     validateCommentStub = stub(Comment.prototype, 'validate').resolves()
+  //     deleteFromS3Stub = stub(helpers, 'deleteFromS3')
+  //   })
+  //   afterEach(() => {
+  //     // findProjectStub.restore()
+  //     saveProjectStub.restore()
+  //     projectMock.verify()
+  //     projectMock.restore()
+  //     // validateCommentStub.restore()
+  //     Comment.prototype.validate.restore()
+  //     deleteFromS3Stub.restore()
+  //   })
+  //   it('should not call deleteFromS3 when creating a new comment', async () => {
+  //     const update = {
+  //       data: 'a new string'
+  //     }
+  //     projectMock
+  //       .expects('findById')
+  //       .resolves(new Project({ comments: [] }))
+
+  //     const res = await updateCommentArray({ project_id, user_id, update }, 'comments')
+  //     assert.notCalled(deleteFromS3Stub)
+  //     expect(res).to.have.property('data')
+  //     expect(res.data).to.be.equal(update.data)
+  //   })
+  //   it('should call deleteFromS3 when updating the url on a comment', async () => {
+  //     const commentToUpdate = new Comment({
+  //       _id: new ObjectId(),
+  //       user_id, // important to pass the same user_id as in the updateCommentArray call
+  //       url: 'somestring'
+  //     })
+  //     const update = {
+  //       _id: commentToUpdate._id,
+  //       url: 'someNewString'
+  //     }
+  //     projectMock.expects('findById')
+  //       .resolves(new Project(
+  //         {
+  //           comments: [commentToUpdate]
+  //         }
+  //       ))
+  //     const res = await updateCommentArray({ project_id, user_id, update }, 'comments')
+  //     assert.calledOnce(deleteFromS3Stub)
+  //   })
+  // })
 })
