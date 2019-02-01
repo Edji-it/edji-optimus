@@ -22,7 +22,7 @@ export async function deleteFromS3(url: string): Promise<void> {
   }
 }
 
-export async function updateCommentArray({ project_id, user_id, update: commentData }, commentArrayName) {
+export async function updateCommentArray({ project_id, user, update: commentData }, commentArrayName) {
   /**
    * just validate comment to avoid running validators on entire project in findOneAndUpdate
    *  this will throw an error which should be caught by the route's catch
@@ -38,7 +38,7 @@ export async function updateCommentArray({ project_id, user_id, update: commentD
 
   // we still might not find the comment, so we'll create it here if we didn't find it in the project
   if (comment) {
-    if (!user_id.equals(comment.user_id)) throw new Error('err_not_authorized')
+    if (!user._id.equals(comment.user_id)) throw new Error('err_not_authorized')
     // this is a cleaning function mostly used for cleaning audio data stashed in s3
     console.log('commentData', commentData.url, comment.url)
     if (commentData.url && commentData.url !== comment.url) {

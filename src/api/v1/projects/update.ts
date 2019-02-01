@@ -65,7 +65,7 @@ export async function UpdatePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested update of a property which could not be updated' })
     }
 
-    const updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user_id: user._id, update })
+    const updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user, update })
     return res.status(200).send(updateObj)
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -75,19 +75,44 @@ export async function UpdatePropertyController(req: Request, res: Response, next
       return res.status(404).send({ error: 'no project found for that id' })
     } else if (err.message === 'err_not_authorized') {
       return res.status(403).send()
+    } else if (err.status) {
+      return res.status(err.status).send({ error: err.message })
     }
     return next(err)
   }
 }
 
 const UPDATE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, user_id: ObjectId, update: any }) => Promise<any>
+  [key: string]: (props: { project_id: string, user: any, update: any }) => Promise<any>
 } = {
   comments: function (props) {
     return updateCommentArray(props, 'comments')
   },
   answers: function (props) {
     return updateCommentArray(props, 'answers')
+  },
+  students: async function ({ project_id, user, update }) {
+    if (!update || !update._id) {
+      let err = new Error('no _id supplied to add to students')
+      err['status'] = 400
+    }
+    const studentsArray: string = (user.type && user.type === 'temp') ? 'temp_ids' : 'students_ids'
+    const res = await Project.update(
+      {
+        _id: project_id,
+        teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
+      },
+      {
+        $addToSet: {
+          [studentsArray]: user._id
+        }
+      },
+      {
+        runValidators: true
+      }
+    )
+    if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
+    return update
   }
 }
 
