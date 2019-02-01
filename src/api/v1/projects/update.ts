@@ -92,10 +92,6 @@ const UPDATE_CONTROLLERS: {
     return updateCommentArray(props, 'answers')
   },
   students: async function ({ project_id, user, update }) {
-    if (!update || !update._id) {
-      let err = new Error('no _id supplied to add to students')
-      err['status'] = 400
-    }
     const studentsArray: string = (user.type && user.type === 'temp') ? 'temp_ids' : 'students_ids'
     const res = await Project.update(
       {
@@ -112,7 +108,7 @@ const UPDATE_CONTROLLERS: {
       }
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return update
+    return { _id: user._id }
   }
 }
 

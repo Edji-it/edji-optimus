@@ -6,7 +6,7 @@ import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 import { ObjectId } from 'mongodb'
 
-import { UserAPI, ProjectAPI } from './../../../test/methods'
+import { UserAPI, ProjectAPI, TempUserAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
 
 // prep for http calls
@@ -258,4 +258,61 @@ describe("update projects", () => {
       })
     })
   }
+  describe('PUT /api/v1/projects/:project_id/students', () => {
+    let studentUser, studentToken
+    before(async () => {
+      const { username, password } = data.LOGIN_INFO.API_STUDENT
+      const { user, token } = await UserAPI.login(username, password)
+      expect(user._id).to.exist
+      studentUser = user
+      expect(token).to.exist
+      studentToken = token
+    })
+    const request = function (projectId: string, authToken?: string): Request {
+      let req = chai.request(data.SERVER)
+        .put(`/api/v1/projects/${projectId}/students`)
+        .send({})
+
+      authToken && req.set('Authorization', authToken)
+      return req
+    }
+    it('should add a student to a project', async () => {
+      const res = await request(projectState._id, studentToken)
+      expect(res).to.have.status(200)
+      expect(res.body).to.have.property('_id')
+      expect(res.body._id).to.be.equal(studentUser._id)
+      // verify the student was actually added to the project, intentionally call w/ teacher's token
+      const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
+      expect(project).to.have.property('students_ids')
+      expect(project.students_ids).to.include(studentUser._id)
+    })
+    it('should not add a student to a project twice', async () => {
+      const res = await request(projectState._id, studentToken)
+      expect(res).to.have.status(404)
+    })
+    it('should not add a teacher to their own project', async () => {
+      const res = await request(projectState._id, authToken)
+      expect(res).to.have.status(404)
+    })
+    it('should add a temp student to a project', async () => {
+      const { user: tempUser, token: tempToken } = await TempUserAPI.create('testTempUser')
+      expect(tempUser).to.exist
+      expect(tempToken).to.exist
+      const res = await request(projectState._id, tempToken)
+      expect(res).to.have.status(200)
+      expect(res.body._id).to.be.equal(tempUser._id)
+      // verify the student was actually added to the project, intentionally call w/ teacher's token
+      const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
+      expect(project).to.have.property('temp_ids')
+      expect(project.temp_ids).to.include(tempUser._id)
+    })
+    it('should get a 404 for a project which does not exist', async () => {
+      const res = await request(userId, authToken)
+      expect(res).to.have.status(404)
+    })
+    it('should reject an unauthenticated request', async () => {
+      const res = await request(projectState._id)
+      expect(res).to.have.status(401)
+    })
+  })
 })
