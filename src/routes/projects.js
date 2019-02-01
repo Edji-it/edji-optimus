@@ -4,12 +4,9 @@ const mongoose = require("mongoose")
 const Q = require("q")
 const rp = require("request-promise-native")
 const _ = require("underscore")
-const sentry = require('@sentry/node')
 
 // project imports
 const Project = require("./../models/Project")
-const Comment = require("./../models/Comment")
-const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError
 const MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
 const pipolog = require('./../pipolog').pipoLog

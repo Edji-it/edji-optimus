@@ -69,6 +69,19 @@ export class UserAPI {
   }
 }
 
+export class TempUserAPI {
+  static async create(fullname: string): Promise<LoginObject> {
+    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+      .post('/tempusers')
+      .send({
+        user: {
+          fullname
+        }
+      })
+    return res.body
+  }
+}
+
 export interface LoginObject {
   token: string
   user: any
