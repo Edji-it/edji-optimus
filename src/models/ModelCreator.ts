@@ -1,6 +1,7 @@
 import { executeSaveAndIndex, SaveAndIndexOptions } from "./_ModelCreator"
 import elastic from './../elasticsearch'
 
+import { cleanMongoValidationError } from './../error-handlers/mongo-validation'
 const db = require("./../db")
 
 //all models are created through this function
@@ -19,8 +20,6 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
 
     Schema.methods.edjiSave = async function (options: EdjiSaveOptions = {}, next) {
         this.preEdjiSave && await this.preEdjiSave()
-        // console.log('options', options)
-        // console.log('next', next)
         this.updatedAt = Date.now()
         // mongoose does this stupid thing where it overwrites the last parameter as a callback
         //  if the method has hooks. So, if you don't pass a callback, then it will overwrite options and
@@ -31,6 +30,9 @@ module.exports = function (modelName, schemaJson, schemaDecorator) {
         if (typeof options !== 'object') {
             return Promise.reject(`edjiSave expected to receive an options object, but instead receive typeof ${typeof options}`)
         }
+
+        let error = this.validateSync()
+        if (error) throw error
 
         let queryOptions = {
             query: { _id: this._id },

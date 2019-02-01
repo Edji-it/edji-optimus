@@ -1,4 +1,5 @@
 import * as chai from 'chai'
+const expect = chai.expect
 import chaiHttp = require('chai-http')
 
 import data = require('../../../test/constants')
@@ -22,17 +23,23 @@ const requestProject = function (projectId: string, authToken: string) {
   return req
 }
 
-// TODO test to see if the reading comes back on the user who create it's dashboard
-
 describe('create and list projects workflow', () => {
-  it('should list a project in a user\'s dashboard after the user joins the project', async () => {
+  let heroToken, heroUser
+  before(async () => {
     // log in teacher and create new reading with a project
-    let { username: heroUsn, password: heroPw } = data.LOGIN_INFO.API_HERO
-    let { token: heroToken } = await UserAPI.login(heroUsn, heroPw)
+    let { username, password } = data.LOGIN_INFO.API_HERO
+    let { token, user } = await UserAPI.login(username, password)
+    expect(token, 'did not successfully log in teacher').not.to.be.undefined
+    heroToken = token
+    heroUser = user
+  })
+
+  it('should list a project in a users dashboard after the user joins the project', async () => {
     let { reading: createdReading } = await ReadingAPI.create(heroToken)
-    let { project: createdProject } = await ProjectAPI.create(
+    let createdProject = await ProjectAPI.create(
       {
         reading_id: createdReading._id,
+        teacher_id: heroUser._id,
         label: 'create and list projects workflow'
       },
       heroToken

@@ -1,21 +1,22 @@
-let mongoose = require("mongoose")
+
+const ModelCreator = require('./ModelCreator')
 
 let answerTypesEnum = {
-    values: ['open-ended'],
-    message: 'answer types enum validator failed for path `{PATH}` with value `{VALUE}`'
+  values: ['open-ended'],
+  message: 'answer types enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
 let commentTypesEnum = {
-    values: ['emoji', 'text', 'audio', 'reply'],
-    message: 'comment types enum validator failed for path `{PATH}` with value `{VALUE}`'
+  values: ['emoji', 'text', 'audio', 'reply'],
+  message: 'comment types enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
 let optionTypesEnum = {
-    values: ['public', 'lock'],
-    message: 'option types enum validator failed for path `{PATH}` with value `{VALUE}`'
+  values: ['public', 'lock'],
+  message: 'option types enum validator failed for path `{PATH}` with value `{VALUE}`'
 }
 
-let Model = mongoose.model("Question", {
+let Model = ModelCreator("Question", {
   prompt: { type: String, required: true },
   type: { type: String, enum: answerTypesEnum, default: 'open-ended' },
   answer_types: [{ type: String, enum: commentTypesEnum, default: 'text' }],

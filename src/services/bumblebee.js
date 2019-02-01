@@ -1,5 +1,5 @@
 // library imports
-const rp = require('request-promise')
+const rp = require('request-promise-native')
 
 /**
  * IMPORTANT: bumblebee MUST be invited to the channel you want the message to appear in

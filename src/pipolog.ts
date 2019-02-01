@@ -1,6 +1,6 @@
-import * as rp from 'request-promise'
+import * as rp from 'request-promise-native'
 
-export function pipoLog (data: PipoLogData): rp.RequestPromise {
+export function pipoLog(data: PipoLogData): rp.RequestPromise {
   let pipoUrl: string = process.env.EDJI_PIPO_DOMAIN + '/api/v1/events'
 
   return rp.post(
