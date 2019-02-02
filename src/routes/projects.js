@@ -155,9 +155,9 @@ router.put(
     authRequired,
     (req, res, next) => {
         // pull old comment out of body
-        const comment = req.body.comment
-        // reassign comment to body to be handled by new controller
-        req.body = comment
+        const answer = req.body.answer
+        // reassign answer to body to be handled by new controller
+        req.body = answer
         req.params.update_property = 'answers'
         req.params.wrap_comment = true
         next()
