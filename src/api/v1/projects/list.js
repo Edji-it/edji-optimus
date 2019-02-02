@@ -1,5 +1,4 @@
 // library imports
-const Q = require('q')
 
 // project imports
 const Project = require('./../../../models/Project')
@@ -29,7 +28,7 @@ module.exports = function (req, res, next) {
   aggregation = _agg.paginateAggregation(aggregation, { createdAt: -1 }, query.value.start, query.value.size) // paginate the results
 
   // run the query
-  Q(Project.aggregate(aggregation))
+  Project.aggregate(aggregation)
     .then((response) => {
       if (response[0]) { response = response[0] }
       else { response = { total: 0, results: [] } }

@@ -1,7 +1,6 @@
-var ModelCreator = require("./ModelCreator")
-var mongoose = require("mongoose")
+const ModelCreator = require('./ModelCreator')
 
 module.exports = ModelCreator("Tags", {
-  userId: {type: String, ref: "User", required: true},
-  values: [{type: String, required: true}]
+  userId: { type: String, ref: "User", required: true },
+  values: [{ type: String, required: true }]
 })

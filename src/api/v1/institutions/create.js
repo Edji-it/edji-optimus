@@ -1,7 +1,7 @@
 // project imports
 const Instituion = require('./../../../models/Institution')
 
-module.exports = function (req, res, next) {
+module.exports = async function (req, res, next) {
   let new_institution = req.body.institution
 
   if (!new_institution) {
@@ -11,20 +11,18 @@ module.exports = function (req, res, next) {
   new_institution.license_ids = []
 
   // create the license from the properties and model and then validate it
-  let institution = Instituion(new_institution)
-  let error = institution.validateSync()
+  let instance = Instituion(new_institution)
+  let error = instance.validateSync()
 
   // if any of the properties that come in are missing or invalid
   if (error) {
     return res.status(400).send({ error: error.errors })
   }
 
-  institution.edjiSave(false, function (err, institution) {
-    if (err) {
-      return next(err)
-    }
-
-    // send the new institution object back 
-    return res.status(200).send({ institution: institution })
-  })
+  try {
+    let institution = await institution.edjiSave()
+    return res.status(200).send({ institution })
+  } catch (err) {
+    next(err)
+  }
 }

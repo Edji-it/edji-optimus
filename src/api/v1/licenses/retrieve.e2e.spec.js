@@ -17,8 +17,6 @@ describe('GET /api/v1/licenses/', () => {
       .get(ENDPOINT_URL)
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
-        res.should.not.have.status(404)
-        res.should.not.have.status(500)
         res.should.have.status(200)
 
         res.body.should.have.property('licenses')
@@ -60,14 +58,15 @@ describe('GET /api/v1/licenses/', () => {
       })
   })
 
-  // should get a 404 response from the server which means we could not find any licenses for that user
+  // student should not be attributed to any institutions
   it('should get an error when attempting to GET all licenses for the test user', (done) => {
     chai.request(TEST.SERVER)
       .get(ENDPOINT_URL + '')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        res.should.not.have.status(200)
-        res.should.have.status(404)
+        res.should.have.status(200)
+        res.body.should.have.property('licenses')
+        res.body.licenses.length.should.be.equal(0)
         done()
       })
   })

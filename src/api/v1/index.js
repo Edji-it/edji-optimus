@@ -3,7 +3,7 @@ const router = require('express').Router()
 
 // attach routes
 router.use('/readings', require('./readings').ReadingsRouter)
-router.use('/projects', require('./projects'))
+router.use('/projects', require('./projects').default)
 router.use('/stripe', require('./stripe'))
 router.use('/users', require('./users'))
 router.use('/referrals', require('./referrals'))

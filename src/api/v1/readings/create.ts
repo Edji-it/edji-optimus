@@ -14,36 +14,23 @@ export async function CreateReadingHandler(req: Request, res: Response, next: Ne
     return res.status(400).send({ validationErrors: { reading: "required" } })
   }
 
-  // We need to assign an object ID to the reading since this is the first time a reading 
-  // document will be created and ReadingVersion needs to know this to populate in to the readings array
-  reading._id = new ObjectId()
-
   try {
+    reading = new Reading(reading) // reassign reading as the mongoose model
     await assignVersionId(reading, user._id)
-  } catch (err) {
-    // this could produce a 500 if we do it wrong
-    return next(err)
-  }
-
-  reading = new Reading(reading) // reassign reading as the mongoose model
-
-  try {
     await reading.validate()
+    reading = await reading.edjiSave()
+    try {
+      await recordUserReferral(user)
+    } catch (err) {
+      // this isn't blocking to the reading getting created, but we want to know about it
+      captureException(err)
+    }
+    return res.status(201).send({ reading })
   } catch (err) {
-    let validationErrors = cleanMongoValidationError(err)
-    return res.status(406).send({ validationErrors })
-  }
-
-  try {
-    await reading.save()
-  } catch (err) {
+    if (err.name === "ValidationError") {
+      let validationErrors = cleanMongoValidationError(err)
+      return res.status(406).send({ validationErrors })
+    }
     return next(err)
   }
-
-  try {
-    await recordUserReferral(user)
-  } catch (err) {
-    captureException(err)
-  }
-  return res.status(201).send({ reading })
 }

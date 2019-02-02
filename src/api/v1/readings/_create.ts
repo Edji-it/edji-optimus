@@ -48,7 +48,7 @@ export async function recordUserReferral(user: any): Promise<void> {
 
     // update and save the user to record that they've made their first reading
     user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
-    await user.edjiSave(false)
+    await user.edjiSave()
     // update the corresponding referral so that the referring user gets credit
     await Referral.findOneAndUpdate(
       {

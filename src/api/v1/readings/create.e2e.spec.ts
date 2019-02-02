@@ -85,7 +85,6 @@ describe('POST /api/v1/readings', () => {
     let res = await request(createReading, authToken)
     res.should.have.status(406)
     res.body.should.have.property("validationErrors")
-
   })
   it('should reject a request without a reading', async () => {
     let res = await request(undefined, authToken)

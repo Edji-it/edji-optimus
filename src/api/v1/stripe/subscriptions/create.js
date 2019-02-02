@@ -24,7 +24,7 @@ module.exports = function (req, res, next) {
       user.stripe_customer_id = subscription.customer
       user.hero_status = true
 
-      return user.edjiSave(false)
+      return user.edjiSave()
         .then((result) => {
           return res.status(200).send({ subscription: subscription, user: result.toPublic() })
         })
