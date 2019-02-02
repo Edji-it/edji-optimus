@@ -84,6 +84,7 @@ router.put(
     (req, res, next) => { // currently the response body is not used on the front end so we don't need anything special for updating it
         const project = req.body.project
         req.body = project
+        req.params.wrap_response = true
         next()
     },
     UpdateProjectControllers.UpdateProjectController
