@@ -46,6 +46,7 @@ router.post(
         if (req.body && req.body.project) {
             req.body = req.body.project
         }
+        req.params.wrap_response = true
         next()
     },
     require('./../api/v1/projects/create').default

@@ -15,6 +15,10 @@ export default async function CreateProjectController(req: Request, res: Respons
 
   try {
     let project = await new Project(projectData).edjiSave()
+    // temporary handler for deprecated route
+    if (req.params.wrap_response) {
+      project = { project }
+    }
     res.status(201).send(project)
   } catch (err) {
     if (err.name === "ValidationError") {
