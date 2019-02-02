@@ -14,6 +14,7 @@ chai.use(chaiHttp)
 
 let authToken: string
 let userId: any
+let fullname: string
 let projectState: any // keep track of the updates we make to the project along the way
 
 describe("update projects", () => {
@@ -23,6 +24,7 @@ describe("update projects", () => {
     authToken = token
     expect(authToken).not.to.be.undefined
     userId = user._id
+    fullname = user.fullname
     expect(userId).to.not.be.undefined
   })
   before(async () => {
@@ -144,6 +146,8 @@ describe("update projects", () => {
         expect(comment.start).to.be.equal(minComment.start)
         expect(comment).to.have.property('end')
         expect(comment.end).to.be.equal(minComment.end)
+        expect(comment).to.have.property('author')
+        expect(comment.author).to.be.equal(fullname)
         expect(comment).to.have.property('updatedAt')
         expect(comment).to.have.property('createdAt')
         createdComments.push(comment)
@@ -156,7 +160,7 @@ describe("update projects", () => {
           data: 'a data here',
           dataArray: ['here is more data'],
           url: 'https://edji.it',
-          author: 'Corbin', // user's name, stored for easy access
+          author: fullname, // user's name, stored for easy access
           text: 'important comment text', // the text which the comment is on!
           type: 'emoji', // type of comment (should be required)
           loc: {

@@ -40,9 +40,7 @@ export async function updateCommentArray({ project_id, user, update: commentData
   if (comment) {
     if (!user._id.equals(comment.user_id)) throw new Error('err_not_authorized')
     // this is a cleaning function mostly used for cleaning audio data stashed in s3
-    console.log('commentData', commentData.url, comment.url)
     if (commentData.url && commentData.url !== comment.url) {
-      console.log('deleting...')
       deleteFromS3(comment.url)
     }
     // make all of the updates
@@ -51,6 +49,7 @@ export async function updateCommentArray({ project_id, user, update: commentData
     }
   } else {
     comment = new Comment(commentData)
+    comment.author = user.fullname
     comment.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
     project[commentArrayName].push(comment)
   }
