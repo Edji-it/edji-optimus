@@ -10,6 +10,7 @@ const Project = require("./../models/Project")
 const MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
 const pipolog = require('./../pipolog').pipoLog
+const UpdateProjectControllers = require('./../api/v1/projects/update')
 
 const router = express.Router()
 
@@ -73,76 +74,110 @@ router.delete("/:id", authRequired, function (req, res, next) {
         })
 })
 
-router.put("/:id", authRequired, function (req, res, next) {
-    let user = req.user
-    let id = req.params.id
-    let project = req.body.project
+/**
+ * @deprecated 2/2/19
+ */
+router.put(
+    '/:project_id',
+    authRequired,
+    (req, res, next) => { // currently the response body is not used on the front end so we don't need anything special for updating it
+        const project = req.body.project
+        req.body = project
+        next()
+    },
+    UpdateProjectControllers.UpdateProjectController
+)
 
-    if (!project) {
-        return res.status(400).send()
-    }
+/**
+ * @deprecated 2/2/19
+ */
+router.post(
+    '/:project_id/comments',
+    authRequired,
+    (req, res, next) => {
+        // pull old comment out of body
+        const comment = req.body.comment
+        // reassign comment to body to be handled by new controller
+        req.body = comment
+        req.params.update_property = 'comments'
+        // this is weird and stupid but we need to return { comment: [object] } as the body for this call and that's not how the new api works
+        req.params.wrap_comment = true
+        next()
+    },
+    // add PUT /api/v1/projects/:id/comments handler
+    UpdateProjectControllers.UpdatePropertyController
+)
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).send()
-    }
+/**
+ * @deprecated 2/2/19
+ */
+router.put(
+    '/:project_id/comments/:comment_id',
+    authRequired,
+    (req, res, next) => {
+        // pull old comment out of body
+        const comment = req.body.comment
+        // reassign comment to body to be handled by new controller
+        req.body = comment
+        req.params.update_property = 'comments'
+        req.params.wrap_comment = true
+        next()
+    },
+    // add PUT /api/v1/projects/:id/comments handler
+    UpdateProjectControllers.UpdatePropertyController
+)
 
-    let update = _.pick(project, ['comments', 'answers', 'students_ids', 'temp_ids', 'heat_vision', 'tags', 'report_evals'])
+/**
+ * @deprecated 2/2/19
+ */
+router.post(
+    '/:project_id/answers',
+    authRequired,
+    (req, res, next) => {
+        // pull old comment out of body
+        const comment = req.body.comment
+        // reassign comment to body to be handled by new controller
+        req.body = comment
+        req.params.update_property = 'answers'
+        // this is weird and stupid but we need to return { comment: [object] } as the body for this call and that's not how the new api works
+        req.params.wrap_comment = true
+        next()
+    },
+    // add PUT /api/v1/projects/:id/answers handler
+    UpdateProjectControllers.UpdatePropertyController
+)
 
-    Project.findOneAndUpdate({ _id: id, teacher_id: user._id }, update, {
-        new: true, runValidators: true, setDefaultsOnInsert: true
-    })
-        .then((project) => {
-            // send 404 if the project doesn't exist
-            if (!project) {
-                return res.status(404).send()
-            } else {
-                res.status(200).send({ updated: update })
-            }
-        })
-        .catch((err) => {
-            next(err)
-        })
-})
+/**
+ * @deprecated 2/2/19
+ */
+router.put(
+    '/:project_id/answers/:comment_id',
+    authRequired,
+    (req, res, next) => {
+        // pull old comment out of body
+        const comment = req.body.comment
+        // reassign comment to body to be handled by new controller
+        req.body = comment
+        req.params.update_property = 'answers'
+        req.params.wrap_comment = true
+        next()
+    },
+    // add PUT /api/v1/projects/:id/answers handler
+    UpdateProjectControllers.UpdatePropertyController
+)
 
-router.put("/:id/user_id", authRequired, function (req, res, next) {
-    let user = req.user
-    let id = req.params.id
-
-    if (!mongoose.Types.ObjectId.isValid(id)) { return res.status(400).send() }
-
-    if (user.type === "temp") {
-        update = { $addToSet: { temp_ids: user._id } }
-    } else {
-        update = { $addToSet: { students_ids: user._id } }
-    }
-
-    Project.findOneAndUpdate(
-        {
-            _id: id,
-            teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
-        },
-        update,
-        { new: true }
-    )
-        .then((update) => {
-            // log to pipo!
-            pipolog({
-                user_id: user._id,
-                teacher: user._id.equals(update.teacher_id),
-                hero: !!user.hero_status,
-                event_name: 'reading_joined'
-            })
-                .catch((err) => {
-                    console.error('error from pipo :(', err)
-                })
-
-            if (update) { return res.status(200).send() }
-            else { return res.status(304).send() }
-        })
-        .catch((err) => {
-            next(err)
-        })
-})
+/**
+ * @deprecated 2/2/19
+ */
+router.put(
+    '/:project_id/user_id',
+    authRequired,
+    (req, res, next) => {
+        req.params.update_property = 'students'
+        next()
+    },
+    UpdateProjectControllers.UpdatePropertyController
+)
 
 // get projects for a single reading id
 router.get("/reading/:reading_id", authRequired, function (req, res, next) {

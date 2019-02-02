@@ -65,7 +65,14 @@ export async function UpdatePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested update of a property which could not be updated' })
     }
 
-    const updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user, update })
+    let updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user, update })
+    /**
+     * @deprecated this is temporary transition handling for old routes
+     */
+    if (req.params.wrap_comment) {
+      let returnProperty = update_property.slice(0, -1)
+      updateObj = { [returnProperty]: updateObj }
+    }
     return res.status(200).send(updateObj)
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -114,4 +121,4 @@ const UPDATE_CONTROLLERS: {
 
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
 
-const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals']
+const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals', 'label']
