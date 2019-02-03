@@ -6,7 +6,7 @@ import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
 // project imports
-import { UserAPI, ProjectAPI } from './../../../test/methods'
+import { UserAPI, ProjectAPI, ReadingAPI, TempUserAPI } from './../../../test/methods'
 import TEST = require('../../../test/constants')
 
 // helper function for validating a project
@@ -51,12 +51,15 @@ const validateProject = function (project) {
 let teacherToken: string
 let teacherObj: any
 let createdProject: any
+let createdReading: any
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (projectId: string, authToken?: string): Request {
+const request = function (projectId: string, authToken?: string, query?: string[]): Request {
+  let url = `/api/v1/projects/${projectId}`
+  if (query) url += `?${query.join('&')}`
   let req = chai.request(TEST.SERVER)
-    .get(`/api/v1/projects/${projectId}`)
+    .get(url)
 
   authToken && req.set('Authorization', authToken)
   return req
@@ -72,9 +75,15 @@ describe('GET /projects/:project_id', () => {
     expect(teacherObj._id).to.exist
   })
   before(async () => {
+    const { reading } = await ReadingAPI.create(teacherToken, {
+      public: true,
+      draft: false
+    })
+    expect(reading && reading._id).to.exist
+    createdReading = reading
     const project = await ProjectAPI.create({
       teacher_id: teacherObj._id,
-      reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
+      reading_id: reading._id,
       label: 'PUT /api/v1/projects/:project_id test project',
       group_instructions: 'dont fold',
       types: ['emoji', 'text', 'audio', 'reply']
@@ -85,8 +94,11 @@ describe('GET /projects/:project_id', () => {
     createdProject = project
   })
   after(async () => {
-    const status = await ProjectAPI.delete(createdProject._id, teacherToken) // clean it up
-    expect(status, 'test project deletion failed').to.be.equal(204)
+    const projStatus = await ProjectAPI.delete(createdProject._id, teacherToken) // clean it up
+    expect(projStatus, 'test project deletion failed').to.be.equal(204)
+    const { results } = await ReadingAPI.delete(createdReading._id, teacherToken)
+    expect(results, 'test reading deletion failed').to.have.property('deletedReadings')
+    expect(results.deletedReadings, 'test reading deletion failed').to.be.above(0)
   })
   it('should not get a 401 without auth', async () => {
     const res = await request(createdProject._id)
@@ -97,7 +109,6 @@ describe('GET /projects/:project_id', () => {
     const project = res.body.project
     project.should.be.instanceOf(Object)
   })
-
   it('should return an active project', async () => {
     const res = await request(createdProject._id, teacherToken)
     res.should.have.status(200)
@@ -107,7 +118,6 @@ describe('GET /projects/:project_id', () => {
 
     validateProject(res.body.project)
   })
-
   it("should get a project by the project code", async () => {
     const res = await request(createdProject.code, teacherToken)
     expect(res).to.have.status(200)
@@ -116,7 +126,6 @@ describe('GET /projects/:project_id', () => {
     expect(res.body).to.have.property('project')
     validateProject(res.body.project)
   })
-
   it('should add a student to the students_ids array', async () => {
     let { username, password } = TEST.LOGIN_INFO.API_STUDENT
     let { user: studentObj, token } = await UserAPI.login(username, password)
@@ -125,42 +134,57 @@ describe('GET /projects/:project_id', () => {
 
     validateProject(res.body.project)
     const project = res.body.project
-    expect(project.students_ids.length).to.be.above(0) // we've added a student now
+    expect(project.students_ids.length).to.be.equal(1) // we've added a student now
     const student = project.students_ids.find(id => id === studentObj._id)
     expect(student).to.be.equal(studentObj._id)
   })
+  it('should not add a student to the students_ids array twice', async () => {
+    let { username, password } = TEST.LOGIN_INFO.API_STUDENT
+    let { user: studentObj, token } = await UserAPI.login(username, password)
+    const res = await request(createdProject._id, token)
+    expect(res).to.have.status(200)
 
-  // it('should populate reading_id', (done) => {
-  //   chai.request(TEST.SERVER)
-  //     .get(ENDPOINT_URL + PROJECT_ID + '?pop=reading_id')
-  //     .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
-  //     .end((err, res) => {
-  //       err && done(err)
-  //       res.should.have.status(200)
+    validateProject(res.body.project)
+    const project = res.body.project
+    expect(project.students_ids.length).to.be.equal(1) // we should still only have one unique student added to the project
+    const student = project.students_ids.find(id => id === studentObj._id)
+    expect(student).to.be.equal(studentObj._id)
+  })
+  it('should add a temp user to the temp_ids array', async () => {
+    const { user, token } = await TempUserAPI.create('testTempUser')
+    const res = await request(createdProject._id, token)
+    expect(res).to.have.status(200)
 
-  //       res.body.should.have.property('project')
-  //       res.body.project.should.have.property('reading_id')
-  //       let reading = res.body.project.reading_id
+    validateProject(res.body.project)
+    const project = res.body.project
+    expect(project.temp_ids.length).to.be.equal(1) // we should still only have one unique student added to the project
+    const student = project.temp_ids.find(id => id === user._id)
+    expect(student).to.be.equal(user._id)
+  })
 
-  //       reading.should.have.property("_id")
-  //       reading.should.have.property("words")
-  //       reading.words.should.be.instanceOf(Array)
-  //       reading.words.length.should.be.above(0)
-  //       reading.should.have.property("title")
-  //       reading.should.have.property("owner_id")
-  //       reading.should.have.property("public")
-  //       reading.should.have.property("promoter_ids")
-  //       reading.should.have.property("source")
-  //       reading.should.have.property("tags")
-  //       reading.should.have.property("draft")
-  //       reading.should.have.property("version_id")
-  //       reading.should.have.property("questions")
-  //       reading.questions.should.be.instanceOf(Array)
-  //       reading.questions.length.should.be.above(0)
+  it('should populate reading_id', async () => {
+    const res = await request(createdProject._id, teacherToken, ['pop=reading_id'])
+    res.should.have.status(200)
 
-  //       done()
-  //     })
-  // })
+    res.body.should.have.property('project')
+    res.body.project.should.have.property('reading_id')
+    let reading = res.body.project.reading_id
+
+    reading.should.have.property("_id")
+    reading.should.have.property("words")
+    reading.words.should.be.instanceOf(Array)
+    reading.words.length.should.be.above(0)
+    reading.should.have.property("title")
+    reading.should.have.property("owner_id")
+    reading.should.have.property("public")
+    reading.should.have.property("promoter_ids")
+    reading.should.have.property("source")
+    reading.should.have.property("tags")
+    reading.should.have.property("draft")
+    reading.should.have.property("version_id")
+    reading.should.have.property("questions")
+    reading.questions.should.be.instanceOf(Array)
+  })
 
   // it('should populate teacher', (done) => {
   //   chai.request(TEST.SERVER)
