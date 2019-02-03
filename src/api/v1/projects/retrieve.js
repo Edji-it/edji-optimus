@@ -41,7 +41,7 @@ module.exports = async function (req, res, next) {
     delete project.reading
     let { update } = await helpers.addIdToProject(user, project)
     if (update) {
-      let updatedNum = await Project.update(
+      let updatedNum = await Project.updateOne(
         { _id: project._id },
         update
       )

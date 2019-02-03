@@ -7,7 +7,7 @@ import { Request } from 'superagent'
 
 // project imports
 import { UserAPI, ProjectAPI, ReadingAPI, TempUserAPI } from './../../../test/methods'
-import TEST = require('../../../test/constants')
+import data = require('../../../test/constants')
 
 // helper function for validating a project
 const validateProject = function (project) {
@@ -58,7 +58,7 @@ chai.use(chaiHttp)
 const request = function (projectId: string, authToken?: string, query?: string[]): Request {
   let url = `/api/v1/projects/${projectId}`
   if (query) url += `?${query.join('&')}`
-  let req = chai.request(TEST.SERVER)
+  let req = chai.request(data.SERVER)
     .get(url)
 
   authToken && req.set('Authorization', authToken)
@@ -67,7 +67,7 @@ const request = function (projectId: string, authToken?: string, query?: string[
 
 describe('GET /projects/:project_id', () => {
   before(async () => {
-    const { username, password } = TEST.LOGIN_INFO.API_TEACHER
+    const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
     teacherToken = token
     expect(teacherToken).not.to.be.undefined
@@ -132,7 +132,7 @@ describe('GET /projects/:project_id', () => {
     res.body.should.have.property("project")
   })
   it('should add a student to the students_ids array', async () => {
-    let { username, password } = TEST.LOGIN_INFO.API_STUDENT
+    let { username, password } = data.LOGIN_INFO.API_STUDENT
     let { user: studentObj, token } = await UserAPI.login(username, password)
     const res = await request(createdProject._id, token)
     expect(res).to.have.status(200)
@@ -144,7 +144,7 @@ describe('GET /projects/:project_id', () => {
     expect(student).to.be.equal(studentObj._id)
   })
   it('should not add a student to the students_ids array twice', async () => {
-    let { username, password } = TEST.LOGIN_INFO.API_STUDENT
+    let { username, password } = data.LOGIN_INFO.API_STUDENT
     let { user: studentObj, token } = await UserAPI.login(username, password)
     const res = await request(createdProject._id, token)
     expect(res).to.have.status(200)

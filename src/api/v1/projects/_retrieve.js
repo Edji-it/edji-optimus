@@ -88,30 +88,18 @@ const addIdToProject = async function (user, project) {
     return { project }
   }
 
-  let id = user._id
   let update
-  // add temp users to the temp_ids array
-  if (user.type && user.type === 'temp') {
-    if (!project.temp_ids.includes(id)) {
-      update = {
-        $push: {
-          temp_ids: id
-        }
-      }
-      project.temp_ids.push(user._id)
-    }
-    // add logged in users to the students_ids array
-  } else if (!project.students_ids.includes(id)) {
+  const arrayToSearch = user.type === 'temp' ? 'temp_ids' : 'students_ids'
+  const foundId = project[arrayToSearch].some(id => user._id.equals(id))
+  if (!foundId) {
+    project[arrayToSearch].push(user._id) // update the object we have locally
+    // return an update
     update = {
       $push: {
-        students_ids: id
+        [arrayToSearch]: user._id
       }
     }
-    project.students_ids.push(user._id)
-  } else {
-    return { project }
   }
-
   return { project, update }
 }
 
