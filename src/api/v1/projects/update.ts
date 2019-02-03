@@ -60,6 +60,10 @@ export async function UpdatePropertyController(req: Request, res: Response, next
     const { user } = req
     const update: any = req.body
 
+    if (!update) {
+      return res.status(400).send({ error: 'no updatable fields found on request body' })
+    }
+
     if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project or property id passed' })
     }

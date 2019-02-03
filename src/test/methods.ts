@@ -114,7 +114,8 @@ export class ProjectAPI {
     project: {
       teacher_id: string,
       reading_id: string,
-      label: string
+      label: string,
+      [key: string]: any
     },
     authToken: string
   ): Promise<any> {
