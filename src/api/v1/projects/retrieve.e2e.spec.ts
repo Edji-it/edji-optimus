@@ -126,6 +126,11 @@ describe('GET /projects/:project_id', () => {
     expect(res.body).to.have.property('project')
     validateProject(res.body.project)
   })
+  it("should get a project even if the project code is capitalized", async () => {
+    const res = await request(createdProject.code.toUpperCase(), teacherToken)
+    res.should.have.status(200)
+    res.body.should.have.property("project")
+  })
   it('should add a student to the students_ids array', async () => {
     let { username, password } = TEST.LOGIN_INFO.API_STUDENT
     let { user: studentObj, token } = await UserAPI.login(username, password)
@@ -161,7 +166,6 @@ describe('GET /projects/:project_id', () => {
     const student = project.temp_ids.find(id => id === user._id)
     expect(student).to.be.equal(user._id)
   })
-
   it('should populate reading_id', async () => {
     const res = await request(createdProject._id, teacherToken, ['pop=reading_id'])
     res.should.have.status(200)
@@ -185,81 +189,42 @@ describe('GET /projects/:project_id', () => {
     reading.should.have.property("questions")
     reading.questions.should.be.instanceOf(Array)
   })
+  it('should populate teacher', async () => {
+    const res = await request(createdProject._id, teacherToken, ['pop=teacher'])
+    res.should.have.status(200)
 
-  // it('should populate teacher', (done) => {
-  //   chai.request(TEST.SERVER)
-  //     .get(ENDPOINT_URL + PROJECT_ID + '?pop=teacher')
-  //     .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
-  //     .end((err, res) => {
-  //       err && done(err)
-  //       res.should.have.status(200)
+    res.body.should.have.property('project')
+    res.body.project.should.have.property('teacher')
+    let teacher = res.body.project.teacher
 
-  //       res.body.should.have.property('project')
-  //       res.body.project.should.have.property('teacher')
-  //       let teacher = res.body.project.teacher
+    // test teacher further
+    teacher.should.have.property("_id")
+    teacher.should.have.property("fullname")
+    teacher.should.have.property("username")
 
-  //       // test teacher further
-  //       teacher.should.have.property("_id")
-  //       teacher.should.have.property("fullname")
-  //       teacher.should.have.property("username")
+    // properties the project object should not have
+    res.body.project.should.not.have.property("teacherRef")
+    teacher.should.not.have.property("password")
+  })
+  it('should populate both teacher and reading_id', async () => {
+    const res = await request(createdProject._id, teacherToken, ['pop=reading_id', 'pop=teacher'])
+    res.should.have.status(200)
 
-  //       // properties the project object should not have
-  //       res.body.project.should.not.have.property("teacherRef")
-  //       teacher.should.not.have.property("password")
-  //       done()
-  //     })
-  // })
+    res.body.should.have.property('project')
+    res.body.project.should.have.property('reading_id')
+    res.body.project.reading_id.should.be.instanceOf(Object)
+    res.body.project.should.have.property('teacher')
+    res.body.project.teacher.should.be.instanceOf(Object)
+  })
+  it('should get a 404 for a project that does not exist', async () => {
+    const res = await request(teacherObj._id, teacherToken)
+    res.should.not.have.status(200)
+    res.should.have.status(404)
+  })
 
-  // it('should populate both teacher and reading_id', (done) => {
-  //   chai.request(TEST.SERVER)
-  //     .get(ENDPOINT_URL + PROJECT_ID + '?pop=reading_id&pop=teacher')
-  //     .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
-  //     .end((err, res) => {
-  //       err && done(err)
-  //       res.should.have.status(200)
-
-  //       res.body.should.have.property('project')
-  //       res.body.project.should.have.property('reading_id')
-  //       res.body.project.reading_id.should.be.instanceOf(Object)
-  //       res.body.project.should.have.property('teacher')
-  //       res.body.project.teacher.should.be.instanceOf(Object)
-
-  //       done()
-  //     })
-  // })
-
-  // it('should get a 404 for a project that does not exist', (done) => {
-  //   chai.request(TEST.SERVER)
-  //     .get(ENDPOINT_URL + BAD_PROJECT)
-  //     .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
-  //     .end((err, res) => {
-  //       res.should.not.have.status(200)
-  //       res.should.have.status(404)
-  //       done()
-  //     })
-  // })
-
-  // it("should get a project even if the project code is capitalized", (done) => {
-  //   chai.request(TEST.SERVER)
-  //     .get(ENDPOINT_URL + PROJECT_CODE.toUpperCase())
-  //     .set("Authorization", TEST.LOGIN_TOKENS.API_TEACHER)
-  //     .end((err, res) => {
-  //       err && done(err)
-  //       res.should.have.status(200)
-  //       res.body.should.have.property("project")
-
-  //       done()
-  //     })
-  // })
-
-  // it("should return 404 when project is not found by code", (done) => {
-  //   chai.request(TEST.SERVER)
-  //     .get(ENDPOINT_URL + BAD_PROJECT_CODE)
-  //     .set("Authorization", TEST.LOGIN_TOKENS.API_TEACHER)
-  //     .end((err, res) => {
-  //       res.should.not.have.status(200)
-  //       res.should.have.status(404)
-  //       done()
-  //     })
-  // })
+  it("should return 404 when project is not found by code", async () => {
+    const res = await request(Date.now().toString(), teacherToken)
+    res.should.not.have.status(200)
+    res.should.have.status(404)
+  })
 })
