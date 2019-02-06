@@ -484,7 +484,7 @@ router.put("/following", authRequired, async function (req, res, next) {
 
     try {
         await user.edjiSave()
-        return res.status(200).send({ user: result.toPublic() })
+        return res.status(200).send({ user: user.toPublic() })
     } catch (err) {
         next(err)
     }
