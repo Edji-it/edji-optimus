@@ -20,7 +20,7 @@ router.get(
         if (req.oauth_error) {
             return res.status(400).send(req.oauth_error)
         }
-
+        
         const oauthToken = encodeURIComponent(
             req.user.oauth.find((obj) => {
                 return obj.type === 'google'
@@ -28,7 +28,8 @@ router.get(
         )
 
         // should be changed to use req.baseUrl
-        const redirect = req.protocol + ":" + process.env.CLIENT_URL + '/oauth/google?token=' + oauthToken
+        // const redirect = req.protocol + ":" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
+        const redirect = "https:" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
 
         res.redirect(redirect)
     }
