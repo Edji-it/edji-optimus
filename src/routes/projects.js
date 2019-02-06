@@ -137,9 +137,9 @@ router.post(
     authRequired,
     (req, res, next) => {
         // pull old comment out of body
-        const comment = req.body.comment
+        const answer = req.body.answer
         // reassign comment to body to be handled by new controller
-        req.body = comment
+        req.body = answer
         req.params.update_property = 'answers'
         // this is weird and stupid but we need to return { comment: [object] } as the body for this call and that's not how the new api works
         req.params.wrap_comment = true
