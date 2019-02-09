@@ -24,8 +24,8 @@ describe('reading search helpers', () => {
     it('should set proper defaults', () => {
       const { error, value: query } = validateSearchQuery({})
       expect(error).to.not.exist
-      expect(query).to.have.property('start')
-      expect(query.start).to.be.equal(0)
+      expect(query).to.have.property('from')
+      expect(query.from).to.be.equal(0)
       expect(query).to.have.property('size')
       expect(query.size).to.be.equal(15)
     })

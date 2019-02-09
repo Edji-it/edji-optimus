@@ -20,7 +20,7 @@ export interface ReadingQuery {
   subjects?: string[]
   version_id?: string
   owner_bookmarked?: boolean
-  start?: number
+  from?: number
   size?: number
 }
 
@@ -37,7 +37,7 @@ const querySchema = joi.object().keys({
   subjects: joi.array().items(joi.string()),
   version_id: joi.string(),
   owner_bookmarked: joi.boolean(),
-  start: joi.number().min(0).max(1000).default(0),
+  from: joi.number().min(0).max(1000).default(0),
   size: joi.number().min(0).max(50).default(15)
 })
 
@@ -117,6 +117,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
       public: true
     }
   })
+  console.log('from', query.from)
 
   return elastic.search({
     index: 'readings',
@@ -126,8 +127,9 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
         bool: {
           must
         }
-      },
-      size: query.size
-    }
+      }
+    },
+    from: query.from,
+    size: query.size
   })
 }
