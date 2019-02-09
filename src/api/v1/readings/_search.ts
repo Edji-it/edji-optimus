@@ -13,7 +13,7 @@ export interface ReadingQuery {
   title?: string
   parent_id?: string
   owner_id?: string
-  public?: boolean
+  // public?: boolean
   source?: string
   grade_levels_lte?: number
   grade_levels_gte?: number
@@ -30,7 +30,7 @@ const querySchema = joi.object().keys({
   title: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
-  public: joi.boolean(),
+  // public: joi.boolean(),
   source: joi.string(),
   grade_levels_lte: joi.number(),
   grade_levels_gte: joi.number(),
@@ -41,11 +41,17 @@ const querySchema = joi.object().keys({
   size: joi.number().min(0).max(50).default(15)
 })
 
-const schemaKeys: string[] = Object.keys(querySchema.describe().children)
-
-const queryOptions: any = {
-
-}
+const queriableFields = [
+  'html',
+  'title',
+  'parent_id',
+  'owner_id',
+  // 'public',
+  'source',
+  'subjects',
+  'version_id',
+  'owner_bookmarked'
+]
 
 /**
  * ensures that the search endpoint can handle any parameters it is passed
@@ -72,19 +78,56 @@ export function searchByIds(ids: string[]): Promise<any> {
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
-  let body = {
-    query: {
-      bool: {
-        must: []
+  let must: any[] = []
+
+  // add conditions for all fields where we can directly set the value
+  for (let field of queriableFields) {
+    let val = query[field]
+    if (val) {
+      if (val instanceof Array) {
+        must.push({
+          match: {
+            [field]: val.join(' ')
+          }
+        })
+      } else {
+        must.push({
+          match: {
+            [field]: val
+          }
+        })
       }
     }
   }
 
-  query.html && body.query.bool.must.push({ match: { html: query.html } })
+  // handle pulling apart grade_levels here so that the search query url matches the front end
+  if (query.grade_levels_lte || query.grade_levels_gte) {
+    const { grade_levels_lte: lte, grade_levels_gte: gte } = query
+    let grade_levels: { lte?: number, gte?: number } = {}
+    lte && (grade_levels.lte = lte)
+    gte && (grade_levels.gte = gte)
+
+    must.push({
+      range: { grade_levels }
+    })
+  }
+
+  // for now, only allow public readings to be searched
+  must.push({
+    match: {
+      public: true
+    }
+  })
 
   return elastic.search({
     index: 'readings',
     type: 'default',
-    body
+    body: {
+      query: {
+        bool: {
+          must
+        }
+      }
+    }
   })
 }

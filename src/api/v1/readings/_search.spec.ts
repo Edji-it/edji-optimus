@@ -1,11 +1,25 @@
 // library imports
 import 'mocha'
 import { expect } from 'chai'
+import { assert, stub, SinonStub } from 'sinon'
 
 // project imports
-import { validateSearchQuery, ReadingQuery } from './_search'
+import { validateSearchQuery, constructSearch } from './_search'
+import elastic from './../../../elasticsearch'
 
 describe('reading search helpers', () => {
+  const queriableStringProperties = [
+    'html',
+    'title',
+    'parent_id',
+    'owner_id',
+    'source',
+    'version_id',
+  ]
+  const queriableBooleanProperties = [
+    'owner_bookmarked',
+    // 'public'
+  ]
   describe('validateSearchQuery', () => {
     it('should set proper defaults', () => {
       const { error, value: query } = validateSearchQuery({})
@@ -15,14 +29,7 @@ describe('reading search helpers', () => {
       expect(query).to.have.property('size')
       expect(query.size).to.be.equal(15)
     })
-    const queriableStringProperties = [
-      'html',
-      'title',
-      'parent_id',
-      'owner_id',
-      'source',
-      'version_id',
-    ].forEach((prop) => {
+    queriableStringProperties.forEach((prop) => {
       it(`should allow a query for ${prop}`, () => {
         const requestQuery = { [prop]: 'someString' }
         const { error, value: query } = validateSearchQuery(requestQuery)
@@ -31,10 +38,7 @@ describe('reading search helpers', () => {
         expect(query[prop]).to.be.equal(requestQuery[prop])
       })
     })
-    const queriableBooleanProperties = [
-      'owner_bookmarked',
-      'public'
-    ].forEach((prop) => {
+    queriableBooleanProperties.forEach((prop) => {
       it(`should allow a query for ${prop}`, () => {
         // assign it as a string here and test it against a boolean later to ensure it converts properly
         const requestQuery = { [prop]: 'false' }
@@ -67,6 +71,59 @@ describe('reading search helpers', () => {
       const requestQuery: any = { q: 'somestring' } // type as any because typescript won't let us do it otherwise
       const { error, value: query } = validateSearchQuery(requestQuery)
       expect(error).to.exist
+    })
+  })
+  describe('constructSearch', () => {
+    let elasticStub: SinonStub
+    beforeEach(() => {
+      elasticStub = stub(elastic, 'search')
+    })
+    afterEach(() => {
+      elasticStub.restore()
+    })
+    it('should call search with correct default parameters', async () => {
+      await constructSearch({})
+      assert.calledOnce(elasticStub)
+      let { index, type, body } = elasticStub.firstCall.args[0]
+      expect(index).to.be.equal('readings')
+      expect(type).to.be.equal('default')
+      expect(body).to.be.instanceOf(Object)
+      expect(body).to.have.property('query')
+      expect(body.query).to.have.property('bool')
+      expect(body.query.bool).to.have.property('must')
+      expect(body.query.bool.must).to.be.instanceOf(Array)
+      expect(body.query.bool.must).to.be.lengthOf(1)
+      let publicCondition = body.query.bool.must[0]
+      expect(publicCondition).to.have.property('match')
+      expect(publicCondition.match).to.have.property('public')
+      expect(publicCondition.match.public).to.be.true
+    })
+    for (let i = 0; i < queriableStringProperties.length; i++) {
+      let field = queriableStringProperties[i]
+      it(`should construct a query for ${field}`, async () => {
+        const testValue = 'edji is the greatest tool'
+        await constructSearch({ [field]: testValue })
+        assert.calledOnce(elasticStub)
+        const fieldRequirement = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match[field])
+        expect(fieldRequirement, `did not find requirement in must query for ${field}`).to.exist
+        expect(fieldRequirement).to.have.property('match')
+        expect(fieldRequirement.match[field]).to.be.equal(testValue)
+      })
+    }
+    it('should construct a query for multiple subjects', async () => {
+      const query = { subjects: ['reading', 'math', 'science'] }
+      await constructSearch(query)
+      const subjectsQuery = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.subjects)
+      expect(subjectsQuery).to.exist
+      expect(subjectsQuery.match.subjects).to.be.equal(query.subjects.join(' '))
+    })
+    it('should construct a query for grade_levels', async () => {
+      const query = { grade_levels_gte: 4, grade_levels_lte: 8 }
+      await constructSearch(query)
+      const condition = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.range && !!req.range.grade_levels)
+      const { lte, gte } = condition.range.grade_levels
+      expect(lte).to.be.equal(query.grade_levels_lte)
+      expect(gte).to.be.equal(query.grade_levels_gte)
     })
   })
 })
