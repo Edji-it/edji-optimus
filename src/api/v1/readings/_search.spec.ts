@@ -104,7 +104,19 @@ describe('reading search helpers', () => {
         const testValue = 'edji is the greatest tool'
         await constructSearch({ [field]: testValue })
         assert.calledOnce(elasticStub)
-        const fieldRequirement = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match[field])
+        const fieldRequirement = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.hasOwnProperty(field))
+        expect(fieldRequirement, `did not find requirement in must query for ${field}`).to.exist
+        expect(fieldRequirement).to.have.property('match')
+        expect(fieldRequirement.match[field]).to.be.equal(testValue)
+      })
+    }
+    for (let i = 0; i < queriableBooleanProperties.length; i++) {
+      let field = queriableBooleanProperties[i]
+      it(`should construct a query for ${field}`, async () => {
+        const testValue = false
+        await constructSearch({ [field]: testValue })
+        assert.calledOnce(elasticStub)
+        const fieldRequirement = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.hasOwnProperty(field))
         expect(fieldRequirement, `did not find requirement in must query for ${field}`).to.exist
         expect(fieldRequirement).to.have.property('match')
         expect(fieldRequirement.match[field]).to.be.equal(testValue)

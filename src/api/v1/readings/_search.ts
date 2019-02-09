@@ -69,7 +69,6 @@ export function validateSearchQuery(query: ReadingQuery): ValidationResult<Readi
  * @param ids list of ids that you want returned from the database
  */
 export function searchByIds(ids: string[]): Promise<any> {
-  console.log(ids.map(id => new ObjectId(id)))
   return Reading.find({
     _id: {
       $in: ids.map(id => new ObjectId(id)) // make array of string objectids into objectids
@@ -82,8 +81,8 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
 
   // add conditions for all fields where we can directly set the value
   for (let field of queriableFields) {
-    let val = query[field]
-    if (val) {
+    if (query.hasOwnProperty(field)) {
+      let val = query[field]
       if (val instanceof Array) {
         must.push({
           match: {
