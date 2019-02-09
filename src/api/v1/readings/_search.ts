@@ -126,7 +126,8 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
         bool: {
           must
         }
-      }
+      },
+      size: query.size
     }
   })
 }
