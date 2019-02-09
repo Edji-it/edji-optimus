@@ -15,6 +15,7 @@ describe('reading search helpers', () => {
     'owner_id',
     'source',
     'version_id',
+    'subjects'
   ]
   const queriableBooleanProperties = [
     'owner_bookmarked',
@@ -56,11 +57,6 @@ describe('reading search helpers', () => {
       expect(query).to.have.property('grade_levels_lte')
       expect(query.grade_levels_gte).to.be.equal(requestQuery.grade_levels_gte)
       expect(query.grade_levels_lte).to.be.equal(requestQuery.grade_levels_lte)
-    })
-    it('should accept an array of subjects', () => {
-      const requestQuery = { subjects: ['math', 'science', 'english'] }
-      const { error, value: query } = validateSearchQuery(requestQuery)
-      expect(error).to.not.exist
     })
     it('should accept a single subject', () => {
       const requestQuery: any = { subjects: 'math' } // type as any because typescript won't let us do it otherwise
@@ -123,11 +119,11 @@ describe('reading search helpers', () => {
       })
     }
     it('should construct a query for multiple subjects', async () => {
-      const query = { subjects: ['reading', 'math', 'science'] }
+      const query = { subjects: 'reading math science' }
       await constructSearch(query)
       const subjectsQuery = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.subjects)
       expect(subjectsQuery).to.exist
-      expect(subjectsQuery.match.subjects).to.be.equal(query.subjects.join(' '))
+      expect(subjectsQuery.match.subjects).to.be.equal(query.subjects)
     })
     it('should construct a query for grade_levels', async () => {
       const query = { grade_levels_gte: 4, grade_levels_lte: 8 }

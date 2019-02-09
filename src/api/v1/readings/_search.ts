@@ -17,7 +17,7 @@ export interface ReadingQuery {
   source?: string
   grade_levels_lte?: number
   grade_levels_gte?: number
-  subjects?: string[]
+  subjects?: string
   version_id?: string
   owner_bookmarked?: boolean
   from?: number
@@ -34,7 +34,7 @@ const querySchema = joi.object().keys({
   source: joi.string(),
   grade_levels_lte: joi.number(),
   grade_levels_gte: joi.number(),
-  subjects: joi.array().items(joi.string()),
+  subjects: joi.string(),
   version_id: joi.string(),
   owner_bookmarked: joi.boolean(),
   from: joi.number().min(0).max(1000).default(0),
@@ -53,14 +53,21 @@ const queriableFields = [
   'owner_bookmarked'
 ]
 
+const arrayFieldsToConverToStrings = [
+  'owner_id',
+  'subjects'
+]
+
 /**
  * ensures that the search endpoint can handle any parameters it is passed
  * @param query query object expected to match the search endpoint's interface
  */
 export function validateSearchQuery(query: ReadingQuery): ValidationResult<ReadingQuery> {
-  if (query.subjects && !(query.subjects instanceof Array)) {
-    query.subjects = [query.subjects]
-  }
+  arrayFieldsToConverToStrings.forEach((field) => {
+    if (query[field] && query[field] instanceof Array) {
+      query[field] = query[field].join(' ')
+    }
+  })
   return joi.validate(query, querySchema)
 }
 
@@ -69,11 +76,47 @@ export function validateSearchQuery(query: ReadingQuery): ValidationResult<Readi
  * @param ids list of ids that you want returned from the database
  */
 export function searchByIds(ids: string[]): Promise<any> {
-  return Reading.find({
-    _id: {
-      $in: ids.map(id => new ObjectId(id)) // make array of string objectids into objectids
+  return Reading.aggregate([
+    {
+      $match: {
+        _id: {
+          $in: ids.map(id => new ObjectId(id)) // make array of string objectids into objectids
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'owner_id',
+        foreignField: '_id',
+        as: 'owner'
+      }
+    },
+    { $unwind: '$owner' }, // owner comes back as an array, but there will only ever be one
+    {
+      $project: {
+        'title': true,
+        'owner_id': true,
+        'public': true,
+        'owner._id': true,
+        'owner.fullname': true,
+        'owner.username': true,
+        'owner.avatar': true,
+        'owner.identities': true,
+        'promoter_ids': true,
+        'source': true,
+        'subjects': true,
+        'grade_levels': true,
+        'cover_img': true,
+        'tags': true,
+        'draft': true,
+        'version_id': true,
+        'createdAt': true,
+        'updatedAt': true,
+        'words_preview': { $slice: ['$words', 200] }
+      }
     }
-  })
+  ])
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
@@ -83,19 +126,19 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   for (let field of queriableFields) {
     if (query.hasOwnProperty(field)) {
       let val = query[field]
-      if (val instanceof Array) {
-        must.push({
-          match: {
-            [field]: val.join(' ')
-          }
-        })
-      } else {
-        must.push({
-          match: {
-            [field]: val
-          }
-        })
-      }
+      // if (val instanceof Array) {
+      //   must.push({
+      //     match: {
+      //       [field]: val.join(' ')
+      //     }
+      //   })
+      // } else {
+      must.push({
+        match: {
+          [field]: val
+        }
+      })
+      // }
     }
   }
 
@@ -117,7 +160,6 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
       public: true
     }
   })
-  console.log('from', query.from)
 
   return elastic.search({
     index: 'readings',

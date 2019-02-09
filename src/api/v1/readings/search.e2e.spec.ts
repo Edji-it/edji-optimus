@@ -1,10 +1,9 @@
 import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiHttp = require('chai-http')
-import { ObjectId } from 'mongodb'
 
 import data = require('../../../test/constants')
-import { UserAPI, ReadingAPI } from './../../../test/methods'
+import { UserAPI } from './../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
@@ -21,6 +20,7 @@ let token
 let user
 
 describe('GET /api/v1/readings/_search', () => {
+  let savedReadings
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_HERO
     let userRes = await UserAPI.login(username, password)
@@ -36,6 +36,7 @@ describe('GET /api/v1/readings/_search', () => {
     expect(res.body).to.have.property('results')
     expect(res.body.results).to.be.instanceOf(Array)
     expect(res.body.results).to.be.lengthOf(15)
+    savedReadings = res.body.results
   })
   it('should change the size of the request based on the query', async () => {
     const res = await searchRequest(['size=15'], token)
