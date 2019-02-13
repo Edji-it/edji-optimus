@@ -1,9 +1,11 @@
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
-const Q = require('q')
+const OAuth2Strategy = require('passport-oauth2')
 const bcrypt = require('bcryptjs')
+const rp = require('request-promise-native')
 
 const GOOGLE_CALLBACK_URL = process.env.OPTIMUS_URL + "/auth/google/callback"
+const CLEVER_CALLBACK_URL = `${process.env.OPTIMUS_URL}/auth/clever/callback`
 
 let User = require("./models/User")
 
@@ -26,9 +28,46 @@ function extractProfile(profile) {
     }
 }
 
+passport.use('clever', new OAuth2Strategy({
+    authorizationURL: 'https://clever.com/oauth/authorize',
+    tokenURL: 'https://clever.com/oauth/tokens',
+    clientID: process.env.OAUTH2_CLEVER_CLIENT_ID,
+    clientSecret: process.env.OAUTH2_CLEVER_CLIENT_SECRET,
+    callbackURL: CLEVER_CALLBACK_URL,
+    customHeaders: {
+        'Authorization': 'Basic ' + new Buffer(process.env.OAUTH2_CLEVER_CLIENT_ID + ':' + process.env.OAUTH2_CLEVER_CLIENT_SECRET).toString('base64')
+    }
+}, async (accessToken, refreshToken, alwaysEmpty, done) => {
+    console.log('got to the passport handler')
+    // console.log('profile:', profile)
+    const rpOptions = {
+        auth: {
+            bearer: accessToken
+        },
+        json: true
+    }
+
+    try {
+        let { type, data } = await rp.get({
+            url: 'https://api.clever.com/v2.0/me',
+            ...rpOptions
+        })
+        // console.log('res', res)
+        let { data: teacher } = await rp.get({
+            url: 'https://api.clever.com/v2.0/teachers/' + data.id,
+            ...rpOptions
+        })
+        console.log('teacher', teacher)
+    } catch (err) {
+        done(err)
+    }
+
+    return done(null, { user: 'we can make a user!!' })
+}))
+
 // Configure the Google strategy for use by Passport.js.
 //
-// OAuth 2-based strategies require a `verify` function which receives the
+// OAuth2-based strategies require a `verify` function which receives the
 // credential (`accessToken`) for accessing the Google API on the user's behalf,
 // along with the user's profile. The function must invoke `done` with a user
 // object, which will be set at `req.user` in route handlers after
