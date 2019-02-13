@@ -8,9 +8,6 @@ import { UserAPI, ReadingAPI } from './../../../test/methods'
 // prep for http calls
 chai.use(chaiHttp)
 
-let authToken: string
-let ownerId: string
-
 const request = function (reading: any, authToken: string) {
   let req = chai.request(data.SERVER)
     .post(`/api/v1/readings/`)
@@ -20,11 +17,13 @@ const request = function (reading: any, authToken: string) {
   return req
 }
 
+let authToken: string
+let ownerId: string
+
 describe('POST /api/v1/readings', () => {
   let createdReadingId: string
   before(async () => {
-    const createReadingUsername = data.LOGIN_INFO.API_TEACHER.username
-    const createReadingPassword = data.LOGIN_INFO.API_TEACHER.password
+    const { username: createReadingUsername, password: createReadingPassword } = data.LOGIN_INFO.API_TEACHER
     let userRes = await UserAPI.login(createReadingUsername, createReadingPassword)
     authToken = userRes.token
     ownerId = userRes.user._id
