@@ -9,7 +9,7 @@ export async function ResetPropertyHandler(req: Request, res: Response, next: Ne
   try {
     user[`reset_${reset_property}`] = null
     user[reset_property] = resetValue
-    await user.edjiSave(false)
+    await user.edjiSave()
     return res.status(204).send()
   } catch (err) {
     return next(err)

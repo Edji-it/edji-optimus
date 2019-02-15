@@ -11,7 +11,7 @@ export async function RetrieveRequestHandler(req: Request, res: Response, next: 
     if (!user.referral_code) {
       let referral: any = await createUniqueReferral()
       user.referral_code = referral.code
-      await user.edjiSave(false)
+      await user.edjiSave()
       return res.status(200).send(referral)
     } else {
       let referral = await Referral.findOne({ code: user.referral_code })

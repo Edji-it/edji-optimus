@@ -8,7 +8,7 @@ const mongoose = require('mongoose')
 const helpers = require('./_retrieve')
 const MessageList = require('./../../../../models/MessageList')
 
-describe('_retrieve', () => {
+describe('_retrieve messages', () => {
   // it does not make sense to have this method attached directly to the _retrieve route, but I don't know how to test it otherwise
   //  once I figure that out, it should be moved.
   describe('createMessageList', () => {
@@ -22,7 +22,7 @@ describe('_retrieve', () => {
 
     it('should save a MessageList with forceSave', (done) => {
       let list = { _id: mongoose.Types.ObjectId() }
-      messageStub.yields(false, list)
+      messageStub.resolves(list)
 
       helpers.createMessageList(list)
         .then((result) => {
@@ -74,7 +74,7 @@ describe('_retrieve', () => {
 
     it('should update a user', (done) => {
 
-      userStub.yields(false, user) // set stub to return user
+      userStub.resolves(user) // set stub to return user
 
       helpers.addListToUser(list, user)
         .then((result) => {

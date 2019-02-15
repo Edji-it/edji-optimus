@@ -17,7 +17,7 @@ export async function createUniqueReferral(): Promise<any> {
     })
     let referral = await Referral.findOne({ code: possibleCode })
     if (!referral) {
-      let newReferral = await new Referral({ code: possibleCode }).edjiSave(false)
+      let newReferral = await new Referral({ code: possibleCode }).edjiSave()
       return newReferral
     }
   }

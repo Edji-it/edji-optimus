@@ -36,7 +36,7 @@ module.exports = function (req, res, next) {
 
         user.last_refresh_time = Date.now()
 
-        return user.edjiSave(false)
+        return user.edjiSave()
           .then((result) => {
             return res.status(200).send({ messages: messageList.messages })
           })

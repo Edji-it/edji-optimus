@@ -1,5 +1,5 @@
 // library imports
-import * as rp from 'request-promise'
+import * as rp from 'request-promise-native'
 
 export class EmailService {
 

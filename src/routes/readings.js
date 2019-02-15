@@ -99,7 +99,7 @@ let updateUserReferral = function (user) {
 
     // update and save the user to record that they've made their first reading
     user.prefs.onboarding.firstReadingCreated = { firstDone: Date.now() }
-    user.edjiSave(false)
+    user.edjiSave()
         .then(() => {
             // update the corresponding referral so that the referring user gets credit
             Referral.findOneAndUpdate(
@@ -153,7 +153,7 @@ router.put("/:reading_id", authRequired, function (req, res, next) {
             if (!user._id.equals(result.owner_id)) { return res.status(401).send() }
 
             Object.assign(result, reading_upd)
-            result.edjiSave(false)
+            result.edjiSave()
                 .then((result) => {
                     return res.status(200).send({ reading: result })
                 })

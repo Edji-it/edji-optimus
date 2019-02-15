@@ -75,7 +75,7 @@ module.exports = function (req, res, next) {
       }
 
       // save the license and return it for the next step
-      return license.edjiSave(false)
+      return license.edjiSave()
     })
     .then((updatedLicense) => {
       // if license is null (meaning it did not get updated in the collection)

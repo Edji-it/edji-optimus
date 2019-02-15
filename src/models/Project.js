@@ -16,8 +16,8 @@ var typesEnum = {
 }
 
 var Model = ModelCreator("Project", {
-    reading_id: { type: mongoose.Schema.ObjectId, ref: "Reading" },
     teacher_id: { type: mongoose.Schema.ObjectId, required: true, ref: "User" },
+    reading_id: { type: mongoose.Schema.ObjectId, required: true, ref: "Reading" },
     comments: [Comment.schema],
     answers: [Comment.schema],
     students_ids: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
@@ -26,7 +26,7 @@ var Model = ModelCreator("Project", {
     code: { type: String, unique: true },
     types: [{ type: String, enum: typesEnum, default: "emoji" }],
     tags: [Tags.schema],
-    heat_vision: Boolean,
+    heat_vision: { type: Boolean, default: false },
     report_evals: [{
         user_id: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
         evaluation: { type: String, required: true },
@@ -35,28 +35,14 @@ var Model = ModelCreator("Project", {
     group_instructions: String
 }, (schema) => {
     // grab a session code and add it to the project before saving
-    schema.pre("edjiSave", function (next) {
-        if (this.code) { next() }
-        else {
-            SessionCode.findOne({ active: false })
-                .then((result) => {
-                    this.code = result.code
-                    result.active = true
-                    result.edjiSave(false, (err, result) => {
-                        if (!err) {
-                            next()
-                        } else {
-                            console.error(err)
-                            next(err)
-                        }
-                    })
-                })
-                .catch((err) => {
-                    console.error(err)
-                    next(err)
-                })
-        }
-    })
+    schema.methods.preEdjiSave = async function () {
+        if (this.code) return
+        let result = await SessionCode.findOne({ active: false })
+        this.code = result.code
+        result.active = true
+        result.edjiSave()
+        return
+    }
 
     // add population of user object
     schema.virtual('teacher', {
