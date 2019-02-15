@@ -1,12 +1,17 @@
+// library imports
 import * as chai from 'chai'
+import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
+// project imports
 import data = require('../../../test/constants')
+import { UserAPI } from './../../../test/methods'
+import { User } from '@sentry/node'
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (institution_id: string, authToken?: string): Request {
+const request = function (institution_id: string, authToken: string): Request {
   let url = `/api/v1/institutions/${institution_id}/outcomes`
   let req = chai.request(data.SERVER)
     .get(url)
@@ -14,15 +19,24 @@ const request = function (institution_id: string, authToken?: string): Request {
   return req
 }
 
+let user: User
+let token: string
+let institution_id: string
+
 describe('GET api/v1/institutions/:institution_id/outcomes', () => {
+  before(async () => {
   // data used in tests
-  const validUserToken: string = data.LOGIN_TOKENS.API_HERO2
-  // the following institution_id has outcomes tied to it, do not modify without first verifying
-  // the institution you change it with has outcomes in the correct format as the model schema denotes
-  const institution_id: string = '5b8c2249120385ed34084b99'
+    const { username, password } = data.LOGIN_INFO.API_HERO2
+    let userRes = await UserAPI.login(username, password)
+    token = userRes.token
+    user = userRes.user
+    institution_id = user.institution_ids[0]
+    expect(token).to.exist
+    expect(user).to.exist
+  })
   
   it('should return a 200 with an array of outcomes if passed an active institution that has outcomes', async () => {
-    let res = await request(institution_id, validUserToken)
+    let res = await request(institution_id, token)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('outcomes')
 
@@ -47,7 +61,7 @@ describe('GET api/v1/institutions/:institution_id/outcomes', () => {
   })
 
   it('should return a 200 with an empty array an active institution that has no outcomes', async () => {
-    let res = await request('5b8897e472aaa60cb2d8ffeb', validUserToken)
+    let res = await request('5b8897e472aaa60cb2d8ffeb', token)
     res.should.have.status(200)
     res.body.should.haveOwnProperty('outcomes')
     let outcomes = res.body.outcomes
@@ -56,7 +70,7 @@ describe('GET api/v1/institutions/:institution_id/outcomes', () => {
   })
 
   it('should return a 404 if passed an incorrect institution_id', async () => {
-    let res = await request('5b8c2249120385ed34084b9', validUserToken)
+    let res = await request('5b8c2249120385ed34084b9', token)
     res.should.have.status(404)
   })
 
