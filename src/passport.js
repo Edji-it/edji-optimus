@@ -9,7 +9,7 @@ const CLEVER_CALLBACK_URL = `${process.env.OPTIMUS_URL}/auth/clever/callback`
 
 let User = require("./models/User")
 
-function extractProfile(profile) {
+function extractGoogleProfile(profile) {
     let imageUrl = ''
     let singleUseToken = bcrypt.hashSync(profile.id + Date.now().toString(), 4) // important to use syncronus hashing here
     if (profile.photos && profile.photos.length) {
@@ -48,16 +48,16 @@ passport.use('clever', new OAuth2Strategy({
     }
 
     try {
-        let { type, data } = await rp.get({
+        let { type, data: meData } = await rp.get({
             url: 'https://api.clever.com/v2.0/me',
             ...rpOptions
         })
         // console.log('res', res)
-        let { data: teacher } = await rp.get({
-            url: 'https://api.clever.com/v2.0/teachers/' + data.id,
+        let { data: profile } = await rp.get({
+            url: `https://api.clever.com/v2.0/${type}s/` + meData.id,
             ...rpOptions
         })
-        console.log('teacher', teacher)
+        console.log('profile', profile)
     } catch (err) {
         done(err)
     }
@@ -81,7 +81,7 @@ passport.use('google', new GoogleStrategy({
 }, async (req, accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
     // provided by Google and turn that into a User object
-    let user = User(extractProfile(profile))
+    let user = User(extractGoogleProfile(profile))
 
     // query for a user that has an oauth type and id matching the auth'd user
     const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }

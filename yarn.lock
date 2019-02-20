@@ -220,6 +220,11 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/simple-oauth2@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@types/simple-oauth2/-/simple-oauth2-2.2.1.tgz#db961cac33fd273c43b10f19b52c272dcb6530fc"
+  integrity sha512-mlSYlFKMnQPjvSuG1KZmhhcz81PBR82TJtdGRkBD3F7aJo8PgKUd26lckbAr5O6kZPU2WiqJWMCIwTzb0+lXww==
+
 "@types/sinon@^5.0.2":
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-5.0.2.tgz#7a9d64df40b26dd48d673f745addc2fdb2bda193"
@@ -489,6 +494,18 @@ boom@2.x.x:
   resolved "https://registry.yarnpkg.com/boom/-/boom-2.10.1.tgz#39c8918ceff5799f83f9492a848f625add0c766f"
   dependencies:
     hoek "2.x.x"
+
+boom@7.x.x:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/boom/-/boom-7.3.0.tgz#733a6d956d33b0b1999da3fe6c12996950d017b9"
+  integrity sha512-Swpoyi2t5+GhOEGw8rEsKvTxFLIDiiKoUc2gsoV6Lyr43LHBIzch3k2MvYUs8RTROrIkVJ3Al0TkaOGjnb+B6A==
+  dependencies:
+    hoek "6.x.x"
+
+bourne@1.x.x:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/bourne/-/bourne-1.1.2.tgz#e290b5bd7166635632eaf8ef12b006b2d4a75b83"
+  integrity sha512-b2dgVkTZhkQirNMohgC00rWfpVqEi9y5tKM1k3JvoNx05ODtfQoPPd4js9CYFQoY0IM8LAmnJulEuWv74zjUOg==
 
 brace-expansion@^1.0.0:
   version "1.1.6"
@@ -807,6 +824,11 @@ dashdash@^1.12.0:
   resolved "https://registry.yarnpkg.com/dashdash/-/dashdash-1.14.1.tgz#853cfa0f7cbe2fed5de20326b8dd581035f6e2f0"
   dependencies:
     assert-plus "^1.0.0"
+
+date-fns@^1.3.0:
+  version "1.30.1"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-1.30.1.tgz#2e71bf0b119153dbb4cc4e88d9ea5acfb50dc05c"
+  integrity sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==
 
 debug@2.2.0, debug@~2.2.0:
   version "2.2.0"
@@ -1413,6 +1435,11 @@ hoek@5.x.x:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-5.0.3.tgz#b71d40d943d0a95da01956b547f83c4a5b4a34ac"
 
+hoek@6.x.x:
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/hoek/-/hoek-6.1.2.tgz#99e6d070561839de74ee427b61aa476bd6bddfd6"
+  integrity sha512-6qhh/wahGYZHFSFw12tBbJw5fsAhhwrrG/y3Cs0YMTv2WzMnL0oLPnQJjv1QJvEfylRSOFuP+xCu+tdx0tD16Q==
+
 http-errors@1.6.2, http-errors@~1.6.2:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.6.2.tgz#0a002cc85707192a7e7946ceedc11155f60ec736"
@@ -1648,6 +1675,15 @@ jodid25519@^1.0.0:
   resolved "https://registry.yarnpkg.com/jodid25519/-/jodid25519-1.0.2.tgz#06d4912255093419477d425633606e0e90782967"
   dependencies:
     jsbn "~0.1.0"
+
+joi@^13.0.2:
+  version "13.7.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-13.7.0.tgz#cfd85ebfe67e8a1900432400b4d03bbd93fb879f"
+  integrity sha512-xuY5VkHfeOYK3Hdi91ulocfuFopwgbSORmIwzcwHKESQhC7w1kD5jaVSPnqDxS2I8t3RZ9omCKAxNwXN5zG1/Q==
+  dependencies:
+    hoek "5.x.x"
+    isemail "3.x.x"
+    topo "3.x.x"
 
 joi@^13.1.2:
   version "13.1.2"
@@ -2894,6 +2930,16 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
+simple-oauth2@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/simple-oauth2/-/simple-oauth2-2.2.1.tgz#c1d20133d0b087bd01c6e33e31a56d70ee5194d1"
+  integrity sha512-Ujn8tU9Nl4CLy5L6ksSL+kJ6eI61NyhLCUZPris6aHMGxnfAnqrYdmTN16VSEl9m5W9WPj1sXJvhoi6kihsaSA==
+  dependencies:
+    date-fns "^1.3.0"
+    debug "^3.1.0"
+    joi "^13.0.2"
+    wreck "^14.0.2"
+
 sinon-as-promised@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/sinon-as-promised/-/sinon-as-promised-4.0.3.tgz#c0545b1685fd813588a4ed697012487ed11d151b"
@@ -3429,6 +3475,15 @@ winston@0.8.x, winston@~0.8.1:
 wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
+
+wreck@^14.0.2:
+  version "14.1.4"
+  resolved "https://registry.yarnpkg.com/wreck/-/wreck-14.1.4.tgz#c635358f4f5c99c2b977978258443193830e8274"
+  integrity sha512-gW04OgnCDjF/V4JRILqz/vLN/Ywlls8HUPKtXzUH0EClb1SkwyebFBpO71Wp2hFtKCgZJfodzFYa+CZoWrYflA==
+  dependencies:
+    boom "7.x.x"
+    bourne "1.x.x"
+    hoek "6.x.x"
 
 write-file-atomic@^1.1.2:
   version "1.3.0"
