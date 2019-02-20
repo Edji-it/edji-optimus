@@ -98,7 +98,8 @@ passport.use('google', new GoogleStrategy({
             }, {
                 new: true,
                 runValidators: true
-            })
+            }
+        )
         if (!dbUser) {
             // here we know it's a new user, and we need to create them!!
             try {

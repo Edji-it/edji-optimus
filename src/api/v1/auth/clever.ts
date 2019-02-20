@@ -44,13 +44,29 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     const client = new Clever(access_token)
     await client.init()
     const { data: profile } = await client.getUser()
-    let user = await User.findOne({ 'oauth.id': profile.id, 'oauth.type': 'clever' })
-    if (!user) {
-      user = User({
-        fullname: profile.name.first + ' ' + profile.name.last,
-        email: profile.email
-      })
-    }
+
+    // // attempt to find an existing user with the matching id and set a singleuse login token for us to log them in with
+    // let user = await User.findOneAndUpdate(
+    //   {
+    //     'oauth.id': profile.id,
+    //     'oauth.type': 'clever'
+    //   },
+    //   {
+    //     $set: {
+    //       'oauth.$.singleUseToken': user.oauth[0].singleUseToken,
+    //       'oauth.$.singleUseTokenExpiration': user.oauth[0].singleUseTokenExpiration
+    //     }
+    //   }, {
+    //     new: true,
+    //     runValidators: true
+    //   }
+    // )
+    // if (!user) {
+    //   user = User({
+    //     fullname: profile.name.first + ' ' + profile.name.last,
+    //     email: profile.email
+    //   })
+    // }
 
     const redirect = 'http:' + process.env.CLIENT_URL + '/#/oauth/clever?token'
 
