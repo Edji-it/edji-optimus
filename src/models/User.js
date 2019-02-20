@@ -66,7 +66,7 @@ let usernameValidator = [
 ]
 
 let oauthEnum = {
-    values: ['google'],
+    values: ['google', 'clever'],
     message: 'oauth type invalid'
 }
 
@@ -82,6 +82,7 @@ let model = ModelCreator("User", {
     oauth: [{
         type: { type: String, enum: oauthEnum },
         id: String,
+        email: String,
         singleUseToken: String,
         singleUseTokenExpiration: Date
     }],

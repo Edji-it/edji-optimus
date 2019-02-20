@@ -66,8 +66,10 @@ interface CleverMe {
 }
 
 interface CleverTeacher {
-  id: string
-  email: string
-  name: { first: string, last: string }
-  sections: string[]
+  data: {
+    id: string
+    email: string
+    name: { first: string, last: string }
+    sections: string[]
+  }
 }
