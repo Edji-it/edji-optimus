@@ -64,6 +64,7 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/chai": "^4.1.6",
     "@types/chai-http": "^3.0.5",
     "@types/crypto-js": "^3.1.43",

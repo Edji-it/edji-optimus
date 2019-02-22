@@ -220,7 +220,6 @@ let model = ModelCreator("User", {
 
         const { unhashedToken, tokenObj } = helpers.createOneTimeTokenObject(expiration)
         this[propertyName] = tokenObj
-        await this.edjiSave()
         return unhashedToken
     }
 

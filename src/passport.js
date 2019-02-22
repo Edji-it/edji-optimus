@@ -28,43 +28,6 @@ function extractGoogleProfile(profile) {
     }
 }
 
-passport.use('clever', new OAuth2Strategy({
-    authorizationURL: 'https://clever.com/oauth/authorize',
-    tokenURL: 'https://clever.com/oauth/tokens',
-    clientID: process.env.OAUTH2_CLEVER_CLIENT_ID,
-    clientSecret: process.env.OAUTH2_CLEVER_CLIENT_SECRET,
-    callbackURL: CLEVER_CALLBACK_URL,
-    customHeaders: {
-        'Authorization': 'Basic ' + new Buffer(process.env.OAUTH2_CLEVER_CLIENT_ID + ':' + process.env.OAUTH2_CLEVER_CLIENT_SECRET).toString('base64')
-    }
-}, async (accessToken, refreshToken, alwaysEmpty, done) => {
-    console.log('got to the passport handler')
-    // console.log('profile:', profile)
-    const rpOptions = {
-        auth: {
-            bearer: accessToken
-        },
-        json: true
-    }
-
-    try {
-        let { type, data: meData } = await rp.get({
-            url: 'https://api.clever.com/v2.0/me',
-            ...rpOptions
-        })
-        // console.log('res', res)
-        let { data: profile } = await rp.get({
-            url: `https://api.clever.com/v2.0/${type}s/` + meData.id,
-            ...rpOptions
-        })
-        console.log('profile', profile)
-    } catch (err) {
-        done(err)
-    }
-
-    return done(null, { user: 'we can make a user!!' })
-}))
-
 // Configure the Google strategy for use by Passport.js.
 //
 // OAuth2-based strategies require a `verify` function which receives the
