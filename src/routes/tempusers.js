@@ -12,8 +12,7 @@ router.post("/", async function (req, res, next) {
     var userData = req.body.user
 
     if (!userData) {
-        res.status(400).send({ validationErrors: { user: "required" } })
-        return
+        return res.status(400).send({ validationErrors: { user: "required" } })
     }
 
     try {
