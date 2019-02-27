@@ -1,7 +1,7 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
 import { create } from 'simple-oauth2'
-import { hash } from 'bcryptjs'
+// import { hash } from 'bcryptjs'
 
 // project imports
 import Clever from './../../../services/clever'
@@ -44,13 +44,12 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     const { access_token } = await oauth2.authorizationCode.getToken(tokenConfig)
     const client = new Clever(access_token)
     await client.init()
-    const { data } = await client.getUser()
-    const profile = await extractProfile(data)
+    const profile = await client.getEdjiUserShape()
 
     // attempt to find an existing user with the matching id and set a singleuse login token for us to log them in with
     let user = await User.findOneAndUpdate(
       {
-        'oauth.id': data.id,
+        'oauth.id': client.userId,
         'oauth.type': 'clever'
       },
       {
@@ -73,19 +72,5 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     return res.redirect(redirect)
   } catch (err) {
     next(err)
-  }
-}
-
-async function extractProfile({ id, email, name }) {
-  let singleUseToken = await hash(id + Date.now().toString(), 4) // important to use syncronus hashing here
-  return {
-    fullname: name.first + ' ' + name.last,
-    email: email,
-    oauth: [{
-      type: 'clever', // should always be google I think
-      id: id,
-      singleUseToken: singleUseToken,
-      singleUseTokenExpiration: Date.now() + (1000 * 60) // set token expiration to 1 minute
-    }]
   }
 }
