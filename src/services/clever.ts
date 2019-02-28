@@ -76,6 +76,7 @@ export default class Clever {
       email: email,
       oauth: [{
         type: 'clever',
+        email: email,
         id: id,
         singleUseToken: singleUseToken,
         singleUseTokenExpiration: Date.now() + (1000 * 60) // set token expiration to 1 minute
