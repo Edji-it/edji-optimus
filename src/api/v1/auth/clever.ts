@@ -57,7 +57,8 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
           'oauth.$.singleUseToken': profile.oauth[0].singleUseToken,
           'oauth.$.singleUseTokenExpiration': profile.oauth[0].singleUseTokenExpiration
         }
-      }, {
+      },
+      {
         new: true,
         runValidators: true
       }
@@ -71,6 +72,6 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
 
     return res.redirect(redirect)
   } catch (err) {
-    next(err)
+    next({ error: err, type: "oauth", code: "err_duplicate_user" })
   }
 }

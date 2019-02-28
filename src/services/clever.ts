@@ -66,9 +66,6 @@ export default class Clever {
     if (!this._user) {
       await this.getUser()
     }
-    /**
-     * @todo try and get the user's school info, and fall back to district if that's not possible
-     */
     const { id, name, email } = this._user
     let singleUseToken = await hash(id + Date.now().toString(), 4) // important to use syncronus hashing here
     const edjiUser = {
