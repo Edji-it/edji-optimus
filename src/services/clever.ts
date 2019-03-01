@@ -80,9 +80,13 @@ export default class Clever {
       }],
       identities: []
     }
-    if (this._type !== 'student') { edjiUser.identities.push('teacher') }
-    if (this._type === 'school_admin' || this._type === 'district_admin') {
-      edjiUser.identities.push('administrator')
+    if (this._type === 'student') {
+      edjiUser.identities.push('student')
+    } else {
+      edjiUser.identities.push('teacher')
+      if (this._type === 'school_admin' || this._type === 'district_admin') {
+        edjiUser.identities.push('administrator')
+      }
     }
     return edjiUser
   }
