@@ -1,7 +1,6 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
 import { create } from 'simple-oauth2'
-// import { hash } from 'bcryptjs'
 
 // project imports
 import Clever from './../../../services/clever'

@@ -5,6 +5,7 @@
 declare namespace Express {
   export interface Request {
     user?: any
+    oauth_error?: Error
   }
   export interface Errback {
     type?: string
