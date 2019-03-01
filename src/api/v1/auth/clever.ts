@@ -62,15 +62,23 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
         runValidators: true
       }
     )
+    const encodedToken: string = encodeURIComponent(profile.oauth[0].singleUseToken)
     if (!user) {
       user = User(profile)
-      await user.edjiSave()
+      try {
+        await user.edjiSave()
+      } catch (err) {
+        return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
+      }
     }
 
-    const redirect = 'http:' + process.env.CLIENT_URL + '/#/oauth/clever?token=' + encodeURIComponent(profile.oauth[0].singleUseToken)
+    /**
+     * @todo make this https so that it will work on dev/prod
+     */
+    const redirect = `http:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`
 
     return res.redirect(redirect)
   } catch (err) {
-    next({ error: err, type: "clever", code: "err_duplicate_user" })
+    next(err)
   }
 }

@@ -68,8 +68,10 @@ passport.use('google', new GoogleStrategy({
             try {
                 let newUser = await user.edjiSave({ forceSave: true })
                 return done(null, newUser)
-            } catch (err) {
-                return done({ error: err, type: "google", code: "err_duplicate_user" })
+            } catch (e) {
+                const err = new Error('a user with duplicate email already exists in the database')
+                err.name = 'err_duplicate_user'
+                return done(null, user)
             }
         } else {
             return done(null, dbUser)
