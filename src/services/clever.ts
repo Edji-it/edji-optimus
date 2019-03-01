@@ -68,7 +68,7 @@ export default class Clever {
     }
     const { id, name, email } = this._user
     let singleUseToken = await hash(id + Date.now().toString(), 4) // important to use syncronus hashing here
-    const edjiUser = {
+    const edjiUser: EdjiUserFromCleverUser = {
       fullname: name.first + ' ' + name.last,
       email: email,
       oauth: [{
@@ -87,6 +87,8 @@ export default class Clever {
       if (this._type === 'school_admin' || this._type === 'district_admin') {
         edjiUser.identities.push('administrator')
       }
+      const dist = await this.getDistrict()
+      edjiUser.school_name = dist.name
     }
     return edjiUser
   }
@@ -131,8 +133,10 @@ interface EdjiUserFromCleverUser {
     id: string
     singleUseToken: string
     singleUseTokenExpiration: number
+    email: string
   }[]
   identities: string[]
+  school_name?: string
 }
 
 export enum CleverType {
