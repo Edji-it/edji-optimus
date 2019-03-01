@@ -9,7 +9,7 @@ export function OAuthMiddleware(err: Express.Errback, req: Request, res: Respons
     // const redirect = 
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/${err.type}?error=duplicate_user`) // return out because we don't want this error caught in sentry
     // default:
-    next(err)
+    // next(err)
     // }
   } else {
     next(err)
