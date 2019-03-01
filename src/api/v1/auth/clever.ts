@@ -72,6 +72,6 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
 
     return res.redirect(redirect)
   } catch (err) {
-    next({ error: err, type: "oauth", code: "err_duplicate_user" })
+    next({ error: err, type: "clever", code: "err_duplicate_user" })
   }
 }

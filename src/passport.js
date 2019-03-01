@@ -69,7 +69,7 @@ passport.use('google', new GoogleStrategy({
                 let newUser = await user.edjiSave({ forceSave: true })
                 return done(null, newUser)
             } catch (err) {
-                return done({ error: err, type: "oauth", code: "err_duplicate_user" })
+                return done({ error: err, type: "google", code: "err_duplicate_user" })
             }
         } else {
             return done(null, dbUser)
