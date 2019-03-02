@@ -68,7 +68,8 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
       try {
         await user.edjiSave()
       } catch (err) {
-        return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
+        // Return parameters needed by link.ts for linking an existing account
+        return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}&oauth_id=${client.userId}`)
       }
     }
 
