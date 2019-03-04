@@ -1,6 +1,5 @@
 // these are oauth routes
 const express = require('express')
-const Passport = require("./../passport")
 const router = express.Router()
 
 router.get('/google', require('./../api/v1/auth/google').GoogleRedirect)
