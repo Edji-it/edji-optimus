@@ -1,6 +1,7 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
 import { create } from 'simple-oauth2'
+import { captureException } from '@sentry/node'
 
 // project imports
 import Clever from './../../../services/clever'
@@ -84,6 +85,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
 
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
   } catch (err) {
-    next(err)
+    captureException(err)
+    return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
   }
 }
