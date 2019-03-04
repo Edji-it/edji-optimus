@@ -68,18 +68,21 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
       try {
         await user.edjiSave()
       } catch (err) {
-        user.email = Date.now() + '_edji_duplicate_' + user.email
-        await user.edjiSave()
-        return res.redirect(`https:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
+        if (err.code && err.code === 11000) {
+          try {
+            user.email = Date.now() + '_edji_duplicate_' + user.email
+            await user.edjiSave()
+          } catch (err) {
+            throw err
+          }
+        } else {
+          throw err
+        }
+        return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
     }
 
-    /**
-     * @todo make this https so that it will work on dev/prod
-     */
-    const redirect = `https:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`
-
-    return res.redirect(redirect)
+    return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
   } catch (err) {
     next(err)
   }
