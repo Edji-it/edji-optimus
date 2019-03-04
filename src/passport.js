@@ -1,13 +1,15 @@
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
-const Q = require('q')
+const OAuth2Strategy = require('passport-oauth2')
 const bcrypt = require('bcryptjs')
+const rp = require('request-promise-native')
 
 const GOOGLE_CALLBACK_URL = process.env.OPTIMUS_URL + "/auth/google/callback"
+const CLEVER_CALLBACK_URL = `${process.env.OPTIMUS_URL}/auth/clever/callback`
 
 let User = require("./models/User")
 
-function extractProfile(profile) {
+function extractGoogleProfile(profile) {
     let imageUrl = ''
     let singleUseToken = bcrypt.hashSync(profile.id + Date.now().toString(), 4) // important to use syncronus hashing here
     if (profile.photos && profile.photos.length) {
@@ -28,7 +30,7 @@ function extractProfile(profile) {
 
 // Configure the Google strategy for use by Passport.js.
 //
-// OAuth 2-based strategies require a `verify` function which receives the
+// OAuth2-based strategies require a `verify` function which receives the
 // credential (`accessToken`) for accessing the Google API on the user's behalf,
 // along with the user's profile. The function must invoke `done` with a user
 // object, which will be set at `req.user` in route handlers after
@@ -42,7 +44,7 @@ passport.use('google', new GoogleStrategy({
 }, async (req, accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
     // provided by Google and turn that into a User object
-    let user = User(extractProfile(profile))
+    let user = User(extractGoogleProfile(profile))
 
     // query for a user that has an oauth type and id matching the auth'd user
     const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
@@ -59,14 +61,17 @@ passport.use('google', new GoogleStrategy({
             }, {
                 new: true,
                 runValidators: true
-            })
+            }
+        )
         if (!dbUser) {
             // here we know it's a new user, and we need to create them!!
             try {
                 let newUser = await user.edjiSave({ forceSave: true })
                 return done(null, newUser)
-            } catch (err) {
-                return done({ error: err, type: "oauth", code: "err_duplicate_user" })
+            } catch (e) {
+                const err = new Error('a user with duplicate email already exists in the database')
+                err.name = 'err_duplicate_user'
+                return done(null, user)
             }
         } else {
             return done(null, dbUser)

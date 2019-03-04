@@ -150,13 +150,13 @@ router.get("/following", authRequired, (req, res, next) => {
         })
     }
 
-    Q(User.aggregate([
+    User.aggregate([
         { $match: { following: { $exists: true } } },
         { $unwind: "$following" },
         { $group: { _id: "$following", len: { $sum: 1 } } },
         { $sort: { len: -1 } },
         { $limit: 5 }
-    ]))
+    ])
         .then((users) => {
             return res.status(200).send({ users: users })
         })

@@ -11,6 +11,7 @@ export async function SetTokenController(req: Request, res: Response, next: Next
   let { reset_property } = req.params
 
   let unhashedToken: string = await user.setOneTimeToken(`reset_${reset_property}`, 24)
+  await user.edjiSave() // save user after setting the token
   if (!unhashedToken) {
     // a token is only created if the name is valid
     return res.status(400).send({ error: 'not a valid token property' })
