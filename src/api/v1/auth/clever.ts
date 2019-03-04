@@ -17,7 +17,7 @@ const creds = {
 }
 
 const oauth2 = create(creds)
-const redirect_uri = `http:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
+const redirect_uri = `https:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
 
 /**
  * @todo implement state for CORS security
