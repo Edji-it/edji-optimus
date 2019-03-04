@@ -17,7 +17,7 @@ const creds = {
 }
 
 const oauth2 = create(creds)
-const redirect_uri = `http:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
+const redirect_uri = `https:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
 
 /**
  * @todo implement state for CORS security
@@ -81,9 +81,8 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
     }
-    const redirect = `${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`
 
-    return res.redirect(redirect)
+    return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
   } catch (err) {
     next(err)
   }
