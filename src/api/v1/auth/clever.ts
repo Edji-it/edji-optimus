@@ -7,6 +7,8 @@ import { captureException } from '@sentry/node'
 import Clever from './../../../services/clever'
 import * as User from './../../../models/User'
 
+const HACKY_EMAIL_STRING = '_edji_duplicate_'
+
 const creds = {
   client: {
     id: process.env.OAUTH2_CLEVER_CLIENT_ID,
@@ -71,7 +73,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
       } catch (err) {
         if (err.code && err.code === 11000) {
           try {
-            user.email = Date.now() + '_edji_duplicate_' + user.email
+            user.email = Date.now() + HACKY_EMAIL_STRING + user.email
             await user.edjiSave()
           } catch (err) {
             throw err
@@ -81,9 +83,12 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
         }
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
+    } else if (user.email.includes(HACKY_EMAIL_STRING)) {
+      return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
+    } else {
+      return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
     }
 
-    return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
   } catch (err) {
     captureException(err)
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
