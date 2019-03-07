@@ -13,7 +13,6 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
   }
 
   try {
-
     const oauthUser = await User.findOne({
       'oauth.singleUseToken': oauth_token,
       'oauth.singleUseTokenExpiration': { $gte: Date.now() },
