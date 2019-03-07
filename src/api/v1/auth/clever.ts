@@ -20,7 +20,7 @@ const creds = {
 }
 
 const oauth2 = create(creds)
-const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
+const protocol = process.env.CLIENT_URL.includes('localhost') ? 'http' : 'https'
 const redirect_uri = `${protocol}:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
 
 /**
