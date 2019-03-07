@@ -20,7 +20,8 @@ const creds = {
 }
 
 const oauth2 = create(creds)
-const redirect_uri = `https:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
+const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
+const redirect_uri = `${protocol}:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
 
 /**
  * @todo implement state for CORS security
@@ -42,8 +43,11 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     code: req.query.code,
     redirect_uri
   }
+  console.log('tokenConfig', tokenConfig)
   try {
-    const { access_token } = await oauth2.authorizationCode.getToken(tokenConfig)
+    const res = await oauth2.authorizationCode.getToken(tokenConfig)
+    console.log('res', res)
+    const { access_token } = res
     const client = new Clever(access_token)
     await client.init()
     const profile = await client.getEdjiUserShape()
@@ -76,9 +80,11 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
             user.email = Date.now() + HACKY_EMAIL_STRING + user.email
             await user.edjiSave()
           } catch (err) {
+            console.error('1', err)
             throw err
           }
         } else {
+          console.error('2', err)
           throw err
         }
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
@@ -90,6 +96,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     }
 
   } catch (err) {
+    console.error('3', err)
     captureException(err)
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
   }
