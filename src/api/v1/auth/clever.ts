@@ -45,9 +45,9 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
   }
   console.log('tokenConfig', tokenConfig)
   try {
-    const res = await oauth2.authorizationCode.getToken(tokenConfig)
-    console.log('res', res)
-    const { access_token } = res
+    const tokenRes = await oauth2.authorizationCode.getToken(tokenConfig)
+    console.log('tokenRes', tokenRes)
+    const { access_token } = tokenRes
     const client = new Clever(access_token)
     await client.init()
     const profile = await client.getEdjiUserShape()
