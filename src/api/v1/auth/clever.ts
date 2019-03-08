@@ -20,7 +20,7 @@ const creds = {
 }
 
 const oauth2 = create(creds)
-const protocol = process.env.CLIENT_URL.includes('localhost') ? 'http' : 'https'
+const protocol = process.env.NODE_ENV === 'local' ? 'http' : 'https'
 const redirect_uri = `${protocol}:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
 
 /**
@@ -43,11 +43,8 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     code: req.query.code,
     redirect_uri
   }
-  console.log('tokenConfig', tokenConfig)
   try {
-    const tokenRes = await oauth2.authorizationCode.getToken(tokenConfig)
-    console.log('tokenRes', tokenRes)
-    const { access_token } = tokenRes
+    const { access_token } = await oauth2.authorizationCode.getToken(tokenConfig)
     const client = new Clever(access_token)
     await client.init()
     const profile = await client.getEdjiUserShape()
@@ -80,23 +77,20 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
             user.email = Date.now() + HACKY_EMAIL_STRING + user.email
             await user.edjiSave()
           } catch (err) {
-            console.error('1', err)
             throw err
           }
         } else {
-          console.error('2', err)
           throw err
         }
+
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
     } else if (user.email.includes(HACKY_EMAIL_STRING)) {
       return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
-    } else {
-      return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
     }
+    return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
 
   } catch (err) {
-    console.error('3', err)
     captureException(err)
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
   }
