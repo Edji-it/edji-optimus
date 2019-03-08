@@ -44,7 +44,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
     const remove_object: any = req.body
 
     if (!remove_object) {
-      return res.status(400).send({ error: 'no updatable fields found on request body' })
+      return res.status(400).send({ error: 'removable properties not found on request body' })
     }
 
     if (!mongoose['validateEdjiId'](project_id)) {
@@ -52,18 +52,12 @@ export async function RemovePropertyController(req: Request, res: Response, next
     }
 
     if (!CUSTOM_REMOVABLE_PROPERTIES.includes(remove_property)) {
-      return res.status(400).send({ error: 'requested update of a property which could not be updated' })
+      return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }
 
-    let updateObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, user, remove_object })
-    /**
-     * @deprecated this is temporary transition handling for old routes
-     */
-    if (req.params.wrap_comment) {
-      let returnProperty = remove_property.slice(0, -1)
-      updateObj = { [returnProperty]: updateObj }
-    }
-    return res.status(200).send(updateObj)
+    let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, user, remove_object })
+
+    return res.status(200).send(removeObj)
   } catch (err) {
     if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
@@ -82,31 +76,30 @@ export async function RemovePropertyController(req: Request, res: Response, next
 const REMOVE_CONTROLLERS: {
   [key: string]: (props: { project_id: string, user: any, remove_object: any }) => Promise<any>
 } = {
-  // comments: function (props) {
-  //   return updateCommentArray(props, 'comments')
-  // },
-  // answers: function (props) {
-  //   return updateCommentArray(props, 'answers')
-  // },
-  students: async function ({ project_id, user, remove_object }) {
-    const studentsArray: string = (user.type && user.type === 'temp') ? 'temp_ids' : 'students_ids'
+  comments: async function ({ project_id, user, remove_object }) {
+    let idArray: []
+    (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
     const res = await Project.update(
       {
-        _id: project_id,
-        teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
+        _id: project_id
       },
-      {
-        $addToSet: {
-          [studentsArray]: user._id
-        }
+      { 
+        $pull: { 
+          comments: { 
+            $in: idArray 
+          }
+        } 
       },
       {
         runValidators: true
       }
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return { _id: user._id }
-  }
+    return { comment_deleted: remove_object }
+  },
+  // answers: function (props) {
+  //   return updateCommentArray(props, 'answers')
+  // }
 }
 
 const CUSTOM_REMOVABLE_PROPERTIES: string[] = Object.keys(REMOVE_CONTROLLERS)
