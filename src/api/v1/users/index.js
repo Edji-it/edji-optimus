@@ -6,6 +6,7 @@ const authRequired = require('./../../../middleware/auth-required')
 import { TokenController } from './tokens'
 import LinkController from './link'
 
+router.post('/', require('./create').default)
 router.use(require('./messages'))
 router.use(require('./referrals'))
 router.use('/tokens', TokenController)

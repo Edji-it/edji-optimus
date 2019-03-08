@@ -184,7 +184,7 @@ let model = ModelCreator("User", {
     }
 
     // add custom validator to make sure user has either oauth type or username/password
-    schema.pre('validate', async function () {
+    schema.pre('validate', function () {
         // make sure it has a password or an oauth type
         let hasPassword = !!this.password
         let hasUsername = !!this.username
