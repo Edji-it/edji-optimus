@@ -8,7 +8,7 @@ const ModelCreator = require("./ModelCreator")
 const helpers = require('./_User')
 
 // tests email against regex
-let emailRe = /^\w+([\.+-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+let emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
 let validateEmail = function (email) {
     return emailRe.test(email)
 }
@@ -195,6 +195,13 @@ let model = ModelCreator("User", {
             // this is a mongoose method which provides the error to the mongoose error aggrigator
             this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
         }
+    })
+
+    /**
+     * clean emails before validating
+     */
+    schema.pre('validate', function () {
+        this.email = this.email.replace(/ /g, '')
     })
 
     /**
