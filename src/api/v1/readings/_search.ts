@@ -73,10 +73,10 @@ export function validateSearchQuery(query: ReadingQuery): ValidationResult<Readi
 
 /**
  * supports the interface for querying multiple ids
- * @param ids list of ids that you want returned from the database
+ * @param ids list of ids that you want returned from the database (MUST be in the order you want them returned)
  */
-export function searchByIds(ids: string[]): Promise<any> {
-  return Reading.aggregate([
+export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key: string]: any }[]> {
+  let results: { _id: ObjectId, [key: string]: any }[] = await Reading.aggregate([
     {
       $match: {
         _id: {
@@ -117,6 +117,10 @@ export function searchByIds(ids: string[]): Promise<any> {
       }
     }
   ])
+  results.sort((a, b) => {
+    return ids.indexOf(a._id.toHexString()) > ids.indexOf(b._id.toHexString()) ? 1 : -1
+  })
+  return results
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
