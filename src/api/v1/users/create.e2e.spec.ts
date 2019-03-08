@@ -121,10 +121,6 @@ describe('POST /api/v1/users', () => {
     expect(validationErrors.email).to.be.equal('required')
     expect(validationErrors).to.haveOwnProperty('fullname')
     expect(validationErrors.fullname).to.be.equal('required')
-    expect(validationErrors).to.haveOwnProperty('auth')
-    expect(validationErrors.email).to.be.equal('required')
-
-    validationErrors.should.have.property('auth')
   })
 
   it('should return an error if auth requirements are not met', async () => {
