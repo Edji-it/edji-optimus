@@ -69,6 +69,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     const encodedToken: string = encodeURIComponent(profile.oauth[0].singleUseToken)
     if (!user) {
       user = User(profile)
+      await user.validate()
       try {
         await user.edjiSave()
       } catch (err) {
