@@ -6,7 +6,7 @@
     "start": "nodemon -L --exec yarn serve:dev",
     "start:local": "yarn mongo && MONGO_HOST='mongodb://localhost:27017/edji' yarn start",
     "test": "yarn build:dev && mocha 'build/src/**/*.spec.js' --timeout 4000 --exit",
-    "test:ci": "touch .env && yarn build:dev && mocha 'build/src/**/*.spec.js' --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/mocha/results.xml --timeout 4000 --exit",
+    "test:ci": "touch .env && mocha --require ts-node/register 'build/src/**/*.spec.js' --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/mocha/results.xml --timeout 4000 --exit",
     "bump": "npm run bump:patch",
     "serve:dev": "yarn build:dev && node ./build/src",
     "serve:prod": "yarn build:prod && forever ./build/src",
