@@ -16,3 +16,6 @@ data/*
 !.elasticbeanstalk/*.global.yml
 yarn-error.log
 package-lock.json
+
+# test output for circleci
+test-results
