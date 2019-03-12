@@ -77,14 +77,14 @@ const REMOVE_CONTROLLERS: {
   [key: string]: (props: { project_id: string, user: any, remove_object: any }) => Promise<any>
 } = {
   comments: async function ({ project_id, user, remove_object }) {
-    let idArray: []
+    let idArray: string[]
     (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
     const res = await Project.update(
       {
         _id: project_id
       },
       { 
-        $pull: { 
+        $pull: {
           comments: { 
             $in: idArray 
           }
