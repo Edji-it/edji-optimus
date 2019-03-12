@@ -73,6 +73,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
       try {
         await user.edjiSave()
       } catch (err) {
+        console.error('first error', err)
         if (err.code && err.code === 11000) {
           try {
             user.email = Date.now() + HACKY_EMAIL_STRING + user.email
