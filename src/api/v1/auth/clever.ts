@@ -73,6 +73,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
       try {
         await user.edjiSave()
       } catch (err) {
+        console.error('first error', err)
         if (err.code && err.code === 11000) {
           try {
             user.email = Date.now() + HACKY_EMAIL_STRING + user.email
@@ -92,6 +93,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
 
   } catch (err) {
+    process.env.NODE_ENV !== 'production' && console.error(err)
     captureException(err)
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
   }

@@ -68,17 +68,20 @@ export default class Clever {
     }
     const { id, name, email } = this._user
     let singleUseToken = await hash(id + Date.now().toString(), 4) // important to use syncronus hashing here
+    const cleverObj: OAuthObj = {
+      type: 'clever',
+      id: id,
+      singleUseToken: singleUseToken,
+      singleUseTokenExpiration: Date.now() + (1000 * 60) // set token expiration to 1 minute
+    }
     const edjiUser: EdjiUserFromCleverUser = {
       fullname: name.first + ' ' + name.last,
-      email: email,
-      oauth: [{
-        type: 'clever',
-        email: email,
-        id: id,
-        singleUseToken: singleUseToken,
-        singleUseTokenExpiration: Date.now() + (1000 * 60) // set token expiration to 1 minute
-      }],
+      oauth: [cleverObj],
       identities: []
+    }
+    if (email) {
+      edjiUser.email = email
+      cleverObj.email = email
     }
     if (this._type === 'student') {
       edjiUser.identities.push('student')
@@ -127,16 +130,18 @@ interface CleverSections {
 }
 interface EdjiUserFromCleverUser {
   fullname: string
-  email: string
-  oauth: {
-    type: string
-    id: string
-    singleUseToken: string
-    singleUseTokenExpiration: number
-    email: string
-  }[]
+  email?: string
+  oauth: OAuthObj[]
   identities: string[]
   school_name?: string
+}
+
+interface OAuthObj {
+  type: string
+  id: string
+  singleUseToken: string
+  singleUseTokenExpiration: number
+  email?: string // students wont have emails
 }
 
 export enum CleverType {

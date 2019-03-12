@@ -8,15 +8,14 @@ const ModelCreator = require("./ModelCreator")
 const helpers = require('./_User')
 
 // tests email against regex
-let emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-let validateEmail = function (email) {
-    return emailRe.test(email)
+const emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+const validateEmail = function (email) {
+    return email && emailRe.test(email)
 }
 
-// let nameRe = /(?:([^a-zA-Z0-9\s]))/g
-let validateName = function (name) {
+const validateName = function (name) {
     // needs to return true for good names
-    let listOfWordsItCantContainAtAll = [
+    const listOfWordsItCantContainAtAll = [
         'fuck',
         'cunt',
         'nigger',
@@ -55,9 +54,9 @@ function toLower(str) {
     return str.toLowerCase()
 }
 
+const noWhitespaceRe = /^\S*$/ // a string consisting only of non-whitespaces
 function noWhitespace(username) {
-    var regexp = /^\S*$/ // a string consisting only of non-whitespaces
-    return regexp.test(username)
+    return noWhitespaceRe.test(username)
 }
 
 let usernameValidator = [
@@ -86,7 +85,8 @@ let model = ModelCreator("User", {
         singleUseToken: String,
         singleUseTokenExpiration: Date
     }],
-    email: { type: String, set: toLower, required: true, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
+    // email is pretty much required, except in the case of a student logging in through Clever, so email validation is done manually
+    email: { type: String, set: toLower, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
     identities: [String],
     school_name: String,
     sales_can_contact: Boolean,
@@ -201,7 +201,19 @@ let model = ModelCreator("User", {
      * clean emails before validating
      */
     schema.pre('validate', function () {
-        this.email = this.email.replace(/ /g, '')
+        if (!this.email) {
+            /**
+             * clever requires us to be more flexible than other systems so we do by allowing users without emails to still sign up
+             * this will be the case with students signing in through Clever Library
+             */
+            const cleverObj = this.oauth && this.oauth.length > 0 && this.oauth.find(obj => obj.type === 'clever')
+            if (cleverObj) {
+                if (cleverObj.email) this.email = cleverObj.email
+            } else {
+                return this.invalidate('email', 'Invalid email', this.email, 'required')
+            }
+        }
+        if (this.email) this.email = this.email.replace(/ /g, '')
     })
 
     /**

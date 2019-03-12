@@ -22,6 +22,35 @@ describe('User model', () => {
     const user = User(userInfo)
     await user.validate()
   })
+  it('should require an email', async () => {
+    const userInfo = {
+      ...createUserInfo(),
+      email: ''
+    }
+    const user = User(userInfo)
+    try {
+      await user.validate()
+    } catch (err) {
+      expect(err).to.haveOwnProperty('errors')
+      expect(err.errors).to.haveOwnProperty('email')
+      expect(err.errors.email).to.haveOwnProperty('kind')
+      expect(err.errors.email.kind).to.be.equal('required')
+      return // this is what we expect
+    }
+    throw new Error('user validation expected to fail but it passed')
+  })
+  it('should allow a Clever user to be created without an email', async () => {
+    let userInfo = {
+      ...createUserInfo(),
+      oauth: [{
+        type: 'clever',
+        id: '12345'
+      }]
+    }
+    delete userInfo.email
+    const user = User(userInfo)
+    await user.validate()
+  })
   it('should return an error if auth is invalid', async () => {
     const userInfo = createUserInfo()
     delete userInfo.password
