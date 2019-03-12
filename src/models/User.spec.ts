@@ -22,6 +22,24 @@ describe('User model', () => {
     const user = User(userInfo)
     await user.validate()
   })
+  it('should require an email', async () => {
+    const userInfo = {
+      ...createUserInfo(),
+      email: ''
+    }
+    const user = User(userInfo)
+    try {
+      await user.validate()
+    } catch (err) {
+      // console.log(err)
+      expect(err).to.haveOwnProperty('errors')
+      expect(err.errors).to.haveOwnProperty('email')
+      expect(err.errors.email).to.haveOwnProperty('kind')
+      expect(err.errors.email.kind).to.be.equal('required')
+      return // this is what we expect
+    }
+    throw new Error('user validation expected to fail but it passed')
+  })
   it('should return an error if auth is invalid', async () => {
     const userInfo = createUserInfo()
     delete userInfo.password
@@ -70,4 +88,12 @@ describe('User model', () => {
     const user = User(userInfo)
     await user.validate()
   })
+  // it('should create a Clever student without an email', async () => {
+  //   const userInfo = {
+  //     ...createUserInfo(),
+  //     email: 'fel_is_ñavi_dad@spanish.com'
+  //   }
+  //   const user = User(userInfo)
+  //   await user.validate()
+  // })
 })

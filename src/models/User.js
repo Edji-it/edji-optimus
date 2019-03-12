@@ -86,7 +86,8 @@ let model = ModelCreator("User", {
         singleUseToken: String,
         singleUseTokenExpiration: Date
     }],
-    email: { type: String, set: toLower, required: true, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
+    // email is pretty much required, except in the case of a student logging in through Clever, so email validation is done manually
+    email: { type: String, set: toLower, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
     identities: [String],
     school_name: String,
     sales_can_contact: Boolean,
@@ -201,7 +202,8 @@ let model = ModelCreator("User", {
      * clean emails before validating
      */
     schema.pre('validate', function () {
-        this.email = this.email.replace(/ /g, '')
+        if (!this.email) return this.invalidate('email', 'Invalid email', this.email, 'required')
+        if (this.email) this.email = this.email.replace(/ /g, '')
     })
 
     /**

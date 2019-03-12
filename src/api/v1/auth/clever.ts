@@ -92,6 +92,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
 
   } catch (err) {
+    process.env.NODE_ENV !== 'production' && console.error(err)
     captureException(err)
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
   }
