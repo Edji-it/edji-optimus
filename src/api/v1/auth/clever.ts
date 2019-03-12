@@ -87,7 +87,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
 
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
-    } else if (user.email.includes(HACKY_EMAIL_STRING)) {
+    } else if (user.email && user.email.includes(HACKY_EMAIL_STRING)) {
       return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
     }
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
