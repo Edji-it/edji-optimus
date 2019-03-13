@@ -1,0 +1,90 @@
+{
+  "addons": [
+    "papertrail"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "CLIENT_URL": {
+      "required": true
+    },
+    "EDJI_BLUESTREAK_DOMAIN": {
+      "required": true
+    },
+    "EDJI_BLUESTREAK_TOKEN": {
+      "required": true
+    },
+    "EDJI_GRAPPLE_DOMAIN": {
+      "required": true
+    },
+    "EDJI_GRAPPLE_TOKEN": {
+      "required": true
+    },
+    "EDJI_PIPO_DOMAIN": {
+      "required": true
+    },
+    "EDJI_PIPO_TOKEN": {
+      "required": true
+    },
+    "EDJI_QUICKSHADOW_DOMAIN": {
+      "required": true
+    },
+    "MAILCHIMP_API_TOKEN": {
+      "required": true
+    },
+    "MANDRILL_API_KEY": {
+      "required": true
+    },
+    "MONGO_HOST": {
+      "required": true
+    },
+    "MONGO_PWD": {
+      "required": true
+    },
+    "MONGO_USER": {
+      "required": true
+    },
+    "NODE_ENV": {
+      "required": true
+    },
+    "OAUTH2_CLEVER_CLIENT_ID": {
+      "required": true
+    },
+    "OAUTH2_CLEVER_CLIENT_SECRET": {
+      "required": true
+    },
+    "OAUTH2_GOOGLE_CLIENT_ID": {
+      "required": true
+    },
+    "OAUTH2_GOOGLE_CLIENT_SECRET": {
+      "required": true
+    },
+    "OPTIMUS_PW_SECRET": {
+      "required": true
+    },
+    "OPTIMUS_TOKEN_SIGNING_SECRET": {
+      "required": true
+    },
+    "OPTIMUS_URL": {
+      "required": true
+    },
+    "PAPERTRAIL_API_TOKEN": {
+      "required": true
+    },
+    "STRIPE_API_TOKEN": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "edji-optimus",
+  "scripts": {
+  },
+  "stack": "heroku-18"
+}
