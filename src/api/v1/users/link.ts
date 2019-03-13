@@ -23,6 +23,7 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
       return res.status(400).send({ error: 'user does not exist with that token and type' })
     }
 
+    if (!user.oauth) user.oauth = []
     user.oauth.push(oauthUser.oauth[0])
 
     await user.edjiSave()
