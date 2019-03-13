@@ -71,7 +71,8 @@ passport.use('google', new GoogleStrategy({
             } catch (e) {
                 const err = new Error('a user with duplicate email already exists in the database')
                 err.name = 'err_duplicate_user'
-                return done(null, user)
+                err.type = 'google'
+                return done(err)
             }
         } else {
             return done(null, dbUser)
