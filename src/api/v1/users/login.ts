@@ -15,6 +15,9 @@ const loginHandler: RequestHandler = async function (req, res, next) {
     const result = await login(user)
     return res.status(200).send(result)
   } catch (err) {
+    if (err.status) {
+      return res.status(err.status).send()
+    }
     return next(err)
   }
 }
