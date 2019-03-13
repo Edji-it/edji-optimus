@@ -37,7 +37,6 @@ export async function RemoverojectController(req: Request, res: Response, next: 
 export async function RemovePropertyController(req: Request, res: Response, next: NextFunction) {
   try {
     const { project_id, remove_property } = req.params
-    const { user } = req
     const remove_object: any = req.body
 
     if (!remove_object) {
@@ -52,7 +51,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }
 
-    let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, user, remove_object })
+    let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, remove_object })
 
     return res.status(200).send(removeObj)
   } catch (err) {
@@ -71,22 +70,23 @@ export async function RemovePropertyController(req: Request, res: Response, next
 }
 
 const REMOVE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, user: any, remove_object: any }) => Promise<any>
+  [key: string]: (props: { project_id: string, remove_object: any }) => Promise<any>
 } = {
-  comments: async function ({ project_id, user, remove_object }) {
+  comments: async function ({ project_id, remove_object }) {
     let idArray: string[]
     (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
-    // console.log(idArray)
     const res = await Project.update(
       {
         _id: project_id
       },
-      { 
+      {
         $pull: {
           comments: { 
-            $in: idArray 
+            _id: {
+              $in: idArray
+            }
           }
-        } 
+        }
       },
       {
         runValidators: true
@@ -95,9 +95,29 @@ const REMOVE_CONTROLLERS: {
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
     return { comment_deleted: remove_object }
   },
-  // answers: function (props) {
-  //   return updateCommentArray(props, 'answers')
-  // }
+  answers: async function ({ project_id, remove_object }) {
+    let idArray: string[]
+    (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
+    const res = await Project.update(
+      {
+        _id: project_id
+      },
+      {
+        $pull: {
+          answers: { 
+            _id: {
+              $in: idArray
+            }
+          }
+        }
+      },
+      {
+        runValidators: true
+      }
+    )
+    if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
+    return { answer_deleted: remove_object }
+  }
 }
 
 const CUSTOM_REMOVABLE_PROPERTIES: string[] = Object.keys(REMOVE_CONTROLLERS)
