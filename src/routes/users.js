@@ -11,6 +11,9 @@ const cleanMongoValidationError = require('./../error-handlers/mongo-validation'
 
 const router = express.Router()
 
+/**
+ * @deprecated 3/8/19
+ */
 router.post("/", require('./../api/v1/users/create').default)
 
 router.put("/", authRequired, async function (req, res, next) {
@@ -133,26 +136,17 @@ router.get('/', (req, res, next) => {
         })
 })
 
-// front-end call updated 1/24/2019
-// this is a replacement for the user conversion route which updates all of the users projects to have their new user's data
-router.put("/convert/:temp_id", authRequired, require("./../api/v1/temp_users/convert"))
+/**
+ * @deprecated 1/24/2019
+ */
+router.put('/convert/:temp_id', authRequired, require('./../api/v1/temp_users/convert'))
 
-router.post("/login", async (req, res, next) => {
-    var user = req.body.user // note this is coming from the request's body, not the req.user
+/**
+ * @deprecated 3/13/19
+ */
+router.post('/login', require('./../api/v1/users/login').default)
 
-    if (!user || !user.username || !user.password) {
-        return res.status(400).send()
-    }
-
-    try {
-        const result = await login(user)
-        return res.status(200).send(result)
-    } catch (err) {
-        return next(err)
-    }
-})
-
-router.post("/reset_password", function (req, res, next) {
+router.post('/reset_password', function (req, res, next) {
     var user = req.user
     var oldPassword = req.body.resetObject.oldPassword
     var newPassword = req.body.resetObject.newPassword
