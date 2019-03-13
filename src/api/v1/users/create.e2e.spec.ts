@@ -39,25 +39,7 @@ describe('POST /api/v1/users', () => {
     expect(res).to.have.status(201)
     expect(res.body).to.haveOwnProperty('token')
 
-    const { user, token } = res.body
-
-    // user validation
-    expect(user).to.haveOwnProperty('_id')
-    expect(user).to.haveOwnProperty('username')
-    expect(user).to.haveOwnProperty('fullname')
-    expect(user).to.haveOwnProperty('email')
-    expect(user).to.haveOwnProperty('createdAt')
-    expect(user).to.haveOwnProperty('updatedAt')
-    expect(user).to.haveOwnProperty('avatar')
-    expect(user).not.to.haveOwnProperty('password')
-    expect(user).not.to.haveOwnProperty('resetPasswordToken')
-    expect(user).not.to.haveOwnProperty('resetPasswordExpires')
-    expect(user).not.to.haveOwnProperty('accountArchiveToken')
-
-    // token validation
-    expect(token).to.be.a('string')
-    expect(token.length).to.be.greaterThan(0)
-
+    validateLoginObject(res.body)
   })
 
   /**
@@ -134,3 +116,21 @@ describe('POST /api/v1/users', () => {
     expect(validationErrors).to.haveOwnProperty('auth')
   })
 })
+
+export function validateLoginObject({ user, token }: { user: any, token: string }) {
+  // user validation
+  expect(user).to.haveOwnProperty('_id')
+  expect(user).to.haveOwnProperty('username')
+  expect(user).to.haveOwnProperty('fullname')
+  expect(user).to.haveOwnProperty('email')
+  expect(user).to.haveOwnProperty('createdAt')
+  expect(user).to.haveOwnProperty('updatedAt')
+  expect(user).not.to.haveOwnProperty('password')
+  expect(user).not.to.haveOwnProperty('resetPasswordToken')
+  expect(user).not.to.haveOwnProperty('resetPasswordExpires')
+  expect(user).not.to.haveOwnProperty('accountArchiveToken')
+
+  // token validation
+  expect(token).to.be.a('string')
+  expect(token.length).to.be.greaterThan(0)
+}
