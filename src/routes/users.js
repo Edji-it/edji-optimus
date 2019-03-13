@@ -117,8 +117,6 @@ router.get('/', (req, res, next) => {
         return res.status(400).send({ error: 'missing oauth_type or oauth_token from query' })
     }
 
-    // console.log('token', token, 'type', type)
-
     User.findOne({
         'oauth.singleUseToken': oauth_token,
         'oauth.singleUseTokenExpiration': { $gte: Date.now() },
