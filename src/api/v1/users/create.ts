@@ -4,7 +4,7 @@ import { RequestHandler } from 'express'
 // project imports
 import * as User from './../../../models/User'
 import * as Referral from './../../../models/Referral'
-import * as LoginController from './../../../middleware/LoginController'
+import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 import { cleanMongoValidationError } from './../../../error-handlers'
 
 const createController: RequestHandler = async function (req, res, next) {
@@ -27,8 +27,7 @@ const createController: RequestHandler = async function (req, res, next) {
         }
       )
     }
-
-    return res.status(201).send(LoginController.generateLoginObjectForUser(user))
+    return res.status(201).send(generateLoginObjectForUser(user))
   } catch (error) {
     // constructs object with list of model-defined errors to send to user
     if (error.name === "ValidationError") {

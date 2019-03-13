@@ -18,9 +18,6 @@ Sentry.init({
     environment: process.env.NODE_ENV
 })
 
-// local project imports
-const LoginController = require("./middleware/LoginController")
-
 // configure express
 var app = express()
 app.use(Sentry.Handlers.requestHandler())
@@ -32,7 +29,7 @@ var server = require('http').createServer(app)
 
 app.use(passport.initialize())
 
-app.use(LoginController.middleware)
+app.use(require('./middleware/login-controller').middleware)
 
 // Access allowed for development
 app.use(require('./middleware/header-management'))
