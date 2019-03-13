@@ -1,13 +1,10 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
 import * as mongoose from 'mongoose'
-import { pick } from 'underscore'
-import { ObjectId } from 'mongodb'
 
 // project imports
 import * as Project from '../../../models/Project'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
-import { updateCommentArray } from './_update'
 
 export async function RemoverojectController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -79,6 +76,7 @@ const REMOVE_CONTROLLERS: {
   comments: async function ({ project_id, user, remove_object }) {
     let idArray: string[]
     (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
+    // console.log(idArray)
     const res = await Project.update(
       {
         _id: project_id
