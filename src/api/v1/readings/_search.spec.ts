@@ -1,11 +1,14 @@
 // library imports
 import 'mocha'
 import { expect } from 'chai'
-import { assert, stub, SinonStub } from 'sinon'
+import { assert, stub, SinonStub, mock, SinonMock } from 'sinon'
+import { ObjectId } from 'mongodb'
+require('sinon-mongoose')
 
 // project imports
-import { validateSearchQuery, constructSearch } from './_search'
+import { validateSearchQuery, constructSearch, searchByIds } from './_search'
 import elastic from './../../../elasticsearch'
+import * as Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
   const queriableStringProperties = [
@@ -132,6 +135,35 @@ describe('reading search helpers', () => {
       const { lte, gte } = condition.range.grade_levels
       expect(lte).to.be.equal(query.grade_levels_lte)
       expect(gte).to.be.equal(query.grade_levels_gte)
+    })
+  })
+  describe('searchByIds', () => {
+    let ReadingMock: SinonMock
+    beforeEach(() => {
+      ReadingMock = mock(Reading)
+    })
+    afterEach(() => {
+      ReadingMock.restore()
+    })
+    it('should return reading results in requested order', async () => {
+      // ids to get from mongodb in the order we want them returned
+      const ids: string[] = [new ObjectId().toHexString(), new ObjectId().toHexString(), new ObjectId().toHexString()]
+      // ids returned from mongo in a different order which must be sorted before returning
+      const readingReturn = [
+        { _id: new ObjectId(ids[1]) },
+        { _id: new ObjectId(ids[2]) },
+        { _id: new ObjectId(ids[0]) }
+      ]
+      // set up the return for the mock
+      ReadingMock.expects('aggregate')
+        .exactly(1)
+        .resolves(readingReturn)
+      const res = await searchByIds(ids)
+      // verify length and order or return
+      expect(res.length).to.be.equal(3)
+      expect(res[0]._id.equals(ids[0])).to.be.true
+      expect(res[1]._id.equals(ids[1])).to.be.true
+      expect(res[2]._id.equals(ids[2])).to.be.true
     })
   })
 })

@@ -13,6 +13,7 @@
 
 ```bash
 brew install node yarn
+yarn install
 ```
 
 ### Clone the repo
@@ -21,28 +22,33 @@ Clone with HTTPS: `https://github.com/codiak/edji-server.git`
 
 Clone with SSH: `git@github.com:codiak/edji-server.git`
 
-### Install More Packages
-
-```bash
-yarn install
-yarn global add mocha
-```
-
 ### Get Environment Variables
 
-Node environment variables are used in order to configure differences in the application between local development, test, and production sites. We use the `dotenv` package to apply environment variables, so they are stored in the root directory in the a file called ".env". They can be obtained from another Edji team member. Your project will not run if it is missing one of the required environment variables.
+Node environment variables are used in order to configure differences in the application between local development, test, and production sites. We use the `dotenv` package to apply environment variables, so they are stored in the root directory in the a file called ".env". They can be obtained from another Edji team member, or by the Heroku CLI with the command `heroku config`. Your project will not run if it is missing one of the required environment variables.
+
+### Run the app
+
+Just do
+
+```bash
+yarn start
+```
+
+## Debugging
+
+We are set up to debug using VS Code's tools. Simply start the app, then go to VS Code's debug menu and press the run button with "Debug" selected in the menu. You can register breakpoints directly in the code.
 
 ## Continuous Integration
-
-Optimus is auto-deployed to https://optimus-dev.edji.it from the `dev` branch, and to https://optimus.edji.it from the `master` branch. Committing directly to the `dev` branch is blocked, and must be done through a pull request in Github. Before any pull request can be merged, all server unit and e2e tests must pass in circleci.
 
 ### CircleCI
 
 The configuration for CircleCI is stored in .circleci. The link to the current build can be found in the build status bar at the top of this page. 
 
-## Heroku
+### Heroku
 
-Heroku configuration is only necessary if you'd like to follow logs for the Heroku apps or otherwise use the Heroku CLI to interface with the applications
+Optimus is auto-deployed to https://optimus-dev.edji.it from the `dev` branch, and to https://optimus.edji.it from the `master` branch. Committing directly to the `dev` branch is blocked, and must be done through a pull request in Github. Before any pull request can be merged, all server unit and e2e tests must pass in circleci.
+
+Heroku cli configuration is necessary if you'd like to follow logs for the Heroku apps or otherwise use the Heroku CLI to interface with the applications
 
 Add the remotes
 ```bash
@@ -50,17 +56,17 @@ git remote add prod https://git.heroku.com/edji-prod.git
 git remote add dev https://git.heroku.com/edji-dev.git
 ```
 
-Push to `dev` and `prod`
-```bash
-git push prod master
-git push dev master
-```
-
 
 Swap the default Heroku CLI remote
 ```bash
 git config heroku.remote dev
 git config heroku.remote prod
+```
+
+Specify Heroku CLI remote you'd like to use for a specific command
+
+```bash
+heroku <command> -r <remote>
 ```
 
 ## Testing
@@ -72,9 +78,9 @@ Run the entire test suite
 yarn test
 ```
 
-Run a single endpoint's tests is done with a colon and the endpoint name.
+Running smaller groups of tests can be done with the `--grep` option. This will grep through the `describe` and `it` statements.
 ```bash
-yarn test:projects
+yarn test --grep 'POST /api/v1/users'
 ```
 
 ## Local DB Setup

@@ -9,6 +9,7 @@ export const GoogleCallback: Array<(req: Request, res: Response, next: NextFunct
   (req, res, next) => {
     const { oauth_error } = req
     if (oauth_error) {
+      process.env.NODE_ENV !== 'production' && console.error(oauth_error)
       // if there's a duplicate user, we handle by sending them to a page where they could link their account
       if (oauth_error.name === 'err_duplicate_user') {
         const encodedToken = encodeURIComponent(req.user.oauth[0].singleUseToken)

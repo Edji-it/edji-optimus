@@ -1,6 +1,5 @@
 .DS_Store
 node_modules/
-.vscode/
 .env*
 dist/
 build/
@@ -16,3 +15,6 @@ data/*
 !.elasticbeanstalk/*.global.yml
 yarn-error.log
 package-lock.json
+
+# test output for circleci
+test-results

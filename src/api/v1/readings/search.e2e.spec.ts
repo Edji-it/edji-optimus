@@ -49,7 +49,7 @@ describe('GET /api/v1/readings/_search', () => {
     const res1 = await searchRequest(baseQuery, token)
     const initialSequence = res1.body.results
     const res2 = await searchRequest(baseQuery.concat([`from=${testFrom}`]), token)
-    expect(initialSequence[testFrom - 1]._id).to.be.equal(res2.body.results[0]._id)
+    expect(initialSequence[testFrom]._id).to.be.equal(res2.body.results[0]._id)
   })
   it('should query the title for a string', async () => {
     const titleQuery = 'test'

@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 
 // project imports
 import * as User from './../../../models/User'
-import * as LoginController from './../../../middleware/LoginController'
+import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 
 export default async function LinkAccounts(req: Request, res: Response, next: NextFunction) {
   const { user } = req // this is the user that's logged in, which we'll be merging the oauth account into
@@ -13,7 +13,6 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
   }
 
   try {
-
     const oauthUser = await User.findOne({
       'oauth.singleUseToken': oauth_token,
       'oauth.singleUseTokenExpiration': { $gte: Date.now() },
@@ -24,11 +23,12 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
       return res.status(400).send({ error: 'user does not exist with that token and type' })
     }
 
+    if (!user.oauth) user.oauth = []
     user.oauth.push(oauthUser.oauth[0])
 
     await user.edjiSave()
     await oauthUser.remove()
-    return res.status(200).send(LoginController.generateLoginObjectForUser(user))
+    return res.status(200).send(generateLoginObjectForUser(user))
   } catch (err) {
     return next(err)
   }

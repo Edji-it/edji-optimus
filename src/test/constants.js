@@ -19,7 +19,8 @@ module.exports = {
     },
     API_HERO: {
       username: "apitesthero",
-      password: "apitesthero"
+      password: "apitesthero",
+      email: 'apitesthero@edji.it'
     },
     API_HERO2: {
       username: "apitesthero2",

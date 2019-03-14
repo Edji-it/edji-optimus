@@ -1,10 +1,13 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
 import { create } from 'simple-oauth2'
+import { captureException } from '@sentry/node'
 
 // project imports
 import Clever from './../../../services/clever'
 import * as User from './../../../models/User'
+
+const HACKY_EMAIL_STRING = '_edji_duplicate_'
 
 const creds = {
   client: {
@@ -17,7 +20,8 @@ const creds = {
 }
 
 const oauth2 = create(creds)
-const redirect_uri = `https:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
+const protocol = process.env.NODE_ENV === 'local' ? 'http' : 'https'
+const redirect_uri = `${protocol}:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
 
 /**
  * @todo implement state for CORS security
@@ -65,12 +69,13 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     const encodedToken: string = encodeURIComponent(profile.oauth[0].singleUseToken)
     if (!user) {
       user = User(profile)
+      await user.validate()
       try {
         await user.edjiSave()
       } catch (err) {
         if (err.code && err.code === 11000) {
           try {
-            user.email = Date.now() + '_edji_duplicate_' + user.email
+            user.email = Date.now() + HACKY_EMAIL_STRING + user.email
             await user.edjiSave()
           } catch (err) {
             throw err
@@ -78,12 +83,17 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
         } else {
           throw err
         }
+
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
+    } else if (user.email && user.email.includes(HACKY_EMAIL_STRING)) {
+      return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
     }
-
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
+
   } catch (err) {
-    next(err)
+    process.env.NODE_ENV !== 'production' && console.error(err)
+    captureException(err)
+    return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=serverError`)
   }
 }

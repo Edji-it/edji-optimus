@@ -36,6 +36,8 @@ jobs:
         
       # run tests!
       - run: yarn test:ci
+      - store_test_results:
+          path: test-results
   hot_rod_trigger:
     docker:
       - image: circleci/node:10.15
