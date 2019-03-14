@@ -15,7 +15,14 @@ const passwordSecret = process.env.OPTIMUS_PW_SECRET
  * @param param0 object with username and password for a user object
  */
 export const login = async function ({ username, password }) {
-  const dbUser = await User.findOne({ username: username.toLowerCase().trim() })
+  username = username.toLowerCase().trim()
+  const dbUser = await User.findOne({
+    $or: [
+      { username: username },
+      { email: username }
+    ]
+  })
+  if (!dbUser) throw { status: 401 }
   const match = await compare(password, dbUser.password)
   if (match) {
     const { user, token } = generateLoginObjectForUser(dbUser)
