@@ -6,6 +6,7 @@ import { captureException } from '@sentry/node'
 // project imports
 import Clever from './../../../services/clever'
 import * as User from './../../../models/User'
+import { sendUserDetails } from './../../../services/bumblebee'
 
 const HACKY_EMAIL_STRING = '_edji_duplicate_'
 
@@ -83,9 +84,10 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
         } else {
           throw err
         }
-
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
+      console.log('sending user details')
+      sendUserDetails(user)
     } else if (user.email && user.email.includes(HACKY_EMAIL_STRING)) {
       return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
     }
