@@ -22,7 +22,7 @@ export const login = async function ({ username, password }) {
       { email: username }
     ]
   })
-  if (!dbUser) throw { status: 401 }
+  if (!dbUser || !dbUser.password) throw { status: 401 }
   const match = await compare(password, dbUser.password)
   if (match) {
     const { user, token } = generateLoginObjectForUser(dbUser)
