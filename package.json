@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon -L --exec 'node --inspect=9220 -r ts-node/register src'",
     "start:local": "yarn mongo && MONGO_HOST='mongodb://localhost:27017/edji' yarn start",
-    "start:prod": "forever -c 'ts-node src' .",
+    "start:prod": "rm -rf build && tsc && forever ./build/src",
     "test": "mocha -r ts-node/register 'src/**/*.spec.*' --timeout 4000 --exit",
     "test:ci": "touch .env && yarn test --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/mocha/results.xml",
     "bump": "npm run bump:patch",
