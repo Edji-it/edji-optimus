@@ -21,7 +21,8 @@
   "author": "Edji",
   "private": true,
   "engines": {
-    "node": "^10.15.0"
+    "node": "^10.15",
+    "yarn": "^1.13"
   },
   "dependencies": {
     "@sentry/node": "4.2.3",
@@ -35,8 +36,8 @@
     "express": "^4.16.3",
     "forever": "^0.15.3",
     "hashids": "^1.1.0",
-    "joi": "^13.1.2",
-    "jsonwebtoken": "^5.7.0",
+    "joi": "^14.3.1",
+    "jsonwebtoken": "^8.5.0",
     "mailchimp-api-v3": "^1.7.0",
     "method-override": "^2.3.10",
     "mongoose": "^5.2.14",
