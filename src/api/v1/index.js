@@ -10,7 +10,7 @@ router.use('/readings', require('./readings').ReadingsRouter)
 router.use('/projects', require('./projects').default)
 router.use('/auth', require('./auth').default)
 router.use('/stripe', require('./stripe'))
-router.use('/users', require('./users'))
+router.use('/users', require('./users').default)
 router.use('/referrals', require('./referrals'))
 router.use('/licenses', require('./licenses'))
 router.use('/institutions', InstitutionsController)
@@ -18,4 +18,4 @@ router.use('/temp_users', require('./temp_users'))
 router.use('/_search', require('./_search')._SearchRouter)
 router.use('/standards', StandardsController)
 
-module.exports = router
+export default router
