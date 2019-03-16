@@ -228,6 +228,7 @@ router.delete(
     '/:project_id/comments/:comment_id', 
     authRequired, 
     (req, res, next) => {
+        req.params.remove_property = 'comments'
         next()
     },
     RemoveProjectControllers.RemovePropertyController
@@ -237,9 +238,10 @@ router.delete(
  * @deprecated 3/16/19
  */
 router.delete(
-    '/:project_id/answers/:answer_id', 
+    '/:project_id/answers/:comment_id', 
     authRequired, 
     (req, res, next) => {
+        req.params.remove_property = 'answers'
         next()
     },
     RemoveProjectControllers.RemovePropertyController

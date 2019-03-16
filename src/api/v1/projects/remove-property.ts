@@ -37,7 +37,7 @@ export async function RemoverojectController(req: Request, res: Response, next: 
 export async function RemovePropertyController(req: Request, res: Response, next: NextFunction) {
   try {
     const { project_id, remove_property } = req.params
-    const comment_id = req.query.comment_id
+    const comment_id = req.query.comment_id || req.params.comment_id // need the req.params check here for legacy calls from the projects route
     const reply_ids = req.query.reply_ids
 
     // consolidate _ids in to one array for removal
