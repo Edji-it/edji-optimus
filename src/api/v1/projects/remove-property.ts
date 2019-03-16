@@ -37,10 +37,15 @@ export async function RemoverojectController(req: Request, res: Response, next: 
 export async function RemovePropertyController(req: Request, res: Response, next: NextFunction) {
   try {
     const { project_id, remove_property } = req.params
-    const remove_object: any = req.body
+    const comment_id = req.query.comment_id
+    const reply_ids = req.query.reply_ids
 
-    if (!remove_object) {
-      return res.status(400).send({ error: 'removable properties not found on request body' })
+    // consolidate _ids in to one array for removal
+    let idArray: string[]
+    (idArray = reply_ids ? reply_ids : []).push(comment_id)
+
+    if (!idArray) {
+      return res.status(400).send({ error: 'removable properties not found on request' })
     }
 
     if (!mongoose['validateEdjiId'](project_id)) {
@@ -51,7 +56,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }
 
-    let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, remove_object })
+    let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, idArray })
 
     return res.status(200).send(removeObj)
   } catch (err) {
@@ -70,11 +75,9 @@ export async function RemovePropertyController(req: Request, res: Response, next
 }
 
 const REMOVE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, remove_object: any }) => Promise<any>
+  [key: string]: (props: { project_id: string, idArray: string[] }) => Promise<any>
 } = {
-  comments: async function ({ project_id, remove_object }) {
-    let idArray: string[]
-    (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
+  comments: async function ({ project_id, idArray }) {
     const res = await Project.update(
       {
         _id: project_id
@@ -93,11 +96,9 @@ const REMOVE_CONTROLLERS: {
       }
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return { comment_deleted: remove_object }
+    return { comments_deleted: idArray }
   },
-  answers: async function ({ project_id, remove_object }) {
-    let idArray: string[]
-    (idArray = remove_object.replies ? remove_object.replies : []).push(remove_object._id)
+  answers: async function ({ project_id, idArray }) {
     const res = await Project.update(
       {
         _id: project_id
@@ -116,7 +117,7 @@ const REMOVE_CONTROLLERS: {
       }
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return { answer_deleted: remove_object }
+    return { answers_deleted: idArray }
   }
 }
 
