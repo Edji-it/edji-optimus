@@ -51,7 +51,6 @@
     "request-promise-native": "^1.0.5",
     "response-time": "^2.3.2",
     "simple-oauth2": "^2.2.1",
-    "socket.io": "^1.4.8",
     "stripe": "^4.23.1",
     "typescript": "^2.8.3",
     "underscore": "^1.9.1"
