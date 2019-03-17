@@ -655,7 +655,7 @@ router.get("/feed", function (req, res, next) {
 
     Reading.aggregate(pipeline)
         .then((results) => {
-            results = results[0] // aggregations return arrays, so take the first element
+            results = results[0] || { total: 0, readings: [] } // aggregations return arrays, so take the first element
             // return res.status(200).send({ readings: results, pipeline: pipeline })
             return res.status(200).send({ total: results.total, readings: results.readings })
         })
