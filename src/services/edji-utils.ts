@@ -45,7 +45,8 @@ export class EdjiUtils {
           ip: req.ip,
           url: `${req.protocol}://${req.hostname}${req.originalUrl}`,
           request_id,
-          request_time
+          request_time,
+          heroku: process.env.HEROKU_RELEASE_VERSION
         }
         if (req.user && req.user._id) {
           if (typeof req.user._id === 'object') {
@@ -97,6 +98,7 @@ interface EdjiLog {
   url: string
   request_id: string
   request_time: number
+  heroku: string
   user_id?: string
   [key: string]: any
 }
