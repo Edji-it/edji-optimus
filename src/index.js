@@ -6,7 +6,6 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
 const passport = require('passport') // passport gets configured elsewhere
-const responseTime = require('response-time') // middleware that adds header with the total elapsed time of call
 
 // set up all environment variables
 require('./../config')
@@ -21,8 +20,20 @@ Sentry.init({
 // configure express
 var app = express()
 app.use(Sentry.Handlers.requestHandler())
-app.use(responseTime())
 app.use(bodyParser.json({ limit: '20mb' }))
+// app.use(require('./services/flak').default)
+
+// app.use((req, res, next) => {
+//     const startTime = process.hrtime()
+//     const uuid = genUUID()
+//     if (!res.getHeader('X-Request-Id')) res.setHeader('X-Request-Id', uuid)
+//     onHeaders(res, function () {
+//         const diff = process.hrtime(startTime)
+//         const time = (diff[0] * 1e3 + diff[1] * 1e-6).toFixed(3)
+//         this.setHeader('X-Response-Time', time)
+//     })
+//     next()
+// })
 
 // this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
