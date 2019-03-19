@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 
 // project imports
 import * as Project from './../../../models/Project'
+import * as SessionCode from './../../../models/SessionCode'
 import { cleanMongoValidationError } from './../../../error-handlers/mongo-validation'
 
 export default async function CreateProjectController(req: Request, res: Response, next: NextFunction) {
@@ -14,8 +15,19 @@ export default async function CreateProjectController(req: Request, res: Respons
   }
 
   try {
+    const hasCustomCode = projectData.code ? true : false
     let project = await new Project(projectData).edjiSave()
-    // temporary handler for deprecated route
+
+    // just in case a Hero has chosen a custom code which exists in the database
+    if (hasCustomCode) {
+      await SessionCode.updateOne(
+        { code: projectData.code },
+        { $set: { active: true } }
+      )
+    }
+    /**
+     * @deprecated 2/2/19
+     */
     if (req.params.wrap_response) {
       project = { project }
     }

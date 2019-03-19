@@ -247,10 +247,13 @@ router.delete(
     RemoveProjectControllers.RemovePropertyController
 )
 
+/**
+ * @deprecated 3/14/19
+ */
 router.get("/:project_code/validate", function (req, res, next) {
     var project_code = req.params.project_code.toLowerCase()
 
-    Q(Project.findOne({ code: project_code }, "_id").exec()).then(function (project) {
+    Project.findOne({ code: project_code }, "_id").then(function (project) {
         if (project) {
             res.status(200).send({ _id: project._id })
         } else {
