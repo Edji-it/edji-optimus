@@ -1,7 +1,6 @@
-ModelCreator = require('./ModelCreator');
-mRand = require('mongoose-simple-random');
+ModelCreator = require('./ModelCreator')
 
-var codeSchema = {
+const codeSchema = {
     code: {
         type: String,
         unique: true,
@@ -13,8 +12,6 @@ var codeSchema = {
     }
 }
 
-var model = ModelCreator("SessionCode", codeSchema, function(schema) {
-    schema.plugin(mRand);
-});
+const model = ModelCreator("SessionCode", codeSchema, function (schema) { })
 
-module.exports = model;
+module.exports = model
