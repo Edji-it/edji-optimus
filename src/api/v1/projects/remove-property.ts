@@ -5,6 +5,7 @@ import * as mongoose from 'mongoose'
 // project imports
 import * as Project from '../../../models/Project'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
+import { removeCommentFromArray } from './_remove-property'
 
 export async function RemoverojectController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -58,7 +59,8 @@ export async function RemovePropertyController(req: Request, res: Response, next
 
     let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, idArray })
 
-    return res.status(200).send(removeObj)
+    // return res.status(200).send(removeObj)
+    return res.status(204).send()
   } catch (err) {
     if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
@@ -77,47 +79,11 @@ export async function RemovePropertyController(req: Request, res: Response, next
 const REMOVE_CONTROLLERS: {
   [key: string]: (props: { project_id: string, idArray: string[] }) => Promise<any>
 } = {
-  comments: async function ({ project_id, idArray }) {
-    const res = await Project.update(
-      {
-        _id: project_id
-      },
-      {
-        $pull: {
-          comments: { 
-            _id: {
-              $in: idArray
-            }
-          }
-        }
-      },
-      {
-        runValidators: true
-      }
-    )
-    if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return { comments_deleted: idArray }
+  comments: function (props) {
+    return removeCommentFromArray(props, 'comments')
   },
-  answers: async function ({ project_id, idArray }) {
-    const res = await Project.update(
-      {
-        _id: project_id
-      },
-      {
-        $pull: {
-          answers: { 
-            _id: {
-              $in: idArray
-            }
-          }
-        }
-      },
-      {
-        runValidators: true
-      }
-    )
-    if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return { answers_deleted: idArray }
+  answers: function (props) {
+    return removeCommentFromArray(props, 'answers')
   }
 }
 
