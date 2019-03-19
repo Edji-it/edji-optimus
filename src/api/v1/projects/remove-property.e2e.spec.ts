@@ -17,7 +17,7 @@ let userId: any
 let fullname: string
 let projectState: any // keep track of the updates we make to the project along the way
 
-describe("delete comments and answers", () => {
+describe("delete projects", () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
@@ -48,8 +48,10 @@ describe("delete comments and answers", () => {
     const status = await ProjectAPI.delete(projectState._id, authToken) // clean it up
     expect(status, 'test project deletion failed').to.be.equal(204)
   })
+
+
   // update for delete project test
-  describe("PUT /api/v1/projects/:project_id", () => {
+  describe("DELETE /api/v1/projects/:project_id", () => {
     const request = function (projectId: string, body: any, authToken?: string): Request {
       let req = chai.request(data.SERVER)
         .put(`/api/v1/projects/${projectId}`)
@@ -106,11 +108,12 @@ describe("delete comments and answers", () => {
     })
   })
 
+
   const commentTypes = ['comments', 'answers']
   for (let commentType of commentTypes) {
     describe(`DELETE /api/v1/projects/:project_id/${commentType}/:comment_id`, () => {
       let createdComments = []
-      const request = function (projectId: string, body: any, authToken?: string): Request {
+      const requestCreate = function (projectId: string, body: any, authToken?: string): Request {
         let req = chai.request(data.SERVER)
           .put(`/api/v1/projects/${projectId}/${commentType}`)
           .send(body)
@@ -118,7 +121,7 @@ describe("delete comments and answers", () => {
         authToken && req.set('Authorization', authToken)
         return req
       }
-      const deleteRequest = (projectId: string, commentType: string, commentId?: string, replyIds?: string[], authToken?: string): Request => {
+      const requestDelete = (projectId: string, commentType: string, commentId?: string, replyIds?: string[], authToken?: string): Request => {
         // reply _ids are optional, so we add them as array params after comment_id (required)
         let reply_ids: string
         replyIds.forEach((replyId) => {
@@ -150,22 +153,16 @@ describe("delete comments and answers", () => {
           start: 5,
           end: 100
         }
-        // create a new comment
-        const createRes = await request(projectState._id, minComment, authToken)
+        // create a new comment that we'll delete in the next step
+        const createRes = await requestCreate(projectState._id, minComment, authToken)
         expect(createRes).to.have.status(200)
         const comment = createRes.body
         expect(comment).to.have.property('_id')
 
         // delete the newly created comment
-        const deleteRes = await deleteRequest(projectState._id, `${commentType}`, comment._id, null, authToken)
+        const deleteRes = await requestDelete(projectState._id, `${commentType}`, comment._id, null, authToken)
         expect(deleteRes).to.have.status(200)
       })
-      // this next test only applies to comments, we can't really run it for answers
-      if (commentType==='comments') {
-        it(`should delete a new ${commentType} that has replies`, async () => {
-          
-        })
-      }
       it(`should reject edits to a ${commentType} if the authenticated user id does not match the user_id of the comment`, async () => {
         const { username, password } = data.LOGIN_INFO.API_STUDENT
         const { token } = await UserAPI.login(username, password)
@@ -175,13 +172,20 @@ describe("delete comments and answers", () => {
           _id: commentId,
           start: 10
         }
-        const res = await request(projectState._id, commentData, token)
+        const res = await requestCreate(projectState._id, commentData, token)
         expect(res).to.have.status(403)
       })
       it('should reject an unauthorized request', async () => {
-        const res = await request(projectState._id, { doesnt_matter: 'nothing' })
+        const res = await requestCreate(projectState._id, { doesnt_matter: 'nothing' })
         expect(res).to.have.status(401)
       })
+      
+      // this next test only applies to comments, we can't really run it for answers
+      if (commentType==='comments') {
+        it(`should delete a new ${commentType} that has replies`, async () => {
+          
+        })
+      }
     })
   }
 })

@@ -16,7 +16,7 @@ export async function RemoverojectController(req: Request, res: Response, next: 
       return res.status(400).send({ error: 'invalid project id passed' })
     }
     
-    let project = await Project.deleteOne({ 
+    let project = await Project.deleteOne({
       _id: project_id, 
       teacher_id: user._id 
     })
@@ -40,6 +40,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
     const { project_id, remove_property } = req.params
     const comment_id = req.query.comment_id || req.params.comment_id // need the req.params check here for legacy calls from the projects route
     const reply_ids = req.query.reply_ids
+    let user = req.user
 
     // consolidate _ids in to one array for removal
     let idArray: string[]
@@ -57,16 +58,11 @@ export async function RemovePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }
 
-    await REMOVE_CONTROLLERS[remove_property]({ project_id, idArray })
+    await REMOVE_CONTROLLERS[remove_property]({ project_id, user, comment_id, idArray })
 
     return res.status(204).send()
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      let validationErrors = cleanMongoValidationError(err)
-      return res.status(406).send({ validationErrors })
-    } else if (err.message === 'err_no_project') {
-      return res.status(404).send({ error: 'no project found for that id' })
-    } else if (err.message === 'err_not_authorized') {
+    if (err.message === 'err_not_authorized') {
       return res.status(403).send()
     } else if (err.status) {
       return res.status(err.status).send({ error: err.message })
@@ -76,7 +72,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
 }
 
 const REMOVE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, idArray: string[] }) => Promise<any>
+  [key: string]: (props: { project_id: string, user: any, comment_id: string, idArray: string[] }) => Promise<any>
 } = {
   comments: function (props) {
     return removeCommentFromArray(props, 'comments')
