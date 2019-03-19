@@ -57,9 +57,8 @@ export async function RemovePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }
 
-    let removeObj = await REMOVE_CONTROLLERS[remove_property]({ project_id, idArray })
+    await REMOVE_CONTROLLERS[remove_property]({ project_id, idArray })
 
-    // return res.status(200).send(removeObj)
     return res.status(204).send()
   } catch (err) {
     if (err.name === 'ValidationError') {
