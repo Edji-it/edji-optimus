@@ -17,14 +17,6 @@ module.exports = {
       }
     ]
   },
-  // node: {
-  //   child_process: 'empty',
-  //   console: true,
-  //   dns: 'empty',
-  //   fs: 'empty',
-  //   module: 'empty',
-  //   tls: 'empty'
-  // },
   resolve: {
     extensions: ['.ts', '.tsx', '.js']
   },
@@ -32,4 +24,4 @@ module.exports = {
     filename: 'bundle.js',
     path: OUT_DIR
   }
-};
+}
