@@ -165,6 +165,7 @@ let model = ModelCreator("User", {
             'createdAt',
             'updatedAt',
             'school_name',
+            'phone_number',
             'sales_can_contact',
             'archive_readings_before',
             'oauth'
