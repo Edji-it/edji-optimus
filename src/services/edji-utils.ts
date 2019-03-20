@@ -10,13 +10,14 @@ const LOGS_ENDPOINT: string = [process.env.EDJI_FLAK_URL || 'https://flak-dev.ed
 export class EdjiUtils {
   appId: string
   env: string
-  doLog: boolean
+  //  default local logging to false
+  doLog: boolean = process.env.NODE_ENV === 'local' ? false : true
   requestIdHeader: string = 'X-Request-Id'
   requestTimeHeader: string = 'X-Response-Time'
   constructor({ appId, env, doLog }: UtilOptions) {
     this.appId = appId
     this.env = env || process.env.NODE_ENV
-    this.doLog = doLog === false ? false : true
+    if (doLog === false) this.doLog = false
   }
 
   /**
