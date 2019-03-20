@@ -24,41 +24,45 @@ export class EdjiUtils {
    * if logs are turned on, sends log to Flak
    */
   middleware: RequestHandler = (req, res, next) => {
-    const startTime = process.hrtime()
-    const requestIdHeader: string = <string>res.getHeader(this.requestIdHeader)
-    const request_id: string = requestIdHeader || v4()
-    if (!requestIdHeader) res.setHeader(this.requestIdHeader, request_id)
-    res.setHeader('X-Powered-By', 'Autobots')
-    const _this = this
-    onHeaders(res, function () {
-      const diff = process.hrtime(startTime)
-      const request_time = Math.round((diff[0] * 1e3 + diff[1] * 1e-6) * 1e3) / 1e3
-      this.setHeader(_this.requestTimeHeader, request_time)
-      if (_this.doLog) {
-        const log: EdjiLog = {
-          app_id: _this.appId,
-          env: _this.env,
-          method: req.method,
-          status: res.statusCode,
-          action: 'route_log',
-          timestamp: new Date(),
-          ip: req.ip,
-          url: `${req.protocol}://${req.hostname}${req.originalUrl}`,
-          request_id,
-          request_time,
-          heroku: process.env.HEROKU_RELEASE_VERSION
-        }
-        if (req.user && req.user._id) {
-          if (typeof req.user._id === 'object') {
-            log.user_id = req.user._id.toString()
-          } else if (typeof req.user._id === 'string') {
-            log.user_id = req.user._id
+    try {
+      const startTime = process.hrtime()
+      const requestIdHeader: string = <string>res.getHeader(this.requestIdHeader)
+      const request_id: string = requestIdHeader || v4()
+      if (!requestIdHeader) res.setHeader(this.requestIdHeader, request_id)
+      res.setHeader('X-Powered-By', 'Autobots')
+      const _this = this
+      // this hook gets called right before the request is sent, so that we'll know how long the request took
+      onHeaders(res, function () {
+        const diff = process.hrtime(startTime)
+        const request_time = Math.round((diff[0] * 1e3 + diff[1] * 1e-6) * 1e3) / 1e3
+        this.setHeader(_this.requestTimeHeader, request_time + 'ms')
+        if (_this.doLog) {
+          const log: EdjiLog = {
+            app_id: _this.appId,
+            env: _this.env,
+            method: req.method,
+            status: res.statusCode,
+            action: 'route_log',
+            timestamp: new Date(),
+            ip: req.ip,
+            url: `${req.protocol}://${req.hostname}${req.originalUrl}`,
+            request_id,
+            request_time,
+            heroku: process.env.HEROKU_RELEASE_VERSION
           }
+          if (req.user && req.user._id) {
+            if (typeof req.user._id === 'object') {
+              log.user_id = req.user._id.toString()
+            } else if (typeof req.user._id === 'string') {
+              log.user_id = req.user._id
+            }
+          }
+          _this.sendLog(log)
         }
-        _this.sendLog(log)
-      }
-    })
-    next()
+      })
+    } catch (err) { } finally {
+      next()
+    }
   }
 
   sendLog = async (body: EdjiLog): Promise<void> => {
