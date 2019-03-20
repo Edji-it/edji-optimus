@@ -9,7 +9,7 @@
       "request": "attach",
       "name": "Debug",
       "address": "localhost",
-      "port": 9220,
+      "port": 9229,
       "restart": true,
       "protocol": "inspector",
       "processId": "${command:PickProcess}"
