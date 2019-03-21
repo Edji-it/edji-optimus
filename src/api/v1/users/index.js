@@ -1,8 +1,10 @@
 // package imports
-const router = require('express').Router()
+// const router = require('express').Router()
+import { Router } from 'express'
+const router = Router()
 
 // project imports
-const authRequired = require('./../../../middleware/auth-required')
+const authRequired = require('../../../middleware/auth-required')
 import { TokenController } from './tokens'
 import LinkController from './link'
 
@@ -16,4 +18,4 @@ router.get('/:user_id', authRequired, require('./check-user-id'), require('./ret
 router.put('/password_recovery', require('./password_recovery'))
 router.put('/@me/link', authRequired, LinkController)
 
-module.exports = router
+export default router

@@ -7,4 +7,4 @@ const router = require('express').Router()
 router.get('/check-max-heroes', require('./check-max-heroes'))
 
 // export router
-module.exports = router
+export default router

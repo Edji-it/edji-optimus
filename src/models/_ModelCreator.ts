@@ -1,6 +1,5 @@
 import { captureException } from '@sentry/node'
 import elastic from './../elasticsearch'
-import { IndexOptions } from './ModelCreator'
 
 export interface SaveAndIndexOptions {
   save: Promise<any>

@@ -2,8 +2,8 @@
 const router = require('express').Router()
 
 // attach api versions to router
-router.use('/v1', require('./v1'))
-router.use('/test', require('./test'))
+router.use('/v1', require('./v1').default)
+router.use('/test', require('./test').default)
 
 // export router
-module.exports = router
+export default router
