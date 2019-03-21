@@ -20,7 +20,8 @@ export async function RemoverojectController(req: Request, res: Response, next: 
       _id: project_id, 
       teacher_id: user._id 
     })
-    if (!project) {
+
+    if (project.n===0) {
       return res.status(404).send({ error: 'no project at that id' })
     }
 
