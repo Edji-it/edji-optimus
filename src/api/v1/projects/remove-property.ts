@@ -15,12 +15,11 @@ export async function RemoverojectController(req: Request, res: Response, next: 
     if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project id passed' })
     }
-    
+
     let project = await Project.deleteOne({
       _id: project_id, 
       teacher_id: user._id 
     })
-
     if (!project) {
       return res.status(404).send({ error: 'no project at that id' })
     }

@@ -31,9 +31,11 @@ export async function removeCommentFromArray({ project_id, user, comment_id, idA
     }
   )
 
+  if (!res) throw new Error('err_not_authorized')
+
   // if we have an asset from the S3 bucket on the comment or answer we just deleted, we need to remove it from S3
-  let comments = res[commentType]
-  const len = comments.length
+  let comments = res && res[commentType]
+  const len = comments && comments.length
   for (let i=0; i<len; i++) {
     if (comments[i]._id.equals(comment_id)) {
       let comment = comments[i]
