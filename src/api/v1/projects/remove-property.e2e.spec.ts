@@ -13,7 +13,7 @@ chai.use(chaiHttp)
 
 let authToken: string
 let userId: any
-let projectState: any // keep track of the updates we make to the project along the way
+let createdProject: any
 
 describe("delete projects", () => {
   before(async () => {
@@ -34,7 +34,7 @@ describe("delete projects", () => {
       authToken
     )
     expect(project._id, 'did not successfully create project to test').not.to.be.undefined
-    projectState = project
+    createdProject = project
   })
 
   // update for delete project test
@@ -83,7 +83,7 @@ describe("delete projects", () => {
       let { username, password } = data.LOGIN_INFO.API_HERO
       let { token } = await UserAPI.login(username, password)
       expect(token).not.to.be.undefined
-      const res = await requestDelete('invalid_id', token)
+      const res = await requestDelete(createdProject._id, token)
       expect(res).to.have.status(404)
     })
   })
@@ -123,7 +123,7 @@ describe("delete projects", () => {
           start: 5,
           end: 100
         }
-        const res = await ProjectAPI.createComment(projectState._id, comment, authToken, commentType)
+        const res = await ProjectAPI.createComment(createdProject._id, comment, authToken, commentType)
         expect(res).to.have.property('start')
         expect(res.start).to.be.equal(comment.start)
         createdComments.push(res)
@@ -136,24 +136,24 @@ describe("delete projects", () => {
           end: 100
         }
         // create a new comment that we'll delete in the next step
-        const createRes = await requestCreate(projectState._id, minComment, authToken)
+        const createRes = await requestCreate(createdProject._id, minComment, authToken)
         expect(createRes).to.have.status(200)
         const comment = createRes.body
         expect(comment).to.have.property('_id')
 
         // delete the newly created comment
-        const deleteRes = await requestDelete(projectState._id, `${commentType}`, comment._id, [], authToken)
+        const deleteRes = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], authToken)
         expect(deleteRes).to.have.status(204)
       })
       it(`should reject delete request to a ${commentType} if the authenticated user id does not match the user_id of the comment`, async () => {
         const { username, password } = data.LOGIN_INFO.API_STUDENT
         const { token } = await UserAPI.login(username, password)
         const commentId = createdComments[0]._id
-        const res = await requestDelete(projectState._id, `${commentType}`, commentId, [], token)
+        const res = await requestDelete(createdProject._id, `${commentType}`, commentId, [], token)
         expect(res).to.have.status(403)
       })
       it('should reject an unauthorized request', async () => {
-        const res = await requestDelete(projectState._id, `${commentType}`, 'fakeId', [], null)
+        const res = await requestDelete(createdProject._id, `${commentType}`, 'fakeId', [], null)
         expect(res).to.have.status(401)
       })
       // this next test only applies to comments, we can't really run it for answers
@@ -172,21 +172,21 @@ describe("delete projects", () => {
             end: 100
           }
           // create a new comment that we'll delete in the final step
-          const createRes = await requestCreate(projectState._id, minComment, authToken)
+          const createRes = await requestCreate(createdProject._id, minComment, authToken)
           expect(createRes).to.have.status(200)
           const comment = createRes.body
           expect(comment).to.have.property('_id')
           minReply.reply_to = comment._id
 
           // create a new reply comment to the parent comment above that we'll delete in the final step
-          const createReplyRes = await requestCreate(projectState._id, minReply, authToken)
+          const createReplyRes = await requestCreate(createdProject._id, minReply, authToken)
           expect(createReplyRes).to.have.status(200)
           const reply = createReplyRes.body
           expect(reply).to.have.property('_id')
           expect(reply).to.have.property('reply_to')
   
           // delete the newly created comment
-          const deleteRes = await requestDelete(projectState._id, `${commentType}`, comment._id, [reply._id], authToken)
+          const deleteRes = await requestDelete(createdProject._id, `${commentType}`, comment._id, [reply._id], authToken)
           expect(deleteRes).to.have.status(204)
         })
       }
