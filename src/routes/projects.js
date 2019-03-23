@@ -10,8 +10,8 @@ const Project = require("./../models/Project")
 const MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
 const pipolog = require('./../pipolog').pipoLog
-const UpdateProjectControllers = require('./../api/v1/projects/update')
-const RemoveProjectControllers = require('./../api/v1/projects/remove-property')
+const { UpdateProjectController, UpdatePropertyController } = require('./../api/v1/projects/update')
+const { RemoveProjectController, RemovePropertyController } = require('./../api/v1/projects/remove-property')
 
 const router = express.Router()
 
@@ -88,7 +88,7 @@ router.put(
         req.params.wrap_response = true
         next()
     },
-    UpdateProjectControllers.UpdateProjectController
+    UpdateProjectController
 )
 
 /**
@@ -108,7 +108,7 @@ router.post(
         next()
     },
     // add PUT /api/v1/projects/:id/comments handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -127,7 +127,7 @@ router.put(
         next()
     },
     // add PUT /api/v1/projects/:id/comments handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -147,7 +147,7 @@ router.post(
         next()
     },
     // add PUT /api/v1/projects/:id/answers handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -166,7 +166,7 @@ router.put(
         next()
     },
     // add PUT /api/v1/projects/:id/answers handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -179,7 +179,7 @@ router.put(
         req.params.update_property = 'students'
         next()
     },
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 // get projects for a single reading id
@@ -231,7 +231,7 @@ router.delete(
         req.params.remove_property = 'comments'
         next()
     },
-    RemoveProjectControllers.RemovePropertyController
+    RemovePropertyController
 )
 
 /**
@@ -244,7 +244,7 @@ router.delete(
         req.params.remove_property = 'answers'
         next()
     },
-    RemoveProjectControllers.RemovePropertyController
+    RemovePropertyController
 )
 
 /**

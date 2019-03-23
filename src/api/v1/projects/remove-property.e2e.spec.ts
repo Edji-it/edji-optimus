@@ -1,18 +1,19 @@
 // library imports
 import 'mocha'
 import * as chai from 'chai'
-const expect = chai.expect
+import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
 import { UserAPI, ProjectAPI, TempUserAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
+import { ObjectId } from 'mongodb'
 
 // prep for http calls
 chai.use(chaiHttp)
 
 let authToken: string
-let userId: any
+let userId: ObjectId
 let createdProject: any
 
 describe("delete projects", () => {

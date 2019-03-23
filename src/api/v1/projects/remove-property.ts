@@ -7,7 +7,7 @@ import * as Project from '../../../models/Project'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
 import { removeCommentFromArray } from './_remove-property'
 
-export async function RemoverojectController(req: Request, res: Response, next: NextFunction) {
+export async function RemoveProjectController(req: Request, res: Response, next: NextFunction) {
   try {
     const { project_id } = req.params
     let user = req.user
@@ -45,10 +45,6 @@ export async function RemovePropertyController(req: Request, res: Response, next
     // consolidate _ids in to one array for removal
     let idArray: string[]
     (idArray = reply_ids ? reply_ids : []).push(comment_id)
-
-    if (!idArray) {
-      return res.status(400).send({ error: 'removable properties not found on request' })
-    }
 
     if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project or property id passed' })

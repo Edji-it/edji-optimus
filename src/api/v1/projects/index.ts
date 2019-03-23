@@ -5,7 +5,7 @@ import { Router } from 'express'
 import * as  authRequired from './../../../middleware/auth-required'
 import createProject from './create'
 import { UpdateProjectController, UpdatePropertyController } from './update'
-import { RemoverojectController, RemovePropertyController } from './remove-property'
+import { RemoveProjectController, RemovePropertyController } from './remove-property'
 import validateController from './validate'
 
 const router = Router()
