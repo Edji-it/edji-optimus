@@ -17,7 +17,7 @@ router.get('/:project_id', require('./retrieve'))
 router.put('/:project_id', authRequired, UpdateProjectController)
 router.get('/:project_code/validate', validateController)
 router.put('/:project_id/:update_property', authRequired, UpdatePropertyController)
-router.delete('/:project_id', authRequired, RemoverojectController)
+router.delete('/:project_id', authRequired, RemoveProjectController)
 router.delete('/:project_id/:remove_property', authRequired, RemovePropertyController)
 
 export default router
