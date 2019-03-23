@@ -1,6 +1,7 @@
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 import data = require('./constants')
+import { ObjectId } from 'mongodb'
 
 chai.use(chaiHttp)
 
@@ -112,7 +113,7 @@ export class ReadingAPI {
 export class ProjectAPI {
   static async create(
     project: {
-      teacher_id: string,
+      teacher_id: ObjectId,
       reading_id: string,
       label: string,
       [key: string]: any
