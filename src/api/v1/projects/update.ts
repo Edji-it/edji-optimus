@@ -123,6 +123,24 @@ const UPDATE_CONTROLLERS: {
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
     return { _id: user._id }
+  },
+  feedback: async function ({project_id, user, update}) {
+    const res = await Project.update(
+      {
+        _id: project_id,
+        teacher_id: user._id
+      },
+      {
+        $push: {
+          feedback: update
+        }
+      },
+      {
+        runValidators: true
+      }
+    )
+    if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
+    return { feedback: update }
   }
 }
 
