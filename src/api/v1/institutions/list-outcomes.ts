@@ -35,6 +35,7 @@ export async function GetOutcomes(req: Request, res: Response, next: NextFunctio
       { $unwind: "$standard" },
       {
         $project: {
+          _id: "$outcomes._id",
           short_name: "$outcomes.short_name",
           outcome_statement: "$outcomes.outcome_statement",
           rubric: "$outcomes.rubric",
