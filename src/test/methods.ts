@@ -113,7 +113,7 @@ export class ReadingAPI {
 export class ProjectAPI {
   static async create(
     project: {
-      teacher_id: ObjectId,
+      teacher_id: string,
       reading_id: string,
       label: string,
       [key: string]: any

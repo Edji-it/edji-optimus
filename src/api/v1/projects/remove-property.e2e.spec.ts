@@ -7,13 +7,12 @@ import { Request } from 'superagent'
 
 import { UserAPI, ProjectAPI, TempUserAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
-import { ObjectId } from 'mongodb'
 
 // prep for http calls
 chai.use(chaiHttp)
 
 let authToken: string
-let userId: ObjectId
+let userId: string
 let createdProject: any
 
 describe("delete projects", () => {
@@ -61,7 +60,7 @@ describe("delete projects", () => {
       const createProj = await requestCreate(createBody, authToken)
       expect(createProj).to.have.property('_id')
       expect(createProj._id).not.to.be.undefined
-      
+
       // delete the project that we just created above
       const deleteProj = await requestDelete(createProj._id, authToken)
       expect(deleteProj).to.have.status(204)
@@ -156,7 +155,7 @@ describe("delete projects", () => {
         expect(res).to.have.status(401)
       })
       // this next test only applies to comments, we can't really run it for answers
-      if (commentType==='comments') {
+      if (commentType === 'comments') {
         it(`should delete a new ${commentType} that has replies`, async () => {
           const minComment = {
             user_id: userId,
@@ -166,7 +165,7 @@ describe("delete projects", () => {
           // need to set the reply_to to the comment _id above once we add it to the project in the call below
           const minReply = {
             user_id: userId,
-            reply_to: '', 
+            reply_to: '',
             start: 5,
             end: 100
           }
@@ -183,7 +182,7 @@ describe("delete projects", () => {
           const reply = createReplyRes.body
           expect(reply).to.have.property('_id')
           expect(reply).to.have.property('reply_to')
-  
+
           // delete the newly created comment
           const deleteRes = await requestDelete(createdProject._id, `${commentType}`, comment._id, [reply._id], authToken)
           expect(deleteRes).to.have.status(204)
