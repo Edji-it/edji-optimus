@@ -40,9 +40,7 @@ describe("delete projects", () => {
   // update for delete project test
   describe("DELETE project /api/v1/projects/:project_id", () => {
     const requestCreate = async function (body: any, authToken?: string) {
-      const project = await ProjectAPI.create(body, authToken)
-      
-      return project
+      return ProjectAPI.create(body, authToken)
     }
 
     const requestDelete = function (projectId: string, authToken?: string): Request {
