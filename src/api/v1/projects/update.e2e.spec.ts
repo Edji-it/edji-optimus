@@ -1,7 +1,7 @@
 // library imports
 import 'mocha'
 import * as chai from 'chai'
-const expect = chai.expect
+import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 import { ObjectId } from 'mongodb'
@@ -13,7 +13,7 @@ import data = require('../../../test/constants')
 chai.use(chaiHttp)
 
 let authToken: string
-let userId: any
+let userId: string
 let fullname: string
 let projectState: any // keep track of the updates we make to the project along the way
 

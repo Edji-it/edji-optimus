@@ -10,7 +10,8 @@ const Project = require("./../models/Project")
 const MountModelToRouter = require("./MountModelToRouter")
 const authRequired = require('./../middleware/auth-required')
 const pipolog = require('./../pipolog').pipoLog
-const UpdateProjectControllers = require('./../api/v1/projects/update')
+const { UpdateProjectController, UpdatePropertyController } = require('./../api/v1/projects/update')
+const { RemoveProjectController, RemovePropertyController } = require('./../api/v1/projects/remove-property')
 
 const router = express.Router()
 
@@ -87,7 +88,7 @@ router.put(
         req.params.wrap_response = true
         next()
     },
-    UpdateProjectControllers.UpdateProjectController
+    UpdateProjectController
 )
 
 /**
@@ -107,7 +108,7 @@ router.post(
         next()
     },
     // add PUT /api/v1/projects/:id/comments handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -126,7 +127,7 @@ router.put(
         next()
     },
     // add PUT /api/v1/projects/:id/comments handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -146,7 +147,7 @@ router.post(
         next()
     },
     // add PUT /api/v1/projects/:id/answers handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -165,7 +166,7 @@ router.put(
         next()
     },
     // add PUT /api/v1/projects/:id/answers handler
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 /**
@@ -178,7 +179,7 @@ router.put(
         req.params.update_property = 'students'
         next()
     },
-    UpdateProjectControllers.UpdatePropertyController
+    UpdatePropertyController
 )
 
 // get projects for a single reading id
@@ -220,132 +221,31 @@ let deleteFromS3 = function (url) {
     return rp(options)
 }
 
-router.delete("/:project_id/comments/:comment_id", authRequired, function (req, res, next) {
-    let user = req.user
-    let project_id = req.params.project_id
-    let comment_id = req.params.comment_id
+/**
+ * @deprecated 3/16/19
+ */
+router.delete(
+    '/:project_id/comments/:comment_id', 
+    authRequired, 
+    (req, res, next) => {
+        req.params.remove_property = 'comments'
+        next()
+    },
+    RemovePropertyController
+)
 
-    if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        res.status(400).send({ errors: { projectId: "invalid" } })
-        return
-    } else if (!mongoose.Types.ObjectId.isValid(comment_id)) {
-        res.status(400).send({ errors: { commentId: "invalid" } })
-        return
-    }
-
-    Q(Project.findOneAndUpdate(
-        {
-            _id: project_id,
-            $or: [
-                { teacher_id: user._id }, // this lets teachers delete a student's comment
-                {
-                    comments: {
-                        $elemMatch: { // this is likely a student deleting their own comment
-                            _id: comment_id,
-                            user_id: user._id
-                        }
-                    }
-                }
-            ]
-        }, {
-            $pull: {
-                comments: {
-                    _id: comment_id
-                }
-            }
-        }, {
-        })
-        .exec())
-        .then((project) => { // the project that gets passed is the project before the update
-
-            if (!project) {
-                res.status(404).send()
-            } else {
-                // go through and find the comment that should have been deleted
-                modComment = project.comments.find((comment) => {
-                    return comment._id == comment_id
-                })
-
-                // if the old comment had a url, we need to delete that asset
-                if (modComment && modComment.url) {
-                    deleteFromS3(modComment.url)
-                        .then((body) => { // { deleted_url: string[] }
-                            return res.status(200).send({ deleted_comment: modComment })
-                        })
-                        .catch((err) => {
-                            return res.status(err.statusCode).send(err)
-                        })
-                } else {
-                    return res.status(200).send({ deleted_comment: modComment })
-                }
-            }
-        })
-        .catch((err) => {
-            next(err)
-        })
-})
-
-router.delete("/:project_id/answers/:answer_id", authRequired, function (req, res, next) {
-    let user = req.user
-    let project_id = req.params.project_id
-    let answer_id = req.params.answer_id
-
-    if (!mongoose.Types.ObjectId.isValid(project_id)) {
-        return res.status(400).send({ errors: { projectId: "invalid" } })
-    } else if (!mongoose.Types.ObjectId.isValid(answer_id)) {
-        return res.status(400).send({ errors: { answerId: "invalid" } })
-    }
-
-    Project.findOneAndUpdate(
-        {
-            _id: project_id,
-            $or: [
-                { teacher_id: user._id }, // this lets teachers delete a student's answer
-                {
-                    answers: {
-                        $elemMatch: { // this is likely a student deleting their own answer
-                            _id: answer_id,
-                            user_id: user._id
-                        }
-                    }
-                }
-            ]
-        }, {
-            $pull: {
-                answers: {
-                    _id: answer_id
-                }
-            }
-        }, {
-        })
-        .then((project) => { // the project that gets passed is the project before the update
-
-            if (!project) {
-                res.status(404).send()
-            } else {
-                // go through and find the answer that should have been deleted
-                modAnswer = project.answers.find((answer) => {
-                    return answer._id == answer_id
-                })
-
-                // if the old answer had a url, we need to delete that asset
-                if (modAnswer && modAnswer.url) {
-                    deleteFromS3(modAnswer.url)
-                        .then((body) => { // { deleted_url: string[] }
-                            return res.status(200).send({ deleted_answer: modAnswer })
-                        })
-                        .catch((err) => {
-                            return res.status(err.statusCode).send(err)
-                        })
-                } else {
-                    return res.status(200).send({ deleted_answer: modAnswer })
-                }
-            }
-        })
-        .catch((err) => {
-            next(err)
-        })
-})
+/**
+ * @deprecated 3/16/19
+ */
+router.delete(
+    '/:project_id/answers/:comment_id', 
+    authRequired, 
+    (req, res, next) => {
+        req.params.remove_property = 'answers'
+        next()
+    },
+    RemovePropertyController
+)
 
 /**
  * @deprecated 3/14/19

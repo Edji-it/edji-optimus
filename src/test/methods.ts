@@ -1,6 +1,7 @@
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 import data = require('./constants')
+import { ObjectId } from 'mongodb'
 
 chai.use(chaiHttp)
 
