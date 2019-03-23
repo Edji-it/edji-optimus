@@ -23,6 +23,17 @@ const defaultProject = {
   label: 'Postman Project',
   types: ['emoji', 'text']
 }
+const outcomeProject = {
+  reading_id: '59f91fb776088d0ef0bcea1a',
+  label: 'Postman Project',
+  types: ['emoji', 'text'],
+  outcomes: [
+      {
+        outcome_id: "5c50f4c20b944f00963beb59",
+        outcome_statement: "Statement"
+      }
+  ]
+}
 
 let authToken: string
 let userId: any
@@ -58,6 +69,29 @@ describe("POST /api/v1/projects", () => {
     project.should.have.property("comments")
     project.should.have.property("updatedAt")
     project.should.have.property("createdAt")
+
+    createdProjects.push(project)
+  })
+  it("should create a new project with a learning outcome", async () => {
+    const res = await request(outcomeProject, authToken)
+    res.should.have.status(201)
+    const project = res.body
+    project.should.have.property("_id")
+    project.should.have.property("teacher_id")
+    project.teacher_id.should.equal(userId)
+    project.should.have.property("reading_id")
+    project.should.have.property("label")
+    project.should.have.property("code")
+    project.should.have.property("types")
+    project.should.have.property("temp_ids")
+    project.should.have.property("students_ids")
+    project.should.have.property("comments")
+    project.should.have.property("updatedAt")
+    project.should.have.property("createdAt")
+    project.should.have.property("outcomes")
+    const outcomes = project.outcomes[0]
+    outcomes.should.have.property("outcome_id")
+    outcomes.should.have.property("outcome_statement")
 
     createdProjects.push(project)
   })

@@ -32,7 +32,11 @@ var Model = ModelCreator("Project", {
         evaluation: { type: String, required: true },
         createdAt: { type: Date, required: true, default: Date.now() }
     }],
-    group_instructions: String
+    group_instructions: String,
+    outcomes: [{
+        outcome_id: { type: mongoose.Schema.ObjectId, required: true },
+        outcome_statement: { type: String, required: true }
+    }]
 }, (schema) => {
     // grab a session code and add it to the project before saving
     schema.methods.preEdjiSave = async function () {
