@@ -24,7 +24,8 @@ var Model = ModelCreator("Project", {
         outcome_id: { type: mongoose.Schema.ObjectId },
         feedback_to: { type: mongoose.Schema.ObjectId, ref: "Comment" },
         evaluation: { type: String, required: true },
-        createdAt: { type: Date, required: true, default: Date.now() }
+        createdAt: { type: Date, required: true, default: Date.now() },
+        updatedAt: { type: Date, required: true, default: Date.now() }
     }],
     students_ids: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     temp_ids: [{ type: mongoose.Schema.ObjectId, ref: "TempUser" }],

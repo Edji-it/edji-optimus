@@ -1,6 +1,9 @@
+// library imports
 import { del } from 'request-promise-native'
 import { captureException } from '@sentry/node'
+import { ObjectId } from 'mongodb'
 
+// project imports
 import * as Project from '../../../models/Project'
 import * as Comment from '../../../models/Comment'
 
@@ -57,4 +60,38 @@ export async function updateCommentArray({ project_id, user, update: commentData
   // await comment.validate() // validate here
   await project.edjiSave({ mongooseOptions: { new: true, runValidators: false } })
   return comment
+}
+
+export async function updateFeedbackArray({ project_id, user, update: feedbackData }) {
+  let project = await Project.findById(project_id)
+  if (!project) throw new Error('err_no_project')
+
+  let feedback: Feedback
+  if (feedbackData._id) {
+    // this method only works because it's an array of subdocuments in mongoose
+    feedback = project['feedback'].id(feedbackData._id)
+  }
+
+  // we'll create the new feedback here if we didn't find it in the project
+  if (feedback) {
+    // make all of the updates
+    for (let prop in feedbackData) {
+      feedback[prop] = feedbackData[prop]
+    }
+  } else {
+    feedback = feedbackData
+    project['feedback'].push(feedback)
+  }
+  feedback.updatedAt = new Date // manually update updatedAt
+  await project.edjiSave({ mongooseOptions: { new: true, runValidators: true } })
+  return feedback
+}
+
+interface Feedback {
+  createdAt: Date
+  updatedAt: Date
+  _id: ObjectId
+  outcome_id: ObjectId
+  feedback_to: ObjectId
+  evaluation: string
 }
