@@ -13,7 +13,7 @@ module.exports = function (req, res, next) {
     return res.status(400).send({ error: 'invalid mongo id' })
   }
 
-  Project.update(
+  Project.updateOne(
     {
       temp_ids: temp_id,
       "comments.user_id": temp_id

@@ -107,7 +107,7 @@ const UPDATE_CONTROLLERS: {
   },
   students: async function ({ project_id, user, update }) {
     const studentsArray: string = (user.type && user.type === 'temp') ? 'temp_ids' : 'students_ids'
-    const res = await Project.update(
+    const res = await Project.updateOne(
       {
         _id: project_id,
         teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
@@ -125,7 +125,7 @@ const UPDATE_CONTROLLERS: {
     return { _id: user._id }
   },
   feedback: async function ({project_id, user, update}) {
-    const res = await Project.update(
+    const res = await Project.updateOne(
       {
         _id: project_id,
         teacher_id: user._id
