@@ -30,7 +30,7 @@ module.exports = function (req, res, next) {
       let promises = []
       // once we get the subscription_id we can cancel it - if there are multiple, cancel them all
       subscriptions.forEach((subscription) => {
-        promises.push(stripe.subscriptions.update(subscription.id, { cancel_at_period_end: true }))
+        promises.push(stripe.subscriptions.updateOne(subscription.id, { cancel_at_period_end: true }))
       })
       return Promise.all(promises)
     })
