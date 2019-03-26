@@ -124,15 +124,24 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key:
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
-  let bool = {
-    must: [
-      {
-        match: {
-          public: true
-        }
+  let should = [] // separated from the rest of the query because most of our query parameters alter this
+  let body = {
+    query: {
+      bool: {
+        must: [
+          {
+            match: {
+              public: true
+            }
+          },
+          {
+            bool: {
+              should
+            }
+          }
+        ]
       }
-    ],
-    should: []
+    }
   }
 
   // add conditions for all fields where we can directly set the value
@@ -140,13 +149,13 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     if (query.hasOwnProperty(field)) {
       let val = query[field]
       // if (val instanceof Array) {
-      //   bool.should.push({
+      //   should.push({
       //     match: {
       //       [field]: val.join(' ')
       //     }
       //   })
       // } else {
-      bool.should.push({
+      should.push({
         match: {
           [field]: val
         }
@@ -162,20 +171,15 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     lte && (grade_levels.lte = lte)
     gte && (grade_levels.gte = gte)
 
-    bool.should.push({
+    should.push({
       range: { grade_levels }
     })
   }
 
-  console.log(bool)
   return elastic.search({
     index: 'readings',
     type: 'default',
-    body: {
-      query: {
-        bool
-      }
-    },
+    body,
     from: query.from,
     size: query.size
   })
