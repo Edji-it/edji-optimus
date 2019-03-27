@@ -1,14 +1,10 @@
 import * as rp from 'request-promise-native'
 import * as sentry from '@sentry/node'
-import { ObjectId } from 'mongodb'
 import { expect } from 'chai'
-import { assert, stub, mock, SinonStub, SinonMock } from 'sinon'
+import { assert, stub, SinonStub } from 'sinon'
 require('sinon-mongoose')
 
-import { deleteFromS3, updatePropertyArray } from './_update'
-import * as helpers from './_update'
-import * as Project from './../../../models/Project'
-import * as Comment from './../../../models/Comment'
+import { deleteFromS3 } from './_update'
 
 describe('update project helpers', () => {
   describe('deleteFromS3', () => {

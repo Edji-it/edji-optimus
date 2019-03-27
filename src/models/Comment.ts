@@ -2,7 +2,8 @@
  * Comment Model
  * - Attached to Project objects
  */
-const mongoose = require('mongoose')
+import { Document, Types } from 'mongoose'
+import { ObjectID } from 'mongodb';
 const ModelCreator = require('./ModelCreator')
 
 const Model = ModelCreator("Comment", {
@@ -19,9 +20,28 @@ const Model = ModelCreator("Comment", {
         x: Number,
         y: Number
     },
-    reply_to: { type: mongoose.Schema.ObjectId, ref: "Comment" },
+    reply_to: { type: Types.ObjectId, ref: "Comment" },
     replies: Array,
     questionId: String
 })
 
-module.exports = Model
+export default Model
+
+export interface iComment extends Document {
+    user_id: string
+    start: number
+    end: number
+    data?: string
+    dataArray?: any[]
+    url?: string
+    author?: string
+    text?: string
+    type?: string
+    loc?: {
+        x: number
+        y: number
+    }
+    reply_to: ObjectID
+    replies: any[]
+    questionId: string
+}

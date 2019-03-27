@@ -6,7 +6,7 @@ var Tags = require("./Tags")
 
 // project imports
 const SessionCode = require("./SessionCode")
-const Comment = require("./Comment")
+const Comment = require("./Comment").default
 const Feedback = require('./Feedback').default
 const ModelCreator = require("./ModelCreator")
 
