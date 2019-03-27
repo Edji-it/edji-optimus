@@ -7,7 +7,7 @@ var Tags = require("./Tags")
 // project imports
 const SessionCode = require("./SessionCode")
 const Comment = require("./Comment")
-const Feedback = require('./Feedback')
+const Feedback = require('./Feedback').default
 const ModelCreator = require("./ModelCreator")
 
 /** mongoose hook for validation against acceptable values for `types` */
