@@ -88,7 +88,12 @@ let model = ModelCreator("User", {
     // email is pretty much required, except in the case of a student logging in through Clever, so email validation is done manually
     email: { type: String, set: toLower, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
     identities: [String],
-    school_name: String,
+    school_district: {
+        school_name: String,
+        school_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
+        district_name: String,
+        district_id: String // these are not ObjectIds, but these are Ids from the NCES data collection
+    },
     sales_can_contact: Boolean,
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
@@ -165,6 +170,7 @@ let model = ModelCreator("User", {
             'createdAt',
             'updatedAt',
             'school_name',
+            'school_district',
             'phone_number',
             'sales_can_contact',
             'archive_readings_before',

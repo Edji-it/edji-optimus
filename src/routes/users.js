@@ -36,7 +36,7 @@ router.put("/", authRequired, async function (req, res, next) {
         'avatar',
         'identities',
         'referred_by',
-        'school_name',
+        'school_district',
         'phone_number',
         'sales_can_contact',
         'archive_readings_before'
