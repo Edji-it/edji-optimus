@@ -2,11 +2,11 @@
  * Comment Model
  * - Attached to Project objects
  */
-import { Document, Types } from 'mongoose'
+import { Document, Types, Model } from 'mongoose'
 import { ObjectID } from 'mongodb';
 const ModelCreator = require('./ModelCreator')
 
-const Model = ModelCreator("Comment", {
+const Comment: Model<iComment> = ModelCreator("Comment", {
     user_id: { type: String, required: true }, // could be any type of user, maybe we want to add a user_type field?
     start: { type: Number, required: true, default: -1 },
     end: { type: Number, required: true, default: -1 },
@@ -25,7 +25,7 @@ const Model = ModelCreator("Comment", {
     questionId: String
 })
 
-export default Model
+export default Comment
 
 export interface iComment extends Document {
     user_id: string
