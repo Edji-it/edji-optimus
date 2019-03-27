@@ -9,6 +9,7 @@ import * as Reading from './../../../models/Reading'
 
 export interface ReadingQuery {
   ids?: string[]
+  q?: string
   html?: string
   title?: string
   parent_id?: string
@@ -28,6 +29,11 @@ const querySchema = joi.object().keys({
   _ids: joi.array().items(joi.string()),
   html: joi.string(),
   title: joi.string(),
+  /**
+   * the "q" parameter is handled specially, and will be added to the "should" clause for both title and html
+   * this means that the text searched in "q" could be either in "title" or "html"
+   */
+  q: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
   // public: joi.boolean(),
@@ -124,24 +130,42 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key:
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
-  let should = [] // separated from the rest of the query because most of our query parameters alter this
-  let body = {
+  // made a constant because for now each request must be for public assets
+  const publicQuery = {
+    match: {
+      public: true
+    }
+  }
+  let fieldQuery = {
+    bool: {
+      must: [],
+      should: []
+    }
+  }
+  let body: any = {
     query: {
       bool: {
         must: [
-          {
-            match: {
-              public: true
-            }
-          },
-          {
-            bool: {
-              should
-            }
-          }
+          fieldQuery,
+          publicQuery
         ]
       }
     }
+  }
+
+  if (query.hasOwnProperty('q')) {
+    fieldQuery.bool.should.push(
+      {
+        match: {
+          html: query.q
+        }
+      },
+      {
+        match: {
+          title: query.q
+        }
+      }
+    )
   }
 
   // add conditions for all fields where we can directly set the value
@@ -149,13 +173,13 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     if (query.hasOwnProperty(field)) {
       let val = query[field]
       // if (val instanceof Array) {
-      //   should.push({
+      //   must.push({
       //     match: {
       //       [field]: val.join(' ')
       //     }
       //   })
       // } else {
-      should.push({
+      fieldQuery.bool.must.push({
         match: {
           [field]: val
         }
@@ -171,7 +195,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     lte && (grade_levels.lte = lte)
     gte && (grade_levels.gte = gte)
 
-    should.push({
+    fieldQuery.bool.must.push({
       range: { grade_levels }
     })
   }
