@@ -6,6 +6,7 @@ import { ObjectId } from 'mongodb'
 // project imports
 import * as Project from '../../../models/Project'
 import Comment from '../../../models/Comment'
+import Feedback from '../../../models/Feedback'
 
 /**
  * Sets up the options and returns a promise which will call grapple's route to delete an asset from s3
@@ -57,7 +58,9 @@ export async function updatePropertyArray({ project_id, user, update: propData }
       propObj.author = user.fullname
       propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
     } else {
-      propObj = propData
+      propObj = new Feedback(propData)
+      propObj.owner_id = user._id
+      propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
     }
     project[propArrayName].push(propObj)
   }

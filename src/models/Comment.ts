@@ -2,8 +2,8 @@
  * Comment Model
  * - Attached to Project objects
  */
-import { Document, Types, Model } from 'mongoose'
-import { ObjectID } from 'mongodb';
+import { Document, Model, Schema } from 'mongoose'
+import { ObjectID } from 'mongodb'
 const ModelCreator = require('./ModelCreator')
 
 const Comment: Model<iComment> = ModelCreator("Comment", {
@@ -20,7 +20,7 @@ const Comment: Model<iComment> = ModelCreator("Comment", {
         x: Number,
         y: Number
     },
-    reply_to: { type: Types.ObjectId, ref: "Comment" },
+    reply_to: { type: Schema.Types.ObjectId, ref: "Comment" },
     replies: Array,
     questionId: String
 })
