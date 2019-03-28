@@ -23,7 +23,7 @@ export const login = async function ({ username, password }) {
     ]
   })
   if (!dbUser || !dbUser.password) throw { status: 401 }
-  const match = await compare(password, dbUser.password)
+  const match = await comparePasswords(password, dbUser.password)
   if (match) {
     const { user, token } = generateLoginObjectForUser(dbUser)
     if (!user || !token) {
@@ -36,6 +36,10 @@ export const login = async function ({ username, password }) {
   } else {
     throw { status: 401 }
   }
+}
+
+export const comparePasswords = function (stringPass: string, hashedPass: string): Promise<boolean> {
+  return compare(stringPass, hashedPass)
 }
 
 export const generateLoginObjectForUser = function (user: any) {

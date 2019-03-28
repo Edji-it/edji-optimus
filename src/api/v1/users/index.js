@@ -16,5 +16,6 @@ router.use('/tokens', TokenController)
 router.get('/public-details', require('./public-details'))
 router.get('/:user_id', authRequired, require('./check-user-id'), require('./retrieve'))
 router.put('/@me/link', authRequired, LinkController)
+router.post('/@me/change_password', authRequired, require('./change-pass').default)
 
 export default router

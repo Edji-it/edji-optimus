@@ -6,6 +6,7 @@ import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 import { ObjectId } from 'mongodb'
 
+// project imports
 import { UserAPI, ProjectAPI, TempUserAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
 
