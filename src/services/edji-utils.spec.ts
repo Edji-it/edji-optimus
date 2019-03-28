@@ -16,6 +16,8 @@ const mockRes = (options?: any) => {
 describe('EdjiUtils', () => {
   describe('constructor', () => {
     it('should assign proper defaults', () => {
+      const currentEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'test'
       const options = {
         appId: 'test'
       }
@@ -23,6 +25,7 @@ describe('EdjiUtils', () => {
       expect(edji.appId).to.be.equal(options.appId)
       expect(edji.env).to.be.equal(process.env.NODE_ENV)
       expect(edji.doLog).to.be.equal(true)
+      process.env.NODE_ENV = currentEnv
     })
     it('should allow overriding of defaults', () => {
       const options = {

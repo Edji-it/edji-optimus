@@ -75,6 +75,9 @@ const REMOVE_CONTROLLERS: {
   },
   answers: function (props) {
     return removeCommentFromArray(props, 'answers')
+  },
+  feedback: function (props) {
+    return removeCommentFromArray(props, 'feedback')
   }
 }
 
