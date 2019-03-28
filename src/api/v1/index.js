@@ -15,7 +15,6 @@ router.use('/referrals', require('./referrals'))
 router.use('/licenses', require('./licenses'))
 router.use('/institutions', InstitutionsController)
 router.use('/temp_users', require('./temp_users'))
-router.use('/_search', require('./_search')._SearchRouter)
 router.use('/standards', StandardsController)
 
 export default router
