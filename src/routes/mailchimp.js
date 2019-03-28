@@ -6,7 +6,8 @@ const Mailchimp = require('mailchimp-api-v3')
 let api = new Mailchimp(process.env.MAILCHIMP_API_TOKEN)
 
 
-router.post( '/add', function(req, res) {
+router.post('/add', function (req, res) {
+    if (process.env.NODE_ENV === 'production') {
         let listId
 
         if (req.body.list == 'hero') {
@@ -18,11 +19,11 @@ router.post( '/add', function(req, res) {
         }
 
         let data = {
-                email_address : req.body.email,
-                status : 'subscribed',
-                merge_fields: { }
-            }
-            
+            email_address: req.body.email,
+            status: 'subscribed',
+            merge_fields: {}
+        }
+
         if (req.body.fname) {
             data.merge_fields.FNAME = req.body.fname
         }
@@ -30,7 +31,7 @@ router.post( '/add', function(req, res) {
             data.merge_fields.LNAME = req.body.lname
         }
 
-        api.post('/lists/' + listId + '/members', data )
+        api.post('/lists/' + listId + '/members', data)
             .then((result) => {
                 return res.send({
                     email: result.email_address,
@@ -38,15 +39,9 @@ router.post( '/add', function(req, res) {
                 })
             })
             .catch((err) => {
-                // Mailchimp passes back a http status code!
-                if (err.errors) {
-                    console.error("errors:", err.errors)
-                } else {
-                    console.error(err)
-                }
-                return res.status(err.status).send(err)
+                return next(err)
             })
     }
-)
+})
 
 module.exports = router
