@@ -148,6 +148,11 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
         must: [
           fieldQuery,
           publicQuery
+        ],
+        must_not: [
+          {
+            draft: true
+          }
         ]
       }
     }
