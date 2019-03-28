@@ -8,8 +8,6 @@ import Clever from './../../../services/clever'
 import * as User from './../../../models/User'
 import { sendUserDetails } from './../../../services/bumblebee'
 
-const HACKY_EMAIL_STRING = '_edji_duplicate_'
-
 const creds = {
   client: {
     id: process.env.OAUTH2_CLEVER_CLIENT_ID,
@@ -75,21 +73,25 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
         await user.edjiSave()
       } catch (err) {
         if (err.code && err.code === 11000) {
-          try {
-            user.email = Date.now() + HACKY_EMAIL_STRING + user.email
-            await user.edjiSave()
-          } catch (err) {
-            throw err
-          }
+          // there's an account causing a duplicate error because the email is not unique (existing account)
+          // the user initiating this workflow has an email in their oauth provider which is causing a duplicate email error
+          // the only path we allow from here is for the initiating user to go back and log into their other account in order to link their new oauth provider
+          // in order to do that, we are saving the initiating user's oauth information to the duplicate user's account. If they log in with that new account
+          // and have the correct token, then we'll promote this pending_oauth object to the real deal!
+          await User.updateOne(
+            { email: user.email },
+            {
+              $set: {
+                pending_oauth: user.oauth[0]
+              }
+            }
+          )
         } else {
           throw err
         }
         return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
       }
-      console.log('sending user details')
       sendUserDetails(user)
-    } else if (user.email && user.email.includes(HACKY_EMAIL_STRING)) {
-      return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
     }
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
 

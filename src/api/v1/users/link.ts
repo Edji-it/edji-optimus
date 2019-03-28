@@ -14,20 +14,17 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
 
   try {
     const oauthUser = await User.findOne({
-      'oauth.singleUseToken': oauth_token,
-      'oauth.singleUseTokenExpiration': { $gte: Date.now() },
-      'oauth.type': oauth_type
+      'pending_oauth.singleUseToken': oauth_token,
+      'pending_oauth.singleUseTokenExpiration': { $gte: Date.now() },
+      'pending_oauth.type': oauth_type
     })
-
-    if (!oauthUser) {
-      return res.status(400).send({ error: 'user does not exist with that token and type' })
+    if (!oauthUser || !user._id.equals(oauthUser._id)) {
+      return res.status(403).send()
     }
-
     if (!user.oauth) user.oauth = []
-    user.oauth.push(oauthUser.oauth[0])
-
+    user.oauth.push(oauthUser.pending_oauth)
+    user.pending_oauth = null
     await user.edjiSave()
-    await oauthUser.remove()
     return res.status(200).send(generateLoginObjectForUser(user))
   } catch (err) {
     return next(err)
