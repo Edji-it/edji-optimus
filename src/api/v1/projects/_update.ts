@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb'
 
 // project imports
 import * as Project from '../../../models/Project'
-import * as Comment from '../../../models/Comment'
+import Comment from '../../../models/Comment'
 
 /**
  * Sets up the options and returns a promise which will call grapple's route to delete an asset from s3
@@ -41,7 +41,7 @@ export async function updatePropertyArray({ project_id, user, update: propData }
 
   // we still might not find the property in its array on the project, so we'll create it here if not found
   if (propObj) {
-    if (propArrayName!=='feedback' && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
+    if (propArrayName !== 'feedback' && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
     // this is a cleaning function mostly used for cleaning audio data stashed in s3
     if (propData.url && propData.url !== propObj.url) {
       deleteFromS3(propObj.url)
@@ -51,7 +51,7 @@ export async function updatePropertyArray({ project_id, user, update: propData }
       propObj[prop] = propData[prop]
     }
   } else {
-    if (propArrayName!=='feedback') {
+    if (propArrayName !== 'feedback') {
       // if a comment or an answer, we need to build a new Comment from the schema
       propObj = new Comment(propData)
       propObj.author = user.fullname
