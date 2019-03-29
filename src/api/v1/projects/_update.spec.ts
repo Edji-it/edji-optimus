@@ -1,14 +1,10 @@
 import * as rp from 'request-promise-native'
 import * as sentry from '@sentry/node'
-import { ObjectId } from 'mongodb'
 import { expect } from 'chai'
-import { assert, stub, mock, SinonStub, SinonMock } from 'sinon'
+import { assert, stub, SinonStub } from 'sinon'
 require('sinon-mongoose')
 
-import { deleteFromS3, updateCommentArray } from './_update'
-import * as helpers from './_update'
-import * as Project from './../../../models/Project'
-import * as Comment from './../../../models/Comment'
+import { deleteFromS3 } from './_update'
 
 describe('update project helpers', () => {
   describe('deleteFromS3', () => {
@@ -37,7 +33,7 @@ describe('update project helpers', () => {
       exceptionStub.restore()
     })
   })
-  // describe('updateCommentArray', () => {
+  // describe('updatePropertyArray', () => {
   //   const project_id = new ObjectId().toHexString()
   //   const user_id = new ObjectId()
   //   let projectMock: SinonMock
@@ -66,7 +62,7 @@ describe('update project helpers', () => {
   //       .expects('findById')
   //       .resolves(new Project({ comments: [] }))
 
-  //     const res = await updateCommentArray({ project_id, user_id, update }, 'comments')
+  //     const res = await updatePropertyArray({ project_id, user_id, update }, 'comments')
   //     assert.notCalled(deleteFromS3Stub)
   //     expect(res).to.have.property('data')
   //     expect(res.data).to.be.equal(update.data)
@@ -74,7 +70,7 @@ describe('update project helpers', () => {
   //   it('should call deleteFromS3 when updating the url on a comment', async () => {
   //     const commentToUpdate = new Comment({
   //       _id: new ObjectId(),
-  //       user_id, // important to pass the same user_id as in the updateCommentArray call
+  //       user_id, // important to pass the same user_id as in the updatePropertyArray call
   //       url: 'somestring'
   //     })
   //     const update = {
@@ -87,7 +83,7 @@ describe('update project helpers', () => {
   //           comments: [commentToUpdate]
   //         }
   //       ))
-  //     const res = await updateCommentArray({ project_id, user_id, update }, 'comments')
+  //     const res = await updatePropertyArray({ project_id, user_id, update }, 'comments')
   //     assert.calledOnce(deleteFromS3Stub)
   //   })
   // })

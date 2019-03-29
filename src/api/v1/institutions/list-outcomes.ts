@@ -8,12 +8,12 @@ import Institution = require('../../../models/Institution')
 
 export async function GetOutcomes(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id
-  
+
   // validation for the passed in institution ID
   if (!mongoose.validateEdjiId(institution_id)) {
     return res.status(404).send()
   }
-  
+
   try {
     let outcomes: any = await Institution.aggregate([
       {
@@ -45,7 +45,7 @@ export async function GetOutcomes(req: Request, res: Response, next: NextFunctio
         }
       }
     ]).exec()
-    return res.status(200).send({outcomes: outcomes})
+    return res.status(200).send({ outcomes: outcomes })
   } catch (err) {
     return next(err)
   }

@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb'
 // project imports
 import * as Project from '../../../models/Project'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
-import { updateCommentArray } from './_update'
+import { updatePropertyArray } from './_update'
 
 export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -100,10 +100,13 @@ const UPDATE_CONTROLLERS: {
   [key: string]: (props: { project_id: string, user: any, update: any }) => Promise<any>
 } = {
   comments: function (props) {
-    return updateCommentArray(props, 'comments')
+    return updatePropertyArray(props, 'comments')
   },
   answers: function (props) {
-    return updateCommentArray(props, 'answers')
+    return updatePropertyArray(props, 'answers')
+  },
+  feedback: function (props) {
+    return updatePropertyArray(props, 'feedback')
   },
   students: async function ({ project_id, user, update }) {
     const studentsArray: string = (user.type && user.type === 'temp') ? 'temp_ids' : 'students_ids'
@@ -123,24 +126,6 @@ const UPDATE_CONTROLLERS: {
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
     return { _id: user._id }
-  },
-  feedback: async function ({project_id, user, update}) {
-    const res = await Project.updateOne(
-      {
-        _id: project_id,
-        teacher_id: user._id
-      },
-      {
-        $push: {
-          feedback: update
-        }
-      },
-      {
-        runValidators: true
-      }
-    )
-    if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
-    return { feedback: update }
   }
 }
 
