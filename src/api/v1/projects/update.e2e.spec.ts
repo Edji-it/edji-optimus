@@ -341,11 +341,31 @@ describe("update projects", () => {
     it('should add feedback', async () => {
       const res = await request(projectState._id, feedbackObject, authToken)
       expect(res).to.have.status(200)
-      expect(res.body).to.have.property('feedback')
-      const feedback = res.body.feedback
+      const feedback = res.body
       expect(feedback).to.have.property('outcome_id')
       expect(feedback).to.have.property('feedback_to')
       expect(feedback).to.have.property('evaluation')
+    })
+    it('should modify the feedback', async () => {
+      // we need the _id for the feedback object
+      const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
+      expect(project).to.have.property('feedback')
+      const feedbackArray = project.feedback
+      expect(feedbackArray.length).to.be.greaterThan(0)
+      let feedbackObj = feedbackArray[feedbackArray.length - 1]
+
+      const evalStr = `eval-${Date.now()}`
+      feedbackObj.evaluation = evalStr
+
+      const res = await request(projectState._id, feedbackObj, authToken)
+      expect(res).to.have.status(200)
+      const feedback = res.body
+      expect(feedback).to.have.property('outcome_id')
+      expect(feedback).to.have.property('feedback_to')
+      expect(feedback).to.have.property('_id')
+      expect(feedback).to.have.property('evaluation')
+      const evaluation = feedback.evaluation
+      expect(evaluation).to.equal(evalStr)
     })
     it('should get a 406 for an invalid request', async () => {
       const res = await request(projectState._id, invalidFeedback, authToken)

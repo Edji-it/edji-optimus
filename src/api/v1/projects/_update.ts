@@ -1,8 +1,12 @@
+// library imports
 import { del } from 'request-promise-native'
 import { captureException } from '@sentry/node'
+import { ObjectId } from 'mongodb'
 
+// project imports
 import * as Project from '../../../models/Project'
-import * as Comment from '../../../models/Comment'
+import Comment from '../../../models/Comment'
+import Feedback from '../../../models/Feedback'
 
 /**
  * Sets up the options and returns a promise which will call grapple's route to delete an asset from s3
@@ -22,39 +26,52 @@ export async function deleteFromS3(url: string): Promise<void> {
   }
 }
 
-export async function updateCommentArray({ project_id, user, update: commentData }, commentArrayName) {
+export async function updatePropertyArray({ project_id, user, update: propData }, propArrayName) {
   /**
-   * just validate comment to avoid running validators on entire project in findOneAndUpdate
+   * just validate comment/answer to avoid running validators on entire project in findOneAndUpdate
    *  this will throw an error which should be caught by the route's catch
    */
   let project = await Project.findById(project_id)
   if (!project) throw new Error('err_no_project')
 
-  let comment
-  if (commentData._id) {
+  let propObj
+  if (propData._id) {
     // this method only works because it's an array of subdocuments in mongoose
-    comment = project[commentArrayName].id(commentData._id)
+    propObj = project[propArrayName].id(propData._id)
   }
 
-  // we still might not find the comment, so we'll create it here if we didn't find it in the project
-  if (comment) {
-    if (!user._id.equals(comment.user_id)) throw new Error('err_not_authorized')
+  // we still might not find the property in its array on the project, so we'll create it here if not found
+  if (propObj) {
+    if (propArrayName !== 'feedback' && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
     // this is a cleaning function mostly used for cleaning audio data stashed in s3
-    if (commentData.url && commentData.url !== comment.url) {
-      deleteFromS3(comment.url)
+    if (propData.url && propData.url !== propObj.url) {
+      deleteFromS3(propObj.url)
     }
     // make all of the updates
-    for (let prop in commentData) {
-      comment[prop] = commentData[prop]
+    for (let prop in propData) {
+      propObj[prop] = propData[prop]
     }
   } else {
-    comment = new Comment(commentData)
-    comment.author = user.fullname
-    comment.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
-    project[commentArrayName].push(comment)
+    const model = propArrayName === 'feedback' ? Feedback : Comment
+    // if a comment or an answer, we need to build a new Comment from the schema
+    propObj = new model(propData)
+    propObj.author = user.fullname
+    propObj.owner_id = user._id
+    propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
+    // if (propArrayName !== 'feedback') {
+    //   // if a comment or an answer, we need to build a new Comment from the schema
+    //   propObj = new Comment(propData)
+    //   propObj.author = user.fullname
+    //   propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
+    // } else {
+    //   propObj = new Feedback(propData)
+    //   propObj.owner_id = user._id
+    //   propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
+    // }
+    project[propArrayName].push(propObj)
   }
-  comment.updatedAt = Date.now() // also manually update updatedAt
-  // await comment.validate() // validate here
+  propObj.updatedAt = Date.now() // also manually update updatedAt
+  await propObj.validate() // validate here
   await project.edjiSave({ mongooseOptions: { new: true, runValidators: false } })
-  return comment
+  return propObj
 }
