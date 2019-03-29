@@ -319,4 +319,64 @@ describe("update projects", () => {
       expect(res).to.have.status(401)
     })
   })
+  describe('PUT /api/v1/projects/:project_id/feedback', () => {
+    const feedbackObject = {
+      outcome_id: "5c50f4c20b944f00963beb59",
+      feedback_to: "5c55f320844a4f0040845788",
+      evaluation: "Good job!"
+    }
+    const invalidFeedback = {
+      outcome_id: "5c50f4c20b944f00963beb59",
+      feedback_to: "5c55f320844a4f0040845788"
+    }
+    const request = function (projectId: string, feedback: any, authToken?: string): Request {
+      let req = chai.request(data.SERVER)
+        .put(`/api/v1/projects/${projectId}/feedback`)
+        .send(feedback)
+
+      authToken && req.set('Authorization', authToken)
+      return req
+    }
+    it('should add feedback', async () => {
+      const res = await request(projectState._id, feedbackObject, authToken)
+      expect(res).to.have.status(200)
+      const feedback = res.body
+      expect(feedback).to.have.property('outcome_id')
+      expect(feedback).to.have.property('feedback_to')
+      expect(feedback).to.have.property('evaluation')
+    })
+    it('should modify the feedback', async () => {
+      // we need the _id for the feedback object
+      const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
+      expect(project).to.have.property('feedback')
+      const feedbackArray = project.feedback
+      expect(feedbackArray.length).to.be.greaterThan(0)
+      let feedbackObj = feedbackArray[feedbackArray.length - 1]
+
+      const evalStr = `eval-${Date.now()}`
+      feedbackObj.evaluation = evalStr
+
+      const res = await request(projectState._id, feedbackObj, authToken)
+      expect(res).to.have.status(200)
+      const feedback = res.body
+      expect(feedback).to.have.property('outcome_id')
+      expect(feedback).to.have.property('feedback_to')
+      expect(feedback).to.have.property('_id')
+      expect(feedback).to.have.property('evaluation')
+      const evaluation = feedback.evaluation
+      expect(evaluation).to.equal(evalStr)
+    })
+    it('should get a 406 for an invalid request', async () => {
+      const res = await request(projectState._id, invalidFeedback, authToken)
+      expect(res).to.have.status(406)
+    })
+    it('should get a 404 for a project which does not exist', async () => {
+      const res = await request(userId, feedbackObject, authToken)
+      expect(res).to.have.status(404)
+    })
+    it('should reject an unauthenticated request', async () => {
+      const res = await request(projectState._id, feedbackObject)
+      expect(res).to.have.status(401)
+    })
+  })
 })

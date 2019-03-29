@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
   }
 
   // send an update to stripe to make sure we remove the cancellation
-  stripe.subscriptions.update(subscription_id, { cancel_at_period_end: false })
+  stripe.subscriptions.updateOne(subscription_id, { cancel_at_period_end: false })
   .then((subscription) => {
     return res.status(200).send({user: user, subscription: subscription})
   })

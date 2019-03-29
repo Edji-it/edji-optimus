@@ -179,7 +179,7 @@ router.delete("/:id", authRequired, function (req, res, next) {
     // remove all projects associated with the reading
     promises.push(Project.deleteMany({ reading_id: id, teacher_id: user._id }))
     // remove the version id from all the version id places
-    promises.push(ReadingVersion.update(
+    promises.push(ReadingVersion.updateOne(
         { readings: id, owner_id: user._id },
         { $pull: { readings: id } },
         {}

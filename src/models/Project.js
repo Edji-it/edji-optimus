@@ -6,7 +6,8 @@ var Tags = require("./Tags")
 
 // project imports
 const SessionCode = require("./SessionCode")
-const Comment = require("./Comment")
+const Comment = require("./Comment").default
+const Feedback = require('./Feedback').default
 const ModelCreator = require("./ModelCreator")
 
 /** mongoose hook for validation against acceptable values for `types` */
@@ -20,6 +21,7 @@ var Model = ModelCreator("Project", {
     reading_id: { type: mongoose.Schema.ObjectId, required: true, ref: "Reading" },
     comments: [Comment.schema],
     answers: [Comment.schema],
+    feedback: [Feedback.schema],
     students_ids: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     temp_ids: [{ type: mongoose.Schema.ObjectId, ref: "TempUser" }],
     label: { type: String, required: true },

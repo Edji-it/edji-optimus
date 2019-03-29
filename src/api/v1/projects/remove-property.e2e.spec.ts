@@ -190,4 +190,65 @@ describe("delete projects", () => {
       }
     })
   }
+
+  describe("DELETE project /api/v1/projects/:project_id/feedback?comment_id=:comment_id", () => {
+    const feedbackObject = {
+      outcome_id: "5c50f4c20b944f00963beb59",
+      feedback_to: "5c55f320844a4f0040845788",
+      evaluation: "Good job!"
+    }
+    const invalidFeedback = {
+      outcome_id: "5c50f4c20b944f00963beb59",
+      feedback_to: "5c55f320844a4f0040845788"
+    }
+    const requestCreate = function (projectId: string, feedback: any, authToken?: string): Request {
+      let req = chai.request(data.SERVER)
+        .put(`/api/v1/projects/${projectId}/feedback`)
+        .send(feedback)
+
+      authToken && req.set('Authorization', authToken)
+      return req
+    }
+    const requestDelete = function (projectId: string, feedbackId: string, authToken?: string): Request {
+      let req = chai.request(data.SERVER)
+        .del(`/api/v1/projects/${projectId}/feedback?=${feedbackId}`)
+
+      authToken && req.set('Authorization', authToken)
+      return req
+    }
+    it('should delete a feedback object', async () => {
+      // create feedback
+      const createFeedback = await requestCreate(createdProject._id, feedbackObject, authToken)
+      expect(createFeedback).to.have.status(200)
+      const feedback = createFeedback.body
+      expect(feedback).to.have.property('outcome_id')
+      expect(feedback.outcome_id).not.to.be.undefined
+
+      // we need the _id for the feedback object
+      const { project } = await ProjectAPI.retrieve(createdProject._id, authToken)
+      expect(project).to.have.property('feedback')
+      const feedbackArray = project.feedback
+      expect(feedbackArray.length).to.be.greaterThan(0)
+      let feedbackObj = feedbackArray[feedbackArray.length - 1]
+
+      // delete that feedback
+      const deleteFeedback = await requestDelete(createdProject._id, feedbackObj._id, authToken)
+      expect(deleteFeedback).to.have.status(204)
+    })
+    it('should receive a 400 if passed an invalid project id', async () => {
+      const res = await requestDelete('invalid_id', 'feedbackId', authToken)
+      expect(res).to.have.status(400)
+    })
+    it('should reject an unauthorized request', async () => {
+      const res = await requestDelete('invalid_id', 'feedbackId', '')
+      expect(res).to.have.status(401)
+    })
+    it('should return 403 if the user requesting to delete the feedback object is not the project owner', async () => {
+      let { username, password } = data.LOGIN_INFO.API_HERO
+      let { token } = await UserAPI.login(username, password)
+      expect(token).not.to.be.undefined
+      const res = await requestDelete(createdProject._id, '59bda04985c6ab346c12dbba', token)
+      expect(res).to.have.status(403)
+    })
+  })
 })
