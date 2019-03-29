@@ -151,7 +151,9 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
         ],
         must_not: [
           {
-            draft: true
+            match: {
+              draft: true
+            }
           }
         ]
       }
@@ -184,7 +186,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
       //     }
       //   })
       // } else {
-      fieldQuery.bool.must.push({
+      body.query.bool.must.push({
         match: {
           [field]: val
         }
@@ -200,7 +202,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     lte && (grade_levels.lte = lte)
     gte && (grade_levels.gte = gte)
 
-    fieldQuery.bool.must.push({
+    body.query.bool.must.push({
       range: { grade_levels }
     })
   }
