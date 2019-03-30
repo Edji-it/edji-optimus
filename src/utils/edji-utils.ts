@@ -1,5 +1,5 @@
 // library imports
-import { RequestHandler } from 'express'
+import { RequestHandler, IRouterHandler, IRouterMatcher, IRouter } from 'express'
 import { post, RequestPromiseOptions } from 'request-promise-native'
 import onHeaders = require('on-headers')
 import { v4 } from 'uuid'
