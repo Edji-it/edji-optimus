@@ -21,7 +21,7 @@ Sentry.init({
 // configure express
 var app = express()
 app.use(Sentry.Handlers.requestHandler())
-const edji = new EdjiUtils({ appId: 'optimus', doLog: true })
+const edji = new EdjiUtils({ appId: 'optimus' })
 app.use(edji.attachLogs, edji.initContext)
 app.use(bodyParser.json({ limit: '20mb' }))
 

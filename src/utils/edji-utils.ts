@@ -92,15 +92,13 @@ export class EdjiUtils {
     try {
       await post(LOGS_ENDPOINT, options)
     } catch (err) {
-      process.env.NODE_ENV === 'local' && console.error(err)
+      process.env.NODE_ENV === 'local' && console.error(err.body)
       captureException(err)
     }
   }
 
   initContext: RequestHandler = (req, res, next) => {
-    req.context = {
-      routeName: ''
-    }
+    req.context = {}
     next()
   }
 }

@@ -8,9 +8,10 @@ declare namespace Express {
     path_matcher: string
     context: {
       user?: any
-      routeName: string
+      routeName?: string
       [key: string]: any
     }
+    oauth_error: any
   }
   export interface Errback {
     type?: string
