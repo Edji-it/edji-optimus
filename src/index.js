@@ -6,7 +6,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
 const passport = require('passport') // passport gets configured elsewhere
-const { EdjiUtils } = require('./services/edji-utils')
+const { EdjiUtils } = require('./utils/edji-utils')
 
 // set up all environment variables
 require('./../config')
