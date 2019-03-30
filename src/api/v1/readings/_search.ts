@@ -23,6 +23,9 @@ export interface ReadingQuery {
   owner_bookmarked?: boolean
   from?: number
   size?: number
+  sort?: string // the field to sort on
+  sort_order?: string // asc or desc - the order to sort by
+  body?: boolean // debugging tool to return the query body
 }
 
 const querySchema = joi.object().keys({
@@ -44,7 +47,10 @@ const querySchema = joi.object().keys({
   version_id: joi.string(),
   owner_bookmarked: joi.boolean(),
   from: joi.number().min(0).max(1000).default(0),
-  size: joi.number().min(0).max(50).default(15)
+  size: joi.number().min(0).max(50).default(15),
+  sort: joi.string(),
+  sort_order: joi.string().valid(['asc', 'desc']),
+  body: joi.boolean()
 })
 
 const queriableStringFields = [
@@ -101,7 +107,12 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key:
         as: 'owner'
       }
     },
-    { $unwind: '$owner' }, // owner comes back as an array, but there will only ever be one
+    {
+      $unwind: {
+        path: '$owner',
+        preserveNullAndEmptyArrays: true // this makes sure that if we don't get an owner, it still preserves the reading
+      }
+    }, // owner comes back as an array, but there will only ever be one
     {
       $project: {
         'title': true,
@@ -183,19 +194,11 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   for (let field of queriableStringFields) {
     if (query.hasOwnProperty(field)) {
       let val = query[field]
-      // if (val instanceof Array) {
-      //   must.push({
-      //     match: {
-      //       [field]: val.join(' ')
-      //     }
-      //   })
-      // } else {
       body.query.bool.must.push({
         match: {
           [field]: val
         }
       })
-      // }
     }
   }
   
@@ -220,6 +223,14 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     body.query.bool.filter.push({
       range: { grade_levels }
     })
+  }
+
+  if(query.sort) {
+    body.sort = [
+      {
+        [query.sort]: query.sort_order ? query.sort_order : 'asc'
+      }
+    ]
   }
 
   return elastic.search({

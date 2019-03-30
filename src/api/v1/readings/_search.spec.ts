@@ -274,6 +274,80 @@ describe('reading search helpers', () => {
         }
       })
     })
+    it('should sort by a field', async () => {
+      const query = { sort: 'createdAt' }
+      await constructSearch(query)
+      expect(elasticStub.firstCall.args[0].body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true
+                }
+              }
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true
+                }
+              }
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: []
+                }
+              }
+            ]
+          }
+        },
+        sort: [
+          {
+            createdAt: "asc"
+          }
+        ]
+      })
+    })
+    it('should change the sort order', async () => {
+      const query = { sort: 'createdAt', sort_order: 'desc' }
+      await constructSearch(query)
+      expect(elasticStub.firstCall.args[0].body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true
+                }
+              }
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true
+                }
+              }
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: []
+                }
+              }
+            ]
+          }
+        },
+        sort: [
+          {
+            createdAt: "desc"
+          }
+        ]
+      })
+    })
   })
   describe('searchByIds', () => {
     let ReadingMock: SinonMock

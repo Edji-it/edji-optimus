@@ -59,6 +59,24 @@ describe('GET /api/v1/readings/_search', () => {
     expect(res.body.results[0]).to.have.property('title')
     expect(res.body.results[0].title.toLowerCase()).to.include(titleQuery)
   })
+  it('should sort results by a sort field', async () => {
+    const res = await searchRequest([`sort=createdAt`], token)
+    expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
+    let allDates: string[] = res.body.results.map(({createdAt}) => createdAt )
+    let allDatesSorted = allDates.slice().sort((a, b) => {
+      return new Date(a).getTime() > new Date(b).getTime() ? 1 : -1
+    })
+    expect(allDates).to.eql(allDatesSorted)
+  })
+  it('should change sort order', async () => {
+    const res = await searchRequest([`sort=createdAt`, `sort_order=desc`], token)
+    expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
+    let allDates: string[] = res.body.results.map(({createdAt}) => createdAt )
+    let allDatesSorted = allDates.slice().sort((a, b) => {
+      return new Date(a).getTime() > new Date(b).getTime() ? -1 : 1
+    })
+    expect(allDates).to.eql(allDatesSorted)
+  })
   it('should reject a request without authentication', async () => {
     const res = await searchRequest([])
     expect(res).to.have.status(401)
