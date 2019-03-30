@@ -67,7 +67,7 @@ describe('reading search helpers', () => {
       expect(error).to.not.exist
     })
     it('should throw an error for unexpected query properties', () => {
-      const requestQuery: any = { q: 'somestring' } // type as any because typescript won't let us do it otherwise
+      const requestQuery: any = { notvalid: 'somestring' } // type as any because typescript won't let us do it otherwise
       const { error, value: query } = validateSearchQuery(requestQuery)
       expect(error).to.exist
     })
@@ -86,16 +86,34 @@ describe('reading search helpers', () => {
       let { index, type, body } = elasticStub.firstCall.args[0]
       expect(index).to.be.equal('readings')
       expect(type).to.be.equal('default')
-      expect(body).to.be.instanceOf(Object)
-      expect(body).to.have.property('query')
-      expect(body.query).to.have.property('bool')
-      expect(body.query.bool).to.have.property('must')
-      expect(body.query.bool.must).to.be.instanceOf(Array)
-      expect(body.query.bool.must).to.be.lengthOf(1)
-      let publicCondition = body.query.bool.must[0]
-      expect(publicCondition).to.have.property('match')
-      expect(publicCondition.match).to.have.property('public')
-      expect(publicCondition.match.public).to.be.true
+      expect(body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true
+                }
+              }
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true
+                }
+              }
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: []
+                }
+              }
+            ]
+          }
+        }
+      })
     })
     for (let i = 0; i < queriableStringProperties.length; i++) {
       let field = queriableStringProperties[i]
@@ -103,10 +121,39 @@ describe('reading search helpers', () => {
         const testValue = 'edji is the greatest tool'
         await constructSearch({ [field]: testValue })
         assert.calledOnce(elasticStub)
-        const fieldRequirement = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.hasOwnProperty(field))
-        expect(fieldRequirement, `did not find requirement in must query for ${field}`).to.exist
-        expect(fieldRequirement).to.have.property('match')
-        expect(fieldRequirement.match[field]).to.be.equal(testValue)
+        expect(elasticStub.firstCall.args[0].body).to.eql({
+          query: {
+            bool: {
+              filter: [
+                {
+                  match: {
+                    public: true
+                  }
+                }
+              ],
+              must_not: [
+                {
+                  match: {
+                    draft: true
+                  }
+                }
+              ],
+              must: [
+                {
+                  bool: {
+                    must: [],
+                    should: []
+                  }
+                },
+                {
+                  match: {
+                    [field]: testValue
+                  }
+                }
+              ]
+            }
+          }
+        })
       })
     }
     for (let i = 0; i < queriableBooleanProperties.length; i++) {
@@ -115,26 +162,117 @@ describe('reading search helpers', () => {
         const testValue = false
         await constructSearch({ [field]: testValue })
         assert.calledOnce(elasticStub)
-        const fieldRequirement = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.hasOwnProperty(field))
-        expect(fieldRequirement, `did not find requirement in must query for ${field}`).to.exist
-        expect(fieldRequirement).to.have.property('match')
-        expect(fieldRequirement.match[field]).to.be.equal(testValue)
+        expect(elasticStub.firstCall.args[0].body).to.eql({
+          query: {
+            bool: {
+              filter: [
+                {
+                  match: {
+                    public: true
+                  }
+                },
+                {
+                  match: {
+                    [field]: testValue
+                  }
+                }
+              ],
+              must_not: [
+                {
+                  match: {
+                    draft: true
+                  }
+                }
+              ],
+              must: [
+                {
+                  bool: {
+                    must: [],
+                    should: []
+                  }
+                }
+              ]
+            }
+          }
+        })
       })
     }
     it('should construct a query for multiple subjects', async () => {
       const query = { subjects: 'reading math science' }
       await constructSearch(query)
-      const subjectsQuery = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.match.subjects)
-      expect(subjectsQuery).to.exist
-      expect(subjectsQuery.match.subjects).to.be.equal(query.subjects)
+      expect(elasticStub.firstCall.args[0].body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true
+                }
+              }
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true
+                }
+              }
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: []
+                }
+              },
+              {
+                match: {
+                  subjects: 'reading math science'
+                }
+              }
+            ]
+          }
+        }
+      })
     })
     it('should construct a query for grade_levels', async () => {
       const query = { grade_levels_gte: 4, grade_levels_lte: 8 }
       await constructSearch(query)
-      const condition = elasticStub.firstCall.args[0].body.query.bool.must.find(req => !!req.range && !!req.range.grade_levels)
-      const { lte, gte } = condition.range.grade_levels
-      expect(lte).to.be.equal(query.grade_levels_lte)
-      expect(gte).to.be.equal(query.grade_levels_gte)
+      expect(elasticStub.firstCall.args[0].body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true
+                }
+              },
+              {
+                range: {
+                  grade_levels: {
+                    lte: query.grade_levels_lte,
+                    gte: query.grade_levels_gte
+                  }
+                }
+              }
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true
+                }
+              }
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: []
+                }
+              }
+            ]
+          }
+        }
+      })
     })
   })
   describe('searchByIds', () => {

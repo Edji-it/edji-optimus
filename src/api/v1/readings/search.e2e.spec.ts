@@ -36,12 +36,13 @@ describe('GET /api/v1/readings/_search', () => {
     expect(res.body).to.have.property('results')
     expect(res.body.results).to.be.instanceOf(Array)
     expect(res.body.results).to.be.lengthOf(15)
+    expect(res.body.returned).to.be.equal(15)
     savedReadings = res.body.results
   })
   it('should change the size of the request based on the query', async () => {
-    const res = await searchRequest(['size=15'], token)
+    const res = await searchRequest(['size=10'], token)
     expect(res.body.results).to.be.instanceOf(Array)
-    expect(res.body.results).to.be.lengthOf(15)
+    expect(res.body.results).to.be.lengthOf(10)
   })
   it('should change the start of results based on the query', async () => {
     const testFrom = 5

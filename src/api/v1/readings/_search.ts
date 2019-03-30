@@ -47,15 +47,18 @@ const querySchema = joi.object().keys({
   size: joi.number().min(0).max(50).default(15)
 })
 
-const queriableFields = [
+const queriableStringFields = [
   'html',
   'title',
   'parent_id',
   'owner_id',
-  // 'public',
   'source',
   'subjects',
-  'version_id',
+  'version_id'
+]
+
+const queriableBooleanFields = [
+  // 'public',
   'owner_bookmarked'
 ]
 
@@ -177,7 +180,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   }
 
   // add conditions for all fields where we can directly set the value
-  for (let field of queriableFields) {
+  for (let field of queriableStringFields) {
     if (query.hasOwnProperty(field)) {
       let val = query[field]
       // if (val instanceof Array) {
@@ -193,6 +196,17 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
         }
       })
       // }
+    }
+  }
+  
+  for (let field of queriableBooleanFields) {
+    if(query.hasOwnProperty(field)) {
+      let val = query[field]
+      body.query.bool.filter.push({
+        match: {
+          [field]: val
+        }
+      })
     }
   }
 
