@@ -7,7 +7,7 @@ import { captureException } from '@sentry/node'
 
 const LOGS_ENDPOINT: string = [process.env.EDJI_FLAK_URL || 'https://flak-dev.edji.it', 'logs', 'edji'].join('/')
 
-export function addFunctionName (name: string): RequestHandler {
+export function addRouteName (name: string): RequestHandler {
   return (req, res, next) => {
     if (!req.context.routeName) {
       req.context.routeName = ''
@@ -21,13 +21,13 @@ export class EdjiUtils {
   appId: string
   env: string
   //  default local logging to false
-  doLog: boolean = process.env.NODE_ENV === 'local' ? false : true
+  doLog: boolean = process.env.NODE_ENV === 'production'
   requestIdHeader: string = 'X-Request-Id'
   requestTimeHeader: string = 'X-Response-Time'
   constructor({ appId, env, doLog }: UtilOptions) {
     this.appId = appId
     this.env = env || process.env.NODE_ENV
-    if (doLog === false) this.doLog = false
+    if (doLog === true) this.doLog = true
   }
 
   /**
@@ -92,6 +92,7 @@ export class EdjiUtils {
     try {
       await post(LOGS_ENDPOINT, options)
     } catch (err) {
+      process.env.NODE_ENV === 'local' && console.error(err)
       captureException(err)
     }
   }
