@@ -1,5 +1,5 @@
 // package imports
-const router = require('./../utils/router').default()
+const router = require('express').Router()
 
 // attach api versions to router
 router.use('/v1', require('./v1').default)

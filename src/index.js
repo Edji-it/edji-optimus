@@ -22,7 +22,7 @@ Sentry.init({
 var app = express()
 app.use(Sentry.Handlers.requestHandler())
 const edji = new EdjiUtils({ appId: 'optimus' })
-app.use(edji.middleware)
+app.use(edji.attachLogs, edji.initContext)
 app.use(bodyParser.json({ limit: '20mb' }))
 
 // this is required for sockets... which are no longer here... but we left it in anyhow

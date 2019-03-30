@@ -8,6 +8,7 @@ declare namespace Express {
     path_matcher: string
     context: {
       user?: any
+      routeName: string
       [key: string]: any
     }
   }
