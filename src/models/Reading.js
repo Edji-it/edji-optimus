@@ -18,7 +18,9 @@ const indexableProperties = [
     "grade_levels",
     "subjects",
     "version_id",
-    "owner_bookmarked"
+    "owner_bookmarked",
+    "createdAt",
+    "updatedAt"
 ]
 
 module.exports = ModelCreator(
