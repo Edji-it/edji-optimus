@@ -130,12 +130,7 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key:
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
-  // made a constant because for now each request must be for public assets
-  const publicQuery = {
-    match: {
-      public: true
-    }
-  }
+  // fieldQuery will be added to based on query properties
   let fieldQuery = {
     bool: {
       must: [],
@@ -146,13 +141,19 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     query: {
       bool: {
         must: [
-          fieldQuery,
-          publicQuery
+          fieldQuery
         ],
         must_not: [
           {
             match: {
               draft: true
+            }
+          }
+        ],
+        filter: [
+          {
+            match: {
+              public: true
             }
           }
         ]
@@ -202,7 +203,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     lte && (grade_levels.lte = lte)
     gte && (grade_levels.gte = gte)
 
-    body.query.bool.must.push({
+    body.query.bool.filter.push({
       range: { grade_levels }
     })
   }
