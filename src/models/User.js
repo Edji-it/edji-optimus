@@ -69,22 +69,25 @@ let oauthEnum = {
     message: 'oauth type invalid'
 }
 
-let OneTimeTokenObject = mongoose.Schema({
+const OneTimeTokenObject = mongoose.Schema({
     token: { type: String, required: true },
     expiration: { type: Date, required: true, default: Date.now() + 1000 /* s */ * 3600 /* h */ * 24 }
+})
+
+const OAuthObject = mongoose.Schema({
+    type: { type: String, enum: oauthEnum },
+    id: String,
+    email: String,
+    singleUseToken: String,
+    singleUseTokenExpiration: Date
 })
 
 let model = ModelCreator("User", {
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
     fullname: { type: String, required: true, validate: { validator: validateName, message: "Invalid name", kind: "badWords" } },
     password: { type: String },
-    oauth: [{
-        type: { type: String, enum: oauthEnum },
-        id: String,
-        email: String,
-        singleUseToken: String,
-        singleUseTokenExpiration: Date
-    }],
+    oauth: [OAuthObject],
+    pending_oauth: OAuthObject, // this stores the last user's oauth info who attempted to create an account via oauth, but got a duplicate email error
     // email is pretty much required, except in the case of a student logging in through Clever, so email validation is done manually
     email: { type: String, set: toLower, unique: true, validate: { validator: validateEmail, message: "Invalid email", kind: "emailRegex" } },
     identities: [String],

@@ -1,13 +1,10 @@
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
-const OAuth2Strategy = require('passport-oauth2')
 const bcrypt = require('bcryptjs')
-const rp = require('request-promise-native')
 
-const GOOGLE_CALLBACK_URL = process.env.OPTIMUS_URL + "/auth/google/callback"
-const CLEVER_CALLBACK_URL = `${process.env.OPTIMUS_URL}/auth/clever/callback`
+const GOOGLE_CALLBACK_URL = process.env.OPTIMUS_URL + '/auth/google/callback'
 
-let User = require("./models/User")
+let User = require('./models/User')
 
 function extractGoogleProfile(profile) {
     let imageUrl = ''
@@ -46,8 +43,9 @@ passport.use('google', new GoogleStrategy({
     // provided by Google and turn that into a User object
     let user = User(extractGoogleProfile(profile))
 
+    const encodedToken = encodeURIComponent(user.oauth[0].singleUseToken)
     // query for a user that has an oauth type and id matching the auth'd user
-    const userQuery = { "oauth.type": user.oauth[0].type, "oauth.id": user.oauth[0].id }
+    const userQuery = { 'oauth.type': user.oauth[0].type, 'oauth.id': user.oauth[0].id }
 
     // using the user's id given by oauth, try and look them up and update the single use token and expiration
     try {
@@ -68,10 +66,23 @@ passport.use('google', new GoogleStrategy({
             try {
                 let newUser = await user.edjiSave({ forceSave: true })
                 return done(null, newUser)
-            } catch (e) {
-                const err = new Error('a user with duplicate email already exists in the database')
-                err.name = 'err_duplicate_user'
-                err.type = 'google'
+            } catch (err) {
+                // this is a duplicate user error code from mongodb - go and see the clever.ts handler if you have questions about this
+                if (err.code && err.code === 11000) {
+                    // update the existing user so they can log in and link the accounts
+                    await User.updateOne(
+                        { email: user.email },
+                        {
+                            $set: {
+                                pending_oauth: user.oauth[0]
+                            }
+                        }
+                    )
+
+                    // since we don't have access to the request (because of Passport.js, bluck), we have to throw an error which then we catch in our error handling stack. It sucks but it works for now.
+                    err.name = 'err_duplicate_user'
+                    err.redirect_to = `${req.protocol}:${process.env.CLIENT_URL}/#/oauth/google?error=duplicate_user&token=${encodedToken}`
+                }
                 return done(err)
             }
         } else {
