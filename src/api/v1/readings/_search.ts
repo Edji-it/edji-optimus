@@ -210,6 +210,7 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   return elastic.search({
     index: 'readings',
     type: 'default',
+    _source: false,
     body,
     from: query.from,
     size: query.size
