@@ -1,17 +1,9 @@
 // library imports
 import 'mocha'
 import { expect } from 'chai'
-import { spy } from 'sinon'
 
 // project imports
 import { EdjiUtils } from './edji-utils'
-
-const mockRes = (options?: any) => {
-  return {
-    getHeader: spy(),
-    setHeader: spy()
-  }
-}
 
 describe('EdjiUtils', () => {
   describe('constructor', () => {
@@ -24,14 +16,14 @@ describe('EdjiUtils', () => {
       const edji = new EdjiUtils(options)
       expect(edji.appId).to.be.equal(options.appId)
       expect(edji.env).to.be.equal(process.env.NODE_ENV)
-      expect(edji.doLog).to.be.equal(true)
+      expect(edji.doLog).to.be.equal(false)
       process.env.NODE_ENV = currentEnv
     })
     it('should allow overriding of defaults', () => {
       const options = {
         appId: 'test',
         env: 'test',
-        doLog: false
+        doLog: true
       }
       const edji = new EdjiUtils(options)
       expect(edji.appId).to.be.equal(options.appId)

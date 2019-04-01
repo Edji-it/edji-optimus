@@ -4,16 +4,18 @@ import { ValidateTokenMiddleware } from './validate-token'
 import { ResetPropertyHandler } from './reset-property'
 import * as authRequired from './../../../../middleware/auth-required'
 import { PasswordHandler } from './find-user'
+import { addRouteName } from '../../../../utils/edji-utils'
 
-const router: Router = Router()
 
 // resetting password is the only property allowed to be done without auth
-router.get('/:reset_property', PasswordHandler, authRequired, SetTokenController)
+const router: Router = Router()
+router.get('/:reset_property', addRouteName('/:reset_property'), PasswordHandler, authRequired, SetTokenController)
 
 router.post(
   '/:reset_property/:unhashed_token',
+  addRouteName('/:reset_property/:unhashed_token'),
   ValidateTokenMiddleware,
   ResetPropertyHandler
 )
 
-export const TokenController: Router = router
+export default router

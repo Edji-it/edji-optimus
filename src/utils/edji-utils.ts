@@ -1,5 +1,5 @@
 // library imports
-import { RequestHandler, Request, Response } from 'express'
+import { RequestHandler, IRouterHandler, IRouterMatcher, IRouter } from 'express'
 import { post, RequestPromiseOptions } from 'request-promise-native'
 import onHeaders = require('on-headers')
 import { v4 } from 'uuid'
@@ -7,24 +7,34 @@ import { captureException } from '@sentry/node'
 
 const LOGS_ENDPOINT: string = [process.env.EDJI_FLAK_URL || 'https://flak-dev.edji.it', 'logs', 'edji'].join('/')
 
+export function addRouteName (name: string): RequestHandler {
+  return (req, res, next) => {
+    if (!req.context.routeName) {
+      req.context.routeName = ''
+    }
+    req.context.routeName += name
+    next()
+  }
+}
+
 export class EdjiUtils {
   appId: string
   env: string
   //  default local logging to false
-  doLog: boolean = process.env.NODE_ENV === 'local' ? false : true
+  doLog: boolean = process.env.NODE_ENV === 'production'
   requestIdHeader: string = 'X-Request-Id'
   requestTimeHeader: string = 'X-Response-Time'
   constructor({ appId, env, doLog }: UtilOptions) {
     this.appId = appId
     this.env = env || process.env.NODE_ENV
-    if (doLog === false) this.doLog = false
+    if (doLog === true) this.doLog = true
   }
 
   /**
    * adds request time and id to headers
    * if logs are turned on, sends log to Flak
    */
-  middleware: RequestHandler = (req, res, next) => {
+  attachLogs: RequestHandler = (req, res, next) => {
     try {
       const startTime = process.hrtime()
       const requestIdHeader: string = <string>res.getHeader(this.requestIdHeader)
@@ -47,6 +57,7 @@ export class EdjiUtils {
             timestamp: new Date(),
             ip: req.ip,
             url: `${req.protocol}://${req.hostname}${req.originalUrl}`,
+            route_name: req.context.routeName,
             request_id,
             request_time,
             heroku: process.env.HEROKU_RELEASE_VERSION
@@ -66,7 +77,7 @@ export class EdjiUtils {
     }
   }
 
-  sendLog = async (body: EdjiLog): Promise<void> => {
+  private sendLog = async (body: EdjiLog): Promise<void> => {
     const options: RequestPromiseOptions = {
       body,
       headers: {
@@ -81,8 +92,14 @@ export class EdjiUtils {
     try {
       await post(LOGS_ENDPOINT, options)
     } catch (err) {
+      process.env.NODE_ENV === 'local' && console.error(err.body)
       captureException(err)
     }
+  }
+
+  initContext: RequestHandler = (req, res, next) => {
+    req.context = {}
+    next()
   }
 }
 
