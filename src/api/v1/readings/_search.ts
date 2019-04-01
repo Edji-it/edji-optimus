@@ -162,6 +162,11 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
             match: {
               draft: true
             }
+          },
+          {
+            exists: {
+              field: "parent_id"
+            }
           }
         ],
         filter: [
