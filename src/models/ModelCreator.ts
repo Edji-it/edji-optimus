@@ -1,5 +1,5 @@
 import { executeSaveAndIndex, SaveAndIndexOptions } from "./_ModelCreator"
-import elastic from './../elasticsearch'
+import elastic from '../services/elasticsearch'
 
 import { cleanMongoValidationError } from './../error-handlers/mongo-validation'
 const db = require("./../db")

@@ -7,19 +7,14 @@ const connect = function (mongooseInstance) {
     socketTimeoutMS: 120000,
     connectionTimeout: 120000
   })
-
+  
   mongooseInstance.connection.on("error", console.error.bind(console, "connection error:"))
   mongooseInstance.connection.once("open", function () {
     console.log("Connected to Mongo!")
   })
 }
 
-const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
-const isValidId = function (id) {
-  return id && id.length === 24 && checkForHexRegExp.test(id)
-}
-
-mongoose.validateEdjiId = isValidId
+mongoose.validateEdjiId = require('./middleware/validate-ids').isValidId
 
 connect(mongoose)
 

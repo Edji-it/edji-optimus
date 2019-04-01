@@ -163,6 +163,9 @@ router.put("/:reading_id", authRequired, function (req, res, next) {
         })
 })
 
+/**
+ * @deprecated 3/31/19
+ */
 router.delete("/:id", authRequired, function (req, res, next) {
     let id = req.params.id
     let user = req.user

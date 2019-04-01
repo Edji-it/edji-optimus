@@ -2,7 +2,7 @@
 import * as joi from 'joi'
 import { ValidationResult } from 'joi'
 import { ObjectId } from 'mongodb'
-import elastic from '../../../elasticsearch'
+import elastic from '../../../services/elasticsearch'
 
 // project imports
 import * as Reading from './../../../models/Reading'

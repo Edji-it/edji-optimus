@@ -99,6 +99,7 @@ export class EdjiUtils {
 
   initContext: RequestHandler = (req, res, next) => {
     req.context = {}
+    res.body = {}
     next()
   }
 }

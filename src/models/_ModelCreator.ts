@@ -1,5 +1,5 @@
 import { captureException } from '@sentry/node'
-import elastic from './../elasticsearch'
+import elastic from '../services/elasticsearch'
 
 export interface SaveAndIndexOptions {
   save: Promise<any>
