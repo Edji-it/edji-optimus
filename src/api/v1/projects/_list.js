@@ -6,25 +6,25 @@ const joi = require('joi')
  * @param {any} requestQuery The req.query passed to the route handler by express
  */
 const validateQuery = function(requestQuery) {
-  // the values allowable in the query string
-  const popValues = joi.string().valid([
-    'teacher',
-    'reading'
-  ])
+    // the values allowable in the query string
+    const popValues = joi.string().valid([
+        'teacher',
+        'reading'
+    ])
 
-  // define the query schema with joi
-  const querySchema = joi.object({
-    pop: joi.alternatives().try(
-      joi.array().items(popValues),
-      popValues
-    )
-    .default([]),
-    start: joi.number().min(0).max(1000).default(0),
-    size: joi.number().min(0).max(50).default(15)
-  })
+    // define the query schema with joi
+    const querySchema = joi.object({
+        pop: joi.alternatives().try(
+            joi.array().items(popValues),
+            popValues
+        )
+            .default([]),
+        start: joi.number().min(0).max(1000).default(0),
+        size: joi.number().min(0).max(50).default(15)
+    })
 
-  // run validation with joi
-  return joi.validate(requestQuery, querySchema)
+    // run validation with joi
+    return joi.validate(requestQuery, querySchema)
 }
 
 // 'reading_id teacher_id label code types tags updatedAt createdAt',
@@ -33,20 +33,20 @@ const validateQuery = function(requestQuery) {
  * Provides an object for the $project phase any time project objects are being passed through the pipeline
  */
 const responseShape = {
-  "_id": true,
-  "reading_id": true,
-  "teacher_id": true,
-  "label": true,
-  "code": true,
-  "types": true,
-  "updatedAt": true,
-  "createdAt": true,
-  "reading._id": true,
-  "reading.title": true,
-  "teacher._id": true,
-  "teacher.fullname": true,
-  "teacher.email": true,
-  "teacher.username": true
+    "_id": true,
+    "reading_id": true,
+    "teacher_id": true,
+    "label": true,
+    "code": true,
+    "types": true,
+    "updatedAt": true,
+    "createdAt": true,
+    "reading._id": true,
+    "reading.title": true,
+    "teacher._id": true,
+    "teacher.fullname": true,
+    "teacher.email": true,
+    "teacher.username": true
 }
 
 /**
@@ -54,49 +54,49 @@ const responseShape = {
  * @param {User} user the user passed by the req.user
  */
 const baseAggregation = function(user) {
-  let query
-  if (user.type && user.type === 'temp') {
-    query = { temp_ids: user._id }
-  } else {
-    query = {
-      $and: [
-        { students_ids: user._id },
-        { teacher_id: { $ne: user._id }}
-      ]
+    let query
+    if (user.type && user.type === 'temp') {
+        query = { temp_ids: user._id }
+    } else {
+        query = {
+            $and: [
+                { students_ids: user._id },
+                { teacher_id: { $ne: user._id }}
+            ]
+        }
     }
-  }
-  return [
-    { $match: query }
-  ]
+    return [
+        { $match: query }
+    ]
 }
 
 /**
  * An array of aggregation steps which, when applied to an array of projects, should populate the reading with certain properties
  */
 const populateReadings = [
-  { $lookup: {
-    from: 'readings',
-    localField: 'reading_id',
-    foreignField: '_id',
-    as: 'reading'
-  }},
-  { $unwind: '$reading' }
+    { $lookup: {
+        from: 'readings',
+        localField: 'reading_id',
+        foreignField: '_id',
+        as: 'reading'
+    }},
+    { $unwind: '$reading' }
 ]
 
 const populateTeachers = [
-  { $lookup: {
-    from: 'users',
-    localField: 'teacher_id',
-    foreignField: '_id',
-    as: 'teacher'
-  }},
-  { $unwind: '$teacher' }
+    { $lookup: {
+        from: 'users',
+        localField: 'teacher_id',
+        foreignField: '_id',
+        as: 'teacher'
+    }},
+    { $unwind: '$teacher' }
 ]
 
 module.exports = {
-  validateQuery: validateQuery,
-  baseAggregation: baseAggregation,
-  populateReadings: populateReadings,
-  responseShape: responseShape,
-  populateTeachers: populateTeachers
+    validateQuery: validateQuery,
+    baseAggregation: baseAggregation,
+    populateReadings: populateReadings,
+    responseShape: responseShape,
+    populateTeachers: populateTeachers
 }
