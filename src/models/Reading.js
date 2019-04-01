@@ -9,11 +9,18 @@ const indexableProperties = [
     "parent_id",
     "owner_id",
     "public",
+    "questions",
+    "promoter_ids",
     "source",
+    "cover_img",
+    "tags",
+    "draft",
     "grade_levels",
     "subjects",
     "version_id",
-    "owner_bookmarked"
+    "owner_bookmarked",
+    "createdAt",
+    "updatedAt"
 ]
 
 module.exports = ModelCreator(

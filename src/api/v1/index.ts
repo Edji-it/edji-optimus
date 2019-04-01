@@ -11,10 +11,11 @@ import UsersRouter from './users'
 import ReferralsRouter from './referrals'
 import LicensesRouter from './licenses'
 import TempUsersRouter from './temp_users'
+import ReadingsRouter from './readings'
 import { addRouteName } from '../../utils/edji-utils'
 
 // attach routes
-router.use('/readings', addRouteName('/readings'), require('./readings').ReadingsRouter)
+router.use('/readings', addRouteName('/readings'), ReadingsRouter)
 router.use('/projects', addRouteName('/projects'), ProjectsRouter)
 router.use('/auth', addRouteName('/auth'), AuthRouter)
 router.use('/stripe', addRouteName('/stripe'), StripeRouter)

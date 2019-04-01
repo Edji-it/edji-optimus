@@ -13,6 +13,10 @@ declare namespace Express {
     }
     oauth_error: any
   }
+
+  export interface Response {
+    body: any
+  }
   export interface Errback {
     type?: string
     code?: string

@@ -1,12 +1,11 @@
-import { Request, Response, NextFunction } from 'express'
-import { ObjectId } from 'mongodb'
+import { RequestHandler } from 'express'
 
 import * as Reading from './../../../models/Reading'
 import { assignVersionId, recordUserReferral } from './_create'
 import { cleanMongoValidationError } from './../../../error-handlers/mongo-validation'
 import { captureException } from '@sentry/node'
 
-export async function CreateReadingHandler(req: Request, res: Response, next: NextFunction) {
+const CreateReadingHandler: RequestHandler =  async function(req, res, next) {
   let user: any = req.user
   let reading: any = req.body.reading
 
@@ -34,3 +33,5 @@ export async function CreateReadingHandler(req: Request, res: Response, next: Ne
     return next(err)
   }
 }
+
+export default CreateReadingHandler

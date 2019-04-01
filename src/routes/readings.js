@@ -163,51 +163,17 @@ router.put("/:reading_id", authRequired, function (req, res, next) {
         })
 })
 
-router.delete("/:id", authRequired, function (req, res, next) {
-    let id = req.params.id
-    let user = req.user
-
-    // Validate the reading ID is of the proper type
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        // If the reading id is not a valid mongo id
-        return res.status(400).send()
-    }
-
-    let promises = []
-    // remove all of the readings with the same id
-    promises.push(Reading.deleteOne({ _id: id, owner_id: user._id }))
-    // remove all projects associated with the reading
-    promises.push(Project.deleteMany({ reading_id: id, teacher_id: user._id }))
-    // remove the version id from all the version id places
-    promises.push(ReadingVersion.updateOne(
-        { readings: id, owner_id: user._id },
-        { $pull: { readings: id } },
-        {}
-    ))
-
-    // run all of the promises and return to client
-    Q.all(promises)
-        .then((responses) => {
-            // if the delete reading response indicates that a reading has been deleted, assign properties and return 200
-            if (responses.length && responses[0].n > 0) {
-                let delReadings = responses[0].n
-                let delProjects = responses[1].n
-
-                return res.status(200).send({
-                    results: {
-                        deletedReadings: delReadings,
-                        deletedProjects: delProjects
-                    }
-                })
-            } else {
-                return res.status(404).send()
-            }
-
-        })
-        .catch((err) => {
-            next(err)
-        })
-})
+/**
+ * @deprecated 3/31/19
+ */
+router.delete(
+    "/:reading_id",
+    authRequired,
+    require('./../middleware/validate-ids').validateIdParameters('reading_id'),
+    require('./../models/_Reading').deleteOwnerReading(),
+    require('./../models/_Reading').deleteReadingRelatedContent(),
+    require('./../middleware/handle-http').sendResponse()
+)
 
 router.get("/versions/:version_id", authRequired, (req, res, next) => {
     let version_id = req.params.version_id

@@ -2,13 +2,14 @@
 import * as joi from 'joi'
 import { ValidationResult } from 'joi'
 import { ObjectId } from 'mongodb'
-import elastic from '../../../elasticsearch'
+import elastic from '../../../services/elasticsearch'
 
 // project imports
 import * as Reading from './../../../models/Reading'
 
 export interface ReadingQuery {
   ids?: string[]
+  q?: string
   html?: string
   title?: string
   parent_id?: string
@@ -22,12 +23,20 @@ export interface ReadingQuery {
   owner_bookmarked?: boolean
   from?: number
   size?: number
+  sort?: string // the field to sort on
+  sort_order?: string // asc or desc - the order to sort by
+  body?: boolean // debugging tool to return the query body
 }
 
 const querySchema = joi.object().keys({
   _ids: joi.array().items(joi.string()),
   html: joi.string(),
   title: joi.string(),
+  /**
+   * the "q" parameter is handled specially, and will be added to the "should" clause for both title and html
+   * this means that the text searched in "q" could be either in "title" or "html"
+   */
+  q: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
   // public: joi.boolean(),
@@ -38,18 +47,24 @@ const querySchema = joi.object().keys({
   version_id: joi.string(),
   owner_bookmarked: joi.boolean(),
   from: joi.number().min(0).max(1000).default(0),
-  size: joi.number().min(0).max(50).default(15)
+  size: joi.number().min(0).max(50).default(15),
+  sort: joi.string(),
+  sort_order: joi.string().valid(['asc', 'desc']),
+  body: joi.boolean()
 })
 
-const queriableFields = [
+const queriableStringFields = [
   'html',
   'title',
   'parent_id',
   'owner_id',
-  // 'public',
   'source',
   'subjects',
-  'version_id',
+  'version_id'
+]
+
+const queriableBooleanFields = [
+  // 'public',
   'owner_bookmarked'
 ]
 
@@ -92,7 +107,12 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key:
         as: 'owner'
       }
     },
-    { $unwind: '$owner' }, // owner comes back as an array, but there will only ever be one
+    {
+      $unwind: {
+        path: '$owner',
+        preserveNullAndEmptyArrays: true // this makes sure that if we don't get an owner, it still preserves the reading
+      }
+    }, // owner comes back as an array, but there will only ever be one
     {
       $project: {
         'title': true,
@@ -124,25 +144,77 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key:
 }
 
 export function constructSearch(query: ReadingQuery): Promise<any> {
-  let must: any[] = []
+  // fieldQuery will be added to based on query properties
+  let fieldQuery = {
+    bool: {
+      must: [],
+      should: []
+    }
+  }
+  let body: any = {
+    query: {
+      bool: {
+        must: [
+          fieldQuery
+        ],
+        must_not: [
+          {
+            match: {
+              draft: true
+            }
+          },
+          {
+            exists: {
+              field: "parent_id"
+            }
+          }
+        ],
+        filter: [
+          {
+            match: {
+              public: true
+            }
+          }
+        ]
+      }
+    }
+  }
+
+  if (query.hasOwnProperty('q')) {
+    fieldQuery.bool.should.push(
+      {
+        match: {
+          html: query.q
+        }
+      },
+      {
+        match: {
+          title: query.q
+        }
+      }
+    )
+  }
 
   // add conditions for all fields where we can directly set the value
-  for (let field of queriableFields) {
+  for (let field of queriableStringFields) {
     if (query.hasOwnProperty(field)) {
       let val = query[field]
-      // if (val instanceof Array) {
-      //   must.push({
-      //     match: {
-      //       [field]: val.join(' ')
-      //     }
-      //   })
-      // } else {
-      must.push({
+      body.query.bool.must.push({
         match: {
           [field]: val
         }
       })
-      // }
+    }
+  }
+  
+  for (let field of queriableBooleanFields) {
+    if(query.hasOwnProperty(field)) {
+      let val = query[field]
+      body.query.bool.filter.push({
+        match: {
+          [field]: val
+        }
+      })
     }
   }
 
@@ -153,28 +225,24 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     lte && (grade_levels.lte = lte)
     gte && (grade_levels.gte = gte)
 
-    must.push({
+    body.query.bool.filter.push({
       range: { grade_levels }
     })
   }
 
-  // for now, only allow public readings to be searched
-  must.push({
-    match: {
-      public: true
-    }
-  })
+  if(query.sort) {
+    body.sort = [
+      {
+        [query.sort]: query.sort_order ? query.sort_order : 'asc'
+      }
+    ]
+  }
 
   return elastic.search({
     index: 'readings',
     type: 'default',
-    body: {
-      query: {
-        bool: {
-          must
-        }
-      }
-    },
+    _source: false,
+    body,
     from: query.from,
     size: query.size
   })
