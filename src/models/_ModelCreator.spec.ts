@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import { stub, SinonStub, assert } from 'sinon'
 import * as sentry from '@sentry/node'
 
-import elastic from './../elasticsearch'
+import elastic from '../services/elasticsearch'
 import { executeSaveAndIndex } from './_ModelCreator'
 
 describe('_ModelCreator', () => {

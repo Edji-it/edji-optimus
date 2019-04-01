@@ -5,7 +5,17 @@
 declare namespace Express {
   export interface Request {
     user?: any
-    oauth_error?: Error
+    path_matcher: string
+    context: {
+      user?: any
+      routeName?: string
+      [key: string]: any
+    }
+    oauth_error: any
+  }
+
+  export interface Response {
+    body: any
   }
   export interface Errback {
     type?: string
