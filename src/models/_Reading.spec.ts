@@ -14,12 +14,12 @@ import { deleteOwnerReading } from './_Reading'
 //   return 
 // }
 
-describe('_Reading', () => {
-  describe('deleteOwnerReading', () => {
-    it('should delete the reading from the database', async () => {
-      const handler = await deleteOwnerReading()(<Request>{}, <Response>{}, <NextFunction>{})
-    })
-  })
-})
+// describe('_Reading', () => {
+//   describe('deleteOwnerReading', () => {
+//     it('should delete the reading from the database', async () => {
+//       const handler = await deleteOwnerReading()(<Request>{}, <Response>{}, <NextFunction>{})
+//     })
+//   })
+// })
 
 // const elasticMock = ImportMock.mockClass(elastic, 'default')

@@ -101,6 +101,11 @@ describe('reading search helpers', () => {
                 match: {
                   draft: true
                 }
+              },
+              {
+                exists: {
+                  field: 'parent_id'
+                }
               }
             ],
             must: [
@@ -135,6 +140,11 @@ describe('reading search helpers', () => {
                 {
                   match: {
                     draft: true
+                  }
+                },
+                {
+                  exists: {
+                    field: 'parent_id'
                   }
                 }
               ],
@@ -182,6 +192,11 @@ describe('reading search helpers', () => {
                   match: {
                     draft: true
                   }
+                },
+                {
+                  exists: {
+                    field: 'parent_id'
+                  }
                 }
               ],
               must: [
@@ -214,6 +229,11 @@ describe('reading search helpers', () => {
               {
                 match: {
                   draft: true
+                }
+              },
+              {
+                exists: {
+                  field: 'parent_id'
                 }
               }
             ],
@@ -260,6 +280,11 @@ describe('reading search helpers', () => {
                 match: {
                   draft: true
                 }
+              },
+              {
+                exists: {
+                  field: 'parent_id'
+                }
               }
             ],
             must: [
@@ -292,6 +317,11 @@ describe('reading search helpers', () => {
                 match: {
                   draft: true
                 }
+              },
+              {
+                exists: {
+                  field: 'parent_id'
+                }
               }
             ],
             must: [
@@ -306,7 +336,7 @@ describe('reading search helpers', () => {
         },
         sort: [
           {
-            createdAt: "asc"
+            createdAt: 'asc'
           }
         ]
       })
@@ -329,6 +359,11 @@ describe('reading search helpers', () => {
                 match: {
                   draft: true
                 }
+              },
+              {
+                exists: {
+                  field: 'parent_id'
+                }
               }
             ],
             must: [
@@ -343,7 +378,7 @@ describe('reading search helpers', () => {
         },
         sort: [
           {
-            createdAt: "desc"
+            createdAt: 'desc'
           }
         ]
       })
