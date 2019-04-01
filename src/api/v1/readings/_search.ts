@@ -46,39 +46,36 @@ const querySchema = joi.object().keys({
   subjects: joi.string(),
   version_id: joi.string(),
   owner_bookmarked: joi.boolean(),
-  from: joi.number().min(0).max(1000).default(0),
-  size: joi.number().min(0).max(50).default(15),
+  from: joi
+    .number()
+    .min(0)
+    .max(1000)
+    .default(0),
+  size: joi
+    .number()
+    .min(0)
+    .max(50)
+    .default(15),
   sort: joi.string(),
   sort_order: joi.string().valid(['asc', 'desc']),
-  body: joi.boolean()
+  body: joi.boolean(),
 })
 
-const queriableStringFields = [
-  'html',
-  'title',
-  'parent_id',
-  'owner_id',
-  'source',
-  'subjects',
-  'version_id'
-]
+const queriableStringFields = ['html', 'title', 'parent_id', 'owner_id', 'source', 'subjects', 'version_id']
 
 const queriableBooleanFields = [
   // 'public',
-  'owner_bookmarked'
+  'owner_bookmarked',
 ]
 
-const arrayFieldsToConverToStrings = [
-  'owner_id',
-  'subjects'
-]
+const arrayFieldsToConverToStrings = ['owner_id', 'subjects']
 
 /**
  * ensures that the search endpoint can handle any parameters it is passed
  * @param query query object expected to match the search endpoint's interface
  */
 export function validateSearchQuery(query: ReadingQuery): ValidationResult<ReadingQuery> {
-  arrayFieldsToConverToStrings.forEach((field) => {
+  arrayFieldsToConverToStrings.forEach(field => {
     if (query[field] && query[field] instanceof Array) {
       query[field] = query[field].join(' ')
     }
@@ -90,52 +87,52 @@ export function validateSearchQuery(query: ReadingQuery): ValidationResult<Readi
  * supports the interface for querying multiple ids
  * @param ids list of ids that you want returned from the database (MUST be in the order you want them returned)
  */
-export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId, [key: string]: any }[]> {
-  let results: { _id: ObjectId, [key: string]: any }[] = await Reading.aggregate([
+export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId; [key: string]: any }[]> {
+  let results: { _id: ObjectId; [key: string]: any }[] = await Reading.aggregate([
     {
       $match: {
         _id: {
-          $in: ids.map(id => new ObjectId(id)) // make array of string objectids into objectids
-        }
-      }
+          $in: ids.map(id => new ObjectId(id)), // make array of string objectids into objectids
+        },
+      },
     },
     {
       $lookup: {
         from: 'users',
         localField: 'owner_id',
         foreignField: '_id',
-        as: 'owner'
-      }
+        as: 'owner',
+      },
     },
     {
       $unwind: {
         path: '$owner',
-        preserveNullAndEmptyArrays: true // this makes sure that if we don't get an owner, it still preserves the reading
-      }
+        preserveNullAndEmptyArrays: true, // this makes sure that if we don't get an owner, it still preserves the reading
+      },
     }, // owner comes back as an array, but there will only ever be one
     {
       $project: {
-        'title': true,
-        'owner_id': true,
-        'public': true,
+        title: true,
+        owner_id: true,
+        public: true,
         'owner._id': true,
         'owner.fullname': true,
         'owner.username': true,
         'owner.avatar': true,
         'owner.identities': true,
-        'promoter_ids': true,
-        'source': true,
-        'subjects': true,
-        'grade_levels': true,
-        'cover_img': true,
-        'tags': true,
-        'draft': true,
-        'version_id': true,
-        'createdAt': true,
-        'updatedAt': true,
-        'words_preview': { $slice: ['$words', 200] }
-      }
-    }
+        promoter_ids: true,
+        source: true,
+        subjects: true,
+        grade_levels: true,
+        cover_img: true,
+        tags: true,
+        draft: true,
+        version_id: true,
+        createdAt: true,
+        updatedAt: true,
+        words_preview: { $slice: ['$words', 200] },
+      },
+    },
   ])
   results.sort((a, b) => {
     return ids.indexOf(a._id.toHexString()) > ids.indexOf(b._id.toHexString()) ? 1 : -1
@@ -148,50 +145,48 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   let fieldQuery = {
     bool: {
       must: [],
-      should: []
-    }
+      should: [],
+    },
   }
   let body: any = {
     query: {
       bool: {
-        must: [
-          fieldQuery
-        ],
+        must: [fieldQuery],
         must_not: [
           {
             match: {
-              draft: true
-            }
+              draft: true,
+            },
           },
           {
             exists: {
-              field: "parent_id"
-            }
-          }
+              field: 'parent_id',
+            },
+          },
         ],
         filter: [
           {
             match: {
-              public: true
-            }
-          }
-        ]
-      }
-    }
+              public: true,
+            },
+          },
+        ],
+      },
+    },
   }
 
   if (query.hasOwnProperty('q')) {
     fieldQuery.bool.should.push(
       {
         match: {
-          html: query.q
-        }
+          html: query.q,
+        },
       },
       {
         match: {
-          title: query.q
-        }
-      }
+          title: query.q,
+        },
+      },
     )
   }
 
@@ -201,19 +196,19 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
       let val = query[field]
       body.query.bool.must.push({
         match: {
-          [field]: val
-        }
+          [field]: val,
+        },
       })
     }
   }
-  
+
   for (let field of queriableBooleanFields) {
-    if(query.hasOwnProperty(field)) {
+    if (query.hasOwnProperty(field)) {
       let val = query[field]
       body.query.bool.filter.push({
         match: {
-          [field]: val
-        }
+          [field]: val,
+        },
       })
     }
   }
@@ -221,20 +216,20 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   // handle pulling apart grade_levels here so that the search query url matches the front end
   if (query.grade_levels_lte || query.grade_levels_gte) {
     const { grade_levels_lte: lte, grade_levels_gte: gte } = query
-    let grade_levels: { lte?: number, gte?: number } = {}
+    let grade_levels: { lte?: number; gte?: number } = {}
     lte && (grade_levels.lte = lte)
     gte && (grade_levels.gte = gte)
 
     body.query.bool.filter.push({
-      range: { grade_levels }
+      range: { grade_levels },
     })
   }
 
-  if(query.sort) {
+  if (query.sort) {
     body.sort = [
       {
-        [query.sort]: query.sort_order ? query.sort_order : 'asc'
-      }
+        [query.sort]: query.sort_order ? query.sort_order : 'asc',
+      },
     ]
   }
 
@@ -244,6 +239,6 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
     _source: false,
     body,
     from: query.from,
-    size: query.size
+    size: query.size,
   })
 }

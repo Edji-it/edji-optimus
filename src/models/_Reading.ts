@@ -18,11 +18,9 @@ export const deleteOwnerReading = (): RequestHandler => {
       if (!readingRes || !readingRes.n || readingRes.n < 1) {
         return res.status(404).send() // it would be sweet to figure out how to throw an error here and catch it in some middleware runner...
       }
-      Object.assign(
-        res.body, { readings_deleted: readingRes.n }
-      )
+      Object.assign(res.body, { readings_deleted: readingRes.n })
       return next()
-    } catch(err) {
+    } catch (err) {
       next(err)
     }
   }
@@ -36,26 +34,22 @@ export const deleteReadingRelatedContent = (): RequestHandler => {
       // delete all projects associated with the reading
       promises.push(Project.deleteMany({ reading_id }))
       // pull that reading from the list of readings for a single version
-      promises.push(ReadingVersion.updateOne(
-        { readings: reading_id },
-        { $pull: { readings: reading_id }}
-      ))
+      promises.push(ReadingVersion.updateOne({ readings: reading_id }, { $pull: { readings: reading_id } }))
       // remove from elasticsearch
-      promises.push(deleteOne({
-        index: 'readings',
-        id: reading_id
-      }))
-      const [ projectRes, versionRes, elasticRes ] = await Promise.all(promises)
-      Object.assign(
-        res.body,
-        {
-          projects_deleted: projectRes.n,
-          versions_updated: versionRes.n,
-          search_deleted: elasticRes && elasticRes.result === 'deleted'
-        }
+      promises.push(
+        deleteOne({
+          index: 'readings',
+          id: reading_id,
+        }),
       )
+      const [projectRes, versionRes, elasticRes] = await Promise.all(promises)
+      Object.assign(res.body, {
+        projects_deleted: projectRes.n,
+        versions_updated: versionRes.n,
+        search_deleted: elasticRes && elasticRes.result === 'deleted',
+      })
       return next()
-    } catch(err) {
+    } catch (err) {
       next(err)
     }
   }

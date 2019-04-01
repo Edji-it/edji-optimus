@@ -1,11 +1,11 @@
 // project imports
 const Instituion = require('./../../../models/Institution')
 
-module.exports = async function (req, res, next) {
+module.exports = async function(req, res, next) {
   let new_institution = req.body.institution
 
   if (!new_institution) {
-    return res.status(400).send({ error: "license properties were never sent" })
+    return res.status(400).send({ error: 'license properties were never sent' })
   }
 
   new_institution.license_ids = []

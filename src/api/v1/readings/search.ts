@@ -16,7 +16,7 @@ export default async function SearchController(req: Request, res: Response, next
     let body = {
       total: hits.total,
       returned: results.length,
-      results
+      results,
     }
     return res.status(200).send(body)
   } catch (err) {

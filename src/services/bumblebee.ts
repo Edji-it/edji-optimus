@@ -14,16 +14,16 @@ export async function sendMessage(message: string, toChannel: string = 'metric-b
       headers: { Authorization: process.env.EDJI_BUMBLEBEE_TOKEN },
       body: {
         message,
-        toChannel
+        toChannel,
       },
-      json: true
+      json: true,
     }
     await post([process.env.EDJI_BUMBLEBEE_DOMAIN, 'messages'].join('/'), options)
   } else {
     console.log({
       system: 'dev message received and stubbed',
       message: message,
-      toChannel: toChannel
+      toChannel: toChannel,
     })
   }
 }
@@ -34,9 +34,9 @@ export async function sendUserDetails(user: any): Promise<void> {
     const options: RequestPromiseOptions = {
       headers: { Authorization: process.env.EDJI_BUMBLEBEE_TOKEN },
       body: {
-        userDetails: user.toPublic()
+        userDetails: user.toPublic(),
       },
-      json: true
+      json: true,
     }
     if (process.env.NODE_ENV === 'production') {
       await post([process.env.EDJI_BUMBLEBEE_DOMAIN, 'newuser'].join('/'), options)

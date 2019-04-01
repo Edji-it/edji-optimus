@@ -10,10 +10,7 @@ describe('subscriptions _create helpers', () => {
     helpers.should.be.instanceof(Object)
     helpers.should.not.have.property('nothing')
 
-    const propertiesToCheck = [
-      'validateBody',
-      'retrieveOrCreateCustomer'
-    ]
+    const propertiesToCheck = ['validateBody', 'retrieveOrCreateCustomer']
 
     for (let key of Object.keys(helpers)) {
       propertiesToCheck.indexOf(key).should.be.above(-1)
@@ -29,14 +26,13 @@ describe('subscriptions _create helpers', () => {
     // should have all of the valid properties of the body
     const MAX_BODY = {
       couponCode: 'SOME_CODE',
-      token: 'some_string'
+      token: 'some_string',
     }
     it('should be valid when passed with all available parameters', () => {
       const body = helpers.validateBody(MAX_BODY)
       body.should.have.property('error')
       should.not.exist(body.error)
     })
-
 
     // validate that the MVP_BODY is really the minimum required
     it('should be valid when passed with only token parameter', () => {
@@ -56,7 +52,7 @@ describe('subscriptions _create helpers', () => {
     it('should return an error when passed with unnecessary parameters', () => {
       let testBody = {
         unnecessary: true,
-        token: "some_token"
+        token: 'some_token',
       }
       const body = helpers.validateBody(testBody)
       body.should.have.property('error')

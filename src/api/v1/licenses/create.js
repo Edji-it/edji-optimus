@@ -1,17 +1,17 @@
 // library imports
 const Q = require('q')
-var mongoose = require("mongoose")
+var mongoose = require('mongoose')
 
 // project imports
 const License = require('./../../../models/License')
 const Instituion = require('./../../../models/Institution')
 const User = require('./../../../models/User')
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let new_license = req.body.license
 
   if (!new_license) {
-    return res.status(400).send({ error: "license properties were never sent" })
+    return res.status(400).send({ error: 'license properties were never sent' })
   }
 
   // add the pending_invitations array (empty) to the new_license
@@ -26,37 +26,32 @@ module.exports = function (req, res, next) {
     return res.status(400).send({ error: error.errors })
   }
 
-  license.edjiSave()
-    .then((license) => {
+  license
+    .edjiSave()
+    .then(license => {
       // add the newly created license _id to the institution
-      Instituion.findByIdAndUpdate(
-        license.owning_institution,
-        {
-          $push: {
-            license_ids: license._id
-          }
-        }
-      )
-        .then((institution) => {
-          return User.findByIdAndUpdate(
-            license.roles[0].user_id,
-            {
-              $push: {
-                license_ids: {
-                  license_id: license._id,
-                  joined: new Date()
-                },
-                institution_ids: license.owning_institution
-              }
-            }
-          )
+      Instituion.findByIdAndUpdate(license.owning_institution, {
+        $push: {
+          license_ids: license._id,
+        },
+      })
+        .then(institution => {
+          return User.findByIdAndUpdate(license.roles[0].user_id, {
+            $push: {
+              license_ids: {
+                license_id: license._id,
+                joined: new Date(),
+              },
+              institution_ids: license.owning_institution,
+            },
+          })
         })
-        .then((user) => {
+        .then(user => {
           // send the new license object back after updating the institution to include the new license_id
           return res.status(200).send({ license: license })
         })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

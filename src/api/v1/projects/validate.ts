@@ -4,7 +4,7 @@ import { RequestHandler } from 'express'
 // project imports
 import * as Project from './../../../models/Project'
 
-const validateHandler: RequestHandler = async function (req, res, next) {
+const validateHandler: RequestHandler = async function(req, res, next) {
   if (!req.params.project_code) {
     return res.status(400).send({ error: 'no project_code provided' })
   }

@@ -1,6 +1,6 @@
 // library import
-const chai = require("chai")
-chai.use(require("chai-http"))
+const chai = require('chai')
+chai.use(require('chai-http'))
 
 // project imports
 const TEST = require('../../../test/constants')
@@ -9,10 +9,11 @@ const TEST = require('../../../test/constants')
 const ENDPOINT_URL = '/api/v1/referrals'
 
 describe('GET /api/v1/referrals/:referral_code', () => {
-  it('should get a users fullname without authentication', (done) => {
+  it('should get a users fullname without authentication', done => {
     let requestCode = 'ct8zh'
 
-    chai.request(TEST.SERVER)
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '/' + requestCode)
       .end((err, res) => {
         err && done(err)
@@ -21,9 +22,7 @@ describe('GET /api/v1/referrals/:referral_code', () => {
         res.body.should.have.property('user')
         let user = res.body.user
 
-        let propertiesToCheck = [
-          'fullname'
-        ]
+        let propertiesToCheck = ['fullname']
 
         // make sure that more properties than intended are not being returned
         for (let key in user) {

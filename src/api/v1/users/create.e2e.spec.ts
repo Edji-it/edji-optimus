@@ -11,22 +11,23 @@ import * as data from './../../../test/constants'
 // prep for http calls
 chai.use(chaiHttp)
 
-const request = function (body: any): Request {
-  let req = chai.request(data.SERVER)
+const request = function(body: any): Request {
+  let req = chai
+    .request(data.SERVER)
     .post(`/api/v1/users`)
     .send({ user: body })
 
   return req
 }
 
-const createUserInfo = function (identities?: string[]) {
+const createUserInfo = function(identities?: string[]) {
   return {
     username: 'bot_' + Date.now().toString(),
     fullname: 'newApiTestUser',
     password: 'codycodycody',
     email: Date.now().toString() + '_bot@edji.it',
     identities: identities && identities.length > 0 ? identities : ['teacher', 'business'],
-    avatar: '//image-dev.edji.it/avatar/test.png'
+    avatar: '//image-dev.edji.it/avatar/test.png',
   }
 }
 
@@ -49,7 +50,7 @@ describe('POST /api/v1/users', () => {
     // make the request with the same user info that we had above
     const res = await request({
       ...testUser,
-      email: Date.now().toString() + '_bot@edji.it'
+      email: Date.now().toString() + '_bot@edji.it',
     })
     expect(res).to.have.status(409)
     expect(res.body).to.haveOwnProperty('duplicateFieldError')
@@ -65,7 +66,7 @@ describe('POST /api/v1/users', () => {
     // make the request with the same user info that we had above
     const res = await request({
       ...testUser,
-      username: 'bot_' + Date.now().toString()
+      username: 'bot_' + Date.now().toString(),
     })
     expect(res).to.have.status(409)
     expect(res.body).to.haveOwnProperty('duplicateFieldError')
@@ -80,7 +81,7 @@ describe('POST /api/v1/users', () => {
       username: 'fuck',
       fullname: 'twot',
       email: 'wrong@wrong',
-      password: 'whatever'
+      password: 'whatever',
     }
     const res = await request(invalidUser)
     expect(res).to.have.status(406)
@@ -117,7 +118,7 @@ describe('POST /api/v1/users', () => {
   })
 })
 
-export function validateLoginObject({ user, token }: { user: any, token: string }) {
+export function validateLoginObject({ user, token }: { user: any; token: string }) {
   // user validation
   expect(user).to.haveOwnProperty('_id')
   expect(user).to.haveOwnProperty('username')

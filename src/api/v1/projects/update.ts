@@ -28,13 +28,13 @@ export async function UpdateProjectController(req: Request, res: Response, next:
     let project = await Project.findOneAndUpdate(
       {
         _id: project_id,
-        teacher_id: user._id
+        teacher_id: user._id,
       },
       propertiesToUpdate,
       {
         new: true,
-        runValidators: true
-      }
+        runValidators: true,
+      },
     )
     if (!project) {
       return res.status(404).send({ error: 'no project at that id' })
@@ -45,7 +45,7 @@ export async function UpdateProjectController(req: Request, res: Response, next:
     }
     return res.status(200).send(updated)
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
       return res.status(406).send({ validationErrors })
     }
@@ -97,36 +97,36 @@ export async function UpdatePropertyController(req: Request, res: Response, next
 }
 
 const UPDATE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, user: any, update: any }) => Promise<any>
+  [key: string]: (props: { project_id: string; user: any; update: any }) => Promise<any>
 } = {
-  comments: function (props) {
+  comments: function(props) {
     return updatePropertyArray(props, 'comments')
   },
-  answers: function (props) {
+  answers: function(props) {
     return updatePropertyArray(props, 'answers')
   },
-  feedback: function (props) {
+  feedback: function(props) {
     return updatePropertyArray(props, 'feedback')
   },
-  students: async function ({ project_id, user, update }) {
-    const studentsArray: string = (user.type && user.type === 'temp') ? 'temp_ids' : 'students_ids'
+  students: async function({ project_id, user, update }) {
+    const studentsArray: string = user.type && user.type === 'temp' ? 'temp_ids' : 'students_ids'
     const res = await Project.updateOne(
       {
         _id: project_id,
-        teacher_id: { $not: { $eq: user._id } } // don't add a project owner to their own project as a student
+        teacher_id: { $not: { $eq: user._id } }, // don't add a project owner to their own project as a student
       },
       {
         $addToSet: {
-          [studentsArray]: user._id
-        }
+          [studentsArray]: user._id,
+        },
       },
       {
-        runValidators: true
-      }
+        runValidators: true,
+      },
     )
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
     return { _id: user._id }
-  }
+  },
 }
 
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)

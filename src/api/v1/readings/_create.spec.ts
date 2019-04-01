@@ -19,7 +19,7 @@ describe('readings _create', () => {
       saveStub = stub(ReadingVersion.prototype, 'save')
       validReading = {
         owner_id: new ObjectId(),
-        version_id: new ObjectId()
+        version_id: new ObjectId(),
       }
     })
     afterEach(() => {
@@ -78,11 +78,10 @@ describe('readings _create', () => {
         referred_by: '123xyz',
         prefs: {
           onboarding: {
-            firstReadingCreated: {
-            }
-          }
+            firstReadingCreated: {},
+          },
         },
-        edjiSave: spy()
+        edjiSave: spy(),
       }
       referralUpdateStub = stub(Referral, 'findOneAndUpdate')
     })
@@ -112,7 +111,7 @@ describe('readings _create', () => {
       assert.notCalled(user.edjiSave)
       assert.notCalled(referralUpdateStub)
     })
-    it('should not update the user when the user\'s referral has already been credited', async () => {
+    it("should not update the user when the user's referral has already been credited", async () => {
       user.prefs.onboarding.firstReadingCreated.firstDone = Date.now()
       assert.notCalled(user.edjiSave)
       assert.notCalled(referralUpdateStub)

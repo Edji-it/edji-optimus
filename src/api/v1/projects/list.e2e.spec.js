@@ -1,7 +1,7 @@
 // library import
-const chai = require("chai")
+const chai = require('chai')
 const should = chai.should()
-chai.use(require("chai-http"))
+chai.use(require('chai-http'))
 
 // project imports
 const TEST = require('../../../test/constants')
@@ -10,8 +10,9 @@ const TEST = require('../../../test/constants')
 const ENDPOINT_URL = '/api/v1/projects'
 
 describe('GET /projects', () => {
-  it('should get a 401 without auth', (done) => {
-    chai.request(TEST.SERVER)
+  it('should get a 401 without auth', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL)
       .end((err, res) => {
         res.should.not.have.status(200)
@@ -20,9 +21,10 @@ describe('GET /projects', () => {
       })
   })
 
-  it('should get a 400 when requesting with a bad query parameter', (done) => {
-    chai.request(TEST.SERVER)
-      .get(ENDPOINT_URL + "?badparam=nothing")
+  it('should get a 400 when requesting with a bad query parameter', done => {
+    chai
+      .request(TEST.SERVER)
+      .get(ENDPOINT_URL + '?badparam=nothing')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
         res.should.not.have.status(200)
@@ -33,12 +35,15 @@ describe('GET /projects', () => {
 
   let DEFAULT_PROJECT_LIST
 
-  it('should return a list of projects', (done) => {
-    chai.request(TEST.SERVER)
+  it('should return a list of projects', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL)
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.should.have.status(200)
         res.body.should.have.property('total')
@@ -50,23 +55,23 @@ describe('GET /projects', () => {
         DEFAULT_PROJECT_LIST = projects
 
         let lastProjectDate // used to test that the projects are in sort order from most to least recent
-        projects.forEach((project) => {
+        projects.forEach(project => {
           // things the project SHOULD have
-          project.should.have.property("_id")
-          project.should.have.property("reading_id")
-          project.should.have.property("teacher_id")
-          project.should.have.property("label")
-          project.should.have.property("code")
-          project.should.have.property("types")
-          project.should.have.property("createdAt")
-          project.should.have.property("updatedAt")
+          project.should.have.property('_id')
+          project.should.have.property('reading_id')
+          project.should.have.property('teacher_id')
+          project.should.have.property('label')
+          project.should.have.property('code')
+          project.should.have.property('types')
+          project.should.have.property('createdAt')
+          project.should.have.property('updatedAt')
 
-          project.should.not.have.property("comments")
+          project.should.not.have.property('comments')
 
           let thisProjectDate = new Date(project.createdAt)
           if (lastProjectDate) {
             // test to make sure lastProjectDate is more recent than the current reading
-            (lastProjectDate.getTime() >= thisProjectDate.getTime()).should.be.true
+            ;(lastProjectDate.getTime() >= thisProjectDate.getTime()).should.be.true
           }
           lastProjectDate = thisProjectDate
         })
@@ -76,15 +81,18 @@ describe('GET /projects', () => {
       })
   })
 
-  it('should populate readings', (done) => {
-    chai.request(TEST.SERVER)
+  it('should populate readings', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '?pop=reading')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.body.should.have.property('projects')
-        res.body.projects.forEach((project) => {
+        res.body.projects.forEach(project => {
           // population properties each project should have
           project.should.have.property('reading')
           project.reading.should.have.property('_id')
@@ -99,15 +107,18 @@ describe('GET /projects', () => {
       })
   })
 
-  it('should populate teachers', (done) => {
-    chai.request(TEST.SERVER)
+  it('should populate teachers', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '?pop=teacher')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.body.should.have.property('projects')
-        res.body.projects.forEach((project) => {
+        res.body.projects.forEach(project => {
           project.should.have.property('teacher')
           project.teacher.should.have.property('_id')
           project.teacher._id.should.be.equal(project.teacher_id)
@@ -121,12 +132,15 @@ describe('GET /projects', () => {
       })
   })
 
-  it('should return 2 projects with ?size=2 query parameter', (done) => {
-    chai.request(TEST.SERVER)
+  it('should return 2 projects with ?size=2 query parameter', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '?size=2')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.body.should.have.property('projects')
         res.body.projects.length.should.be.equal(2)
@@ -137,12 +151,15 @@ describe('GET /projects', () => {
       })
   })
 
-  it('should start at the next index with ?start=1 query parameter', (done) => {
-    chai.request(TEST.SERVER)
+  it('should start at the next index with ?start=1 query parameter', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '?start=1')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.body.should.have.property('projects')
         res.body.projects[0].should.have.property('_id')

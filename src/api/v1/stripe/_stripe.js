@@ -7,14 +7,14 @@ const sentry = require('@sentry/node')
  * @param {Object} user the user attached to the request body by auth middleware
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
-const retrieveOrCreateCustomer = function (user, paymentToken) {
+const retrieveOrCreateCustomer = function(user, paymentToken) {
   // get the user if they've already got a customer_id
   if (user && user.stripe_customer_id) {
     return stripe.customers.retrieve(user.stripe_customer_id)
   } else if (user && user.email) {
     let customer = {
       email: user.email,
-      source: paymentToken
+      source: paymentToken,
     }
 
     return stripe.customers.create(customer)
@@ -23,7 +23,7 @@ const retrieveOrCreateCustomer = function (user, paymentToken) {
   }
 }
 
-const getHeroSubscriptions = async function (customerId, status) {
+const getHeroSubscriptions = async function(customerId, status) {
   const plan = 'yearly'
   if (!status) {
     status = 'active'
@@ -32,7 +32,7 @@ const getHeroSubscriptions = async function (customerId, status) {
     let subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       plan: plan,
-      status: status
+      status: status,
     })
 
     // this tests if there is at least one subscription for this customer, but will return all subscriptions
@@ -49,7 +49,7 @@ const getHeroSubscriptions = async function (customerId, status) {
   }
 }
 
-const getStripeDate = function (utcSeconds) {
+const getStripeDate = function(utcSeconds) {
   // Stripe sends the date back as the UTC Epoch, so we'll convert it here
   let date = new Date(0)
   date.setUTCSeconds(utcSeconds)
@@ -60,5 +60,5 @@ module.exports = {
   api: stripe,
   retrieveOrCreateCustomer,
   getHeroSubscriptions,
-  getStripeDate
+  getStripeDate,
 }

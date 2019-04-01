@@ -1,4 +1,4 @@
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let user = req.user
   let user_id = req.params.user_id
 

@@ -7,33 +7,30 @@ import * as Referral from './../../../models/Referral'
 //  if it doesn't come with a version_id attached, we assume it's the first version and add a record to the linking table
 //  all we have to do is give it the version id, because later we'll create the ReadingVersion based on this id
 export async function assignVersionId(reading: any, userId: ObjectId) {
-  if (
-    !reading.owner_id ||
-    !userId.equals(reading.owner_id) ||
-    !reading.version_id
-  ) {
+  if (!reading.owner_id || !userId.equals(reading.owner_id) || !reading.version_id) {
     reading.version_id = new ObjectId()
     let version = new ReadingVersion({
       _id: reading.version_id,
       owner_id: userId,
-      readings: [reading._id]
+      readings: [reading._id],
     })
     await version.save()
   } else {
     await ReadingVersion.findOneAndUpdate(
       {
         _id: reading.version_id,
-        owner_id: userId
+        owner_id: userId,
       },
       {
         $push: { readings: reading._id },
-        updatedAt: Date.now()
-      }, {
+        updatedAt: Date.now(),
+      },
+      {
         new: true,
         runValidators: true,
         upsert: true,
-        setDefaultsOnInsert: true
-      }
+        setDefaultsOnInsert: true,
+      },
     )
   }
 
@@ -53,23 +50,23 @@ export async function recordUserReferral(user: any): Promise<void> {
     await Referral.findOneAndUpdate(
       {
         code: user.referred_by,
-        'users_referred.user_id': user._id
+        'users_referred.user_id': user._id,
       },
       {
         $set: {
-          'users_referred.$.status': "completed"
-        }
-      }
+          'users_referred.$.status': 'completed',
+        },
+      },
     )
   }
 }
 
 function shouldRedeemReferral(user: any): boolean {
-  return !!user.referred_by &&
-    (
-      !user.prefs ||
+  return (
+    !!user.referred_by &&
+    (!user.prefs ||
       !user.prefs.onboarding ||
       !user.prefs.onboarding.firstReadingCreated ||
-      !user.prefs.onboarding.firstReadingCreated.firstDone
-    )
+      !user.prefs.onboarding.firstReadingCreated.firstDone)
+  )
 }

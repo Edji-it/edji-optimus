@@ -12,8 +12,9 @@ import { validateLoginObject } from './create.e2e.spec'
 // prep for http calls
 chai.use(chaiHttp)
 
-const request = function (body: any): Request {
-  let req = chai.request(data.SERVER)
+const request = function(body: any): Request {
+  let req = chai
+    .request(data.SERVER)
     .post(`/api/v1/users/login`)
     .send({ user: body })
 

@@ -4,7 +4,7 @@ import { RequestHandler } from 'express'
 // project imports
 import { login } from './../../../middleware/login-controller'
 
-const loginHandler: RequestHandler = async function (req, res, next) {
+const loginHandler: RequestHandler = async function(req, res, next) {
   const { user } = req.body // note this is coming from the request's body, not the req.user
 
   if (!user || !user.username || !user.password) {

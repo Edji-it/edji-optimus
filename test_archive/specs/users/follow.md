@@ -16,8 +16,8 @@ Needs Authorization token
 
 ## Expected Parameters
 
-*  `action` is expected to be a property in the request's body, and can have the value `follow` or `unfollow`
-*  `user_id` the user's id which will be either added or removed from the `following` array
+- `action` is expected to be a property in the request's body, and can have the value `follow` or `unfollow`
+- `user_id` the user's id which will be either added or removed from the `following` array
 
 ## Testing
 
@@ -28,25 +28,25 @@ Call the endpoint with a user's id and the `unfollow` action, to ensure that the
 ### Cases
 
 1.  Call with valid Authorization header, a valid `user_id` and `follow` action
-    *  `res` should have a:
-        *  `status` = `200`
-        *  `user` is an Object with:
-            *  `following: string[]` has submitted `user_id` in the array
-3.  Call with same Authorization header, the same `user_id` and the `follow` action (again)
-    *  `res` should have a:
-        *  `status` = `400`
-        *  `error: string` (a message saying the user has already been followed)
-        *  `action: string` = `follow`
+    - `res` should have a:
+      - `status` = `200`
+      - `user` is an Object with:
+        - `following: string[]` has submitted `user_id` in the array
+2.  Call with same Authorization header, the same `user_id` and the `follow` action (again)
+    - `res` should have a:
+      - `status` = `400`
+      - `error: string` (a message saying the user has already been followed)
+      - `action: string` = `follow`
 3.  Call with same Authorization header, the same `user_id` and the `unfollow` action
-    *  `res` should have a:
-        *  `status` = `200`
-        *  `user` is an Object with:
-            *  `following: string[]` has submitted `user_id` in the array
+    - `res` should have a:
+      - `status` = `200`
+      - `user` is an Object with:
+        - `following: string[]` has submitted `user_id` in the array
 4.  Call with same Authorization header, the same `user_id` and the `unfollow` action (again)
-    *  `res` should have a:
-        *  `status` = `400`
-        *  `error: string` (a message saying the user has already been followed)
-        *  `action: string` = `unfollow`
+    - `res` should have a:
+      - `status` = `400`
+      - `error: string` (a message saying the user has already been followed)
+      - `action: string` = `unfollow`
 5.  Call without Authorization header => receive `404`
 6.  Call `user_id` that is not a valid Mongo id => receive `400`
 7.  Call with `user_id` equal to the user's own `_id` => receive `400`

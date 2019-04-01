@@ -65,7 +65,7 @@ describe('_password_recovery', () => {
       user = {
         email: 'corbin@edji.it',
         fullname: 'Corbin rocks!',
-        resetPasswordToken: '8q4h9t4rnauvdyfd^&^^%$%$#%%(dafsfdskfjlads;jdla;"' // this would be a crappy string to put in a url if it was not encoded
+        resetPasswordToken: '8q4h9t4rnauvdyfd^&^^%$%$#%%(dafsfdskfjlads;jdla;"', // this would be a crappy string to put in a url if it was not encoded
       }
     })
     afterEach(() => {
@@ -73,8 +73,9 @@ describe('_password_recovery', () => {
       createResetLinkStub.restore()
     })
 
-    it('should call sendEmail with the correct user properties', (done) => {
-      helpers.sendRecoveryEmail(user)
+    it('should call sendEmail with the correct user properties', done => {
+      helpers
+        .sendRecoveryEmail(user)
         .then(() => {
           sinon.assert.calledOnce(emailServiceStub)
 
@@ -91,18 +92,19 @@ describe('_password_recovery', () => {
 
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
 
-    it('should call sendEmail with a valid email templace', (done) => {
-      helpers.sendRecoveryEmail(user)
+    it('should call sendEmail with a valid email templace', done => {
+      helpers
+        .sendRecoveryEmail(user)
         .then(() => {
           emailServiceStub.firstCall.args[0].email_template.should.be.equal('recover-password')
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
@@ -112,14 +114,14 @@ describe('_password_recovery', () => {
     it('should return true for a user with a username and password', () => {
       let user = {
         username: 'a_username',
-        password: 'a_pass'
+        password: 'a_pass',
       }
       helpers.userCanResetPass(user).should.be.true
     })
 
     it('should return false for a user without a username', () => {
       let user = {
-        password: 'a_pass'
+        password: 'a_pass',
       }
       helpers.userCanResetPass(user).should.be.false
     })

@@ -1,7 +1,5 @@
 {
-  "addons": [
-    "papertrail"
-  ],
+  "addons": ["papertrail"],
   "buildpacks": [
     {
       "url": "heroku/nodejs"
@@ -84,7 +82,6 @@
     }
   },
   "name": "edji-optimus",
-  "scripts": {
-  },
+  "scripts": {},
   "stack": "heroku-18"
 }

@@ -7,7 +7,7 @@ import { captureException } from '@sentry/node'
 
 const LOGS_ENDPOINT: string = [process.env.EDJI_FLAK_URL || 'https://flak-dev.edji.it', 'logs', 'edji'].join('/')
 
-export function addRouteName (name: string): RequestHandler {
+export function addRouteName(name: string): RequestHandler {
   return (req, res, next) => {
     if (!req.context.routeName) {
       req.context.routeName = ''
@@ -43,7 +43,7 @@ export class EdjiUtils {
       res.setHeader('X-Powered-By', 'Autobots')
       const _this = this
       // this hook gets called right before the request is sent, so that we'll know how long the request took
-      onHeaders(res, function () {
+      onHeaders(res, function() {
         const diff = process.hrtime(startTime)
         const request_time = Math.round((diff[0] * 1e3 + diff[1] * 1e-6) * 1e3) / 1e3
         this.setHeader(_this.requestTimeHeader, request_time + 'ms')
@@ -60,7 +60,7 @@ export class EdjiUtils {
             route_name: req.context.routeName,
             request_id,
             request_time,
-            heroku: process.env.HEROKU_RELEASE_VERSION
+            heroku: process.env.HEROKU_RELEASE_VERSION,
           }
           if (req.user && req.user._id) {
             if (typeof req.user._id === 'object') {
@@ -72,7 +72,8 @@ export class EdjiUtils {
           _this.sendLog(log)
         }
       })
-    } catch (err) { } finally {
+    } catch (err) {
+    } finally {
       next()
     }
   }
@@ -81,12 +82,12 @@ export class EdjiUtils {
     const options: RequestPromiseOptions = {
       body,
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
       },
       auth: {
-        bearer: process.env.EDJI_FLAK_TOKEN
+        bearer: process.env.EDJI_FLAK_TOKEN,
       },
-      json: true
+      json: true,
     }
 
     try {

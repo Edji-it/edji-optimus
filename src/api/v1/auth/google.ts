@@ -13,14 +13,14 @@ export const GoogleCallback: Array<(req: Request, res: Response, next: NextFunct
     }
 
     const oauthToken = encodeURIComponent(
-      req.user.oauth.find((obj) => {
+      req.user.oauth.find(obj => {
         return obj.type === 'google'
-      }).singleUseToken
+      }).singleUseToken,
     )
 
     // should be changed to use req.baseUrl
-    const redirect = req.protocol + ":" + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
+    const redirect = req.protocol + ':' + process.env.CLIENT_URL + '/#/oauth/google?token=' + oauthToken
 
     return res.redirect(redirect)
-  }
+  },
 ]

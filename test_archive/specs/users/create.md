@@ -37,40 +37,40 @@ Note: Validation of this call without certain properties should be overlapped by
 ### Standard Registration
 
 1.  Pass good object
-    *  `res` should have a:
-        *  `user`: `any`
-        *  `token`: `string`
+    - `res` should have a:
+      - `user`: `any`
+      - `token`: `string`
 2.  Pass invalid email, profane username and profane fullname
-    *  `res` should have a:
-        *  `status` = `406`
-        *  `errors`: `any` should have a:
-            *  `validationErrors`: `any` should have a:
-                *  `fullname`: `string` = `badWords`
-                *  `username`: `string` = `badWords`
-                *  `email`: `string` = `emailRegex`
+    - `res` should have a:
+      - `status` = `406`
+      - `errors`: `any` should have a:
+        - `validationErrors`: `any` should have a:
+          - `fullname`: `string` = `badWords`
+          - `username`: `string` = `badWords`
+          - `email`: `string` = `emailRegex`
 3.  Pass duplicate username
-    *  `res` should have a:
-        *  `status` = `409`
-        *  `errors`: `any` should have a `username`
+    - `res` should have a:
+      - `status` = `409`
+      - `errors`: `any` should have a `username`
 4.  Pass without email, fullname, username or password
-    *  `res` should have a:
-        *  `status` = `406`
-        *  `errors`: `any` should have a:
-            *  `validationErrors`: `any` should have a:
-                *  `fullname`: `string` = `required`
-                *  `email`: `string` = `required`
-                *  `auth`: `string`
+    - `res` should have a:
+      - `status` = `406`
+      - `errors`: `any` should have a:
+        - `validationErrors`: `any` should have a:
+          - `fullname`: `string` = `required`
+          - `email`: `string` = `required`
+          - `auth`: `string`
 
 ### Temp User Conversion Registration
 
 Note: all of the temp user tests will assume a "good" `user` object, and successful registration
 
 1.  Pass with temp_id which has one reading and one project
-    *  `res` should have a:
-        *  `status` = `201`
-        *  `user`: `any`
-        *  `token`: `string`
-        *  `project_ids`: `string[]` -> this is an array containing the ids of the successfully converted projects
-        *  `readings_ids`: `string[]` -> this is an array containing the ids of the successfully converted readings
+    - `res` should have a:
+      - `status` = `201`
+      - `user`: `any`
+      - `token`: `string`
+      - `project_ids`: `string[]` -> this is an array containing the ids of the successfully converted projects
+      - `readings_ids`: `string[]` -> this is an array containing the ids of the successfully converted readings
 2.  Pass with temp_id which does not exist --> receive `404`
 3.  Pass with temp_id which is invalid --> receive `400`

@@ -1,7 +1,7 @@
 // library imports
 const emailService = require('../../../services/email').EmailService
 
-let createQuery = function ({ username, email }) {
+let createQuery = function({ username, email }) {
   if (username) {
     return { username }
   } else if (email) {
@@ -11,7 +11,7 @@ let createQuery = function ({ username, email }) {
   }
 }
 
-let sendRecoveryEmail = function (user) {
+let sendRecoveryEmail = function(user) {
   let options = {
     email_template: 'recover-password',
     subject: 'Password Recovery - Edji',
@@ -20,21 +20,20 @@ let sendRecoveryEmail = function (user) {
     from: 'Account Recovery <recovery@edji.it>',
     vars_object: {
       name: user.fullname,
-      reset_link: this.createResetLink(user.resetPasswordToken)
-    }
+      reset_link: this.createResetLink(user.resetPasswordToken),
+    },
   }
-  return emailService.sendEmail(options)
-    .then((response) => {
-      return user
-    })
+  return emailService.sendEmail(options).then(response => {
+    return user
+  })
 }
 
-let createResetLink = function (resetToken) {
+let createResetLink = function(resetToken) {
   let queryString = 'token=' + encodeURIComponent(resetToken)
   return `http:${process.env.CLIENT_URL}/#/reset-password?${queryString}`
 }
 
-let userCanResetPass = function (user) {
+let userCanResetPass = function(user) {
   let canReset = false
   if (user.username && user.password) {
     canReset = true
@@ -46,5 +45,5 @@ module.exports = {
   createQuery,
   sendRecoveryEmail,
   createResetLink,
-  userCanResetPass
+  userCanResetPass,
 }

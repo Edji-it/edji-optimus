@@ -11,15 +11,16 @@ export class UserAPI {
     password: string,
     options: {
       returnRoot?: boolean
-    } = {}
+    } = {},
   ): Promise<LoginObject> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .post('/users/login')
       .send({
         user: {
           username,
-          password
-        }
+          password,
+        },
       })
     let returnVal // this typing isn't exactly right...
     if (options.returnRoot) {
@@ -34,27 +35,28 @@ export class UserAPI {
     overrideProperties: any = {},
     options: {
       returnCreds?: boolean
-    } = {}
+    } = {},
   ): Promise<ApiLoginObject> {
     let userProperties: any = {
       username: Date.now().toString(),
-      fullname: "newApiTestUser",
-      password: "codycodycody",
-      email: 'auto_' + Date.now().toString() + "@edji.it",
-      identities: ["robot", "business"],
-      avatar: "//image-dev.edji.it/avatar/test.png",
-      ...overrideProperties
+      fullname: 'newApiTestUser',
+      password: 'codycodycody',
+      email: 'auto_' + Date.now().toString() + '@edji.it',
+      identities: ['robot', 'business'],
+      avatar: '//image-dev.edji.it/avatar/test.png',
+      ...overrideProperties,
     }
 
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .post('/users')
       .send({
-        user: userProperties
+        user: userProperties,
       })
     if (options.returnCreds) {
       res.body.credentials = {
         username: userProperties.username,
-        password: userProperties.password
+        password: userProperties.password,
       }
     }
 
@@ -62,7 +64,8 @@ export class UserAPI {
   }
 
   static async getReferral(userId: string, authToken: string): Promise<any> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .get(`/api/v1/users/${userId}/referrals`)
       .set('Authorization', authToken)
 
@@ -72,12 +75,13 @@ export class UserAPI {
 
 export class TempUserAPI {
   static async create(fullname: string): Promise<LoginObject> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .post('/tempusers')
       .send({
         user: {
-          fullname
-        }
+          fullname,
+        },
       })
     return res.body
   }
@@ -90,19 +94,21 @@ export interface LoginObject {
 
 export class ReadingAPI {
   static async create(authToken: string, overrideProperties: any = {}): Promise<any> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .post('/api/v1/readings')
       .set('Authorization', authToken)
       .send({
         reading: {
           ...data.READINGS.NEW_READING,
-          ...overrideProperties
-        }
+          ...overrideProperties,
+        },
       })
     return res.body
   }
   static async delete(readingId: string, authToken: string): Promise<any> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .del(`/readings/${readingId}`)
       .set('Authorization', authToken)
 
@@ -113,14 +119,15 @@ export class ReadingAPI {
 export class ProjectAPI {
   static async create(
     project: {
-      teacher_id: string,
-      reading_id: string,
-      label: string,
+      teacher_id: string
+      reading_id: string
+      label: string
       [key: string]: any
     },
-    authToken: string
+    authToken: string,
   ): Promise<any> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .post('/api/v1/projects')
       .set('Authorization', authToken)
       .send(project)
@@ -128,19 +135,22 @@ export class ProjectAPI {
     return res.body
   }
   static async delete(projectId: string, authToken: string): Promise<number> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .del(`/projects/${projectId}`)
       .set('Authorization', authToken)
     return res.status
   }
   static async retrieve(projectId: string, authToken: string): Promise<any> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .get(`/api/v1/projects/${projectId}`)
       .set('Authorization', authToken)
     return res.body
   }
   static async createComment(projectId: string, body: any, authToken: string, commentType = 'comments'): Promise<any> {
-    let res: ChaiHttp.Response = await chai.request(data.SERVER)
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
       .put(`/api/v1/projects/${projectId}/${commentType}`)
       .set('Authorization', authToken)
       .send(body)

@@ -27,12 +27,12 @@ The request body can be an empty object
 ## Test Cases
 
 1.  Pass good project as a user
-    *  `res` should have a:
-        *  `status` = `200`
+    - `res` should have a:
+      - `status` = `200`
 2.  Pass good project as a temp user
-    *  `res` should have a:
-        *  `status` = `200`
-2.  Pass with corrupt project id --> receive `400`
-3.  Pass with non-existant project id --> receive `304`
-4.  Pass with project owner's token --> receive `304`
-5.  Pass without `Authorization` header --> receive `401`
+    - `res` should have a:
+      - `status` = `200`
+3.  Pass with corrupt project id --> receive `400`
+4.  Pass with non-existant project id --> receive `304`
+5.  Pass with project owner's token --> receive `304`
+6.  Pass without `Authorization` header --> receive `401`

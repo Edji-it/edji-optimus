@@ -9,9 +9,8 @@ import { UserAPI, ReadingAPI, ProjectAPI } from './../../../test/methods'
 // prep for http calls
 chai.use(chaiHttp)
 
-const request = function (reading_id: string, authToken?: string) {
-  let req = chai.request(data.SERVER)
-    .del(`/api/v1/readings/${reading_id}`)
+const request = function(reading_id: string, authToken?: string) {
+  let req = chai.request(data.SERVER).del(`/api/v1/readings/${reading_id}`)
 
   authToken && req.set('Authorization', authToken)
   return req
@@ -35,7 +34,7 @@ describe('DELETE /api/v1/readings/:reading_id', () => {
       readings_deleted: 1,
       projects_deleted: 0,
       versions_updated: 1,
-      search_deleted: true
+      search_deleted: true,
     })
   })
   it('should delete all projects associated with a reading', async () => {
@@ -45,17 +44,17 @@ describe('DELETE /api/v1/readings/:reading_id', () => {
       {
         reading_id: reading._id,
         teacher_id: ownerId,
-        label: 'test delete'
+        label: 'test delete',
       },
-      authToken
+      authToken,
     )
     await ProjectAPI.create(
       {
         reading_id: reading._id,
         teacher_id: ownerId,
-        label: 'test delete'
+        label: 'test delete',
       },
-      authToken
+      authToken,
     )
     const res = await request(reading._id, authToken)
     expect(res).to.have.status(200)
@@ -63,7 +62,7 @@ describe('DELETE /api/v1/readings/:reading_id', () => {
       readings_deleted: 1,
       projects_deleted: 2,
       versions_updated: 1,
-      search_deleted: true
+      search_deleted: true,
     })
   })
   it('should return 404 for a reading that does not exist', async () => {
