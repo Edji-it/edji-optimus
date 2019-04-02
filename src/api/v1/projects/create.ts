@@ -22,12 +22,6 @@ export default async function CreateProjectController(req: Request, res: Respons
     if (hasCustomCode) {
       await SessionCode.updateOne({ code: projectData.code }, { $set: { active: true } })
     }
-    /**
-     * @deprecated 2/2/19
-     */
-    if (req.params.wrap_response) {
-      project = { project }
-    }
     res.status(201).send(project)
   } catch (err) {
     if (err.name === 'ValidationError') {
