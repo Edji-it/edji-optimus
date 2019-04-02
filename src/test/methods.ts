@@ -118,14 +118,19 @@ export class ReadingAPI {
 
 export class ProjectAPI {
   static async create(
-    project: {
-      teacher_id: string
-      reading_id: string
-      label: string
+    overrideProperties: {
+      teacher_id?: string
+      reading_id?: string
+      label?: string
       [key: string]: any
     },
     authToken: string,
   ): Promise<any> {
+    const project = {
+      reading_id: '5adfc5cc7f322d1d7c4405ef',
+      label: 'api test project',
+      ...overrideProperties,
+    }
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
       .post('/api/v1/projects')
