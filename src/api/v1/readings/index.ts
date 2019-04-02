@@ -21,6 +21,7 @@ router.post('/reports', addRouteName('/reports'), authRequired, SendReportHandle
 router.get('/:temp_type', addRouteName('/:temp_type'), authRequired, TempTypeHandler)
 router.delete(
   '/:reading_id',
+  addRouteName('/:reading_id'),
   authRequired,
   validateIdParameters('reading_id'),
   deleteOwnerReading(),
