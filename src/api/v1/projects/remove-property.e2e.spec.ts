@@ -15,7 +15,7 @@ let authToken: string
 let userId: string
 let createdProject: any
 
-describe('delete project properties', () => {
+describe('delete projects', () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
@@ -36,6 +36,54 @@ describe('delete project properties', () => {
     )
     expect(project._id, 'did not successfully create project to test').not.to.be.undefined
     createdProject = project
+  })
+
+  // update for delete project test
+  describe('DELETE project /api/v1/projects/:project_id', () => {
+    const requestCreate = async function(body: any, authToken?: string) {
+      return ProjectAPI.create(body, authToken)
+    }
+
+    const requestDelete = function(projectId: string, authToken?: string): Request {
+      let req = chai.request(data.SERVER).del(`/api/v1/projects/${projectId}`)
+
+      authToken && req.set('Authorization', authToken)
+      return req
+    }
+    it('should delete a project', async () => {
+      let createBody = {
+        teacher_id: userId,
+        reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
+        label: 'PUT /api/v1/projects/:project_id test project',
+      }
+      // create a fresh project to delete
+      const createProj = await requestCreate(createBody, authToken)
+      expect(createProj).to.have.property('_id')
+      expect(createProj._id).not.to.be.undefined
+
+      // delete the project that we just created above
+      const deleteProj = await requestDelete(createProj._id, authToken)
+      expect(deleteProj).to.have.status(204)
+    })
+    it('should receive a 400 if passed an invalid project id', async () => {
+      const res = await requestDelete('invalid_id', authToken)
+      expect(res).to.have.status(400)
+    })
+    it('should reject an unauthorized request', async () => {
+      const res = await requestDelete('invalid_id', '')
+      expect(res).to.have.status(401)
+    })
+    it('should return 404 if requesting to delete a project which does not exist', async () => {
+      const res = await requestDelete('59bda04985c6ab346c12dbba', authToken)
+      expect(res).to.have.status(404)
+    })
+    it('should return 404 if the user is attempting to delete a real project which they do not own', async () => {
+      let { username, password } = data.LOGIN_INFO.API_HERO
+      let { token } = await UserAPI.login(username, password)
+      expect(token).not.to.be.undefined
+      const res = await requestDelete(createdProject._id, token)
+      expect(res).to.have.status(404)
+    })
   })
 
   const commentTypes = ['comments', 'answers']

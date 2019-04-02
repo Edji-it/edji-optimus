@@ -1,5 +1,6 @@
 // library imports
-const mongoose = require('mongoose')
+const Q = require('q')
+let mongoose = require('mongoose')
 
 // project imports
 const Project = require('./../../../models/Project')

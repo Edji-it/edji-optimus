@@ -18,7 +18,7 @@ let userId: string
 let fullname: string
 let projectState: any // keep track of the updates we make to the project along the way
 
-describe('PUT /api/v1/projects/:project_id handlers', () => {
+describe('update projects', () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)

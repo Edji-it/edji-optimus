@@ -6,7 +6,7 @@ import { Document, Model, Schema } from 'mongoose'
 import { ObjectID } from 'mongodb'
 const ModelCreator = require('./ModelCreator')
 
-const Comment: Model<iCommentModel> = ModelCreator('Comment', {
+const Comment: Model<iComment> = ModelCreator('Comment', {
   user_id: { type: String, required: true }, // could be any type of user, maybe we want to add a user_type field?
   start: { type: Number, required: true, default: -1 },
   end: { type: Number, required: true, default: -1 },
@@ -27,9 +27,7 @@ const Comment: Model<iCommentModel> = ModelCreator('Comment', {
 
 export default Comment
 
-interface iCommentModel extends iComment, Document {}
-
-export interface iComment {
+export interface iComment extends Document {
   user_id: string
   start: number
   end: number
@@ -43,7 +41,7 @@ export interface iComment {
     x: number
     y: number
   }
-  reply_to?: ObjectID
-  replies?: any[]
-  questionId?: string
+  reply_to: ObjectID
+  replies: any[]
+  questionId: string
 }
