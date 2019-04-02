@@ -13,14 +13,16 @@ const validateBody = function(reqBody) {
     delete reqBody.token
   }
 
-  const bodySchema = joi.object({
-    token: joi.string(),
-    couponCode: joi.string()
-  }).or('token', 'couponCode')
+  const bodySchema = joi
+    .object({
+      token: joi.string(),
+      couponCode: joi.string(),
+    })
+    .or('token', 'couponCode')
 
   return joi.validate(reqBody, bodySchema)
 }
 
 module.exports = {
-  validateBody: validateBody
+  validateBody: validateBody,
 }

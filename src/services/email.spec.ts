@@ -13,9 +13,7 @@ describe('EmailService', () => {
     subject: 'Test subject',
     from: 'fake@edji.it',
     email: 'something@gmail.com',
-    vars_object: {
-
-    }
+    vars_object: {},
   }
 
   beforeEach(() => {
@@ -25,11 +23,11 @@ describe('EmailService', () => {
     rpStub.restore()
   })
 
-  it('should call sendEmail with the passed parameters', (done) => {
-    let emailStub: sinon.SinonStub = sinon.stub(EmailService, "sendEmail").resolves()
+  it('should call sendEmail with the passed parameters', done => {
+    let emailStub: sinon.SinonStub = sinon.stub(EmailService, 'sendEmail').resolves()
 
     EmailService.sendEmail(emailParams)
-      .then((res) => {
+      .then(res => {
         emailStub.calledOnce.should.be.true
         let params: EmailOptions = emailStub.firstCall.args[0]
         params.email_template.should.be.equal(emailParams.email_template)
@@ -41,15 +39,15 @@ describe('EmailService', () => {
         done()
         emailStub.restore()
       })
-      .catch((err) => {
+      .catch(err => {
         done(err)
         emailStub.restore()
       })
   })
 
-  it('should call request-promise with proper body', (done) => {
+  it('should call request-promise with proper body', done => {
     EmailService.sendEmail(emailParams)
-      .then((res) => {
+      .then(res => {
         rpStub.calledOnce.should.be.true // make sure request is called exactly once
         res.fake.should.be.true // test that we stubbed properly
 
@@ -59,7 +57,10 @@ describe('EmailService', () => {
         }
         options.should.have.property('headers')
         options.headers.should.have.property('Authorization')
-        options.uri.toString().indexOf(['api', 'v1', 'emails', 'sendmail', emailParams.email_template].join('/')).should.be.greaterThan(-1)
+        options.uri
+          .toString()
+          .indexOf(['api', 'v1', 'emails', 'sendmail', emailParams.email_template].join('/'))
+          .should.be.greaterThan(-1)
         options.should.have.property('body')
         options.body.should.have.property('from')
         options.body.from.should.be.equal(emailParams.from)
@@ -67,7 +68,7 @@ describe('EmailService', () => {
         options.body.should.have.property('recipients')
         let recipients = options.body.recipients
         recipients.should.be.instanceOf(Array)
-        recipients.forEach((recipient) => {
+        recipients.forEach(recipient => {
           recipient.should.have.property('name')
           recipient.name.should.be.equal(emailParams.name)
           recipient.should.have.property('email')
@@ -78,7 +79,7 @@ describe('EmailService', () => {
 
         done()
       })
-      .catch((err) => {
+      .catch(err => {
         done(err)
       })
   })

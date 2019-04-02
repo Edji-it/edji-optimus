@@ -13,7 +13,7 @@ export async function createUniqueReferral(): Promise<any> {
     const possibleCode = generate({
       readable: true,
       length: 5,
-      capitalization: 'lowercase'
+      capitalization: 'lowercase',
     })
     let referral = await Referral.findOne({ code: possibleCode })
     if (!referral) {

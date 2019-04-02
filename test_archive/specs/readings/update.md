@@ -36,7 +36,7 @@ reading: {
 ## Test Cases
 
 1.  Pass with good id and 'good' values for all accepted values (outlined above) --> return `200` with reading object
-    *  For each property in the update, the returned reading should have an equal property
+    - For each property in the update, the returned reading should have an equal property
 2.  Pass without `reading` in body --> receive `400`
 3.  Pass with id which is not an id --> receive `400`
 4.  Pass with non-existant id --> receive `404`

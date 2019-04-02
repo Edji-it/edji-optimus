@@ -1,6 +1,6 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
-let mongoose = require("mongoose")
+let mongoose = require('mongoose')
 import { pick } from 'underscore'
 
 // project imports
@@ -23,18 +23,14 @@ export async function UpdateInstitution(req: Request, res: Response, next: NextF
       return res.status(400).send({ error: 'no valid update properties in project body' })
     }
 
-    let institution: any = await Institution.findByIdAndUpdate(
-      institution_id,
-      propertiesToUpdate, 
-      {
-        new: true,
-        runValidators: true
-      }
-    )
+    let institution: any = await Institution.findByIdAndUpdate(institution_id, propertiesToUpdate, {
+      new: true,
+      runValidators: true,
+    })
     const updated = pick(institution, attemptedUpdateProperties)
     return res.status(200).send(updated)
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
       return res.status(406).send({ validationErrors })
     }
@@ -67,11 +63,11 @@ export async function UpdateInstitutionProperty(req: Request, res: Response, nex
 }
 
 const UPDATE_CONTROLLERS: {
-  [key: string]: (props: { institution_id: string, update: any }) => Promise<any>
+  [key: string]: (props: { institution_id: string; update: any }) => Promise<any>
 } = {
-  outcomes: function (props) {
+  outcomes: function(props) {
     return updateOutcomeArray(props)
-  }
+  },
 }
 
 const updateOutcomeArray = async ({ institution_id, update }) => {
@@ -80,27 +76,27 @@ const updateOutcomeArray = async ({ institution_id, update }) => {
   if (outcome_id) {
     const outcomeUpdate = {
       $set: {
-        "outcomes.$": update
-      }
+        'outcomes.$': update,
+      },
     }
     let institution: any = await Institution.findOneAndUpdate(
-      {_id: institution_id, "outcomes._id": outcome_id},
-      outcomeUpdate, 
+      { _id: institution_id, 'outcomes._id': outcome_id },
+      outcomeUpdate,
       {
         new: true,
-        runValidators: true
-      }
+        runValidators: true,
+      },
     )
     return update
   } else {
     // if the outcome(s) passed in does not have an _id on it, then we need to add it to the array
     let institution: any = await Institution.findByIdAndUpdate(
       institution_id,
-      { $push: { outcomes: update } }, 
+      { $push: { outcomes: update } },
       {
         new: true,
-        runValidators: true
-      }
+        runValidators: true,
+      },
     )
     return update
   }

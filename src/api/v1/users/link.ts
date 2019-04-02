@@ -16,7 +16,7 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
     const oauthUser = await User.findOne({
       'pending_oauth.singleUseToken': oauth_token,
       'pending_oauth.singleUseTokenExpiration': { $gte: Date.now() },
-      'pending_oauth.type': oauth_type
+      'pending_oauth.type': oauth_type,
     })
     if (!oauthUser || !user._id.equals(oauthUser._id)) {
       return res.status(403).send()

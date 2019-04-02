@@ -4,7 +4,7 @@ const Q = require('q')
 // project imports
 const License = require('./../../../models/License')
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let user = req.user
 
   License.aggregate([
@@ -14,31 +14,34 @@ module.exports = function (req, res, next) {
         roles: {
           $elemMatch: {
             user_id: user._id,
-            "$or": [{
-              role: "owner"
-            }, {
-              role: "administrator"
-            }]
-          }
-        }
-      }
+            $or: [
+              {
+                role: 'owner',
+              },
+              {
+                role: 'administrator',
+              },
+            ],
+          },
+        },
+      },
     },
     {
       $lookup: {
-        from: "institutions",
-        localField: "owning_institution",
-        foreignField: "_id",
-        as: "owning_institution"
-      }
+        from: 'institutions',
+        localField: 'owning_institution',
+        foreignField: '_id',
+        as: 'owning_institution',
+      },
     },
-    { $unwind: "$owning_institution" },
+    { $unwind: '$owning_institution' },
     {
       $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "license_ids.license_id",
-        as: "users"
-      }
+        from: 'users',
+        localField: '_id',
+        foreignField: 'license_ids.license_id',
+        as: 'users',
+      },
     },
     {
       $project: {
@@ -50,7 +53,7 @@ module.exports = function (req, res, next) {
         updatedAt: 1,
         owning_institution: {
           name: 1,
-          abbreviation: 1
+          abbreviation: 1,
         },
         license_type: 1,
         users: {
@@ -71,15 +74,15 @@ module.exports = function (req, res, next) {
           prefs: 1,
           media: 1,
           createdAt: 1,
-          updatedAt: 1
-        }
-      }
-    }
+          updatedAt: 1,
+        },
+      },
+    },
   ])
-    .then((licenses) => {
+    .then(licenses => {
       return res.status(200).send({ licenses: licenses })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

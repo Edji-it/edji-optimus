@@ -7,8 +7,7 @@ import * as Referral from './../../../models/Referral'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 import { cleanMongoValidationError } from './../../../error-handlers'
 
-const createController: RequestHandler = async function (req, res, next) {
-
+const createController: RequestHandler = async function(req, res, next) {
   let userData: any = req.body.user
 
   try {
@@ -21,16 +20,16 @@ const createController: RequestHandler = async function (req, res, next) {
           $push: {
             users_referred: {
               user_id: user._id,
-              status: 'registered'
-            }
-          }
-        }
+              status: 'registered',
+            },
+          },
+        },
       )
     }
     return res.status(201).send(generateLoginObjectForUser(user))
   } catch (error) {
     // constructs object with list of model-defined errors to send to user
-    if (error.name === "ValidationError") {
+    if (error.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(error)
       return res.status(406).send({ validationErrors })
     } else if (error.code === 11000) {
@@ -68,7 +67,7 @@ export function duplicateFieldErrorHandler(error) {
   return {
     duplicateFieldError: {
       message: message,
-      field: path
-    }
+      field: path,
+    },
   }
 }

@@ -1,4 +1,5 @@
 # Optimus Prime (Edji Node Server)
+
 [![CircleCI](https://circleci.com/gh/codiak/edji-server/tree/dev.svg?style=svg&circle-token=135514116131ec0f0c5daa9574db9fcf4a3b3b55)](https://circleci.com/gh/codiak/edji-server/tree/dev)
 
 ## Quick Start
@@ -42,7 +43,7 @@ We are set up to debug using VS Code's tools. Simply start the app, then go to V
 
 ### CircleCI
 
-The configuration for CircleCI is stored in .circleci. The link to the current build can be found in the build status bar at the top of this page. 
+The configuration for CircleCI is stored in .circleci. The link to the current build can be found in the build status bar at the top of this page.
 
 ### Heroku
 
@@ -51,13 +52,14 @@ Optimus is auto-deployed to https://optimus-dev.edji.it from the `dev` branch, a
 Heroku cli configuration is necessary if you'd like to follow logs for the Heroku apps or otherwise use the Heroku CLI to interface with the applications
 
 Add the remotes
+
 ```bash
 git remote add prod https://git.heroku.com/edji-prod.git
 git remote add dev https://git.heroku.com/edji-dev.git
 ```
 
-
 Swap the default Heroku CLI remote
+
 ```bash
 git config heroku.remote dev
 git config heroku.remote prod
@@ -74,16 +76,19 @@ heroku <command> -r <remote>
 Testing is automated with Mocha, and run with Yarn scripts.
 
 Run the entire test suite
+
 ```bash
 yarn test
 ```
 
 Running smaller groups of tests can be done with the `--grep` option. This will grep through the `describe` and `it` statements.
+
 ```bash
 yarn test --grep 'POST /api/v1/users'
 ```
 
 ## Local DB Setup
+
 If you'd like to run with a local mongodb so that you can do devleopment offline, check this out:
 
 `yarn install` should take care of downloading the correct `mongodb` version, as long as you're running commands from this directory

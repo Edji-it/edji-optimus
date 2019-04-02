@@ -18,7 +18,7 @@ let userId: string
 let fullname: string
 let projectState: any // keep track of the updates we make to the project along the way
 
-describe("update projects", () => {
+describe('update projects', () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
@@ -29,12 +29,13 @@ describe("update projects", () => {
     expect(userId).to.not.be.undefined
   })
   before(async () => {
-    const project = await ProjectAPI.create({
-      teacher_id: userId,
-      reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
-      label: 'PUT /api/v1/projects/:project_id test project'
-    },
-      authToken
+    const project = await ProjectAPI.create(
+      {
+        teacher_id: userId,
+        reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
+        label: 'PUT /api/v1/projects/:project_id test project',
+      },
+      authToken,
     )
     expect(project._id, 'did not successfully create project to test').not.to.be.undefined
     projectState = project
@@ -48,9 +49,10 @@ describe("update projects", () => {
     const status = await ProjectAPI.delete(projectState._id, authToken) // clean it up
     expect(status, 'test project deletion failed').to.be.equal(204)
   })
-  describe("PUT /api/v1/projects/:project_id", () => {
-    const request = function (projectId: string, body: any, authToken?: string): Request {
-      let req = chai.request(data.SERVER)
+  describe('PUT /api/v1/projects/:project_id', () => {
+    const request = function(projectId: string, body: any, authToken?: string): Request {
+      let req = chai
+        .request(data.SERVER)
         .put(`/api/v1/projects/${projectId}`)
         .send(body)
 
@@ -69,11 +71,17 @@ describe("update projects", () => {
       const res = await request(projectState._id, projectState, authToken)
       expect(res).to.have.status(200)
       const returnedUpdated = Object.keys(res.body)
-      returnedUpdated.forEach((key) => {
-        expect(expectedUpdatable.includes(key), `expected not to be able to update ${key}, but the key was returned from update endpoint`).to.be.true
+      returnedUpdated.forEach(key => {
+        expect(
+          expectedUpdatable.includes(key),
+          `expected not to be able to update ${key}, but the key was returned from update endpoint`,
+        ).to.be.true
       })
-      expectedUpdatable.forEach((key) => [
-        expect(returnedUpdated.includes(key), `expected to be able to update ${key}, but the key was not returned from update endpoint`).to.be.true
+      expectedUpdatable.forEach(key => [
+        expect(
+          returnedUpdated.includes(key),
+          `expected to be able to update ${key}, but the key was not returned from update endpoint`,
+        ).to.be.true,
       ])
     })
     it('should return 400 if the request does not send any properties to update', async () => {
@@ -110,8 +118,9 @@ describe("update projects", () => {
   for (let commentType of commentTypes) {
     describe(`PUT /api/v1/projects/:project_id/${commentType}`, () => {
       let createdComments = []
-      const request = function (projectId: string, body: any, authToken?: string): Request {
-        let req = chai.request(data.SERVER)
+      const request = function(projectId: string, body: any, authToken?: string): Request {
+        let req = chai
+          .request(data.SERVER)
           .put(`/api/v1/projects/${projectId}/${commentType}`)
           .send(body)
 
@@ -123,7 +132,7 @@ describe("update projects", () => {
         const comment = {
           user_id: userId,
           start: 5,
-          end: 100
+          end: 100,
         }
         const res = await ProjectAPI.createComment(projectState._id, comment, authToken, commentType)
         // just validate we got a good object back from the service
@@ -135,7 +144,7 @@ describe("update projects", () => {
         const minComment = {
           user_id: userId,
           start: 5,
-          end: 100
+          end: 100,
         }
         const res = await request(projectState._id, minComment, authToken)
         expect(res).to.have.status(200)
@@ -166,11 +175,11 @@ describe("update projects", () => {
           type: 'emoji', // type of comment (should be required)
           loc: {
             x: 3,
-            y: 6
+            y: 6,
           },
           reply_to: createdComments[0]._id,
           replies: [],
-          questionId: new ObjectId().toHexString()
+          questionId: new ObjectId().toHexString(),
         }
         const res = await request(projectState._id, maxComment, authToken)
         expect(res).to.have.status(200)
@@ -214,7 +223,7 @@ describe("update projects", () => {
           _id: new ObjectId().toHexString(),
           user_id: userId,
           start: 5,
-          end: 100
+          end: 100,
         }
         const res = await request(projectState._id, commentData, authToken)
         expect(res).to.have.status(200)
@@ -252,7 +261,7 @@ describe("update projects", () => {
         // this comment will not have this student's user_id and therefore shouldn't be allowed to be updated
         const commentData = {
           _id: commentId,
-          start: 10
+          start: 10,
         }
         const res = await request(projectState._id, commentData, token)
         expect(res).to.have.status(403)
@@ -273,8 +282,9 @@ describe("update projects", () => {
       expect(token).to.exist
       studentToken = token
     })
-    const request = function (projectId: string, authToken?: string): Request {
-      let req = chai.request(data.SERVER)
+    const request = function(projectId: string, authToken?: string): Request {
+      let req = chai
+        .request(data.SERVER)
         .put(`/api/v1/projects/${projectId}/students`)
         .send({})
 
@@ -322,16 +332,17 @@ describe("update projects", () => {
   })
   describe('PUT /api/v1/projects/:project_id/feedback', () => {
     const feedbackObject = {
-      outcome_id: "5c50f4c20b944f00963beb59",
-      feedback_to: "5c55f320844a4f0040845788",
-      evaluation: "Good job!"
+      outcome_id: '5c50f4c20b944f00963beb59',
+      feedback_to: '5c55f320844a4f0040845788',
+      evaluation: 'Good job!',
     }
     const invalidFeedback = {
-      outcome_id: "5c50f4c20b944f00963beb59",
-      feedback_to: "5c55f320844a4f0040845788"
+      outcome_id: '5c50f4c20b944f00963beb59',
+      feedback_to: '5c55f320844a4f0040845788',
     }
-    const request = function (projectId: string, feedback: any, authToken?: string): Request {
-      let req = chai.request(data.SERVER)
+    const request = function(projectId: string, feedback: any, authToken?: string): Request {
+      let req = chai
+        .request(data.SERVER)
         .put(`/api/v1/projects/${projectId}/feedback`)
         .send(feedback)
 

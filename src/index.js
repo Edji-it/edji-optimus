@@ -2,9 +2,9 @@
 require('dotenv').config()
 
 // package imports
-const express = require("express")
-const bodyParser = require("body-parser")
-const methodOverride = require("method-override")
+const express = require('express')
+const bodyParser = require('body-parser')
+const methodOverride = require('method-override')
 const passport = require('passport') // passport gets configured elsewhere
 const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 
@@ -14,8 +14,8 @@ require('./../config')
 // setup error logging
 const Sentry = require('@sentry/node')
 Sentry.init({
-    dsn: 'https://c581687e3838434b859f1249b31d5a26@sentry.io/299438',
-    environment: process.env.NODE_ENV
+  dsn: 'https://c581687e3838434b859f1249b31d5a26@sentry.io/299438',
+  environment: process.env.NODE_ENV,
 })
 
 // configure express
@@ -53,7 +53,7 @@ app.use(require('./error-handlers').GeneralErrorHandlers)
 let port = process.env.PORT || 3354
 
 server.listen(port, () => {
-    console.log("Server connected at " + port)
+  console.log('Server connected at ' + port)
 })
 
 server.timeout = 10000

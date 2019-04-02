@@ -1,10 +1,10 @@
-const chai = require("chai")
-const chaiHttp = require("chai-http")
-const server = "http://localhost:3354"
-const Q = require("q")
+const chai = require('chai')
+const chaiHttp = require('chai-http')
+const server = 'http://localhost:3354'
+const Q = require('q')
 
-let data = require("./data")
-let functions = require("./functions")
+let data = require('./data')
+let functions = require('./functions')
 
 chai.use(chaiHttp)
 
@@ -13,37 +13,36 @@ let testProject
 let testUsers // comes with testStudent, testTeacher and testTemp
 let testComments = {}
 
-describe("Projects", () => {
-
-  before((done) => {
-    functions.loginTestUsers().then((users) => {
+describe('Projects', () => {
+  before(done => {
+    functions.loginTestUsers().then(users => {
       testUsers = users
-      functions.createTempUser(data.users.tempUser)
-        .then((user) => {
-          testUsers.testTemp2 = user
-          done()
-        })
+      functions.createTempUser(data.users.tempUser).then(user => {
+        testUsers.testTemp2 = user
+        done()
+      })
     })
   })
 
-  describe("GET /projects/:project_id/reading/:reading_id", () => {
-    it("should get all projects for a reading", (done) => {
-      chai.request(server)
-        .get("/projects/reading/" + testProject.reading_id)
-        .set("Authorization", testUsers.testTeacher.token)
+  describe('GET /projects/:project_id/reading/:reading_id', () => {
+    it('should get all projects for a reading', done => {
+      chai
+        .request(server)
+        .get('/projects/reading/' + testProject.reading_id)
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("projects")
+          res.body.should.have.property('projects')
           res.body.projects.should.be.instanceof(Array)
 
           // project validation
           var projects = res.body.projects
           projects.length.should.be.above(0)
-          projects.forEach((project) => {
+          projects.forEach(project => {
             // make sure it's a project
-            project.should.have.property("_id")
-            project.should.have.property("teacher_id")
+            project.should.have.property('_id')
+            project.should.have.property('teacher_id')
             project.teacher_id.should.be.equal(testUsers.testTeacher.user._id)
 
             // TODO: front end uses these for count of comments and count of students - need to find a lighter way!
@@ -57,14 +56,15 @@ describe("Projects", () => {
         })
     })
 
-    it("should return empty array for nonexistant reading id", (done) => {
-      chai.request(server)
-        .get("/projects/reading/" + testUsers.testStudent.user._id)
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should return empty array for nonexistant reading id', done => {
+      chai
+        .request(server)
+        .get('/projects/reading/' + testUsers.testStudent.user._id)
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("projects")
+          res.body.should.have.property('projects')
           res.body.projects.should.be.instanceof(Array)
           res.body.projects.length.should.be.equal(0)
 
@@ -72,10 +72,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should reject an invalid reading id", (done) => {
-      chai.request(server)
-        .get("/projects/reading/jfkldsaj")
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should reject an invalid reading id', done => {
+      chai
+        .request(server)
+        .get('/projects/reading/jfkldsaj')
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(400)
 
@@ -83,9 +84,10 @@ describe("Projects", () => {
         })
     })
 
-    it("should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/projects/reading/" + testProject.reading_id)
+    it('should reject an unauthorized user', done => {
+      chai
+        .request(server)
+        .get('/projects/reading/' + testProject.reading_id)
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
@@ -95,30 +97,33 @@ describe("Projects", () => {
     })
   })
 
-  describe("GET /projects/:code/validate", () => {
-    it("should validate an existing project", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code + "/validate")
+  describe('GET /projects/:code/validate', () => {
+    it('should validate an existing project', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject.code + '/validate')
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("_id")
+          res.body.should.have.property('_id')
           done()
         })
     })
 
-    it("should validate an existing project with incorrect capitalization", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code.toUpperCase() + "/validate")
+    it('should validate an existing project with incorrect capitalization', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject.code.toUpperCase() + '/validate')
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("_id")
+          res.body.should.have.property('_id')
           done()
         })
     })
 
-    it("should return 404 for invalid project", (done) => {
-      chai.request(server)
-        .get("/projects/jkfioenwqofnvoil/validate")
+    it('should return 404 for invalid project', done => {
+      chai
+        .request(server)
+        .get('/projects/jkfioenwqofnvoil/validate')
         .end((err, res) => {
           res.should.have.status(404)
           done()
@@ -126,104 +131,107 @@ describe("Projects", () => {
     })
   })
 
-  describe("POST /projects/:id/comments", () => {
-    it("should create an emoji comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
+  describe('POST /projects/:id/comments', () => {
+    it('should create an emoji comment', done => {
+      chai
+        .request(server)
+        .post('/projects/' + testProject._id + '/comments')
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: data.comments.emojiComment })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
-          res.body.should.have.property("comment")
+          res.body.should.have.property('comment')
 
           // comment validation
           var comment = res.body.comment
           testComments.emojiComment = comment
-          comment.should.have.property("_id")
-          comment.should.have.property("user_id")
+          comment.should.have.property('_id')
+          comment.should.have.property('user_id')
           comment.user_id.should.equal(testUsers.testStudent.user._id)
-          comment.should.have.property("author")
+          comment.should.have.property('author')
           comment.author.should.equal(testUsers.testStudent.user.fullname)
-          comment.should.have.property("start")
-          comment.should.have.property("end")
-          comment.should.have.property("type")
-          comment.type.should.be.equal("emoji")
-          comment.should.have.property("end")
-          comment.should.have.property("data")
-          comment.should.have.property("text")
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
+          comment.should.have.property('start')
+          comment.should.have.property('end')
+          comment.should.have.property('type')
+          comment.type.should.be.equal('emoji')
+          comment.should.have.property('end')
+          comment.should.have.property('data')
+          comment.should.have.property('text')
+          comment.should.have.property('updatedAt')
+          comment.should.have.property('createdAt')
 
           done()
         })
     })
 
-    it("should create a text comment", (done) => {
+    it('should create a text comment', done => {
       let postComment = Object.assign({}, data.comments.textComment)
       postComment.reply_to = testComments.emojiComment._id
-      postComment.should.have.property("reply_to") // for some reason, it's not saving with this property
+      postComment.should.have.property('reply_to') // for some reason, it's not saving with this property
 
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
+      chai
+        .request(server)
+        .post('/projects/' + testProject._id + '/comments')
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: postComment })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
-          res.body.should.have.property("comment")
+          res.body.should.have.property('comment')
 
           // comment validation
           var comment = res.body.comment
           testComments.textComment = comment
-          comment.should.have.property("_id")
-          comment.should.have.property("user_id")
+          comment.should.have.property('_id')
+          comment.should.have.property('user_id')
           comment.user_id.should.equal(testUsers.testStudent.user._id)
-          comment.should.have.property("author")
+          comment.should.have.property('author')
           comment.author.should.equal(testUsers.testStudent.user.fullname)
-          comment.should.have.property("start")
-          comment.should.have.property("end")
-          comment.should.have.property("type")
-          comment.type.should.be.equal("text")
-          comment.should.have.property("end")
-          comment.should.have.property("data")
-          comment.should.have.property("text")
-          comment.should.have.property("reply_to")
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
+          comment.should.have.property('start')
+          comment.should.have.property('end')
+          comment.should.have.property('type')
+          comment.type.should.be.equal('text')
+          comment.should.have.property('end')
+          comment.should.have.property('data')
+          comment.should.have.property('text')
+          comment.should.have.property('reply_to')
+          comment.should.have.property('updatedAt')
+          comment.should.have.property('createdAt')
 
           done()
         })
     })
 
-    it("should create an empty comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
+    it('should create an empty comment', done => {
+      chai
+        .request(server)
+        .post('/projects/' + testProject._id + '/comments')
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: data.comments.emptyComment })
         .end((err, res) => {
           // initial validation
           res.should.have.status(201)
-          res.body.should.have.property("comment")
+          res.body.should.have.property('comment')
 
           // comment validation
           var comment = res.body.comment
           testComments.emptyComment = comment
-          comment.should.have.property("_id")
-          comment.should.have.property("user_id")
+          comment.should.have.property('_id')
+          comment.should.have.property('user_id')
           comment.user_id.should.equal(testUsers.testStudent.user._id)
-          comment.should.have.property("author")
+          comment.should.have.property('author')
           comment.author.should.equal(testUsers.testStudent.user.fullname)
-          comment.should.have.property("start")
-          comment.should.have.property("end")
-          comment.should.have.property("type")
-          comment.type.should.be.equal("text")
-          comment.should.have.property("end")
-          comment.should.have.property("text")
-          comment.should.have.property("updatedAt")
-          comment.should.have.property("createdAt")
+          comment.should.have.property('start')
+          comment.should.have.property('end')
+          comment.should.have.property('type')
+          comment.type.should.be.equal('text')
+          comment.should.have.property('end')
+          comment.should.have.property('text')
+          comment.should.have.property('updatedAt')
+          comment.should.have.property('createdAt')
 
-          comment.should.not.have.property("data")
+          comment.should.not.have.property('data')
 
           done()
         })
@@ -291,10 +299,11 @@ describe("Projects", () => {
     //     })
     // })
 
-    it("should reject if project id is not valid", (done) => {
-      chai.request(server)
-        .post("/projects/fdjaklfdl/comments")
-        .set("Authorization", testUsers.testStudent.token)
+    it('should reject if project id is not valid', done => {
+      chai
+        .request(server)
+        .post('/projects/fdjaklfdl/comments')
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: data.comments.emptyComment })
         .end((err, res) => {
           // initial validation
@@ -304,10 +313,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should reject a call without a comment", (done) => {
-      chai.request(server)
-        .post("/projects/" + testUsers.testStudent.user._id + "/comments")
-        .set("Authorization", testUsers.testStudent.token)
+    it('should reject a call without a comment', done => {
+      chai
+        .request(server)
+        .post('/projects/' + testUsers.testStudent.user._id + '/comments')
+        .set('Authorization', testUsers.testStudent.token)
         .send({ stupid: data.comments.emptyComment })
         .end((err, res) => {
           // initial validation
@@ -317,10 +327,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should return 404 for project not found", (done) => {
-      chai.request(server)
-        .post("/projects/" + testUsers.testStudent.user._id + "/comments") // it won't find a project with this id, but the id is valid
-        .set("Authorization", testUsers.testStudent.token)
+    it('should return 404 for project not found', done => {
+      chai
+        .request(server)
+        .post('/projects/' + testUsers.testStudent.user._id + '/comments') // it won't find a project with this id, but the id is valid
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: data.comments.emptyComment })
         .end((err, res) => {
           // initial validation
@@ -330,9 +341,10 @@ describe("Projects", () => {
         })
     })
 
-    it("should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .post("/projects/" + testProject._id + "/comments")
+    it('should reject an unauthorized user', done => {
+      chai
+        .request(server)
+        .post('/projects/' + testProject._id + '/comments')
         .send({ comment: data.comments.emojiComment })
         .end((err, res) => {
           // initial validation
@@ -343,22 +355,23 @@ describe("Projects", () => {
     })
   })
 
-  describe("GET /projects/:id", () => {
-    it("should get a project for a teacher", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTeacher.token)
+  describe('GET /projects/:id', () => {
+    it('should get a project for a teacher', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // students_ids validation
           var project = res.body.project
-          project.should.have.property("students_ids")
+          project.should.have.property('students_ids')
           var students_ids = project.students_ids
 
           students_ids.should.be.instanceof(Array)
-          students_ids.forEach((stuId) => {
+          students_ids.forEach(stuId => {
             stuId.should.not.equal(testUsers.testTeacher.user._id)
             // stuObj.should.have.property("_id")
             //   stuObj._id.should.not.equal(testUsers.testTeacher.user._id)
@@ -369,53 +382,55 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a project for a student", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testStudent.token)
+    it('should get a project for a student', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // project validation
           var project = res.body.project
-          project.should.have.property("_id")
-          project.should.have.property("teacher_id")
-          project.should.have.property("reading_id")
-          project.should.have.property("label")
-          project.should.have.property("code")
-          project.should.have.property("types")
-          project.should.have.property("temp_ids")
-          project.should.have.property("students_ids")
+          project.should.have.property('_id')
+          project.should.have.property('teacher_id')
+          project.should.have.property('reading_id')
+          project.should.have.property('label')
+          project.should.have.property('code')
+          project.should.have.property('types')
+          project.should.have.property('temp_ids')
+          project.should.have.property('students_ids')
 
           // test comment replies
-          project.should.have.property("comments")
-          let reply = project.comments.find((comment) => {
+          project.should.have.property('comments')
+          let reply = project.comments.find(comment => {
             return comment._id == testComments.textComment._id
           })
           reply.should.be.ok // assert that the reply exists
-          reply.should.have.property("reply_to")
+          reply.should.have.property('reply_to')
 
-          project.comments.forEach((comment) => {
-            comment.should.have.property("replies")
+          project.comments.forEach(comment => {
+            comment.should.have.property('replies')
             // make sure that the reply id exists in the comment's replies array
             if (comment._id == reply.reply_to) {
               comment.replies.indexOf(reply._id).should.be.above(-1)
             }
           })
 
-
-          project.should.have.property("updatedAt")
-          project.should.have.property("createdAt")
+          project.should.have.property('updatedAt')
+          project.should.have.property('createdAt')
 
           // students_ids validation
           var studentExists = false
           var students_ids = project.students_ids
           students_ids.should.be.instanceof(Array)
-          students_ids.forEach((stuId) => {
+          students_ids.forEach(stuId => {
             // stuObj.should.have.property("_id")
             // stuObj.should.have.property("fullname")
-            if (stuId === testUsers.testStudent.user._id) { studentExists = true }
+            if (stuId === testUsers.testStudent.user._id) {
+              studentExists = true
+            }
           })
           studentExists.should.equal(true)
 
@@ -423,23 +438,26 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a project for a temp user", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTemp.token)
+    it('should get a project for a temp user', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // students_ids validation
           var studentExists = false
-          res.body.project.should.have.property("temp_ids")
+          res.body.project.should.have.property('temp_ids')
           var temp_ids = res.body.project.temp_ids
           temp_ids.should.be.instanceof(Array)
-          temp_ids.forEach((stuId) => {
+          temp_ids.forEach(stuId => {
             // stuId.should.have.property("_id")
             // stuId.should.have.property("fullname")
-            if (stuId === testUsers.testTemp.user._id) { studentExists = true }
+            if (stuId === testUsers.testTemp.user._id) {
+              studentExists = true
+            }
           })
           studentExists.should.equal(true)
 
@@ -447,70 +465,74 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a project by the project code", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code)
-        .set("Authorization", testUsers.testStudent.token)
+    it('should get a project by the project code', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject.code)
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // project validation
           var project = res.body.project
-          project.should.have.property("_id")
-          project.should.have.property("teacher_id")
-          project.should.have.property("reading_id")
-          project.should.have.property("label")
-          project.should.have.property("code")
-          project.should.have.property("types")
-          project.should.have.property("temp_ids")
-          project.should.have.property("students_ids")
-          project.should.have.property("comments")
-          project.should.have.property("updatedAt")
-          project.should.have.property("createdAt")
+          project.should.have.property('_id')
+          project.should.have.property('teacher_id')
+          project.should.have.property('reading_id')
+          project.should.have.property('label')
+          project.should.have.property('code')
+          project.should.have.property('types')
+          project.should.have.property('temp_ids')
+          project.should.have.property('students_ids')
+          project.should.have.property('comments')
+          project.should.have.property('updatedAt')
+          project.should.have.property('createdAt')
 
           done()
         })
     })
 
-    it("should get a project even if the project code is capitalized", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject.code.toUpperCase())
-        .set("Authorization", testUsers.testStudent.token)
+    it('should get a project even if the project code is capitalized', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject.code.toUpperCase())
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           done()
         })
     })
 
-    it("should populate a reading_id with a full reading object", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id + "?pop=reading_id")
-        .set("Authorization", testUsers.testStudent.token)
+    it('should populate a reading_id with a full reading object', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject._id + '?pop=reading_id')
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // project validation
           var project = res.body.project
-          project.should.have.property("_id")
-          project.should.have.property("reading_id")
-          project.reading_id.should.have.property("_id")
-          project.reading_id.should.have.property("words")
-          project.reading_id.should.not.have.property("html")
+          project.should.have.property('_id')
+          project.should.have.property('reading_id')
+          project.reading_id.should.have.property('_id')
+          project.reading_id.should.have.property('words')
+          project.reading_id.should.not.have.property('html')
 
           done()
         })
     })
 
-    it("should return 404 when project is not found by id", (done) => {
-      chai.request(server)
-        .get("/projects/" + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
-        .set("Authorization", testUsers.testStudent.token)
+    it('should return 404 when project is not found by id', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testUsers.testStudent.user._id) // this id will check out as an ObjectId in the back end, but is not a project id
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
@@ -519,10 +541,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should return 404 when project is not found by code", (done) => {
-      chai.request(server)
-        .get("/projects/jlfdoifwenfdja")
-        .set("Authorization", testUsers.testStudent.token)
+    it('should return 404 when project is not found by code', done => {
+      chai
+        .request(server)
+        .get('/projects/jlfdoifwenfdja')
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(404)
@@ -531,26 +554,27 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a project for an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/projects/" + testProject._id)
+    it('should get a project for an unauthorized user', done => {
+      chai
+        .request(server)
+        .get('/projects/' + testProject._id)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("project")
-          res.body.project.should.be.a("object")
+          res.body.should.have.property('project')
+          res.body.project.should.be.a('object')
 
           done()
         })
     })
   })
 
-  describe("GET /projects", () => {
-
-    it("should get a student's projects", (done) => {
-      chai.request(server)
-        .get("/projects")
-        .set("Authorization", testUsers.testStudent.token)
+  describe('GET /projects', () => {
+    it("should get a student's projects", done => {
+      chai
+        .request(server)
+        .get('/projects')
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -559,23 +583,24 @@ describe("Projects", () => {
           // project validation
           var projects = res.body
           projects.length.should.be.above(0)
-          projects.forEach((project) => {
+          projects.forEach(project => {
             // make sure it's a project
-            project.should.have.property("_id")
+            project.should.have.property('_id')
 
             // make sure it doesn't come with too much data
-            project.should.not.have.property("comments")
-            project.should.not.have.property("students_ids")
-            project.should.not.have.property("temp_ids")
+            project.should.not.have.property('comments')
+            project.should.not.have.property('students_ids')
+            project.should.not.have.property('temp_ids')
           })
 
           done()
         })
     })
 
-    it("should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .get("/projects")
+    it('should reject an unauthorized user', done => {
+      chai
+        .request(server)
+        .get('/projects')
         .end((err, res) => {
           // initial validation
           res.should.have.status(401)
@@ -584,10 +609,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a temp user's projects", (done) => {
-      chai.request(server)
-        .get("/projects")
-        .set("Authorization", testUsers.testTemp.token)
+    it("should get a temp user's projects", done => {
+      chai
+        .request(server)
+        .get('/projects')
+        .set('Authorization', testUsers.testTemp.token)
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
@@ -596,14 +622,14 @@ describe("Projects", () => {
           // project validation
           var projects = res.body
           projects.length.should.be.above(0)
-          projects.forEach((project) => {
+          projects.forEach(project => {
             // make sure it's a project
-            project.should.have.property("_id")
+            project.should.have.property('_id')
 
             // make sure it doesn't come with too much data
-            project.should.not.have.property("comments")
-            project.should.not.have.property("students_ids")
-            project.should.not.have.property("temp_ids")
+            project.should.not.have.property('comments')
+            project.should.not.have.property('students_ids')
+            project.should.not.have.property('temp_ids')
           })
 
           done()
@@ -611,37 +637,38 @@ describe("Projects", () => {
     })
   })
 
-  describe("PUT /projects/:project_id/comments/:comment_id", () => {
+  describe('PUT /projects/:project_id/comments/:comment_id', () => {
     // I like this idea of making an endpoint function for each of these tests - will probably avoid a lot of errors I've made in the past
-    let endpoint = function (project_id, comment_id) {
-      return "/" + ['projects', project_id, 'comments', comment_id].join("/")
+    let endpoint = function(project_id, comment_id) {
+      return '/' + ['projects', project_id, 'comments', comment_id].join('/')
     }
 
-    let commentUpdate = { data: ":upside_down_face:" }
+    let commentUpdate = { data: ':upside_down_face:' }
 
-    it("should update the data property on a comment", (done) => {
-      chai.request(server)
+    it('should update the data property on a comment', done => {
+      chai
+        .request(server)
         .put(endpoint(testProject._id, testComments.emojiComment._id))
-        .set("Authorization", testUsers.testStudent.token)
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: commentUpdate })
         .end((err, res) => {
-
           res.should.have.status(200)
-          res.body.should.have.property("comment")
+          res.body.should.have.property('comment')
 
           let comment = res.body.comment
-          comment.should.have.property("_id")
-          comment.should.have.property("data")
+          comment.should.have.property('_id')
+          comment.should.have.property('data')
           comment.data.should.be.equal(commentUpdate.data)
 
           done()
         })
     })
 
-    it("should receive 400 if there is not a comment in the body", (done) => {
-      chai.request(server)
+    it('should receive 400 if there is not a comment in the body', done => {
+      chai
+        .request(server)
         .put(endpoint(testProject._id, testComments.emojiComment._id))
-        .set("Authorization", testUsers.testStudent.token)
+        .set('Authorization', testUsers.testStudent.token)
         .send({}) // leave the body empty here
         .end((err, res) => {
           res.should.have.status(400)
@@ -650,10 +677,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should receive 400 if the project id is invalid", (done) => {
-      chai.request(server)
-        .put(endpoint("fjkdlsjfidsaon", testComments.emojiComment._id))
-        .set("Authorization", testUsers.testStudent.token)
+    it('should receive 400 if the project id is invalid', done => {
+      chai
+        .request(server)
+        .put(endpoint('fjkdlsjfidsaon', testComments.emojiComment._id))
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: commentUpdate })
         .end((err, res) => {
           res.should.have.status(400)
@@ -662,23 +690,24 @@ describe("Projects", () => {
         })
     })
 
-    it("should receive 400 if the comment id is invalid", (done) => {
-      chai.request(server)
-        .put(endpoint(testProject._id, "fjkdlajfidnsagdnao"))
-        .set("Authorization", testUsers.testStudent.token)
+    it('should receive 400 if the comment id is invalid', done => {
+      chai
+        .request(server)
+        .put(endpoint(testProject._id, 'fjkdlajfidnsagdnao'))
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: commentUpdate })
         .end((err, res) => {
-
           res.should.have.status(400)
 
           done()
         })
     })
 
-    it("should get a 404 if the project id does not exist", (done) => {
-      chai.request(server)
+    it('should get a 404 if the project id does not exist', done => {
+      chai
+        .request(server)
         .put(endpoint(testUsers.testStudent.user._id, testComments.emojiComment._id)) // although this project id is valid, it will not be found
-        .set("Authorization", testUsers.testStudent.token)
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: commentUpdate })
         .end((err, res) => {
           res.should.have.status(404)
@@ -687,10 +716,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a 404 if the comment does not exist", (done) => {
-      chai.request(server)
+    it('should get a 404 if the comment does not exist', done => {
+      chai
+        .request(server)
         .put(endpoint(testProject._id, testUsers.testStudent.user._id)) // although this comment id is valid, it will not be found
-        .set("Authorization", testUsers.testStudent.token)
+        .set('Authorization', testUsers.testStudent.token)
         .send({ comment: commentUpdate })
         .end((err, res) => {
           res.should.have.status(404)
@@ -699,10 +729,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should get a 404 if the user's id does not correspond to the comment's id", (done) => {
-      chai.request(server)
+    it("should get a 404 if the user's id does not correspond to the comment's id", done => {
+      chai
+        .request(server)
         .put(endpoint(testProject._id, testComments.emojiComment._id))
-        .set("Authorization", testUsers.testTeacher.token)
+        .set('Authorization', testUsers.testTeacher.token)
         .send({ comment: commentUpdate })
         .end((err, res) => {
           res.should.have.status(404)
@@ -711,8 +742,9 @@ describe("Projects", () => {
         })
     })
 
-    it("should receive a 401 if passed without an authorization header", (done) => {
-      chai.request(server)
+    it('should receive a 401 if passed without an authorization header', done => {
+      chai
+        .request(server)
         .put(endpoint(testProject._id, testComments.emojiComment._id))
         .send({ comment: commentUpdate })
         .end((err, res) => {
@@ -723,53 +755,58 @@ describe("Projects", () => {
     })
   })
 
-  describe("PUT /projects/:id/user_id", () => {
-    it("should add a temp id to a project", (done) => {
+  describe('PUT /projects/:id/user_id', () => {
+    it('should add a temp id to a project', done => {
       // make sure that id isn't already there
       testProject.temp_ids.indexOf(testUsers.testTemp.user._id).should.be.equal(-1)
 
-      chai.request(server)
-        .put("/projects/" + testProject._id + "/user_id")
-        .set("Authorization", testUsers.testTemp2.token)
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id + '/user_id')
+        .set('Authorization', testUsers.testTemp2.token)
         .end((err, res) => {
           res.should.have.status(200)
           done()
         })
     })
 
-    it("should reject a corrupt project id", (done) => {
-      chai.request(server)
-        .put("/projects/hahaha/user_id")
-        .set("Authorization", testUsers.testTemp.token)
+    it('should reject a corrupt project id', done => {
+      chai
+        .request(server)
+        .put('/projects/hahaha/user_id')
+        .set('Authorization', testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(400)
           done()
         })
     })
 
-    it("should return 304 if passed with the owner's token", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id + "/user_id")
-        .set("Authorization", testUsers.testTeacher.token)
+    it("should return 304 if passed with the owner's token", done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id + '/user_id')
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(304)
           done()
         })
     })
 
-    it("should return 304 if the project does not exist", (done) => {
-      chai.request(server)
-        .put("/projects/" + testUsers.testTemp.user._id + "/user_id")
-        .set("Authorization", testUsers.testTemp.token)
+    it('should return 304 if the project does not exist', done => {
+      chai
+        .request(server)
+        .put('/projects/' + testUsers.testTemp.user._id + '/user_id')
+        .set('Authorization', testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(304)
           done()
         })
     })
 
-    it("should return 401 if sent without a bad Authorization token", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id + "/user_id")
+    it('should return 401 if sent without a bad Authorization token', done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id + '/user_id')
         .end((err, res) => {
           res.should.have.status(401)
           done()
@@ -777,49 +814,52 @@ describe("Projects", () => {
     })
   })
 
-  describe("DELETE /projects/:project_id/comments/:comment_id", () => {
-    it("should reject an invalid project id", (done) => {
-      chai.request(server)
-        .del("/projects/jkfdjaklfd/comments/" + testComments.emojiComment._id)
-        .set("Authorization", testUsers.testStudent.token)
+  describe('DELETE /projects/:project_id/comments/:comment_id', () => {
+    it('should reject an invalid project id', done => {
+      chai
+        .request(server)
+        .del('/projects/jkfdjaklfd/comments/' + testComments.emojiComment._id)
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           res.should.have.status(400)
-          res.should.have.property("error")
-          res.error.should.have.property("text")
+          res.should.have.property('error')
+          res.error.should.have.property('text')
 
           // error validation
           var text = JSON.parse(res.error.text)
-          text.should.have.property("errors")
-          text.errors.should.have.property("projectId")
-          text.errors.projectId.should.equal("invalid")
+          text.should.have.property('errors')
+          text.errors.should.have.property('projectId')
+          text.errors.projectId.should.equal('invalid')
 
           done()
         })
     })
 
-    it("should reject an invalid comment id", (done) => {
-      chai.request(server)
-        .del("/projects/" + testProject._id + "/comments/fjdklja")
-        .set("Authorization", testUsers.testStudent.token)
+    it('should reject an invalid comment id', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testProject._id + '/comments/fjdklja')
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           res.should.have.status(400)
-          res.should.have.property("error")
-          res.error.should.have.property("text")
+          res.should.have.property('error')
+          res.error.should.have.property('text')
 
           // error validation
           var text = JSON.parse(res.error.text)
-          text.should.have.property("errors")
-          text.errors.should.have.property("commentId")
-          text.errors.commentId.should.equal("invalid")
+          text.should.have.property('errors')
+          text.errors.should.have.property('commentId')
+          text.errors.commentId.should.equal('invalid')
 
           done()
         })
     })
 
-    it("should reject a delete attempt from a user who is not the owner", (done) => {
-      chai.request(server)
-        .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
-        .set("Authorization", testUsers.testTemp.token)
+    it('should reject a delete attempt from a user who is not the owner', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testProject._id + '/comments/' + testComments.emojiComment._id)
+        .set('Authorization', testUsers.testTemp.token)
         .end((err, res) => {
           res.should.have.status(404)
 
@@ -827,19 +867,21 @@ describe("Projects", () => {
         })
     })
 
-    it("should return 404 for non existant project", (done) => {
-      chai.request(server)
-        .del("/projects/" + testUsers.testTeacher.user._id + "/comments/" + testComments.emojiComment._id)
-        .set("Authorization", testUsers.testStudent.token)
+    it('should return 404 for non existant project', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testUsers.testTeacher.user._id + '/comments/' + testComments.emojiComment._id)
+        .set('Authorization', testUsers.testStudent.token)
         .end((err, res) => {
           res.should.have.status(404)
           done()
         })
     })
 
-    it("should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
+    it('should reject an unauthorized user', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testProject._id + '/comments/' + testComments.emojiComment._id)
         .end((err, res) => {
           res.should.have.status(401)
           done()
@@ -847,54 +889,58 @@ describe("Projects", () => {
     })
 
     // this should come LAST in the comments tests because it actually deletes the comment
-    it("should delete a comment for the comment owner", (done) => {
-      chai.request(server)
-        .del("/projects/" + testProject._id + "/comments/" + testComments.emojiComment._id)
-        .set("Authorization", testUsers.testStudent.token) // this must be equal to the id of the user who created the comment
+    it('should delete a comment for the comment owner', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testProject._id + '/comments/' + testComments.emojiComment._id)
+        .set('Authorization', testUsers.testStudent.token) // this must be equal to the id of the user who created the comment
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("deleted_comment")
+          res.body.should.have.property('deleted_comment')
           done()
         })
     })
 
     // this should come LAST in the comments tests because it actually deletes the comment
-    it("should delete a comment for the project owner", (done) => {
-      chai.request(server)
-        .del("/projects/" + testProject._id + "/comments/" + testComments.textComment._id)
-        .set("Authorization", testUsers.testTeacher.token) // this must be equal to the id of the user who created the comment
+    it('should delete a comment for the project owner', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testProject._id + '/comments/' + testComments.textComment._id)
+        .set('Authorization', testUsers.testTeacher.token) // this must be equal to the id of the user who created the comment
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.property("deleted_comment")
+          res.body.should.have.property('deleted_comment')
           done()
         })
     })
   })
 
-  describe("PUT /projects/:id", () => {
-    it("should successfully update heat vision", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTeacher.token)
+  describe('PUT /projects/:id', () => {
+    it('should successfully update heat vision', done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testTeacher.token)
         .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // project validation
           let project = res.body.project
-          project.should.have.property("heat_vision")
-          project.heat_vision.should.be.equal(true);
+          project.should.have.property('heat_vision')
+          project.heat_vision.should.be.equal(true)
 
           done()
         })
     })
 
-    it("should reject a call without a project", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should reject a call without a project', done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testTeacher.token)
         .send({ notProject: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
@@ -903,10 +949,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should reject an invalid id", (done) => {
-      chai.request(server)
-        .put("/projects/brennen")
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should reject an invalid id', done => {
+      chai
+        .request(server)
+        .put('/projects/brennen')
+        .set('Authorization', testUsers.testTeacher.token)
         .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
@@ -916,10 +963,11 @@ describe("Projects", () => {
         })
     })
 
-    it("should return 404 for a non-existant id", (done) => {
-      chai.request(server)
-        .put("/projects/" + testUsers.testTeacher.user._id) // this id shouldn't exist in projects
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should return 404 for a non-existant id', done => {
+      chai
+        .request(server)
+        .put('/projects/' + testUsers.testTeacher.user._id) // this id shouldn't exist in projects
+        .set('Authorization', testUsers.testTeacher.token)
         .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
@@ -929,28 +977,30 @@ describe("Projects", () => {
         })
     })
 
-    it("should not allow the update of fields which don't exist", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTeacher.token)
+    it("should not allow the update of fields which don't exist", done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testTeacher.token)
         .send({ project: { non_existant: true } })
         .end((err, res) => {
           // initial validation
           res.should.have.status(200)
-          res.body.should.have.property("project")
+          res.body.should.have.property('project')
 
           // project validation
           let project = res.body.project
-          project.should.not.have.property("non_existant")
+          project.should.not.have.property('non_existant')
 
           done()
         })
     })
 
-    it("should return 404 if the auth token does not match the owner's", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testStudent.token)
+    it("should return 404 if the auth token does not match the owner's", done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testStudent.token)
         .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
@@ -960,9 +1010,10 @@ describe("Projects", () => {
         })
     })
 
-    it("should reject an unauthorized user", (done) => {
-      chai.request(server)
-        .put("/projects/" + testProject._id)
+    it('should reject an unauthorized user', done => {
+      chai
+        .request(server)
+        .put('/projects/' + testProject._id)
         .send({ project: { heat_vision: true } })
         .end((err, res) => {
           // initial validation
@@ -973,22 +1024,23 @@ describe("Projects", () => {
     })
   })
 
-
-  describe("DELETE /projects", () => {
-    it("should reject an invalid project id", (done) => {
-      chai.request(server)
-        .del("/projects/fjdsklajfd")
-        .set("Authorization", testUsers.testTeacher.token)
+  describe('DELETE /projects', () => {
+    it('should reject an invalid project id', done => {
+      chai
+        .request(server)
+        .del('/projects/fjdsklajfd')
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(400)
           done()
         })
     })
 
-    it("should return 404 for project that does not exist", (done) => {
-      chai.request(server)
-        .del("/projects/" + testUsers.testTeacher.user._id) // this is a teacher's id, and will not be a project
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should return 404 for project that does not exist', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testUsers.testTeacher.user._id) // this is a teacher's id, and will not be a project
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(404)
           done()
@@ -996,10 +1048,11 @@ describe("Projects", () => {
     })
 
     // this test has to be the very last test in the /projects suite! It deletes the created test project
-    it("should delete a project", (done) => {
-      chai.request(server)
-        .del("/projects/" + testProject._id)
-        .set("Authorization", testUsers.testTeacher.token)
+    it('should delete a project', done => {
+      chai
+        .request(server)
+        .del('/projects/' + testProject._id)
+        .set('Authorization', testUsers.testTeacher.token)
         .end((err, res) => {
           res.should.have.status(204)
           done()

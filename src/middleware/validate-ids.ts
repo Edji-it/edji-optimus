@@ -12,6 +12,6 @@ export const validateIdParameters = function(...idParams: string[]): RequestHand
 }
 
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
-export const isValidId = function (id: string) {
+export const isValidId = function(id: string) {
   return id && id.length === 24 && checkForHexRegExp.test(id)
 }

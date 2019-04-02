@@ -1,12 +1,12 @@
 // library imports
-let mongoose = require("mongoose")
+let mongoose = require('mongoose')
 
 // project imports
 const User = require('../../../models/User')
 const TempUser = require('../../../models/TempUser')
 const helpers = require('./_public-details')
 
-export default function (req, res, next) {
+export default function(req, res, next) {
   // request query params for students_ids and temp_ids (either can be empty for this to work)
   const students = req.query.students_ids
   const temps = req.query.temp_ids
@@ -37,20 +37,21 @@ export default function (req, res, next) {
       {
         $match: {
           _id: {
-            $in: students_ids
-          }
-        }
-      }, {
+            $in: students_ids,
+          },
+        },
+      },
+      {
         $project: {
           _id: 1,
           fullname: 1,
           username: 1,
           hero_status: 1,
           archive_readings_before: 1,
-          "userType": "registered"
-        }
-      }
-    ])
+          userType: 'registered',
+        },
+      },
+    ]),
   )
 
   promises.push(
@@ -58,27 +59,28 @@ export default function (req, res, next) {
       {
         $match: {
           _id: {
-            $in: temp_ids
-          }
-        }
-      }, {
+            $in: temp_ids,
+          },
+        },
+      },
+      {
         $project: {
           _id: 1,
           fullname: 1,
-          "userType": "temp"
-        }
-      }
-    ])
+          userType: 'temp',
+        },
+      },
+    ]),
   )
 
   Promise.all(promises)
-    .then((results) => {
+    .then(results => {
       let users = results[0].concat(results[1])
 
       // send back the users
       return res.status(200).send({ users })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

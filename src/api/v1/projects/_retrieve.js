@@ -4,58 +4,64 @@ const Project = require('./../../../models/Project')
 const pipolog = require('./../../../pipolog').pipoLog
 
 const populationProperties = {
-  'reading_id': [{
-    $lookup: {
-      from: "readings",
-      localField: "reading_id",
-      foreignField: "_id",
-      as: "reading"
-    }
-  }, {
-    $addFields: {
-      "reading_id": {
-        _id: { $arrayElemAt: ["$reading._id", 0] },
-        words: { $arrayElemAt: ["$reading.words", 0] },
-        title: { $arrayElemAt: ["$reading.title", 0] },
-        owner_id: { $arrayElemAt: ["$reading.owner_id", 0] },
-        public: { $arrayElemAt: ["$reading.public", 0] },
-        promoter_ids: { $arrayElemAt: ["$reading.promoter_ids", 0] },
-        source: { $arrayElemAt: ["$reading.source", 0] },
-        cover_img: { $arrayElemAt: ["$reading.cover_img", 0] },
-        tags: { $arrayElemAt: ["$reading.tags", 0] },
-        draft: { $arrayElemAt: ["$reading.draft", 0] },
-        version_id: { $arrayElemAt: ["$reading.version_id", 0] },
-        questions: { $arrayElemAt: ["$reading.questions", 0] },
-        parent_id: { $arrayElemAt: ["$reading.parent_id", 0] },
-        createdAt: { $arrayElemAt: ["$reading.createdAt", 0] }
-      }
-    }
-  }],
-  'teacher': [{
-    $lookup: {
-      from: "users",
-      localField: "teacher_id",
-      foreignField: "_id",
-      as: "teacherRef"
-    }
-  }, {
-    $addFields: {
-      "teacher": {
-        _id: { $arrayElemAt: ["$teacherRef._id", 0] },
-        fullname: { $arrayElemAt: ["$teacherRef.fullname", 0] },
-        username: { $arrayElemAt: ["$teacherRef.username", 0] },
-        archive_readings_before: { $arrayElemAt: ["$teacherRef.archive_readings_before", 0] },
-        hero_status: { $arrayElemAt: ["$teacherRef.hero_status", 0] }
-      }
-    }
-  }]
+  reading_id: [
+    {
+      $lookup: {
+        from: 'readings',
+        localField: 'reading_id',
+        foreignField: '_id',
+        as: 'reading',
+      },
+    },
+    {
+      $addFields: {
+        reading_id: {
+          _id: { $arrayElemAt: ['$reading._id', 0] },
+          words: { $arrayElemAt: ['$reading.words', 0] },
+          title: { $arrayElemAt: ['$reading.title', 0] },
+          owner_id: { $arrayElemAt: ['$reading.owner_id', 0] },
+          public: { $arrayElemAt: ['$reading.public', 0] },
+          promoter_ids: { $arrayElemAt: ['$reading.promoter_ids', 0] },
+          source: { $arrayElemAt: ['$reading.source', 0] },
+          cover_img: { $arrayElemAt: ['$reading.cover_img', 0] },
+          tags: { $arrayElemAt: ['$reading.tags', 0] },
+          draft: { $arrayElemAt: ['$reading.draft', 0] },
+          version_id: { $arrayElemAt: ['$reading.version_id', 0] },
+          questions: { $arrayElemAt: ['$reading.questions', 0] },
+          parent_id: { $arrayElemAt: ['$reading.parent_id', 0] },
+          createdAt: { $arrayElemAt: ['$reading.createdAt', 0] },
+        },
+      },
+    },
+  ],
+  teacher: [
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'teacher_id',
+        foreignField: '_id',
+        as: 'teacherRef',
+      },
+    },
+    {
+      $addFields: {
+        teacher: {
+          _id: { $arrayElemAt: ['$teacherRef._id', 0] },
+          fullname: { $arrayElemAt: ['$teacherRef.fullname', 0] },
+          username: { $arrayElemAt: ['$teacherRef.username', 0] },
+          archive_readings_before: { $arrayElemAt: ['$teacherRef.archive_readings_before', 0] },
+          hero_status: { $arrayElemAt: ['$teacherRef.hero_status', 0] },
+        },
+      },
+    },
+  ],
 }
 
 /**
  * Returns the mongo query objects to add to the pipeline in order to populate what you want on the project
  * @param {string[]} props all of the properties you want populated, writen out in a string array
  */
-const populateProperties = function (props) {
+const populateProperties = function(props) {
   let populationPipeline = []
 
   if (!props || !(props instanceof Array)) {
@@ -76,7 +82,7 @@ const populateProperties = function (props) {
  * @param {User} user the user object from the request
  * @param {Project} project the project from the database
  */
-const addIdToProject = async function (user, project) {
+const addIdToProject = async function(user, project) {
   // can't function without a project...
   if (!project) {
     throw new Error(`no project sent to addIdToProject - user: ${user && user._id}, project: ${project && project._id}`)
@@ -96,8 +102,8 @@ const addIdToProject = async function (user, project) {
     // return an update
     update = {
       $push: {
-        [arrayToSearch]: user._id
-      }
+        [arrayToSearch]: user._id,
+      },
     }
   }
   return { project, update }
@@ -108,16 +114,16 @@ const addIdToProject = async function (user, project) {
  * @param {User} user the user object from the request
  * @param {Project} project the project from the database
  */
-const logJoinToPipo = function (user, project) {
+const logJoinToPipo = function(user, project) {
   return pipolog({
     user_id: user._id,
     teacher: user._id.equals(project.teacher_id),
     hero: !!user.hero_status,
-    event_name: 'reading_joined'
+    event_name: 'reading_joined',
   })
 }
 
-const decorateProject = function (project) {
+const decorateProject = function(project) {
   // here we're going to do a little curation for the returned project to make sure the comments come back with a replies array
   var repliesObj = []
   let size = project.comments.length
@@ -134,7 +140,7 @@ const decorateProject = function (project) {
 
   // assign the array of reply _id's to the applicable comment
   for (let reply_to_id in repliesObj) {
-    let comment = project.comments.find((comment) => {
+    let comment = project.comments.find(comment => {
       return comment._id == reply_to_id
     })
     if (comment) {
@@ -149,5 +155,5 @@ module.exports = {
   populateProperties,
   addIdToProject,
   logJoinToPipo,
-  decorateProject
+  decorateProject,
 }

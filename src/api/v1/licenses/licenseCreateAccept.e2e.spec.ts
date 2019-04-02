@@ -9,38 +9,39 @@ import data = require('../../../test/constants')
 
 // prep for http calls
 chai.use(chaiHttp)
-const requestCreateLicense = function (authToken?: string) {
-  let req = chai.request(data.SERVER)
+const requestCreateLicense = function(authToken?: string) {
+  let req = chai
+    .request(data.SERVER)
     .post(`/api/v1/licenses/`)
     .send({
       license: {
-        license_type: "hero",
-        owning_institution: "5b006d759dbfbf137ec0df23",
+        license_type: 'hero',
+        owning_institution: '5b006d759dbfbf137ec0df23',
         max_users: 10,
         roles: [
           {
-            user_id: "59bda04a85c6ab346c12dbbc",
-            role: "owner"
-          }
-        ]
-      }
+            user_id: '59bda04a85c6ab346c12dbbc',
+            role: 'owner',
+          },
+        ],
+      },
     })
   authToken && req.set('Authorization', authToken)
 
   return req
 }
-const requestInvite = function (licenseId: string, body: { email: string, name: string }, authToken?: string) {
+const requestInvite = function(licenseId: string, body: { email: string; name: string }, authToken?: string) {
   let { email, name } = body
-  let req = chai.request(data.SERVER)
+  let req = chai
+    .request(data.SERVER)
     .put(`/api/v1/licenses/${licenseId}/invite`)
     .send({ email, name })
   authToken && req.set('Authorization', authToken)
 
   return req
 }
-const requestAccept = function (licenseId: string, authToken?: string) {
-  let req = chai.request(data.SERVER)
-    .put(`/api/v1/licenses/${licenseId}/accept`)
+const requestAccept = function(licenseId: string, authToken?: string) {
+  let req = chai.request(data.SERVER).put(`/api/v1/licenses/${licenseId}/accept`)
   authToken && req.set('Authorization', authToken)
 
   return req
@@ -61,7 +62,7 @@ describe('license create, add invite, and accept invite success', () => {
 
   // should add an email address and expiration date to the license
   it('should add email and expiration date to license object upon success', async () => {
-    const body = { email: 'optimus@prime.ed', name: "apitesthero2" }
+    const body = { email: 'optimus@prime.ed', name: 'apitesthero2' }
     const res = await requestInvite(LICENSE_ID, body, data.LOGIN_TOKENS.API_HERO2)
     expect(res).to.have.status(200)
     expect(res.body).to.haveOwnProperty('license')
@@ -83,7 +84,7 @@ describe('license create, add invite, and accept invite success', () => {
     expect(user).to.have.haveOwnProperty('license_ids')
     const license_ids = user.license_ids
     expect(license_ids.length).to.be.greaterThan(0)
-    const specificLicense = license_ids.find((license) => {
+    const specificLicense = license_ids.find(license => {
       return license.license_id === LICENSE_ID
     })
     expect(specificLicense.license_id).includes(LICENSE_ID)

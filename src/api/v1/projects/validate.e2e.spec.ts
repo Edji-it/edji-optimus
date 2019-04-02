@@ -6,14 +6,13 @@ import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
 import data = require('../../../test/constants')
-import { not } from 'joi';
+import { not } from 'joi'
 
 // prep for http calls
 chai.use(chaiHttp)
 
-const request = function (code: string): Request {
-  let req = chai.request(data.SERVER)
-    .get(`/api/v1/projects/${code}/validate`)
+const request = function(code: string): Request {
+  let req = chai.request(data.SERVER).get(`/api/v1/projects/${code}/validate`)
 
   return req
 }

@@ -3,19 +3,10 @@
     "target": "es2016",
     "module": "commonjs",
     "outDir": "./build",
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./types", "./node_modules/@types"],
     "allowJs": true,
     "sourceMap": true
   },
-  "include": [
-    "src/**/*",
-    ".env"
-  ],
-  "exclude": [
-    "node_modules",
-    "types"
-  ]
+  "include": ["src/**/*", ".env"],
+  "exclude": ["node_modules", "types"]
 }

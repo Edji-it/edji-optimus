@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const Project = require('./../../../models/Project')
 
 // updates all of the temp user's information to be owned by the new user (the req.user), and removes the temp user
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let user = req.user
   let temp_id = req.params.temp_id
 
@@ -16,29 +16,29 @@ module.exports = function (req, res, next) {
   Project.updateOne(
     {
       temp_ids: temp_id,
-      "comments.user_id": temp_id
+      'comments.user_id': temp_id,
     },
     {
       $set: {
-        "comments.$[elem].user_id": user._id.toString(),
-        "comments.$[elem].author": user.fullname
+        'comments.$[elem].user_id': user._id.toString(),
+        'comments.$[elem].author': user.fullname,
       },
       $pull: {
-        temp_ids: mongoose.Types.ObjectId(temp_id)
+        temp_ids: mongoose.Types.ObjectId(temp_id),
       },
       $push: {
-        students_ids: user._id
-      }
+        students_ids: user._id,
+      },
     },
     {
       multi: true,
-      arrayFilters: [{ "elem.user_id": temp_id }]
-    }
+      arrayFilters: [{ 'elem.user_id': temp_id }],
+    },
   )
-    .then((dbResponse) => {
+    .then(dbResponse => {
       return res.status(200).send({ updated: dbResponse })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

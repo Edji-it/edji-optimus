@@ -7,35 +7,37 @@ import { UserAPI } from '../../../test/methods'
 // prep for http calls
 chai.use(chaiHttp)
 const outcomeBody = {
-  "rubric": [
+  rubric: [
     {
-      "grade": 0,
-      "rubric_statement": "Please try again."
-    }
+      grade: 0,
+      rubric_statement: 'Please try again.',
+    },
   ],
-  "_id": "5c51002c09b09e0099d57d74",
-  "outcome_statement": "I can ask and answer questions",
-  "standard": "5c3bc4c648bf8f26594db29c"
+  _id: '5c51002c09b09e0099d57d74',
+  outcome_statement: 'I can ask and answer questions',
+  standard: '5c3bc4c648bf8f26594db29c',
 }
 const shortName = {
-  "short_name": "Use Text"
+  short_name: 'Use Text',
 }
 const institutionBody = {
-  "name": "EDJI TEST ACADEMY"
+  name: 'EDJI TEST ACADEMY',
 }
 
 const shortNameTest = new Date().toUTCString()
-const outcomeRequest = function (propName: string, institution_id: string, authToken: string, requestBody: any) {
+const outcomeRequest = function(propName: string, institution_id: string, authToken: string, requestBody: any) {
   let url = `/api/v1/institutions/${institution_id}/${propName}`
-  let req = chai.request(data.SERVER)
+  let req = chai
+    .request(data.SERVER)
     .put(url)
     .send(requestBody)
   authToken && req.set('Authorization', authToken)
   return req
 }
-const institutionRequest = function (institution_id: string, authToken: string, requestBody: any) {
+const institutionRequest = function(institution_id: string, authToken: string, requestBody: any) {
   let url = `/api/v1/institutions/${institution_id}`
-  let req = chai.request(data.SERVER)
+  let req = chai
+    .request(data.SERVER)
     .put(url)
     .send(requestBody)
   authToken && req.set('Authorization', authToken)
@@ -57,26 +59,26 @@ describe('PUT api/v1/institutions/:institution_id/:property_name', () => {
   it('should return a 200 with an updated outcome', async () => {
     let outcomUpdate = {
       short_name: shortNameTest,
-      ...outcomeBody
+      ...outcomeBody,
     }
     const res = await outcomeRequest('outcomes', institution_id, authToken, outcomUpdate)
     res.should.have.status(200)
 
     // check outcomes
     const outcome = res.body
-    outcome.should.have.property("standard")
-    outcome.should.have.property("short_name")
+    outcome.should.have.property('standard')
+    outcome.should.have.property('short_name')
     outcome.short_name.should.equal(shortNameTest)
-    outcome.should.have.property("outcome_statement")
-    outcome.should.have.property("rubric")
+    outcome.should.have.property('outcome_statement')
+    outcome.should.have.property('rubric')
 
     // check rubric for valid response properties
     const rubrics = outcome.rubric
     rubrics.should.be.instanceOf(Array)
     rubrics.length.should.be.above(0)
     const rubric = rubrics[0]
-    rubric.should.have.property("grade")
-    rubric.should.have.property("rubric_statement")
+    rubric.should.have.property('grade')
+    rubric.should.have.property('rubric_statement')
   })
 
   it('should return a 406 if no updates are passed in', async () => {
@@ -101,20 +103,20 @@ describe('PUT api/v1/institutions/:institution_id', () => {
 
   it('should return a 200 with an updated institution', async () => {
     let institutionUpdate = {
-      name: shortNameTest
+      name: shortNameTest,
     }
     const res = await institutionRequest(institution_id, authToken, institutionUpdate)
     res.should.have.status(200)
 
     // check outcomes for valid response properties
     const institution = res.body
-    institution.should.have.property("name")
+    institution.should.have.property('name')
     institution.name.should.equal(shortNameTest)
   })
 
   it('should return a 400 for an institution to update that is invalid', async () => {
     let institutionUpdate = {
-      invalidProp: true
+      invalidProp: true,
     }
     const res = await institutionRequest(institution_id, authToken, institutionUpdate)
     res.should.have.status(400)

@@ -5,9 +5,8 @@ import { ObjectId } from 'mongodb'
 import data = require('../../../../test/constants')
 import { UserAPI, ReadingAPI, LoginObject } from '../../../../test/methods'
 
-const createReferral: (userId: string, authToken?: string) => any = async function (userId, authToken) {
-  let req = chai.request(data.SERVER)
-    .get(`/api/v1/users/${userId}/referrals`)
+const createReferral: (userId: string, authToken?: string) => any = async function(userId, authToken) {
+  let req = chai.request(data.SERVER).get(`/api/v1/users/${userId}/referrals`)
 
   authToken && req.set('Authorization', authToken)
   return req
@@ -17,7 +16,7 @@ describe('retrieve referrals', () => {
   let newLoginObj: any
   let referral: any
 
-  it('should get a new user\'s referrals', async function () {
+  it("should get a new user's referrals", async function() {
     newLoginObj = await UserAPI.create()
     let { user, token } = newLoginObj
     user.should.not.have.property('referred_by')
@@ -33,7 +32,7 @@ describe('retrieve referrals', () => {
     referral.users_referred.should.be.instanceOf(Array)
     referral.users_referred.length.should.be.equal(0)
   })
-  it('should get an existing user\'s referrals', async () => {
+  it("should get an existing user's referrals", async () => {
     let { user, token } = newLoginObj
 
     let res = await createReferral(user._id, token)
@@ -62,8 +61,7 @@ describe('retrieve referrals', () => {
 })
 
 describe('referral e2e workflow', () => {
-
-  it('should credit a referral when a referred user creates their first reading', async function () {
+  it('should credit a referral when a referred user creates their first reading', async function() {
     this.timeout(14000)
     let baseUser: LoginObject = await UserAPI.create()
     baseUser.user.should.not.have.property('referred_by')
@@ -72,7 +70,7 @@ describe('referral e2e workflow', () => {
     let { body: ref1 } = await createReferral(baseUser.user._id, baseUser.token)
     ref1.should.have.property('code')
     let referredUser: LoginObject = await UserAPI.create({
-      referred_by: ref1.code
+      referred_by: ref1.code,
     })
     referredUser.user.should.have.property('referred_by')
 

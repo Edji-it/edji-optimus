@@ -1,7 +1,7 @@
 // library import
-const chai = require("chai")
+const chai = require('chai')
 const should = chai.should()
-chai.use(require("chai-http"))
+chai.use(require('chai-http'))
 
 // project imports
 const TEST = require('../../../test/constants')
@@ -10,8 +10,9 @@ const TEST = require('../../../test/constants')
 const ENDPOINT_URL = '/api/v1/readings'
 
 describe('GET /readings', () => {
-  it('should get a 401 without auth', (done) => {
-    chai.request(TEST.SERVER)
+  it('should get a 401 without auth', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL)
       .end((err, res) => {
         res.should.not.have.status(200)
@@ -20,9 +21,10 @@ describe('GET /readings', () => {
       })
   })
 
-  it('should get a 400 when requesting with a bad query parameter', (done) => {
-    chai.request(TEST.SERVER)
-      .get(ENDPOINT_URL + "?badparam=nothing")
+  it('should get a 400 when requesting with a bad query parameter', done => {
+    chai
+      .request(TEST.SERVER)
+      .get(ENDPOINT_URL + '?badparam=nothing')
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
         res.should.not.have.status(200)
@@ -34,12 +36,15 @@ describe('GET /readings', () => {
   let DEFAULT_READINGS_LIST
 
   // this test also serves as validation for all of the properties of readings
-  it('should return a list of 15 readings with default properties', (done) => {
-    chai.request(TEST.SERVER)
+  it('should return a list of 15 readings with default properties', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL)
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
         res.should.have.status(200)
 
         // total property test
@@ -54,26 +59,26 @@ describe('GET /readings', () => {
         DEFAULT_READINGS_LIST = readings
 
         let lastReadingDate // used to test that the readings are in sort order from most to least recent
-        readings.forEach((reading) => {
+        readings.forEach(reading => {
           // things the reading SHOULD have
-          reading.should.have.property("_id")
-          reading.should.have.property("owner_id")
-          reading.should.have.property("title")
-          reading.should.have.property("version_count")
-          reading.should.have.property("createdAt")
-          reading.should.have.property("updatedAt")
+          reading.should.have.property('_id')
+          reading.should.have.property('owner_id')
+          reading.should.have.property('title')
+          reading.should.have.property('version_count')
+          reading.should.have.property('createdAt')
+          reading.should.have.property('updatedAt')
           if (reading.hasOwnProperty('draft')) {
             reading.draft.should.not.be.true
           }
 
           // things the reading should NOT have
-          reading.should.not.have.property("words")
-          reading.should.not.have.property("html")
+          reading.should.not.have.property('words')
+          reading.should.not.have.property('html')
 
           let thisReadingDate = new Date(reading.updatedAt)
           if (lastReadingDate) {
             // test to make sure lastReadingDate is more recent than the current reading
-            (lastReadingDate.getTime() > thisReadingDate.getTime()).should.be.true
+            ;(lastReadingDate.getTime() > thisReadingDate.getTime()).should.be.true
           }
           lastReadingDate = thisReadingDate
         })
@@ -83,12 +88,15 @@ describe('GET /readings', () => {
       })
   })
 
-  it('should return 20 readings with ?size=20 query parameter', (done) => {
-    chai.request(TEST.SERVER)
+  it('should return 20 readings with ?size=20 query parameter', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '?size=20')
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.should.have.status(200)
         res.body.should.have.property('readings')
@@ -98,12 +106,15 @@ describe('GET /readings', () => {
       })
   })
 
-  it('should start at the next index with ?start=1 query parameter', (done) => {
-    chai.request(TEST.SERVER)
+  it('should start at the next index with ?start=1 query parameter', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '?start=1')
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.should.have.status(200)
         res.body.should.have.property('readings')
@@ -116,23 +127,26 @@ describe('GET /readings', () => {
       })
   })
 
-  it('should populate projects onto the reading', (done) => {
-    chai.request(TEST.SERVER)
-      .get(ENDPOINT_URL + "?pop=projects")
+  it('should populate projects onto the reading', done => {
+    chai
+      .request(TEST.SERVER)
+      .get(ENDPOINT_URL + '?pop=projects')
       .set('Authorization', TEST.LOGIN_TOKENS.API_TEACHER)
       .end((err, res) => {
-        if (err) { return done(err) }
+        if (err) {
+          return done(err)
+        }
 
         res.should.have.status(200)
         res.body.should.have.property('readings')
 
         let hasPopulatedProject = false
-        res.body.readings.forEach((reading) => {
+        res.body.readings.forEach(reading => {
           reading.should.have.property('projects')
           reading.projects.should.be.instanceOf(Array)
 
           // these tests might intermittently not run because none of the readings may have a project
-          reading.projects.forEach((project) => {
+          reading.projects.forEach(project => {
             hasPopulatedProject = true
             // every project should have these
             project.should.have.property('_id')

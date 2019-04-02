@@ -6,7 +6,6 @@ import { Router } from 'express'
 const authRequired = require('../../../middleware/auth-required')
 import { addRouteName } from '../../../utils/edji-utils'
 
-
 import TokenController from './tokens'
 import LinkController from './link'
 import CreateHandler from './create'

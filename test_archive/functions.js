@@ -1,21 +1,25 @@
-var chai = require("chai")
-var chaiHttp = require("chai-http")
-var server = "http://localhost:3354"
+var chai = require('chai')
+var chaiHttp = require('chai-http')
+var server = 'http://localhost:3354'
 
 chai.use(chaiHttp)
 
-var Q = require("q")
+var Q = require('q')
 
-var data = require("./data")
+var data = require('./data')
 
 var loginUser = function(credentials) {
   return new Promise((resolve, reject) => {
-    chai.request(server)
-      .post("/users/login")
+    chai
+      .request(server)
+      .post('/users/login')
       .send(credentials)
       .end((err, res) => {
-        if (err) { reject(err) }
-        else { resolve(res) }
+        if (err) {
+          reject(err)
+        } else {
+          resolve(res)
+        }
       })
   })
 }
@@ -23,38 +27,50 @@ var loginUser = function(credentials) {
 // should be made more robust once testing tempuser routes
 var createTempUser = function(user) {
   return new Promise((resolve, reject) => {
-    chai.request(server)
-      .post("/tempusers")
+    chai
+      .request(server)
+      .post('/tempusers')
       .send({ user: data.users.tempUser })
       .end((err, res) => {
-        if (err) { reject(err) }
-        else { resolve(res.body) }
+        if (err) {
+          reject(err)
+        } else {
+          resolve(res.body)
+        }
       })
   })
 }
 
 var createReading = function(reading, authToken) {
   return new Promise((resolve, reject) => {
-    chai.request(server)
-      .post("/readings")
-      .set("Authorization", authToken)
+    chai
+      .request(server)
+      .post('/readings')
+      .set('Authorization', authToken)
       .send({ reading: reading })
       .end((err, res) => {
-        if (err) { reject(err) }
-        else { resolve(res.body) }
+        if (err) {
+          reject(err)
+        } else {
+          resolve(res.body)
+        }
       })
   })
 }
 
 var createProject = function(project, authToken) {
   return new Promise((resolve, reject) => {
-    chai.request(server)
-      .post("/projects")
-      .set("Authorization", authToken)
+    chai
+      .request(server)
+      .post('/projects')
+      .set('Authorization', authToken)
       .send({ project: project })
       .end((err, res) => {
-        if (err) { reject(err) }
-        else { resolve(res.body) }
+        if (err) {
+          reject(err)
+        } else {
+          resolve(res.body)
+        }
       })
   })
 }
@@ -65,13 +81,13 @@ var loginTestUsers = function() {
     var promises = [
       loginUser(data.users.testStudentCreds),
       loginUser(data.users.testTeacherCreds),
-      createTempUser(data.users.tempUser)
+      createTempUser(data.users.tempUser),
     ]
-    Q.all(promises).done((results) => {
+    Q.all(promises).done(results => {
       var testUsers = {
         testStudent: results[0].body,
         testTeacher: results[1].body,
-        testTemp: results[2]
+        testTemp: results[2],
       }
       resolve(testUsers)
     })
@@ -82,5 +98,5 @@ module.exports = {
   createReading: createReading,
   createProject: createProject,
   loginTestUsers: loginTestUsers,
-  createTempUser: createTempUser
+  createTempUser: createTempUser,
 }

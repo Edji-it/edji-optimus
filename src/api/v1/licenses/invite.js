@@ -1,6 +1,6 @@
 // library imports
 const Q = require('q')
-var mongoose = require("mongoose")
+var mongoose = require('mongoose')
 
 // project imports
 const License = require('./../../../models/License')
@@ -8,7 +8,7 @@ const Institution = require('./../../../models/Institution')
 const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let user = req.user
   let subject = 'Welcome to Edji Academy!'
 
@@ -29,12 +29,16 @@ module.exports = function (req, res, next) {
 
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!email || email.length == 0) {
-    return res.status(400).send({ error: 'cannot add email address to pending invitations because there was no email in the request' })
+    return res
+      .status(400)
+      .send({ error: 'cannot add email address to pending invitations because there was no email in the request' })
   }
 
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!name || name.length == 0) {
-    return res.status(400).send({ error: 'cannot add name to pending invitations because there was no name in the request' })
+    return res
+      .status(400)
+      .send({ error: 'cannot add name to pending invitations because there was no name in the request' })
   }
 
   // if the role is not defined, we'll default back to 'teacher'
@@ -43,20 +47,20 @@ module.exports = function (req, res, next) {
   }
 
   // add the email address of the person we're sending a license invitation to that license
-  let expiration_date = new Date(Date.now() + (1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14))
+  let expiration_date = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14)
   // used to store the license across steps of the promise, because it will eventually be sent back to the user
   let licenseSend
-  License.findById(license_id).exec()
-    .then((license) => {
+  License.findById(license_id)
+    .exec()
+    .then(license => {
       if (!license) {
         return res.status(404).send({ error: 'no license exists for that license_id' })
       }
       // see if we already have an invitation for this user
-      let invititationPos = license.pending_invitations.map(
-        (invite) => {
+      let invititationPos = license.pending_invitations
+        .map(invite => {
           return invite.email
-        }
-      )
+        })
         .indexOf(email)
 
       // update the expiration date if the invite already exists
@@ -64,23 +68,21 @@ module.exports = function (req, res, next) {
         license.pending_invitations[invititationPos].expiration = expiration_date
       } else {
         // if the invitation does not exist, let's add it
-        license.pending_invitations.push(
-          {
-            email: email,
-            name: name,
-            expiration: expiration_date,
-            role: role
-          }
-        )
+        license.pending_invitations.push({
+          email: email,
+          name: name,
+          expiration: expiration_date,
+          role: role,
+        })
       }
 
       // save the license and return it for the next step
       return license.edjiSave()
     })
-    .then((updatedLicense) => {
+    .then(updatedLicense => {
       // if license is null (meaning it did not get updated in the collection)
       if (!updatedLicense) {
-        return Q.reject("license not found")
+        return Q.reject('license not found')
       }
 
       // assign this to preserve it across the promise stages
@@ -89,22 +91,25 @@ module.exports = function (req, res, next) {
       // get the institution info for the email
       return Institution.findById(licenseSend.owning_institution)
     })
-    .then((institution) => {
+    .then(institution => {
       // there's an error on our end if a user's License has a non-existant owning_institution
       if (!institution) {
         return Q.reject("no institution exists for license's owning_institution")
       }
 
       // specify the email template to use on the email service
-      const emailTemplate = "license-invite"
+      const emailTemplate = 'license-invite'
 
       // our email templates are flexible to take in other data to be used in the email body
       // reference the email template documentation on the email service and set the other variables here
       let lastInvitation = licenseSend.pending_invitations.length - 1
       let invitationId = licenseSend.pending_invitations[lastInvitation]._id
       let varsObject = {
-        "license_url": ["https:" + process.env.CLIENT_URL, "#", "license", "accept", invitationId].join("/") + '?academy=' + encodeURIComponent(institution.name),
-        "institution_name": institution.name
+        license_url:
+          ['https:' + process.env.CLIENT_URL, '#', 'license', 'accept', invitationId].join('/') +
+          '?academy=' +
+          encodeURIComponent(institution.name),
+        institution_name: institution.name,
       }
 
       // make the request to send the email with the license invitation, then return the license back if all is well
@@ -114,13 +119,13 @@ module.exports = function (req, res, next) {
         name,
         email,
         vars_object: varsObject,
-        from: "Edji <academy@edji.it>"
+        from: 'Edji <academy@edji.it>',
       })
     })
-    .then((success) => {
+    .then(success => {
       return res.status(200).send({ license: licenseSend })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

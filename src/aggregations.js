@@ -8,19 +8,23 @@
  */
 const paginateAggregation = function(pipeline, sort, skip, limit) {
   return pipeline.concat([
-    { $sort: sort},
-    { $group: {
-      _id: null,
-      total: { $sum: 1 },
-      results: { $push: "$$ROOT" }
-    }},
-    { $project: {
-      total: true,
-      results: { $slice: ["$results", skip, limit] }
-    }}
+    { $sort: sort },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        results: { $push: '$$ROOT' },
+      },
+    },
+    {
+      $project: {
+        total: true,
+        results: { $slice: ['$results', skip, limit] },
+      },
+    },
   ])
 }
 
 module.exports = {
-  paginateAggregation: paginateAggregation
+  paginateAggregation: paginateAggregation,
 }

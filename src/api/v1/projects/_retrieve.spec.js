@@ -13,18 +13,15 @@ describe('projects _retrieve', () => {
     })
 
     it('should populate all possible properties', () => {
-      let possibleProperties = [
-        'reading_id',
-        'teacher'
-      ]
+      let possibleProperties = ['reading_id', 'teacher']
 
       let checkPopulation = {}
-      possibleProperties.forEach((prop) => {
+      possibleProperties.forEach(prop => {
         checkPopulation[prop] = { populated: false } // leaving room for later in case we need to provide custom validators
       })
 
       let aggregation = helpers.populateProperties(['reading_id', 'teacher'])
-      aggregation.forEach((obj) => {
+      aggregation.forEach(obj => {
         if (obj.$addFields) {
           for (let field in obj.$addFields) {
             checkPopulation[field].populated = true
@@ -53,19 +50,12 @@ describe('projects _retrieve', () => {
     let mockUser
     beforeEach(() => {
       mockUser = {
-        _id: mongoose.Types.ObjectId()
+        _id: mongoose.Types.ObjectId(),
       }
       mockProject = {
         teacher_id: mongoose.Types.ObjectId(),
-        students_ids: [
-          mongoose.Types.ObjectId(),
-          mongoose.Types.ObjectId(),
-          mongoose.Types.ObjectId()
-        ],
-        temp_ids: [
-          mongoose.Types.ObjectId(),
-          mongoose.Types.ObjectId()
-        ]
+        students_ids: [mongoose.Types.ObjectId(), mongoose.Types.ObjectId(), mongoose.Types.ObjectId()],
+        temp_ids: [mongoose.Types.ObjectId(), mongoose.Types.ObjectId()],
       }
     })
 
@@ -139,7 +129,7 @@ describe('projects _retrieve', () => {
     let mockProject
     beforeEach(() => {
       mockProject = {
-        comments: comments
+        comments: comments,
       }
     })
 
@@ -152,7 +142,7 @@ describe('projects _retrieve', () => {
       let commentsWithReplies = [{ index: 0, count: 3 }, { index: 7, count: 2 }]
       helpers.decorateProject(mockProject)
 
-      commentsWithReplies.forEach((testData) => {
+      commentsWithReplies.forEach(testData => {
         let comment = mockProject.comments[testData.index]
         comment.should.have.property('replies')
         comment.replies.should.be.instanceOf(Array)

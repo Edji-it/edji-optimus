@@ -3,7 +3,7 @@
 // project imports
 const MessageList = require('./../../../../models/MessageList')
 
-const createMessageList = async function (obj) {
+const createMessageList = async function(obj) {
   if (!obj) {
     return reject(new Error('no object passed to createMessageList'))
   }
@@ -17,7 +17,7 @@ const createMessageList = async function (obj) {
  * @param {MessageList} list the list which needs to be associated with the user
  * @param {User} user the user which needs to be updated with message list info
  */
-const addListToUser = async function (list, user) {
+const addListToUser = async function(list, user) {
   if (!list || !list._id) {
     return reject('invalid list passed to addListToUser')
   }
@@ -33,5 +33,5 @@ const addListToUser = async function (list, user) {
 
 module.exports = {
   createMessageList: createMessageList,
-  addListToUser: addListToUser
+  addListToUser: addListToUser,
 }

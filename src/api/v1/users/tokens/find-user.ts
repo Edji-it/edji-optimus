@@ -23,7 +23,6 @@ export async function PasswordHandler(req: Request, res: Response, next: NextFun
    * */
   let query: any = createQuery(req.query)
 
-
   try {
     let user: any = await User.findOne(query)
 
@@ -43,7 +42,7 @@ export async function PasswordHandler(req: Request, res: Response, next: NextFun
         return res.status(400).send({
           error: 'NO_LOGIN_CREDENTIALS',
           message: 'user has no username/password, but has at least one oauth account that could be used to log in',
-          oauth_types: types
+          oauth_types: types,
         })
       } else {
         let ERROR = 'account has no credentials or oauth: ' + user._id

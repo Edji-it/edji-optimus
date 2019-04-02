@@ -5,12 +5,12 @@ import { assignVersionId, recordUserReferral } from './_create'
 import { cleanMongoValidationError } from './../../../error-handlers/mongo-validation'
 import { captureException } from '@sentry/node'
 
-const CreateReadingHandler: RequestHandler =  async function(req, res, next) {
+const CreateReadingHandler: RequestHandler = async function(req, res, next) {
   let user: any = req.user
   let reading: any = req.body.reading
 
   if (!reading) {
-    return res.status(400).send({ validationErrors: { reading: "required" } })
+    return res.status(400).send({ validationErrors: { reading: 'required' } })
   }
 
   try {
@@ -26,7 +26,7 @@ const CreateReadingHandler: RequestHandler =  async function(req, res, next) {
     }
     return res.status(201).send({ reading })
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
       return res.status(406).send({ validationErrors })
     }

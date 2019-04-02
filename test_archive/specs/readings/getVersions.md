@@ -19,20 +19,20 @@ Coming soon?
 ## Test Cases
 
 1.  Pass with creating teacher's credentials and version id
-    *  `res` should have a:
-        *  `status` = `200`
-        *  `readings`: `any[]`
-    *  `res.readings` should be an array of objects, shaped like:
-        *  `_id`: `string`
-        *  `title`: `string`
-        *  `owner_id`: `string`
-        *  `teacher_ids`: `string[]`
-        *  `source`: `string`
-        *  `updatedAt`: `Date`
-        *  `createdAt`: `Date`
-    *  `res.readings` objects should NOT contain:
-        *  `html`: `string`
-        *  `words`: `any[]`
+    - `res` should have a:
+      - `status` = `200`
+      - `readings`: `any[]`
+    - `res.readings` should be an array of objects, shaped like:
+      - `_id`: `string`
+      - `title`: `string`
+      - `owner_id`: `string`
+      - `teacher_ids`: `string[]`
+      - `source`: `string`
+      - `updatedAt`: `Date`
+      - `createdAt`: `Date`
+    - `res.readings` objects should NOT contain:
+      - `html`: `string`
+      - `words`: `any[]`
 2.  Pass with invalid version id --> receive `400`
 3.  Pass with version id that doesn't exist --> receive `404`
 4.  Pass without `Authorization` header --> receive `401`

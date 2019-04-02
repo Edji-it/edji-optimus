@@ -12,29 +12,41 @@ interface UserIdentifier {
 
 // prep for http calls
 chai.use(chaiHttp)
-const requestSetToken = function (propertyName: string, authToken?: string, identifier?: UserIdentifier) {
+const requestSetToken = function(propertyName: string, authToken?: string, identifier?: UserIdentifier) {
   let url = `/api/v1/users/tokens/${propertyName}`
   identifier && (url += `?${identifier.name}=${encodeURIComponent(identifier.value)}`)
-  let req = chai.request(data.SERVER)
-    .get(url)
+  let req = chai.request(data.SERVER).get(url)
 
   authToken && req.set('Authorization', authToken)
 
   return req
 }
-const requestUseToken = function (unhashedToken: string, propertyName: string, propertyValue: string, authToken?: string, userId?: string) {
+const requestUseToken = function(
+  unhashedToken: string,
+  propertyName: string,
+  propertyValue: string,
+  authToken?: string,
+  userId?: string,
+) {
   let url = `/api/v1/users/tokens/${propertyName}/${unhashedToken}`
   userId && (url += `?user_id=${userId}`)
-  let req = chai.request(data.SERVER)
+  let req = chai
+    .request(data.SERVER)
     .post(url)
     .send({ [propertyName]: propertyValue })
 
-  authToken && (req.set('Authorization', authToken))
+  authToken && req.set('Authorization', authToken)
 
   return req
 }
 
-const validateUseToken = async function (userId: string, propertyName: string, propertyValue: string, authToken: string, identifier?: UserIdentifier) {
+const validateUseToken = async function(
+  userId: string,
+  propertyName: string,
+  propertyValue: string,
+  authToken: string,
+  identifier?: UserIdentifier,
+) {
   let setTokenRes = await requestSetToken(propertyName, authToken, identifier)
   // more explanation on the set-token route logic - we're passed an encrypted version of the token so that we can decrypt it
   //  and make sure we're e2e testing this route w/o using the email sent to the SES inbox
@@ -52,20 +64,23 @@ describe('POST api/v1/users/tokens/:reset_property/:unhashed_token', () => {
   // data used in tests
   let testToken: string
   let testUser: any
-  let credentials: { username: string, password: string }
+  let credentials: { username: string; password: string }
   before(async () => {
-    let obj = await UserAPI.create({ email: `success+reset${Date.now()}@simulator.amazonses.com` }, { returnCreds: true })
+    let obj = await UserAPI.create(
+      { email: `success+reset${Date.now()}@simulator.amazonses.com` },
+      { returnCreds: true },
+    )
     testUser = obj.user
     testToken = obj.token
     credentials = obj.credentials
   })
-  it('should reset password when given a user\'s email', async () => {
+  it("should reset password when given a user's email", async () => {
     let newPass: string = Date.now().toString()
     await validateUseToken(testUser._id, 'password', newPass, testToken, { name: 'email', value: testUser.email })
     let loginRes = await UserAPI.login(testUser.username, newPass, { returnRoot: true })
     loginRes.should.have.status(200)
   })
-  it('should reset password when given a user\'s username', async () => {
+  it("should reset password when given a user's username", async () => {
     let newPass: string = Date.now().toString()
     await validateUseToken(testUser._id, 'password', newPass, undefined, { name: 'username', value: testUser.username })
     let loginRes = await UserAPI.login(testUser.username, newPass, { returnRoot: true })

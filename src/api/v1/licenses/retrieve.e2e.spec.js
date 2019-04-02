@@ -1,7 +1,7 @@
 // library import
-const chai = require("chai")
+const chai = require('chai')
 const should = chai.should()
-chai.use(require("chai-http"))
+chai.use(require('chai-http'))
 
 // project imports
 const TEST = require('../../../test/constants')
@@ -11,9 +11,10 @@ const ENDPOINT_URL = '/api/v1/licenses/'
 
 describe('GET /api/v1/licenses/', () => {
   // should get a 200 response from the server which means we got all licenses for that user
-  it('should GET all licenses for the test user', function (done) {
+  it('should GET all licenses for the test user', function(done) {
     this.timeout(6000)
-    chai.request(TEST.SERVER)
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL)
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
@@ -24,7 +25,7 @@ describe('GET /api/v1/licenses/', () => {
         licenses.should.be.instanceOf(Array)
         licenses.length.should.be.above(0)
 
-        let heroLicense = licenses.find((license) => {
+        let heroLicense = licenses.find(license => {
           return license.license_type === 'hero'
         })
         should.exist(heroLicense)
@@ -59,8 +60,9 @@ describe('GET /api/v1/licenses/', () => {
   })
 
   // student should not be attributed to any institutions
-  it('should get an error when attempting to GET all licenses for the test user', (done) => {
-    chai.request(TEST.SERVER)
+  it('should get an error when attempting to GET all licenses for the test user', done => {
+    chai
+      .request(TEST.SERVER)
       .get(ENDPOINT_URL + '')
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {

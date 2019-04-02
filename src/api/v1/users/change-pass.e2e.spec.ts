@@ -10,8 +10,9 @@ import data = require('../../../test/constants')
 
 chai.use(chaiHttp)
 
-const request = function (body: any, authToken?: string): Request {
-  let req = chai.request(data.SERVER)
+const request = function(body: any, authToken?: string): Request {
+  let req = chai
+    .request(data.SERVER)
     .post(`/api/v1/users/@me/change_password`)
     .send(body)
 
@@ -21,7 +22,7 @@ const request = function (body: any, authToken?: string): Request {
 
 let createdUser: any
 let createdUserToken: string
-let createdUserCreds: { username: string, password: string }
+let createdUserCreds: { username: string; password: string }
 
 describe('POST /api/v1/users/@me/change_password', () => {
   before(async () => {
@@ -53,7 +54,10 @@ describe('POST /api/v1/users/@me/change_password', () => {
     expect(res).to.have.status(401)
   })
   it('should return a 403 if the old passwords do not match', async () => {
-    const res = await request({ old_password: 'this should not pass as the password', new_password: 'crazy new pass' }, createdUserToken)
+    const res = await request(
+      { old_password: 'this should not pass as the password', new_password: 'crazy new pass' },
+      createdUserToken,
+    )
     expect(res).to.have.status(403)
   })
 })
