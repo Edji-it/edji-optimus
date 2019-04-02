@@ -146,46 +146,22 @@ router.put('/convert/:temp_id', authRequired, require('./../api/v1/temp_users/co
  */
 router.post('/login', require('./../api/v1/users/login').default)
 
-router.post('/reset_password', function (req, res, next) {
-    var user = req.user
-    var oldPassword = req.body.resetObject.oldPassword
-    var newPassword = req.body.resetObject.newPassword
+/**
+ * @deprecated 3/27/19
+ */
+router.post(
+    '/reset_password',
+    (req, res, next) => {
+        const { oldPassword, newPassword } = req.body && req.body.resetObject && req.body.resetObject
 
-    if (!oldPassword || !newPassword) {
-        return res.status(400).send({ error: 'oldPassword and newPassword required to reset password' })
-    }
-
-    if (!user.password) {
-        let error = {
-            message: 'no password for user',
-            code: 'err_no_password'
+        req.body = {
+            old_password: oldPassword,
+            new_password: newPassword
         }
-        if (user.type === 'temp') error.message += '; user is a temp'
-        return res.status(400).send(error)
-    }
-
-    bcrypt.compare(oldPassword, user.password, function (err, result) {
-        if (err) {
-            return next(err)
-        }
-        if (!result) {
-            res.status(400).send()
-            return
-        }
-
-        User.findById(user._id)
-            .then((userRes) => {
-                userRes.password = newPassword
-                return userRes.edjiSave()
-            })
-            .then((user) => {
-                return res.status(200).send(generateLoginObjectForUser(user))
-            })
-            .catch((err) => {
-                next(err)
-            })
-    })
-})
+        next()
+    },
+    require('./../api/v1/users/change-pass').default
+)
 
 // finds the asset of the specified type on the user object
 //  if it doesn't find anything, it will return undefined
