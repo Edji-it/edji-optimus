@@ -3,7 +3,7 @@
 export function cleanMongoValidationError(error: any): { [key: string]: string } {
   let errors = {}
   for (let property in error.errors) {
-    if (error.errors[property].kind === "user defined") {
+    if (error.errors[property].kind === 'user defined') {
       errors[property] = error.errors[property].properties.kind
     } else {
       errors[property] = error.errors[property].kind

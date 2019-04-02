@@ -5,21 +5,26 @@ const joi = require('joi')
  * Validates query parameters against a query and returns with an object that either does or does not have an `error` property
  * @param {any} requestQuery The req.query passed to the route handler by express
  */
-const validateQuery = function (requestQuery) {
+const validateQuery = function(requestQuery) {
   // the values allowable in the query string
-  const popValues = joi.string().valid([
-    'projects'
-  ])
+  const popValues = joi.string().valid(['projects'])
 
   // define the query schema with joi
   const querySchema = joi.object({
-    pop: joi.alternatives().try(
-      joi.array().items(popValues),
-      popValues
-    )
+    pop: joi
+      .alternatives()
+      .try(joi.array().items(popValues), popValues)
       .default([]),
-    start: joi.number().min(0).max(1000).default(0),
-    size: joi.number().min(0).max(50).default(15)
+    start: joi
+      .number()
+      .min(0)
+      .max(1000)
+      .default(0),
+    size: joi
+      .number()
+      .min(0)
+      .max(50)
+      .default(15),
   })
 
   // run validation with joi
@@ -27,85 +32,82 @@ const validateQuery = function (requestQuery) {
 }
 
 const responseShape = {
-  "projects": {
-    "$map": {
-      "input": "$projects",
-      "in": {
-        "_id": "$$this._id",
-        "reading_id": "$$this.reading_id",
-        "teacher_id": "$$this.teacher_id",
-        "label": "$$this.label",
-        "code": "$$this.code",
-        "types": "$$this.types",
-        "createdAt": "$$this.createdAt",
-        "updatedAt": "$$this.updatedAt",
-        "students_ids": "$$this.students_ids",
-        "comment_count": {
-          "$size": "$$this.comments"
+  projects: {
+    $map: {
+      input: '$projects',
+      in: {
+        _id: '$$this._id',
+        reading_id: '$$this.reading_id',
+        teacher_id: '$$this.teacher_id',
+        label: '$$this.label',
+        code: '$$this.code',
+        types: '$$this.types',
+        createdAt: '$$this.createdAt',
+        updatedAt: '$$this.updatedAt',
+        students_ids: '$$this.students_ids',
+        comment_count: {
+          $size: '$$this.comments',
         },
-        "student_count": {
-          "$sum": [
-            { "$size": "$$this.students_ids" },
-            { "$size": "$$this.temp_ids" }
-          ]
-        }
-      }
-    }
-  }
+        student_count: {
+          $sum: [{ $size: '$$this.students_ids' }, { $size: '$$this.temp_ids' }],
+        },
+      },
+    },
+  },
 }
 
 /**
  * Gets all of the most recent version of a user's readings and is meant to be expandable by other aggregation pipelines
  * @param {string} userId The user id for which you are searching for readings
  */
-const baseAggregation = function (userId) {
+const baseAggregation = function(userId) {
   return [
     {
       $match: {
-        owner_id: userId
-      }
+        owner_id: userId,
+      },
     },
     {
       $project: {
-        version_count: { $size: "$readings" },
+        version_count: { $size: '$readings' },
         readings: 1,
-        createdAt: 1
-      }
+        createdAt: 1,
+      },
     },
-    { $unwind: "$readings" },
-    { $sort: { "createdAt": -1 } },
+    { $unwind: '$readings' },
+    { $sort: { createdAt: -1 } },
     {
       $lookup: {
-        from: "readings",
-        localField: "readings",
-        foreignField: "_id",
-        as: "reading"
-      }
+        from: 'readings',
+        localField: 'readings',
+        foreignField: '_id',
+        as: 'reading',
+      },
     },
-    { $unwind: "$reading" },
+    { $unwind: '$reading' },
     {
       $project: {
-        _id: "$reading._id",
-        title: "$reading.title",
-        owner_id: "$reading.owner_id",
-        "public": "$reading.public",
-        source: "$reading.source",
-        subjects: "$reading.subjects",
-        grade_levels: "$reading.grade_levels",
-        cover_img: "$reading.cover_img",
-        draft: "$reading.draft",
-        version_id: "$reading.version_id",
-        createdAt: "$reading.createdAt",
-        updatedAt: "$reading.updatedAt",
+        _id: '$reading._id',
+        title: '$reading.title',
+        owner_id: '$reading.owner_id',
+        public: '$reading.public',
+        source: '$reading.source',
+        subjects: '$reading.subjects',
+        grade_levels: '$reading.grade_levels',
+        cover_img: '$reading.cover_img',
+        draft: '$reading.draft',
+        version_id: '$reading.version_id',
+        createdAt: '$reading.createdAt',
+        updatedAt: '$reading.updatedAt',
         version_count: 1,
-        owner_bookmarked: "$reading.owner_bookmarked"
-      }
+        owner_bookmarked: '$reading.owner_bookmarked',
+      },
     },
     {
       $match: {
-        draft: { $ne: true }
-      }
-    }
+        draft: { $ne: true },
+      },
+    },
   ]
 }
 
@@ -113,7 +115,7 @@ const baseAggregation = function (userId) {
  * Adds a lookup for readings to the base aggregation
  * @param {string} userId The user's id
  */
-const populateProjectAggregation = function (userId) {
+const populateProjectAggregation = function(userId) {
   let aggregation = baseAggregation(userId)
   aggregation.push(
     {
@@ -121,12 +123,12 @@ const populateProjectAggregation = function (userId) {
         from: 'projects',
         localField: '_id',
         foreignField: 'reading_id',
-        as: 'projects'
-      }
+        as: 'projects',
+      },
     },
     {
-      $addFields: responseShape
-    }
+      $addFields: responseShape,
+    },
   )
   return aggregation
 }
@@ -137,22 +139,22 @@ const populateProjectAggregation = function (userId) {
  * @param {number} skip The index of results at which the results should begin returning
  * @param {number} limit The maximum number of readings to return
  */
-const paginate = function (pipeline, skip, limit) {
+const paginate = function(pipeline, skip, limit) {
   return pipeline.concat([
     { $sort: { createdAt: -1 } },
     {
       $group: {
         _id: null,
         total: { $sum: 1 },
-        readings: { $push: "$$ROOT" }
-      }
+        readings: { $push: '$$ROOT' },
+      },
     },
     {
       $project: {
         total: true,
-        readings: { $slice: ["$readings", skip, limit] }
-      }
-    }
+        readings: { $slice: ['$readings', skip, limit] },
+      },
+    },
   ])
 }
 
@@ -160,5 +162,5 @@ module.exports = {
   validateQuery: validateQuery,
   baseAggregation: baseAggregation,
   populateProjectAggregation: populateProjectAggregation,
-  paginate: paginate
+  paginate: paginate,
 }

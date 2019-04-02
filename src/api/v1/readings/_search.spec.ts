@@ -11,15 +11,7 @@ import elastic from '../../../services/elasticsearch'
 import * as Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
-  const queriableStringProperties = [
-    'html',
-    'title',
-    'parent_id',
-    'owner_id',
-    'source',
-    'version_id',
-    'subjects'
-  ]
+  const queriableStringProperties = ['html', 'title', 'parent_id', 'owner_id', 'source', 'version_id', 'subjects']
   const queriableBooleanProperties = [
     'owner_bookmarked',
     // 'public'
@@ -33,7 +25,7 @@ describe('reading search helpers', () => {
       expect(query).to.have.property('size')
       expect(query.size).to.be.equal(15)
     })
-    queriableStringProperties.forEach((prop) => {
+    queriableStringProperties.forEach(prop => {
       it(`should allow a query for ${prop}`, () => {
         const requestQuery = { [prop]: 'someString' }
         const { error, value: query } = validateSearchQuery(requestQuery)
@@ -42,7 +34,7 @@ describe('reading search helpers', () => {
         expect(query[prop]).to.be.equal(requestQuery[prop])
       })
     })
-    queriableBooleanProperties.forEach((prop) => {
+    queriableBooleanProperties.forEach(prop => {
       it(`should allow a query for ${prop}`, () => {
         // assign it as a string here and test it against a boolean later to ensure it converts properly
         const requestQuery = { [prop]: 'false' }
@@ -92,32 +84,32 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true
-                }
-              }
+                  public: true,
+                },
+              },
             ],
             must_not: [
               {
                 match: {
-                  draft: true
-                }
+                  draft: true,
+                },
               },
               {
                 exists: {
-                  field: 'parent_id'
-                }
-              }
+                  field: 'parent_id',
+                },
+              },
             ],
             must: [
               {
                 bool: {
                   must: [],
-                  should: []
-                }
-              }
-            ]
-          }
-        }
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
       })
     })
     for (let i = 0; i < queriableStringProperties.length; i++) {
@@ -132,37 +124,37 @@ describe('reading search helpers', () => {
               filter: [
                 {
                   match: {
-                    public: true
-                  }
-                }
+                    public: true,
+                  },
+                },
               ],
               must_not: [
                 {
                   match: {
-                    draft: true
-                  }
+                    draft: true,
+                  },
                 },
                 {
                   exists: {
-                    field: 'parent_id'
-                  }
-                }
+                    field: 'parent_id',
+                  },
+                },
               ],
               must: [
                 {
                   bool: {
                     must: [],
-                    should: []
-                  }
+                    should: [],
+                  },
                 },
                 {
                   match: {
-                    [field]: testValue
-                  }
-                }
-              ]
-            }
-          }
+                    [field]: testValue,
+                  },
+                },
+              ],
+            },
+          },
         })
       })
     }
@@ -178,37 +170,37 @@ describe('reading search helpers', () => {
               filter: [
                 {
                   match: {
-                    public: true
-                  }
+                    public: true,
+                  },
                 },
                 {
                   match: {
-                    [field]: testValue
-                  }
-                }
+                    [field]: testValue,
+                  },
+                },
               ],
               must_not: [
                 {
                   match: {
-                    draft: true
-                  }
+                    draft: true,
+                  },
                 },
                 {
                   exists: {
-                    field: 'parent_id'
-                  }
-                }
+                    field: 'parent_id',
+                  },
+                },
               ],
               must: [
                 {
                   bool: {
                     must: [],
-                    should: []
-                  }
-                }
-              ]
-            }
-          }
+                    should: [],
+                  },
+                },
+              ],
+            },
+          },
         })
       })
     }
@@ -221,37 +213,37 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true
-                }
-              }
+                  public: true,
+                },
+              },
             ],
             must_not: [
               {
                 match: {
-                  draft: true
-                }
+                  draft: true,
+                },
               },
               {
                 exists: {
-                  field: 'parent_id'
-                }
-              }
+                  field: 'parent_id',
+                },
+              },
             ],
             must: [
               {
                 bool: {
                   must: [],
-                  should: []
-                }
+                  should: [],
+                },
               },
               {
                 match: {
-                  subjects: 'reading math science'
-                }
-              }
-            ]
-          }
-        }
+                  subjects: 'reading math science',
+                },
+              },
+            ],
+          },
+        },
       })
     })
     it('should construct a query for grade_levels', async () => {
@@ -264,40 +256,40 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true
-                }
+                  public: true,
+                },
               },
               {
                 range: {
                   grade_levels: {
                     lte: query.grade_levels_lte,
-                    gte: query.grade_levels_gte
-                  }
-                }
-              }
+                    gte: query.grade_levels_gte,
+                  },
+                },
+              },
             ],
             must_not: [
               {
                 match: {
-                  draft: true
-                }
+                  draft: true,
+                },
               },
               {
                 exists: {
-                  field: 'parent_id'
-                }
-              }
+                  field: 'parent_id',
+                },
+              },
             ],
             must: [
               {
                 bool: {
                   must: [],
-                  should: []
-                }
-              }
-            ]
-          }
-        }
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
       })
     })
     it('should filter if the grade levels lte and gte are equal', async () => {
@@ -309,37 +301,37 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true
-                }
+                  public: true,
+                },
               },
               {
                 match: {
-                  grade_levels: query.grade_levels_gte
-                }
-              }
+                  grade_levels: query.grade_levels_gte,
+                },
+              },
             ],
             must_not: [
               {
                 match: {
-                  draft: true
-                }
+                  draft: true,
+                },
               },
               {
                 exists: {
-                  field: 'parent_id'
-                }
-              }
+                  field: 'parent_id',
+                },
+              },
             ],
             must: [
               {
                 bool: {
                   must: [],
-                  should: []
-                }
-              }
-            ]
-          }
-        }
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
       })
     })
     it('should sort by a field', async () => {
@@ -351,37 +343,37 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true
-                }
-              }
+                  public: true,
+                },
+              },
             ],
             must_not: [
               {
                 match: {
-                  draft: true
-                }
+                  draft: true,
+                },
               },
               {
                 exists: {
-                  field: 'parent_id'
-                }
-              }
+                  field: 'parent_id',
+                },
+              },
             ],
             must: [
               {
                 bool: {
                   must: [],
-                  should: []
-                }
-              }
-            ]
-          }
+                  should: [],
+                },
+              },
+            ],
+          },
         },
         sort: [
           {
-            createdAt: 'asc'
-          }
-        ]
+            createdAt: 'asc',
+          },
+        ],
       })
     })
     it('should change the sort order', async () => {
@@ -393,37 +385,37 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true
-                }
-              }
+                  public: true,
+                },
+              },
             ],
             must_not: [
               {
                 match: {
-                  draft: true
-                }
+                  draft: true,
+                },
               },
               {
                 exists: {
-                  field: 'parent_id'
-                }
-              }
+                  field: 'parent_id',
+                },
+              },
             ],
             must: [
               {
                 bool: {
                   must: [],
-                  should: []
-                }
-              }
-            ]
-          }
+                  should: [],
+                },
+              },
+            ],
+          },
         },
         sort: [
           {
-            createdAt: 'desc'
-          }
-        ]
+            createdAt: 'desc',
+          },
+        ],
       })
     })
   })
@@ -442,7 +434,7 @@ describe('reading search helpers', () => {
       const readingReturn = [
         { _id: new ObjectId(ids[1]) },
         { _id: new ObjectId(ids[2]) },
-        { _id: new ObjectId(ids[0]) }
+        { _id: new ObjectId(ids[0]) },
       ]
       // set up the return for the mock
       ReadingMock.expects('aggregate')

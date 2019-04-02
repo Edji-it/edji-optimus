@@ -1,6 +1,6 @@
 // library import
-const chai = require("chai")
-chai.use(require("chai-http"))
+const chai = require('chai')
+chai.use(require('chai-http'))
 
 // project imports
 const TEST = require('../../../test/constants')
@@ -19,8 +19,9 @@ describe('POST /api/v1/readings/', () => {
   let reading_name = 'fakeReading'
 
   // should attempt to send report while leaving email out and return back a 400
-  it('should get an error when making post call and leaving email off', (done) => {
-    chai.request(TEST.SERVER)
+  it('should get an error when making post call and leaving email off', done => {
+    chai
+      .request(TEST.SERVER)
       .post(ENDPOINT_URL + 'reports')
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .send({
@@ -30,7 +31,7 @@ describe('POST /api/v1/readings/', () => {
         person_receiving: person_receiving,
         pdfName: pdfName,
         pdf: pdf,
-        reading_name: reading_name
+        reading_name: reading_name,
       })
       .end((err, res) => {
         res.should.not.have.status(200)
@@ -40,8 +41,9 @@ describe('POST /api/v1/readings/', () => {
   })
 
   // should attempt to send report while leaving pdf out and return back a 400
-  it('should get an error when making post call and leaving pdf off', (done) => {
-    chai.request(TEST.SERVER)
+  it('should get an error when making post call and leaving pdf off', done => {
+    chai
+      .request(TEST.SERVER)
       .post(ENDPOINT_URL + 'reports')
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .send({
@@ -51,7 +53,7 @@ describe('POST /api/v1/readings/', () => {
         person_sharing_email: person_sharing_email,
         person_receiving: person_receiving,
         pdfName: pdfName,
-        reading_name: reading_name
+        reading_name: reading_name,
       })
       .end((err, res) => {
         res.should.not.have.status(200)
@@ -61,8 +63,9 @@ describe('POST /api/v1/readings/', () => {
   })
 
   // should attempt to send report while leaving name out and return back a 400
-  it('should get an error when making post call and leaving name off', (done) => {
-    chai.request(TEST.SERVER)
+  it('should get an error when making post call and leaving name off', done => {
+    chai
+      .request(TEST.SERVER)
       .post(ENDPOINT_URL + 'reports')
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .send({
@@ -72,7 +75,7 @@ describe('POST /api/v1/readings/', () => {
         person_sharing_email: person_sharing_email,
         pdfName: pdfName,
         pdf: pdf,
-        reading_name: reading_name
+        reading_name: reading_name,
       })
       .end((err, res) => {
         res.should.not.have.status(200)

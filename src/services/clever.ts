@@ -14,9 +14,9 @@ export default class Clever {
     this._rpOptions = {
       url: cleverUrl,
       auth: {
-        bearer: _token
+        bearer: _token,
       },
-      json: true
+      json: true,
     }
   }
   get type() {
@@ -29,7 +29,7 @@ export default class Clever {
   async init(): Promise<void> {
     const { data: meData } = await get({
       ...this._rpOptions,
-      url: [cleverUrl, 'me'].join('/')
+      url: [cleverUrl, 'me'].join('/'),
     })
     this._type = meData.type
     this._userId = meData.id
@@ -38,7 +38,7 @@ export default class Clever {
   async getUser(): Promise<CleverTeacher> {
     const { data } = await get({
       ...this._rpOptions,
-      url: [cleverUrl, `${this._type}s`, this._userId].join('/')
+      url: [cleverUrl, `${this._type}s`, this._userId].join('/'),
     })
     this._user = data
     return this._user
@@ -47,7 +47,7 @@ export default class Clever {
   async getDistrict(): Promise<CleverDistrictInfo> {
     const { data } = await get({
       ...this._rpOptions,
-      url: [cleverUrl, `${this._type}s`, this._userId, 'district'].join('/')
+      url: [cleverUrl, `${this._type}s`, this._userId, 'district'].join('/'),
     })
     this._district = data
     return this._district
@@ -56,7 +56,7 @@ export default class Clever {
   async getSections(): Promise<CleverSections> {
     const { data } = await get({
       ...this._rpOptions,
-      url: [cleverUrl, `${this._type}s`, this._userId, 'sections'].join('/')
+      url: [cleverUrl, `${this._type}s`, this._userId, 'sections'].join('/'),
     })
     this._sections = data
     return this._sections
@@ -72,12 +72,12 @@ export default class Clever {
       type: 'clever',
       id: id,
       singleUseToken: singleUseToken,
-      singleUseTokenExpiration: Date.now() + (1000 * 60) // set token expiration to 1 minute
+      singleUseTokenExpiration: Date.now() + 1000 * 60, // set token expiration to 1 minute
     }
     const edjiUser: EdjiUserFromCleverUser = {
       fullname: name.first + ' ' + name.last,
       oauth: [cleverObj],
-      identities: []
+      identities: [],
     }
     if (email) {
       edjiUser.email = email
@@ -109,7 +109,7 @@ interface CleverMe {
 interface CleverTeacher {
   id: string
   email: string
-  name: { first: string, last: string }
+  name: { first: string; last: string }
   sections: string[]
 }
 
@@ -127,7 +127,7 @@ interface CleverSections {
     subject: string
     teacher: string
     teachers: string[]
-  },
+  }
 }
 interface EdjiUserFromCleverUser {
   fullname: string
@@ -154,5 +154,5 @@ export enum CleverType {
   teacher = 'teacher',
   student = 'student',
   school_admin = 'school_admin',
-  district_admin = 'district_admin'
+  district_admin = 'district_admin',
 }

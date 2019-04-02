@@ -11,11 +11,11 @@ import { sendUserDetails } from './../../../services/bumblebee'
 const creds = {
   client: {
     id: process.env.OAUTH2_CLEVER_CLIENT_ID,
-    secret: process.env.OAUTH2_CLEVER_CLIENT_SECRET
+    secret: process.env.OAUTH2_CLEVER_CLIENT_SECRET,
   },
   auth: {
-    tokenHost: 'https://clever.com'
-  }
+    tokenHost: 'https://clever.com',
+  },
 }
 
 const oauth2 = create(creds)
@@ -40,7 +40,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
   // Get the access token object (the authorization code is given from the previous step).
   const tokenConfig = {
     code: req.query.code,
-    redirect_uri
+    redirect_uri,
   }
   try {
     const { access_token } = await oauth2.authorizationCode.getToken(tokenConfig)
@@ -52,18 +52,18 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     let user = await User.findOneAndUpdate(
       {
         'oauth.id': client.userId,
-        'oauth.type': 'clever'
+        'oauth.type': 'clever',
       },
       {
         $set: {
           'oauth.$.singleUseToken': profile.oauth[0].singleUseToken,
-          'oauth.$.singleUseTokenExpiration': profile.oauth[0].singleUseTokenExpiration
-        }
+          'oauth.$.singleUseTokenExpiration': profile.oauth[0].singleUseTokenExpiration,
+        },
       },
       {
         new: true,
-        runValidators: true
-      }
+        runValidators: true,
+      },
     )
     const encodedToken: string = encodeURIComponent(profile.oauth[0].singleUseToken)
     if (!user) {
@@ -82,19 +82,20 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
             { email: user.email },
             {
               $set: {
-                pending_oauth: user.oauth[0]
-              }
-            }
+                pending_oauth: user.oauth[0],
+              },
+            },
           )
         } else {
           throw err
         }
-        return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`)
+        return res.redirect(
+          `${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?error=duplicate_user&token=${encodedToken}`,
+        )
       }
       sendUserDetails(user)
     }
     return res.redirect(`${req.protocol}:${process.env.CLIENT_URL}/#/oauth/clever?token=${encodedToken}`)
-
   } catch (err) {
     process.env.NODE_ENV !== 'production' && console.error(err)
     captureException(err)

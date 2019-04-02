@@ -1,6 +1,6 @@
 const helpers = require('./../_stripe')
 
-module.exports = async function (req, res, next) {
+module.exports = async function(req, res, next) {
   let customer_id = req.user.stripe_customer_id
 
   if (!customer_id) {

@@ -8,16 +8,15 @@ import { UserAPI } from '../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (type: string, { token, pop }: { token?: string, pop?: string } = {}): Request {
+const request = function(type: string, { token, pop }: { token?: string; pop?: string } = {}): Request {
   let url = `/api/v1/readings/${type}?`
   pop && (url += `pop=${pop}`)
-  let req = chai.request(data.SERVER)
-    .get(url)
+  let req = chai.request(data.SERVER).get(url)
 
   token && req.set('Authorization', token)
   return req
 }
-const loginUser = function ({ username, password }) {
+const loginUser = function({ username, password }) {
   return UserAPI.login(username, password)
 }
 
@@ -39,7 +38,7 @@ describe('GET /readings/:temp_type', () => {
     res.body.should.have.property('readings')
     res.body.readings.should.be.instanceOf(Array)
     res.body.readings.length.should.be.above(1)
-    res.body.readings.forEach((reading) => {
+    res.body.readings.forEach(reading => {
       reading.should.have.property('_id')
       reading.owner_id.should.be.equal(user._id.toString())
       reading.should.have.property('owner_id')
@@ -63,7 +62,7 @@ describe('GET /readings/:temp_type', () => {
     res.body.should.have.property('readings')
     res.body.readings.should.be.instanceOf(Array)
     res.body.readings.length.should.be.above(1)
-    res.body.readings.forEach((reading) => {
+    res.body.readings.forEach(reading => {
       reading.should.have.property('_id')
       reading.owner_id.should.be.equal(user._id.toString())
       reading.should.have.property('owner_id')
@@ -88,10 +87,10 @@ describe('GET /readings/:temp_type', () => {
     res.body.readings.length.should.be.above(1)
 
     let hasPopulatedProject: boolean = false
-    res.body.readings.forEach((reading) => {
+    res.body.readings.forEach(reading => {
       reading.should.have.property('projects')
       reading.projects.should.be.instanceOf(Array)
-      reading.projects.forEach((project) => {
+      reading.projects.forEach(project => {
         hasPopulatedProject = true
         project.should.have.property('_id')
         project.should.have.property('reading_id')

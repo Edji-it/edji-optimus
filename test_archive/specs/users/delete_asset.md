@@ -21,12 +21,12 @@ The type is the type of object you're looking to delete. Allowed values are:
 ## Test Cases
 
 1.  Pass with valid type and object id that exists on the user
-    *  `res` should have a:
-        *  `status` = `200`
-        *  `file_locations`: `string[]` with a length greater than 0
+    - `res` should have a:
+      - `status` = `200`
+      - `file_locations`: `string[]` with a length greater than 0
 2.  Pass with valid type and object id which does not exist on the user object
-    *  `res` should have a:
-        *  `status` = `404`
+    - `res` should have a:
+      - `status` = `404`
 3.  Pass with invalid type => receive `400`
 4.  Pass with invalid id => receive `400`
 5.  Pass with invalid authorization toke => receive `401`

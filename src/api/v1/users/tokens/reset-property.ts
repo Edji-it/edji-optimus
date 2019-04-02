@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 
-// all of the error handling 
+// all of the error handling
 export async function ResetPropertyHandler(req: Request, res: Response, next: NextFunction) {
   let reset_property: string = req.params.reset_property
   let resetValue: string = req.body[reset_property]

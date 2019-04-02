@@ -19,6 +19,13 @@ router.post('/', addRouteName('/'), authRequired, CreateReadingHandler)
 router.get('/_search', addRouteName('/_search'), authRequired, SearchReadingsController)
 router.post('/reports', addRouteName('/reports'), authRequired, SendReportHandler)
 router.get('/:temp_type', addRouteName('/:temp_type'), authRequired, TempTypeHandler)
-router.delete('/:reading_id', authRequired, validateIdParameters('reading_id'), deleteOwnerReading(), deleteReadingRelatedContent(), sendResponse())
+router.delete(
+  '/:reading_id',
+  authRequired,
+  validateIdParameters('reading_id'),
+  deleteOwnerReading(),
+  deleteReadingRelatedContent(),
+  sendResponse(),
+)
 
 export default router

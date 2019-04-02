@@ -39,7 +39,7 @@ comment: {
 ## Test Cases
 
 1.  Pass with good id's and 'good' values for all accepted values (outlined above) --> return `200` with updated comment
-    *  For each property in the update, the returned comment should have an equal property
+    - For each property in the update, the returned comment should have an equal property
 2.  Pass without `comment` in body --> receive `400`
 3.  Pass with project_id which is not an id --> receive `400`
 4.  Pass with comment_id which is not an id --> receive `400`

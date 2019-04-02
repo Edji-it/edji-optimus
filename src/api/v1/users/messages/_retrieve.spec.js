@@ -20,12 +20,13 @@ describe('_retrieve messages', () => {
       messageStub.restore()
     })
 
-    it('should save a MessageList with forceSave', (done) => {
+    it('should save a MessageList with forceSave', done => {
       let list = { _id: mongoose.Types.ObjectId() }
       messageStub.resolves(list)
 
-      helpers.createMessageList(list)
-        .then((result) => {
+      helpers
+        .createMessageList(list)
+        .then(result => {
           result.should.have.property('_id')
           result._id.should.be.equal(list._id)
 
@@ -37,13 +38,14 @@ describe('_retrieve messages', () => {
 
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           err && done(err)
         })
     })
 
-    it('should return error if no object passed in', (done) => {
-      helpers.createMessageList()
+    it('should return error if no object passed in', done => {
+      helpers
+        .createMessageList()
         .then(() => {
           sinon.assert.notCalled(messageStub)
           return done(new Error('should not have resolved'))
@@ -59,12 +61,12 @@ describe('_retrieve messages', () => {
     let userStub
     let user
     let list = {
-      _id: mongoose.Types.ObjectId()
+      _id: mongoose.Types.ObjectId(),
     }
     beforeEach(() => {
       user = {
         _id: mongoose.Types.ObjectId(),
-        edjiSave: () => { } // need a function to stub out
+        edjiSave: () => {}, // need a function to stub out
       }
       userStub = sinon.stub(user, 'edjiSave')
     })
@@ -72,12 +74,12 @@ describe('_retrieve messages', () => {
       userStub.restore()
     })
 
-    it('should update a user', (done) => {
-
+    it('should update a user', done => {
       userStub.resolves(user) // set stub to return user
 
-      helpers.addListToUser(list, user)
-        .then((result) => {
+      helpers
+        .addListToUser(list, user)
+        .then(result => {
           sinon.assert.calledOnce(userStub)
           result.should.have.property('message_list_id')
           result.message_list_id.should.be.equal(list._id)
@@ -85,27 +87,29 @@ describe('_retrieve messages', () => {
 
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
 
-    it('should throw an error if called without a list', (done) => {
-      helpers.addListToUser({}, user)
+    it('should throw an error if called without a list', done => {
+      helpers
+        .addListToUser({}, user)
         .then(() => {
           done(new Error('should not have resolved'))
         })
-        .catch((err) => {
+        .catch(err => {
           done()
         })
     })
 
-    it('should throw an error if called without a user', (done) => {
-      helpers.addListToUser(list, {})
+    it('should throw an error if called without a user', done => {
+      helpers
+        .addListToUser(list, {})
         .then(() => {
           done(new Error('should not have resolved'))
         })
-        .catch((err) => {
+        .catch(err => {
           done()
         })
     })

@@ -5,7 +5,7 @@ const joi = require('joi')
  * Validates query parameters against a query and returns with an object that either does or does not have an `error` property
  * @param {Object} reqBody The req.query passed to the route handler by express
  */
-const validateBody = function (reqBody) {
+const validateBody = function(reqBody) {
   if (reqBody.token == '') {
     delete reqBody.token
   }
@@ -18,12 +18,12 @@ const validateBody = function (reqBody) {
     person_receiving: joi.string(),
     attachment_name: joi.string(),
     pdf: joi.string(),
-    reading_name: joi.string()
+    reading_name: joi.string(),
   })
 
   return joi.validate(reqBody, bodySchema)
 }
 
 module.exports = {
-  validateBody: validateBody
+  validateBody: validateBody,
 }

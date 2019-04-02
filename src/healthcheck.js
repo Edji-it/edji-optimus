@@ -5,7 +5,7 @@ const router = require('express').Router()
 router.get('/healthcheck', (req, res) => {
   res.status(200).send({
     server_name: 'optimus-' + process.env.NODE_ENV,
-    uptime: process.uptime()
+    uptime: process.uptime(),
   })
 })
 

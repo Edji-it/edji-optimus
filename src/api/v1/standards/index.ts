@@ -3,7 +3,7 @@ import { Router } from 'express'
 // project imports
 import * as authRequired from './../../../middleware/auth-required'
 import { AddStandard } from './create'
-import { GetStandards } from './list';
+import { GetStandards } from './list'
 import { addRouteName } from '../../../utils/edji-utils'
 
 const router: Router = Router()

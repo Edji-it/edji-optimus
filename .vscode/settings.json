@@ -1,6 +1,6 @@
 // Place your settings in this file to overwrite the default settings
 {
-    "editor.tabSize": 2,
-    "window.zoomLevel": 0,
-    "workbench.iconTheme": "vscode-icon-theme"
+  "editor.tabSize": 2,
+  "window.zoomLevel": 0,
+  "workbench.iconTheme": "vscode-icon-theme"
 }

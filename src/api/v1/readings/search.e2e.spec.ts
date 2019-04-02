@@ -8,9 +8,8 @@ import { UserAPI } from './../../../test/methods'
 // prep for http calls
 chai.use(chaiHttp)
 
-const searchRequest = function (queries: string[], authToken?: string) {
-  let req = chai.request(data.SERVER)
-    .get(`/api/v1/readings/_search?${queries.join('&')}`)
+const searchRequest = function(queries: string[], authToken?: string) {
+  let req = chai.request(data.SERVER).get(`/api/v1/readings/_search?${queries.join('&')}`)
 
   authToken && req.set('Authorization', authToken)
   return req
@@ -62,7 +61,7 @@ describe('GET /api/v1/readings/_search', () => {
   it('should sort results by a sort field', async () => {
     const res = await searchRequest([`sort=createdAt`], token)
     expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
-    let allDates: string[] = res.body.results.map(({createdAt}) => createdAt )
+    let allDates: string[] = res.body.results.map(({ createdAt }) => createdAt)
     let allDatesSorted = allDates.slice().sort((a, b) => {
       return new Date(a).getTime() > new Date(b).getTime() ? 1 : -1
     })
@@ -71,7 +70,7 @@ describe('GET /api/v1/readings/_search', () => {
   it('should change sort order', async () => {
     const res = await searchRequest([`sort=createdAt`, `sort_order=desc`], token)
     expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
-    let allDates: string[] = res.body.results.map(({createdAt}) => createdAt )
+    let allDates: string[] = res.body.results.map(({ createdAt }) => createdAt)
     let allDatesSorted = allDates.slice().sort((a, b) => {
       return new Date(a).getTime() > new Date(b).getTime() ? -1 : 1
     })

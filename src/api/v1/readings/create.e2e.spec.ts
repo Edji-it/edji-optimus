@@ -8,8 +8,9 @@ import { UserAPI, ReadingAPI } from './../../../test/methods'
 // prep for http calls
 chai.use(chaiHttp)
 
-const request = function (reading: any, authToken: string) {
-  let req = chai.request(data.SERVER)
+const request = function(reading: any, authToken: string) {
+  let req = chai
+    .request(data.SERVER)
     .post(`/api/v1/readings/`)
     .send({ reading })
 
@@ -40,26 +41,26 @@ describe('POST /api/v1/readings', () => {
     chai.should().not.exist(createReading.version_id)
     let res = await request(createReading, authToken)
     res.should.have.status(201)
-    res.body.should.have.property("reading")
+    res.body.should.have.property('reading')
 
     // reading validation
     let reading = res.body.reading
     createdReadingId = reading._id // stores reading for later tests
-    reading.should.have.property("_id")
-    reading.should.have.property("owner_id")
-    reading.should.have.property("title")
-    reading.should.have.property("words")
-    reading.should.have.property("html")
-    reading.should.have.property("promoter_ids")
-    reading.should.have.property("createdAt")
-    reading.should.have.property("updatedAt")
+    reading.should.have.property('_id')
+    reading.should.have.property('owner_id')
+    reading.should.have.property('title')
+    reading.should.have.property('words')
+    reading.should.have.property('html')
+    reading.should.have.property('promoter_ids')
+    reading.should.have.property('createdAt')
+    reading.should.have.property('updatedAt')
   })
   it('should create a reading and keep the version id', async () => {
     // tests copy and edit functionality
     let createReading: any = {
       ...data.READINGS.NEW_READING,
       owner_id: ownerId,
-      version_id: new ObjectId()
+      version_id: new ObjectId(),
     }
     let res = await request(createReading, authToken)
     res.should.have.status(201)
@@ -71,11 +72,11 @@ describe('POST /api/v1/readings', () => {
   it('should create a reading as a draft', async () => {
     let createReading: any = {
       ...data.READINGS.NEW_READING,
-      draft: true
+      draft: true,
     }
     let res = await request(createReading, authToken)
     res.should.have.status(201)
-    res.body.should.have.property("reading")
+    res.body.should.have.property('reading')
     res.body.reading.should.have.property('draft')
     res.body.reading.draft.should.be.true
   })
@@ -83,7 +84,7 @@ describe('POST /api/v1/readings', () => {
     let createReading = {}
     let res = await request(createReading, authToken)
     res.should.have.status(406)
-    res.body.should.have.property("validationErrors")
+    res.body.should.have.property('validationErrors')
   })
   it('should reject a request without a reading', async () => {
     let res = await request(undefined, authToken)

@@ -2,7 +2,7 @@
 const MessageList = require('./../../../../models/MessageList')
 const helpers = require('./_retrieve')
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let user = req.user
 
   // throttle the database calls if the user has gotten messages recently
@@ -12,19 +12,21 @@ module.exports = function (req, res, next) {
 
   // if the user doesn't have a MessageList, we need to make them one and update their user object
   if (!user.message_list_id) {
-    helpers.createMessageList({})
-      .then((messageList) => {
+    helpers
+      .createMessageList({})
+      .then(messageList => {
         return helpers.addListToUser(messageList, user)
       })
-      .then((user) => {
+      .then(user => {
         return res.status(200).send({ messages: [] })
       })
-      .catch((err) => {
+      .catch(err => {
         next(err)
       })
   } else {
-    MessageList.findById(user.message_list_id).exec() // call for just the json object - not the mongoose wrapped object
-      .then((messageList) => {
+    MessageList.findById(user.message_list_id)
+      .exec() // call for just the json object - not the mongoose wrapped object
+      .then(messageList => {
         // this would be bad - nothing should make this happen... if it is happening, there's a flaw in the system that needs fixed
         if (!messageList) {
           return Promise.reject('no message list exists for user ' + user._id)
@@ -36,12 +38,11 @@ module.exports = function (req, res, next) {
 
         user.last_refresh_time = Date.now()
 
-        return user.edjiSave()
-          .then((result) => {
-            return res.status(200).send({ messages: messageList.messages })
-          })
+        return user.edjiSave().then(result => {
+          return res.status(200).send({ messages: messageList.messages })
+        })
       })
-      .catch((err) => {
+      .catch(err => {
         next(err)
       })
   }

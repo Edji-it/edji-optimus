@@ -11,7 +11,7 @@ import * as ReadingVersion from './ReadingVersion'
 import { deleteOwnerReading } from './_Reading'
 
 // const mockHandler = (): Array<> => {
-//   return 
+//   return
 // }
 
 // describe('_Reading', () => {

@@ -15,7 +15,7 @@ let authToken: string
 let userId: string
 let createdProject: any
 
-describe("delete projects", () => {
+describe('delete projects', () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
@@ -26,26 +26,26 @@ describe("delete projects", () => {
   })
   before(async () => {
     // find a project _id to use that we can add a comment or answer to (make flexible)
-    const project = await ProjectAPI.create({
-      teacher_id: userId,
-      reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
-      label: 'PUT /api/v1/projects/:project_id test project'
-    },
-      authToken
+    const project = await ProjectAPI.create(
+      {
+        teacher_id: userId,
+        reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
+        label: 'PUT /api/v1/projects/:project_id test project',
+      },
+      authToken,
     )
     expect(project._id, 'did not successfully create project to test').not.to.be.undefined
     createdProject = project
   })
 
   // update for delete project test
-  describe("DELETE project /api/v1/projects/:project_id", () => {
-    const requestCreate = async function (body: any, authToken?: string) {
+  describe('DELETE project /api/v1/projects/:project_id', () => {
+    const requestCreate = async function(body: any, authToken?: string) {
       return ProjectAPI.create(body, authToken)
     }
 
-    const requestDelete = function (projectId: string, authToken?: string): Request {
-      let req = chai.request(data.SERVER)
-        .del(`/api/v1/projects/${projectId}`)
+    const requestDelete = function(projectId: string, authToken?: string): Request {
+      let req = chai.request(data.SERVER).del(`/api/v1/projects/${projectId}`)
 
       authToken && req.set('Authorization', authToken)
       return req
@@ -54,7 +54,7 @@ describe("delete projects", () => {
       let createBody = {
         teacher_id: userId,
         reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
-        label: 'PUT /api/v1/projects/:project_id test project'
+        label: 'PUT /api/v1/projects/:project_id test project',
       }
       // create a fresh project to delete
       const createProj = await requestCreate(createBody, authToken)
@@ -86,13 +86,13 @@ describe("delete projects", () => {
     })
   })
 
-
   const commentTypes = ['comments', 'answers']
   for (let commentType of commentTypes) {
     describe(`DELETE /api/v1/projects/:project_id/${commentType}/:comment_id`, () => {
       let createdComments = []
-      const requestCreate = function (projectId: string, body: any, authToken?: string): Request {
-        let req = chai.request(data.SERVER)
+      const requestCreate = function(projectId: string, body: any, authToken?: string): Request {
+        let req = chai
+          .request(data.SERVER)
           .put(`/api/v1/projects/${projectId}/${commentType}`)
           .send(body)
 
@@ -100,14 +100,22 @@ describe("delete projects", () => {
         return req
       }
 
-      const requestDelete = (projectId: string, commentType: string, commentId?: string, replyIds?: string[], authToken?: string): Request => {
+      const requestDelete = (
+        projectId: string,
+        commentType: string,
+        commentId?: string,
+        replyIds?: string[],
+        authToken?: string,
+      ): Request => {
         // reply _ids are optional, so we add them as array params after comment_id (required)
         let reply_ids: string = ''
-        replyIds && replyIds.forEach((replyId) => {
-          reply_ids += `&reply_ids[]=${replyId}`
-        })
+        replyIds &&
+          replyIds.forEach(replyId => {
+            reply_ids += `&reply_ids[]=${replyId}`
+          })
 
-        let req = chai.request(data.SERVER)
+        let req = chai
+          .request(data.SERVER)
           .del(`/api/v1/projects/${projectId}/${commentType}?comment_id=${commentId}${reply_ids}`)
 
         authToken && req.set('Authorization', authToken)
@@ -119,7 +127,7 @@ describe("delete projects", () => {
         const comment = {
           user_id: userId,
           start: 5,
-          end: 100
+          end: 100,
         }
         const res = await ProjectAPI.createComment(createdProject._id, comment, authToken, commentType)
         expect(res).to.have.property('start')
@@ -131,7 +139,7 @@ describe("delete projects", () => {
         const minComment = {
           user_id: userId,
           start: 5,
-          end: 100
+          end: 100,
         }
         // create a new comment that we'll delete in the next step
         const createRes = await requestCreate(createdProject._id, minComment, authToken)
@@ -160,14 +168,14 @@ describe("delete projects", () => {
           const minComment = {
             user_id: userId,
             start: 5,
-            end: 100
+            end: 100,
           }
           // need to set the reply_to to the comment _id above once we add it to the project in the call below
           const minReply = {
             user_id: userId,
             reply_to: '',
             start: 5,
-            end: 100
+            end: 100,
           }
           // create a new comment that we'll delete in the final step
           const createRes = await requestCreate(createdProject._id, minComment, authToken)
@@ -184,34 +192,40 @@ describe("delete projects", () => {
           expect(reply).to.have.property('reply_to')
 
           // delete the newly created comment
-          const deleteRes = await requestDelete(createdProject._id, `${commentType}`, comment._id, [reply._id], authToken)
+          const deleteRes = await requestDelete(
+            createdProject._id,
+            `${commentType}`,
+            comment._id,
+            [reply._id],
+            authToken,
+          )
           expect(deleteRes).to.have.status(204)
         })
       }
     })
   }
 
-  describe("DELETE project /api/v1/projects/:project_id/feedback?comment_id=:comment_id", () => {
+  describe('DELETE project /api/v1/projects/:project_id/feedback?comment_id=:comment_id', () => {
     const feedbackObject = {
-      outcome_id: "5c50f4c20b944f00963beb59",
-      feedback_to: "5c55f320844a4f0040845788",
-      evaluation: "Good job!"
+      outcome_id: '5c50f4c20b944f00963beb59',
+      feedback_to: '5c55f320844a4f0040845788',
+      evaluation: 'Good job!',
     }
     const invalidFeedback = {
-      outcome_id: "5c50f4c20b944f00963beb59",
-      feedback_to: "5c55f320844a4f0040845788"
+      outcome_id: '5c50f4c20b944f00963beb59',
+      feedback_to: '5c55f320844a4f0040845788',
     }
-    const requestCreate = function (projectId: string, feedback: any, authToken?: string): Request {
-      let req = chai.request(data.SERVER)
+    const requestCreate = function(projectId: string, feedback: any, authToken?: string): Request {
+      let req = chai
+        .request(data.SERVER)
         .put(`/api/v1/projects/${projectId}/feedback`)
         .send(feedback)
 
       authToken && req.set('Authorization', authToken)
       return req
     }
-    const requestDelete = function (projectId: string, feedbackId: string, authToken?: string): Request {
-      let req = chai.request(data.SERVER)
-        .del(`/api/v1/projects/${projectId}/feedback?=${feedbackId}`)
+    const requestDelete = function(projectId: string, feedbackId: string, authToken?: string): Request {
+      let req = chai.request(data.SERVER).del(`/api/v1/projects/${projectId}/feedback?=${feedbackId}`)
 
       authToken && req.set('Authorization', authToken)
       return req

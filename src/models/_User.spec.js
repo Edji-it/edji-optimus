@@ -20,34 +20,37 @@ describe('_User', () => {
       retrieveSubscriptions.restore()
     })
 
-    it('should return return true if the customer has a license id', (done) => {
-      _User.getUserHeroStatus({ license_ids: ['1234'] })
-        .then((heroStatus) => {
+    it('should return return true if the customer has a license id', done => {
+      _User
+        .getUserHeroStatus({ license_ids: ['1234'] })
+        .then(heroStatus => {
           heroStatus.should.be.true
           sinon.assert.notCalled(retrieveSubscriptions)
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
 
-    it('should return false if the user does not have license_ids or a stripe_customer_id', (done) => {
-      _User.getUserHeroStatus({ license_ids: [] })
-        .then((heroStatus) => {
+    it('should return false if the user does not have license_ids or a stripe_customer_id', done => {
+      _User
+        .getUserHeroStatus({ license_ids: [] })
+        .then(heroStatus => {
           heroStatus.should.be.false
           sinon.assert.notCalled(retrieveSubscriptions)
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
 
-    it('should return true and call stripe.subscriptions.list with the correct parameters', (done) => {
+    it('should return true and call stripe.subscriptions.list with the correct parameters', done => {
       let fakeUser = { stripe_customer_id: 'cus_123abc' }
-      _User.getUserHeroStatus(fakeUser)
-        .then((heroStatus) => {
+      _User
+        .getUserHeroStatus(fakeUser)
+        .then(heroStatus => {
           heroStatus.should.be.true
           sinon.assert.calledOnce(retrieveSubscriptions)
 
@@ -62,25 +65,26 @@ describe('_User', () => {
 
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
 
-    it('should return false if stripe returns no subscriptions', (done) => {
+    it('should return false if stripe returns no subscriptions', done => {
       // redefine the retrieveSubscriptions stub
       retrieveSubscriptions.restore()
       retrieveSubscriptions = sinon.stub(stripe.subscriptions, 'list').resolves({ data: [] })
 
       let fakeUser = { stripe_customer_id: 'cus_123abc' }
-      _User.getUserHeroStatus(fakeUser)
-        .then((heroStatus) => {
+      _User
+        .getUserHeroStatus(fakeUser)
+        .then(heroStatus => {
           heroStatus.should.be.false
           sinon.assert.calledOnce(retrieveSubscriptions)
 
           done()
         })
-        .catch((err) => {
+        .catch(err => {
           done(err)
         })
     })
@@ -156,7 +160,7 @@ describe('_User', () => {
     let fakeTokenToVerify = 'jrieoqnfdjgauifnjecidanjf;da'
     let fakeTokenObj = {
       token: 'this is whatever',
-      expiration: Date.now() + 1000 * 3600 // make the expiration later
+      expiration: Date.now() + 1000 * 3600, // make the expiration later
     }
     let bcryptCompareStub
 
@@ -191,7 +195,7 @@ describe('_User', () => {
     it('should return false for an expired token', () => {
       let mockTokenObj = {
         token: 'somestr',
-        expiration: Date.now() - 1000 * 3600 // an expired date
+        expiration: Date.now() - 1000 * 3600, // an expired date
       }
       let valid = _User.validateToken("this doesn't even matter!", mockTokenObj)
 

@@ -1,11 +1,11 @@
 // library imports
 const Q = require('q')
-var mongoose = require("mongoose")
+var mongoose = require('mongoose')
 
 // project imports
 const License = require('./../../../models/License')
 
-module.exports = async function (req, res, next) {
+module.exports = async function(req, res, next) {
   let user = req.user
 
   // the license_id is a param that will be passed in to add to the user's object
@@ -17,7 +17,7 @@ module.exports = async function (req, res, next) {
   }
 
   try {
-    let license = await License.findOne({ "pending_invitations._id": userInviteId })
+    let license = await License.findOne({ 'pending_invitations._id': userInviteId })
     // if license is null (meaning it did not exist in the collection)
     if (!license) {
       return res.status(403).send({ error: 'invalid license' })
@@ -26,7 +26,11 @@ module.exports = async function (req, res, next) {
     let license_id = license._id
 
     // find the invitation for the user so we can collect the information to process the acceptance on the license
-    let invititationPos = license.pending_invitations.map((invite) => { return invite._id.toString() }).indexOf(userInviteId)
+    let invititationPos = license.pending_invitations
+      .map(invite => {
+        return invite._id.toString()
+      })
+      .indexOf(userInviteId)
 
     // if we find the invitation we need to get the role info and then clear the license out
     if (invititationPos > -1) {
@@ -36,7 +40,7 @@ module.exports = async function (req, res, next) {
       if (licenseRole === 'administrator') {
         license.roles.push({
           user_id: user._id,
-          role: licenseRole
+          role: licenseRole,
         })
       }
       // take the invitation out of the license object
@@ -48,7 +52,7 @@ module.exports = async function (req, res, next) {
 
     await license.edjiSave()
 
-    let matchingLicense = user.license_ids.find((license) => {
+    let matchingLicense = user.license_ids.find(license => {
       return license.license_id && license.license_id.equals(license_id)
     })
 
@@ -56,7 +60,7 @@ module.exports = async function (req, res, next) {
     if (!matchingLicense) {
       let new_license = {
         license_id: license_id,
-        joined: new Date()
+        joined: new Date(),
       }
       user.license_ids.push(new_license)
       user.hero_status = true
