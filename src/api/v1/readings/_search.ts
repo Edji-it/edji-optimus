@@ -14,7 +14,7 @@ export interface ReadingQuery {
   title?: string
   parent_id?: string
   owner_id?: string
-  // public?: boolean
+  scope?: ScopeEnum
   source?: string
   grade_levels_lte?: number
   grade_levels_gte?: number
@@ -28,6 +28,12 @@ export interface ReadingQuery {
   body?: boolean // debugging tool to return the query body
 }
 
+enum ScopeEnum {
+  PUBLIC = 'public',
+  OWNER = 'owner',
+}
+const scopeValues = ['public', 'owner']
+
 const querySchema = joi.object().keys({
   _ids: joi.array().items(joi.string()),
   html: joi.string(),
@@ -39,7 +45,7 @@ const querySchema = joi.object().keys({
   q: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
-  // public: joi.boolean(),
+  scope: joi.string().allow(scopeValues),
   source: joi.string(),
   grade_levels_lte: joi.number(),
   grade_levels_gte: joi.number(),
@@ -63,10 +69,7 @@ const querySchema = joi.object().keys({
 
 const queriableStringFields = ['html', 'title', 'parent_id', 'owner_id', 'source', 'subjects', 'version_id']
 
-const queriableBooleanFields = [
-  // 'public',
-  'owner_bookmarked',
-]
+const queriableBooleanFields = ['owner_bookmarked']
 
 const arrayFieldsToConverToStrings = ['owner_id', 'subjects']
 
@@ -140,7 +143,7 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId; [key:
   return results
 }
 
-export function constructSearch(query: ReadingQuery): Promise<any> {
+export function constructSearch(query: ReadingQuery, userId?: string): Promise<any> {
   // fieldQuery will be added to based on query properties
   let fieldQuery = {
     bool: {
@@ -164,15 +167,29 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
             },
           },
         ],
-        filter: [
-          {
-            match: {
-              public: true,
-            },
-          },
-        ],
+        filter: [],
       },
     },
+  }
+
+  switch (query.scope) {
+    case undefined:
+    case ScopeEnum.PUBLIC:
+      body.query.bool.filter.push({
+        match: {
+          public: true,
+        },
+      })
+      break
+    case ScopeEnum.OWNER:
+      if (userId) {
+        body.query.bool.filter.push({
+          match: {
+            owner_id: userId,
+          },
+        })
+      }
+      break
   }
 
   if (query.hasOwnProperty('q')) {
