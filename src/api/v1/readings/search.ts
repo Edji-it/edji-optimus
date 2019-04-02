@@ -12,9 +12,13 @@ export default async function SearchController(req: Request, res: Response, next
 
   try {
     const { hits } = await constructSearch(query)
-    const total = hits.total
     const results = await searchByIds(hits.hits.map(hit => hit._id))
-    return res.status(200).send({ total, results })
+    let body = {
+      total: hits.total,
+      returned: results.length,
+      results
+    }
+    return res.status(200).send(body)
   } catch (err) {
     return next(err)
   }

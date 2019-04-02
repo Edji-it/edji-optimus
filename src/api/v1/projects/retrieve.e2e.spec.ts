@@ -96,9 +96,8 @@ describe('GET /projects/:project_id', () => {
   after(async () => {
     const projStatus = await ProjectAPI.delete(createdProject._id, teacherToken) // clean it up
     expect(projStatus, 'test project deletion failed').to.be.equal(204)
-    const { results } = await ReadingAPI.delete(createdReading._id, teacherToken)
-    expect(results, 'test reading deletion failed').to.have.property('deletedReadings')
-    expect(results.deletedReadings, 'test reading deletion failed').to.be.above(0)
+    const results = await ReadingAPI.delete(createdReading._id, teacherToken)
+    expect(results.readings_deleted, 'test reading deletion failed').to.be.above(0)
   })
   it('should not get a 401 without auth', async () => {
     const res = await request(createdProject._id)

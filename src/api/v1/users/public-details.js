@@ -1,5 +1,4 @@
 // library imports
-const Q = require('q')
 let mongoose = require("mongoose")
 
 // project imports
@@ -7,7 +6,7 @@ const User = require('../../../models/User')
 const TempUser = require('../../../models/TempUser')
 const helpers = require('./_public-details')
 
-module.exports = function (req, res, next) {
+export default function (req, res, next) {
   // request query params for students_ids and temp_ids (either can be empty for this to work)
   const students = req.query.students_ids
   const temps = req.query.temp_ids

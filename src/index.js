@@ -6,7 +6,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const methodOverride = require("method-override")
 const passport = require('passport') // passport gets configured elsewhere
-const { EdjiUtils } = require('./services/edji-utils')
+const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 
 // set up all environment variables
 require('./../config')
@@ -22,7 +22,7 @@ Sentry.init({
 var app = express()
 app.use(Sentry.Handlers.requestHandler())
 const edji = new EdjiUtils({ appId: 'optimus' })
-app.use(edji.middleware)
+app.use(edji.attachLogs, edji.initContext)
 app.use(bodyParser.json({ limit: '20mb' }))
 
 // this is required for sockets... which are no longer here... but we left it in anyhow
@@ -39,7 +39,7 @@ app.use(require('./middleware/header-management'))
 app.use(require('./middleware/sentry'))
 
 // attach the new routes
-app.use('/api', require('./api').default)
+app.use('/api', addRouteName('/api'), require('./api').default)
 
 // attach the old routes
 app.use(require('./routes'))

@@ -36,12 +36,13 @@ describe('GET /api/v1/readings/_search', () => {
     expect(res.body).to.have.property('results')
     expect(res.body.results).to.be.instanceOf(Array)
     expect(res.body.results).to.be.lengthOf(15)
+    expect(res.body.returned).to.be.equal(15)
     savedReadings = res.body.results
   })
   it('should change the size of the request based on the query', async () => {
-    const res = await searchRequest(['size=15'], token)
+    const res = await searchRequest(['size=10'], token)
     expect(res.body.results).to.be.instanceOf(Array)
-    expect(res.body.results).to.be.lengthOf(15)
+    expect(res.body.results).to.be.lengthOf(10)
   })
   it('should change the start of results based on the query', async () => {
     const testFrom = 5
@@ -57,6 +58,24 @@ describe('GET /api/v1/readings/_search', () => {
     expect(res.body.results.length).to.be.above(0)
     expect(res.body.results[0]).to.have.property('title')
     expect(res.body.results[0].title.toLowerCase()).to.include(titleQuery)
+  })
+  it('should sort results by a sort field', async () => {
+    const res = await searchRequest([`sort=createdAt`], token)
+    expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
+    let allDates: string[] = res.body.results.map(({createdAt}) => createdAt )
+    let allDatesSorted = allDates.slice().sort((a, b) => {
+      return new Date(a).getTime() > new Date(b).getTime() ? 1 : -1
+    })
+    expect(allDates).to.eql(allDatesSorted)
+  })
+  it('should change sort order', async () => {
+    const res = await searchRequest([`sort=createdAt`, `sort_order=desc`], token)
+    expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
+    let allDates: string[] = res.body.results.map(({createdAt}) => createdAt )
+    let allDatesSorted = allDates.slice().sort((a, b) => {
+      return new Date(a).getTime() > new Date(b).getTime() ? -1 : 1
+    })
+    expect(allDates).to.eql(allDatesSorted)
   })
   it('should reject a request without authentication', async () => {
     const res = await searchRequest([])
