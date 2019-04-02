@@ -23,7 +23,7 @@ router.use(ReferralsRouter)
 router.use('/tokens', addRouteName('/tokens'), TokenController)
 router.get('/public-details', addRouteName('/public-details'), PublicDetailsHandler)
 router.get('/:user_id', addRouteName('/:user_id'), authRequired, require('./check-user-id'), require('./retrieve'))
-router.put('/password_recovery', addRouteName('/password_recovery'), require('./password_recovery'))
 router.put('/@me/link', addRouteName('/@me/link'), authRequired, LinkController)
+router.post('/@me/change_password', authRequired, require('./change-pass').default)
 
 export default router
