@@ -15,13 +15,18 @@ export const deleteOwnerProject = (): RequestHandler => {
       if (!deleteRes || !deleteRes.n || deleteRes.n < 1) {
         return res.status(404).send() // it would be sweet to figure out how to throw an error here and catch it in some middleware runner...
       }
+<<<<<<< HEAD
       res.status(204)
+=======
+      res.body.deleted = deleteRes.n
+>>>>>>> refactor project delete
       return next()
     } catch (err) {
       next(err)
     }
   }
 }
+<<<<<<< HEAD
 
 export const createProject = (): RequestHandler => {
   return async (req, res, next) => {
@@ -56,3 +61,5 @@ export const getCommentsCopy = (): RequestHandler => {
     next()
   }
 }
+=======
+>>>>>>> refactor project delete
