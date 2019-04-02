@@ -9,9 +9,7 @@ const _ = require('underscore')
 const Project = require('./../models/Project')
 const MountModelToRouter = require('./MountModelToRouter')
 const authRequired = require('./../middleware/auth-required')
-const pipolog = require('./../pipolog').pipoLog
-const { UpdateProjectController, UpdatePropertyController } = require('./../api/v1/projects/update')
-const { RemoveProjectController, RemovePropertyController } = require('./../api/v1/projects/remove-property')
+const { RemovePropertyController } = require('./../api/v1/projects/remove-property')
 
 const router = express.Router()
 
@@ -37,23 +35,6 @@ router.get('/', authRequired, function(req, res, next) {
     })
 })
 
-/**
- * @deprecated 1/26/19
- */
-router.post(
-  '/',
-  authRequired,
-  // the new api endpoint does not use a nested project property, so this keeps us consistent during transition time
-  (req, res, next) => {
-    if (req.body && req.body.project) {
-      req.body = req.body.project
-    }
-    req.params.wrap_response = true
-    next()
-  },
-  require('./../api/v1/projects/create').default,
-)
-
 // currently only works for teacher deleting a project
 router.delete('/:id', authRequired, function(req, res, next) {
   var id = req.params.id
@@ -77,113 +58,6 @@ router.delete('/:id', authRequired, function(req, res, next) {
     })
 })
 
-/**
- * @deprecated 2/2/19
- */
-router.put(
-  '/:project_id',
-  authRequired,
-  (req, res, next) => {
-    // currently the response body is not used on the front end so we don't need anything special for updating it
-    const project = req.body.project
-    req.body = project
-    req.params.wrap_response = true
-    next()
-  },
-  UpdateProjectController,
-)
-
-/**
- * @deprecated 2/2/19
- */
-router.post(
-  '/:project_id/comments',
-  authRequired,
-  (req, res, next) => {
-    // pull old comment out of body
-    const comment = req.body.comment
-    // reassign comment to body to be handled by new controller
-    req.body = comment
-    req.params.update_property = 'comments'
-    // this is weird and stupid but we need to return { comment: [object] } as the body for this call and that's not how the new api works
-    req.params.wrap_comment = true
-    next()
-  },
-  // add PUT /api/v1/projects/:id/comments handler
-  UpdatePropertyController,
-)
-
-/**
- * @deprecated 2/2/19
- */
-router.put(
-  '/:project_id/comments/:comment_id',
-  authRequired,
-  (req, res, next) => {
-    // pull old comment out of body
-    const comment = req.body.comment
-    // reassign comment to body to be handled by new controller
-    req.body = comment
-    req.params.update_property = 'comments'
-    req.params.wrap_comment = true
-    next()
-  },
-  // add PUT /api/v1/projects/:id/comments handler
-  UpdatePropertyController,
-)
-
-/**
- * @deprecated 2/2/19
- */
-router.post(
-  '/:project_id/answers',
-  authRequired,
-  (req, res, next) => {
-    // pull old comment out of body
-    const answer = req.body.answer
-    // reassign comment to body to be handled by new controller
-    req.body = answer
-    req.params.update_property = 'answers'
-    // this is weird and stupid but we need to return { comment: [object] } as the body for this call and that's not how the new api works
-    req.params.wrap_comment = true
-    next()
-  },
-  // add PUT /api/v1/projects/:id/answers handler
-  UpdatePropertyController,
-)
-
-/**
- * @deprecated 2/2/19
- */
-router.put(
-  '/:project_id/answers/:comment_id',
-  authRequired,
-  (req, res, next) => {
-    // pull old comment out of body
-    const answer = req.body.answer
-    // reassign answer to body to be handled by new controller
-    req.body = answer
-    req.params.update_property = 'answers'
-    req.params.wrap_comment = true
-    next()
-  },
-  // add PUT /api/v1/projects/:id/answers handler
-  UpdatePropertyController,
-)
-
-/**
- * @deprecated 2/2/19
- */
-router.put(
-  '/:project_id/user_id',
-  authRequired,
-  (req, res, next) => {
-    req.params.update_property = 'students'
-    next()
-  },
-  UpdatePropertyController,
-)
-
 // get projects for a single reading id
 router.get('/reading/:reading_id', authRequired, function(req, res, next) {
   var reading_id = req.params.reading_id
@@ -206,22 +80,6 @@ router.get('/reading/:reading_id', authRequired, function(req, res, next) {
       next(err)
     })
 })
-
-/**
- * Sets up the options and returns a promise which will call grapple's route to delete an asset from s3
- * @param url The url of the asset to delete (typically looks like //images.edji.it/something)
- * @returns Promise resolved with a response body from Grapple
- */
-let deleteFromS3 = function(url) {
-  let options = {
-    method: 'DELETE',
-    uri: [process.env.EDJI_GRAPPLE_DOMAIN, 'v1', 's3', encodeURIComponent(url)].join('/'),
-    headers: { Authorization: process.env.EDJI_GRAPPLE_TOKEN },
-    json: true,
-  }
-
-  return rp(options)
-}
 
 /**
  * @deprecated 3/16/19

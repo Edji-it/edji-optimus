@@ -40,9 +40,6 @@ export async function UpdateProjectController(req: Request, res: Response, next:
       return res.status(404).send({ error: 'no project at that id' })
     }
     let updated = pick(project, attemptedUpdateProperties)
-    if (req.params.wrap_response) {
-      updated = { updated }
-    }
     return res.status(200).send(updated)
   } catch (err) {
     if (err.name === 'ValidationError') {
