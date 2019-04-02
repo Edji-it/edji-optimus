@@ -28,11 +28,6 @@ router.put('/', authRequired, async function(req, res, next) {
     return res.status(400).send({ error: "you dumb for tryna update a user's referred_by" })
   }
 
-  UPDATABLE_PROPERTIES.forEach(property => {
-    if (userData[property]) {
-      user[property] = userData[property]
-    }
-
     const UPDATABLE_PROPERTIES = [
         'fullname',
         'email',
