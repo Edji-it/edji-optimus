@@ -219,15 +219,22 @@ export function constructSearch(query: ReadingQuery): Promise<any> {
   }
 
   // handle pulling apart grade_levels here so that the search query url matches the front end
-  if (query.grade_levels_lte || query.grade_levels_gte) {
+  if (query.hasOwnProperty('grade_levels_lte') || query.hasOwnProperty('grade_levels_gte')) {
     const { grade_levels_lte: lte, grade_levels_gte: gte } = query
-    let grade_levels: { lte?: number, gte?: number } = {}
-    lte && (grade_levels.lte = lte)
-    gte && (grade_levels.gte = gte)
-
-    body.query.bool.filter.push({
-      range: { grade_levels }
-    })
+  
+    if (lte === gte) {
+      body.query.bool.filter.push({
+        match: { grade_levels: lte }
+      })
+    } else {
+      let grade_levels: { lte?: number, gte?: number } = {}
+      !isNaN(lte) && (grade_levels.lte = lte)
+      !isNaN(gte) && (grade_levels.gte = gte)
+  
+      body.query.bool.filter.push({
+        range: { grade_levels }
+      })
+    }
   }
 
   if(query.sort) {
