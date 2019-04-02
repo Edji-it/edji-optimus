@@ -2,5 +2,6 @@
 {
   "editor.tabSize": 2,
   "window.zoomLevel": 0,
-  "workbench.iconTheme": "vscode-icon-theme"
+  "workbench.iconTheme": "vscode-icon-theme",
+  "eslint.autoFixOnSave": true
 }
