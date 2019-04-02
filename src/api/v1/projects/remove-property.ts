@@ -3,37 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 import * as mongoose from 'mongoose'
 
 // project imports
-import * as Project from '../../../models/Project'
-import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
 import { removeCommentFromArray } from './_remove-property'
-
-export async function RemoveProjectController(req: Request, res: Response, next: NextFunction) {
-  try {
-    const { project_id } = req.params
-    let user = req.user
-
-    if (!mongoose['validateEdjiId'](project_id)) {
-      return res.status(400).send({ error: 'invalid project id passed' })
-    }
-
-    let project = await Project.deleteOne({
-      _id: project_id,
-      teacher_id: user._id,
-    })
-
-    if (project.n === 0) {
-      return res.status(404).send({ error: 'no project at that id' })
-    }
-
-    return res.status(204).send()
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      let validationErrors = cleanMongoValidationError(err)
-      return res.status(406).send({ validationErrors })
-    }
-    return next(err)
-  }
-}
 
 export async function RemovePropertyController(req: Request, res: Response, next: NextFunction) {
   try {

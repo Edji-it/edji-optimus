@@ -1,7 +1,6 @@
 import * as chai from 'chai'
 const expect = chai.expect
 import chaiHttp = require('chai-http')
-import { ObjectId } from 'mongodb'
 
 import data = require('../../../test/constants')
 import { UserAPI, ReadingAPI, ProjectAPI } from './../../../test/methods'

@@ -7,56 +7,21 @@ const _ = require('underscore')
 
 // project imports
 const Project = require('./../models/Project')
-const MountModelToRouter = require('./MountModelToRouter')
 const authRequired = require('./../middleware/auth-required')
 const { RemovePropertyController } = require('./../api/v1/projects/remove-property')
 
 const router = express.Router()
 
-MountModelToRouter(router, Project, 'project', { read: false, list: false, delete: false })
-
-router.get('/', authRequired, function(req, res, next) {
-  var user = req.user
-
-  Q(
-    Project.find(
-      { $or: [{ students_ids: user._id }, { temp_ids: user._id }] },
-      'reading_id teacher_id label code types tags updatedAt createdAt',
-      { sort: { createdAt: -1 } },
-    )
-      .populate('teacher_id', 'fullname email username')
-      .populate('reading_id', 'title'),
-  )
-    .then(projects => {
-      return res.status(200).send(projects)
-    })
-    .catch(err => {
-      next(err)
-    })
-})
-
-// currently only works for teacher deleting a project
-router.delete('/:id', authRequired, function(req, res, next) {
-  var id = req.params.id
-  var user = req.user
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400).send()
-    return
-  }
-
-  Project.deleteOne({ _id: req.params.id, teacher_id: user._id })
-    .then(obj => {
-      if (obj.n < 1) {
-        return res.status(404).send()
-      } else {
-        return res.status(204).send()
-      }
-    })
-    .catch(err => {
-      next(err)
-    })
-})
+/**
+ * @deprecated 4/2/19
+ */
+router.delete(
+  '/:project_id',
+  authRequired,
+  require('./../middleware/validate-ids').validateIdParameters(':project_id'),
+  require('./../models/_Project').deleteOwnerProject(),
+  require('./../middleware/handle-http').sendResponse(),
+)
 
 // get projects for a single reading id
 router.get('/reading/:reading_id', authRequired, function(req, res, next) {
