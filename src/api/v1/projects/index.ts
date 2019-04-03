@@ -3,19 +3,20 @@ import { Router } from 'express'
 
 // middleware
 import * as authRequired from './../../../middleware/auth-required'
-import createProject from './create'
 import { UpdateProjectController, UpdatePropertyController } from './update'
 import { RemovePropertyController } from './remove-property'
 import validateController from './validate'
 import { addRouteName } from '../../../utils/edji-utils'
 import { deleteOwnerProject } from './../../../models/_Project'
 import { sendResponse, validateIdParameters } from '../../../middleware'
+import { createProject } from './../../../models/_Project'
+import { activateCustomCode } from './../../../models/_SessionCode'
 
 const router = Router()
 
 // attach route handlers
 router.get('/', addRouteName('/'), authRequired, require('./list'))
-router.post('/', addRouteName('/'), authRequired, createProject)
+router.post('/', addRouteName('/'), authRequired, createProject(), activateCustomCode(), sendResponse())
 router.get('/:project_id', addRouteName('/:project_id'), require('./retrieve'))
 router.put('/:project_id', addRouteName('/:project_id'), authRequired, UpdateProjectController)
 router.delete(

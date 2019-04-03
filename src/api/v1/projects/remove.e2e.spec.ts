@@ -26,10 +26,10 @@ describe('DELETE /api/v1/projects/:project_id', () => {
   it('should delete a project', async () => {
     const project = await ProjectAPI.create({}, authToken)
     const res = await request(project._id, authToken)
-    expect(res).to.have.status(200)
-    expect(res.body).to.eql({
-      deleted: 1,
-    })
+    expect(res).to.have.status(204)
+    // verify we can't, in fact, go get that reading now
+    const { _id: deletedProjecId } = await ProjectAPI.retrieve(project._id, authToken)
+    expect(deletedProjecId).to.be.undefined
   })
   it('should receive a 400 if passed an invalid project id', async () => {
     const res = await request('invalid_id', authToken)
