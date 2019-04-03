@@ -1,6 +1,7 @@
 // library imports
 import 'mocha'
 import * as chai from 'chai'
+const expect = chai.expect
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 
@@ -9,10 +10,14 @@ import data = require('../../../test/constants')
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function(body: any, authToken?: string): Request {
+const request = function(body: any, authToken?: string, query?: string): Request {
+  let url = '/api/v1/projects'
+  if (query) {
+    url += `?${query}`
+  }
   let req = chai
     .request(data.SERVER)
-    .post('/api/v1/projects')
+    .post(url)
     .send(body)
 
   authToken && req.set('Authorization', authToken)
@@ -54,7 +59,6 @@ describe('POST /api/v1/projects', () => {
     })
     await Promise.all(promises)
   })
-
   it('should create a new project', async () => {
     const res = await request(defaultProject, authToken)
     res.should.have.status(201)
@@ -97,7 +101,22 @@ describe('POST /api/v1/projects', () => {
 
     createdProjects.push(project)
   })
-  it("should return 'required' errors for all missing fields that are required", async () => {
+  it('should copy a projects comments', async () => {
+    const project1 = await ProjectAPI.create(
+      {
+        comments: [{ user_id: userId, start: 1, end: 4 }, { user_id: defaultProject.reading_id, start: 10, end: 20 }],
+      },
+      authToken,
+    )
+    createdProjects.push(project1)
+    const project2 = await request(defaultProject, authToken, `copy_id=${project1._id}`)
+    expect(project2).to.have.status(201)
+    expect(project2.body).to.haveOwnProperty('comments')
+    expect(project2.body.comments).to.have.lengthOf(2)
+
+    createdProjects.push(project2)
+  })
+  it('should return "required" errors for all missing fields that are required', async () => {
     const res = await request({ missing: 'everything' }, authToken)
     res.should.have.status(406)
     const error = res.body

@@ -1,7 +1,7 @@
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 import data = require('./constants')
-import { ObjectId } from 'mongodb'
+import { iComment } from './../models/Comment'
 
 chai.use(chaiHttp)
 
@@ -122,7 +122,7 @@ export class ProjectAPI {
       teacher_id?: string
       reading_id?: string
       label?: string
-      [key: string]: any
+      comments?: iComment[]
     },
     authToken: string,
   ): Promise<any> {
