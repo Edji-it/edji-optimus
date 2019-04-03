@@ -31,11 +31,28 @@ export const createProject = (): RequestHandler => {
       if (!projectData.teacher_id) {
         projectData.teacher_id = req.context.user._id
       }
+      const commentsCopy = req.context.commentsCopy
+      if (commentsCopy && commentsCopy.length > 0) {
+        projectData.comments = commentsCopy
+      }
       res.body = await new Project(projectData).edjiSave()
       res.status(201)
       next()
     } catch (err) {
       return next(err)
     }
+  }
+}
+
+export const getCommentsCopy = (): RequestHandler => {
+  return async (req, res, next) => {
+    const user = req.context.user
+    if (req.query.copy_id) {
+      const project = await Project.findById(req.query.copy_id)
+      if (project) {
+        req.context.commentsCopy = project.comments.filter(comment => user._id.equals(comment.user_id))
+      }
+    }
+    next()
   }
 }

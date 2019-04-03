@@ -9,14 +9,22 @@ import validateController from './validate'
 import { addRouteName } from '../../../utils/edji-utils'
 import { deleteOwnerProject } from './../../../models/_Project'
 import { sendResponse, validateIdParameters } from '../../../middleware'
-import { createProject } from './../../../models/_Project'
+import { createProject, getCommentsCopy } from './../../../models/_Project'
 import { activateCustomCode } from './../../../models/_SessionCode'
 
 const router = Router()
 
 // attach route handlers
 router.get('/', addRouteName('/'), authRequired, require('./list'))
-router.post('/', addRouteName('/'), authRequired, createProject(), activateCustomCode(), sendResponse())
+router.post(
+  '/',
+  addRouteName('/'),
+  authRequired,
+  getCommentsCopy(),
+  createProject(),
+  activateCustomCode(),
+  sendResponse(),
+)
 router.get('/:project_id', addRouteName('/:project_id'), require('./retrieve'))
 router.put('/:project_id', addRouteName('/:project_id'), authRequired, UpdateProjectController)
 router.delete(

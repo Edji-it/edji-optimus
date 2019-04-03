@@ -4,9 +4,11 @@ import * as chai from 'chai'
 const expect = chai.expect
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
+import { ObjectId } from 'mongodb'
 
 import { UserAPI, ProjectAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
+import { iComment } from '../../../models/Comment'
 
 // prep for http calls
 chai.use(chaiHttp)
@@ -101,10 +103,25 @@ describe('POST /api/v1/projects', () => {
 
     createdProjects.push(project)
   })
-  it('should copy a projects comments', async () => {
+  it('should let a user copy their comments to a new reading', async () => {
+    const createComment = (user_id: string): iComment => {
+      return {
+        user_id,
+        start: Math.round(Math.random() * 10),
+        end: Math.round(Math.random() * 10),
+      }
+    }
+    // mix some comments in with the user's comments
     const project1 = await ProjectAPI.create(
       {
-        comments: [{ user_id: userId, start: 1, end: 4 }, { user_id: defaultProject.reading_id, start: 10, end: 20 }],
+        comments: [
+          createComment(userId),
+          createComment(userId),
+          createComment(new ObjectId().toHexString()),
+          createComment(userId),
+          createComment(new ObjectId().toHexString()),
+          createComment(new ObjectId().toHexString()),
+        ],
       },
       authToken,
     )
@@ -112,7 +129,11 @@ describe('POST /api/v1/projects', () => {
     const project2 = await request(defaultProject, authToken, `copy_id=${project1._id}`)
     expect(project2).to.have.status(201)
     expect(project2.body).to.haveOwnProperty('comments')
-    expect(project2.body.comments).to.have.lengthOf(2)
+    // make sure only the user's comments are copied
+    expect(project2.body.comments).to.be.lengthOf(3)
+    project2.body.comments.forEach(comment => {
+      expect(comment.user_id).to.be.equal(userId)
+    })
 
     createdProjects.push(project2)
   })
