@@ -15,10 +15,27 @@ export const deleteOwnerProject = (): RequestHandler => {
       if (!deleteRes || !deleteRes.n || deleteRes.n < 1) {
         return res.status(404).send() // it would be sweet to figure out how to throw an error here and catch it in some middleware runner...
       }
-      res.body.deleted = deleteRes.n
+      res.status(204)
       return next()
     } catch (err) {
       next(err)
+    }
+  }
+}
+
+export const createProject = (): RequestHandler => {
+  return async (req, res, next) => {
+    try {
+      const projectData = req.body
+      req.context.customCode = projectData.code
+      if (!projectData.teacher_id) {
+        projectData.teacher_id = req.context.user._id
+      }
+      res.body = await new Project(projectData).edjiSave()
+      res.status(201)
+      next()
+    } catch (err) {
+      return next(err)
     }
   }
 }

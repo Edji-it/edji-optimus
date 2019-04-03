@@ -142,7 +142,7 @@ export class ProjectAPI {
   static async delete(projectId: string, authToken: string): Promise<number> {
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
-      .del(`/projects/${projectId}`)
+      .del(`/api/v1/projects/${projectId}`)
       .set('Authorization', authToken)
     return res.status
   }
