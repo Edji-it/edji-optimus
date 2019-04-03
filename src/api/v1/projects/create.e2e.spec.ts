@@ -48,10 +48,11 @@ describe('POST /api/v1/projects', () => {
     userId = user._id
   })
   after(async () => {
-    createdProjects.forEach(async project => {
-      let status = await ProjectAPI.delete(project._id, authToken)
-      status.should.be.equal(204)
+    let promises = []
+    createdProjects.forEach(project => {
+      promises.push(ProjectAPI.delete(project._id, authToken))
     })
+    await Promise.all(promises)
   })
 
   it('should create a new project', async () => {
