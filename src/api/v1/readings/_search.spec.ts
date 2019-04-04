@@ -255,7 +255,8 @@ describe('reading search helpers', () => {
       })
     })
     it('should construct a query for grade_levels', async () => {
-      const query = { grade_levels_gte: 4, grade_levels_lte: 8 }
+      // 0 as a grade level here is also meant as a test against truthy comparison
+      const query = { grade_levels_gte: 0, grade_levels_lte: 8 }
       await constructSearch(query)
       expect(elasticStub.firstCall.args[0].body).to.eql({
         query: {
@@ -272,6 +273,48 @@ describe('reading search helpers', () => {
                     lte: query.grade_levels_lte,
                     gte: query.grade_levels_gte
                   }
+                }
+              }
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true
+                }
+              },
+              {
+                exists: {
+                  field: 'parent_id'
+                }
+              }
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: []
+                }
+              }
+            ]
+          }
+        }
+      })
+    })
+    it('should filter if the grade levels lte and gte are equal', async () => {
+      const query = { grade_levels_gte: 0, grade_levels_lte: 0 }
+      await constructSearch(query)
+      expect(elasticStub.firstCall.args[0].body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true
+                }
+              },
+              {
+                match: {
+                  grade_levels: query.grade_levels_gte
                 }
               }
             ],
