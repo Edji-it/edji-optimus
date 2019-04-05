@@ -1,18 +1,25 @@
 // library imports
 import 'mocha'
 import * as chai from 'chai'
+const expect = chai.expect
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
+import { ObjectId } from 'mongodb'
 
 import { UserAPI, ProjectAPI } from './../../../test/methods'
 import data = require('../../../test/constants')
+import { iComment } from '../../../models/Comment'
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function(body: any, authToken?: string): Request {
+const request = function(body: any, authToken?: string, query?: string): Request {
+  let url = '/api/v1/projects'
+  if (query) {
+    url += `?${query}`
+  }
   let req = chai
     .request(data.SERVER)
-    .post('/api/v1/projects')
+    .post(url)
     .send(body)
 
   authToken && req.set('Authorization', authToken)
@@ -48,12 +55,12 @@ describe('POST /api/v1/projects', () => {
     userId = user._id
   })
   after(async () => {
-    createdProjects.forEach(async project => {
-      let status = await ProjectAPI.delete(project._id, authToken)
-      status.should.be.equal(204)
+    let promises = []
+    createdProjects.forEach(project => {
+      promises.push(ProjectAPI.delete(project._id, authToken))
     })
+    await Promise.all(promises)
   })
-
   it('should create a new project', async () => {
     const res = await request(defaultProject, authToken)
     res.should.have.status(201)
@@ -96,7 +103,41 @@ describe('POST /api/v1/projects', () => {
 
     createdProjects.push(project)
   })
-  it("should return 'required' errors for all missing fields that are required", async () => {
+  it('should let a user copy their comments to a new reading', async () => {
+    const createComment = (user_id: string): iComment => {
+      return {
+        user_id,
+        start: Math.round(Math.random() * 10),
+        end: Math.round(Math.random() * 10),
+      }
+    }
+    // mix some comments in with the user's comments
+    const project1 = await ProjectAPI.create(
+      {
+        comments: [
+          createComment(userId),
+          createComment(userId),
+          createComment(new ObjectId().toHexString()),
+          createComment(userId),
+          createComment(new ObjectId().toHexString()),
+          createComment(new ObjectId().toHexString()),
+        ],
+      },
+      authToken,
+    )
+    createdProjects.push(project1)
+    const project2 = await request(defaultProject, authToken, `copy_id=${project1._id}`)
+    expect(project2).to.have.status(201)
+    expect(project2.body).to.haveOwnProperty('comments')
+    // make sure only the user's comments are copied
+    expect(project2.body.comments).to.be.lengthOf(3)
+    project2.body.comments.forEach(comment => {
+      expect(comment.user_id).to.be.equal(userId)
+    })
+
+    createdProjects.push(project2)
+  })
+  it('should return "required" errors for all missing fields that are required', async () => {
     const res = await request({ missing: 'everything' }, authToken)
     res.should.have.status(406)
     const error = res.body

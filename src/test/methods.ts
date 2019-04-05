@@ -1,7 +1,7 @@
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 import data = require('./constants')
-import { ObjectId } from 'mongodb'
+import { iComment } from './../models/Comment'
 
 chai.use(chaiHttp)
 
@@ -118,14 +118,19 @@ export class ReadingAPI {
 
 export class ProjectAPI {
   static async create(
-    project: {
-      teacher_id: string
-      reading_id: string
-      label: string
-      [key: string]: any
+    overrideProperties: {
+      teacher_id?: string
+      reading_id?: string
+      label?: string
+      comments?: iComment[]
     },
     authToken: string,
   ): Promise<any> {
+    const project = {
+      reading_id: '5adfc5cc7f322d1d7c4405ef',
+      label: 'api test project',
+      ...overrideProperties,
+    }
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
       .post('/api/v1/projects')
@@ -137,7 +142,7 @@ export class ProjectAPI {
   static async delete(projectId: string, authToken: string): Promise<number> {
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
-      .del(`/projects/${projectId}`)
+      .del(`/api/v1/projects/${projectId}`)
       .set('Authorization', authToken)
     return res.status
   }
