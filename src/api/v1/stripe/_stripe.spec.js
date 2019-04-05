@@ -25,12 +25,13 @@ describe('_stripe', () => {
     let fakeUser = {
       email: 'corbin@edji.it',
       stripe_customer_id: 'cus_someid',
-      fullanme: 'corbin'
+      fullanme: 'corbin',
     }
 
-    it('should call retrieve from stripes api', (done) => {
+    it('should call retrieve from stripes api', done => {
       // unit under test
-      _stripe.retrieveOrCreateCustomer(fakeUser, 'someString')
+      _stripe
+        .retrieveOrCreateCustomer(fakeUser, 'someString')
         .then(() => {
           // assertions
           sinon.assert.calledOnce(retrieveCustomer)
@@ -39,17 +40,20 @@ describe('_stripe', () => {
 
           done()
         })
-        .catch(() => { done(new Error('incorrectly rejected the promise')) })
+        .catch(() => {
+          done(new Error('incorrectly rejected the promise'))
+        })
     })
 
-    it('should call create from stripes api', (done) => {
+    it('should call create from stripes api', done => {
       let sentUser = {
         fullname: 'corbin',
-        email: 'corbin@edji.it'
+        email: 'corbin@edji.it',
       }
 
       // unit under test
-      _stripe.retrieveOrCreateCustomer(sentUser, 'newstring')
+      _stripe
+        .retrieveOrCreateCustomer(sentUser, 'newstring')
         .then(() => {
           // assertions
           sinon.assert.calledOnce(createCustomer)
@@ -62,15 +66,18 @@ describe('_stripe', () => {
 
           done()
         })
-        .catch((err) => { done(err) })
+        .catch(err => {
+          done(err)
+        })
     })
 
-    it('should reject a user without an email', (done) => {
-      _stripe.retrieveOrCreateCustomer({}, 'payment')
+    it('should reject a user without an email', done => {
+      _stripe
+        .retrieveOrCreateCustomer({}, 'payment')
         .then(() => {
           done(new Error('should not have successfully resolved'))
         })
-        .catch((err) => {
+        .catch(err => {
           // assertions
           sinon.assert.notCalled(createCustomer)
           sinon.assert.notCalled(retrieveCustomer)
@@ -79,12 +86,13 @@ describe('_stripe', () => {
         })
     })
 
-    it('should reject if there is no user passed', (done) => {
-      _stripe.retrieveOrCreateCustomer(false, 'payment')
+    it('should reject if there is no user passed', done => {
+      _stripe
+        .retrieveOrCreateCustomer(false, 'payment')
         .then(() => {
           done(new Error('should not have successfully resolved'))
         })
-        .catch((err) => {
+        .catch(err => {
           // assertions
           sinon.assert.notCalled(createCustomer)
           sinon.assert.notCalled(retrieveCustomer)

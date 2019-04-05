@@ -18,7 +18,7 @@ export async function SetTokenController(req: Request, res: Response, next: Next
   }
 
   let varsObj: any = {
-    token_url: `https:${process.env.CLIENT_URL}/redeem-token/${reset_property}/${unhashedToken}?user_id=${user._id}`
+    token_url: `https:${process.env.CLIENT_URL}/redeem-token/${reset_property}/${unhashedToken}?user_id=${user._id}`,
   }
 
   try {
@@ -28,7 +28,7 @@ export async function SetTokenController(req: Request, res: Response, next: Next
       subject: 'Edji support request',
       email: user.email,
       from: 'Edji <support@edji.it>',
-      vars_object: varsObj
+      vars_object: varsObj,
     })
 
     // Alright, class. We're gonna do something funky here. In order to end to end test the use-token endpoints, we

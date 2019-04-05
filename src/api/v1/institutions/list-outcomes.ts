@@ -1,6 +1,6 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
-var mongoose = require("mongoose")
+var mongoose = require('mongoose')
 
 // project imports
 import Standard, { iStandard } from '../../../models/Standard'
@@ -18,32 +18,32 @@ export async function GetOutcomes(req: Request, res: Response, next: NextFunctio
     let outcomes: any = await Institution.aggregate([
       {
         $match: {
-          _id: mongoose.Types.ObjectId(institution_id)
-        }
+          _id: mongoose.Types.ObjectId(institution_id),
+        },
       },
       {
-        $unwind: "$outcomes"
+        $unwind: '$outcomes',
       },
       {
         $lookup: {
-          from: "standards",
-          localField: "outcomes.standard",
-          foreignField: "_id",
-          as: "standard"
-        }
+          from: 'standards',
+          localField: 'outcomes.standard',
+          foreignField: '_id',
+          as: 'standard',
+        },
       },
-      { $unwind: "$standard" },
+      { $unwind: '$standard' },
       {
         $project: {
-          _id: "$outcomes._id",
-          short_name: "$outcomes.short_name",
-          outcome_statement: "$outcomes.outcome_statement",
-          rubric: "$outcomes.rubric",
+          _id: '$outcomes._id',
+          short_name: '$outcomes.short_name',
+          outcome_statement: '$outcomes.outcome_statement',
+          rubric: '$outcomes.rubric',
           standard: {
-            identifier: 1
-          }
-        }
-      }
+            identifier: 1,
+          },
+        },
+      },
     ]).exec()
     return res.status(200).send({ outcomes: outcomes })
   } catch (err) {

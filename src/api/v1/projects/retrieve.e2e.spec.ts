@@ -10,42 +10,42 @@ import { UserAPI, ProjectAPI, ReadingAPI, TempUserAPI } from './../../../test/me
 import data = require('../../../test/constants')
 
 // helper function for validating a project
-const validateProject = function (project) {
+const validateProject = function(project) {
   project.should.be.instanceOf(Object)
 
   // check for properties on the main project object
-  project.should.have.property("_id")
-  project.should.have.property("comments")
+  project.should.have.property('_id')
+  project.should.have.property('comments')
   // test comments further
   project.comments.should.be.instanceOf(Array)
-  project.should.have.property("answers")
+  project.should.have.property('answers')
   // test answers further
   project.answers.should.be.instanceOf(Array)
-  project.should.have.property("students_ids")
+  project.should.have.property('students_ids')
   // test students_ids further
   project.students_ids.should.be.instanceOf(Array)
-  project.should.have.property("temp_ids")
+  project.should.have.property('temp_ids')
   // test temp_ids further
   project.temp_ids.should.be.instanceOf(Array)
-  project.should.have.property("types")
+  project.should.have.property('types')
   // test types further
   project.types.should.be.instanceOf(Array)
   project.types.length.should.be.equal(4)
-  project.should.have.property("report_evals")
+  project.should.have.property('report_evals')
   // test report_evals further
   project.report_evals.should.be.instanceOf(Array)
-  project.should.have.property("group_instructions")
-  project.should.have.property("tags")
-  project.should.have.property("createdAt")
-  project.should.have.property("updatedAt")
-  project.should.have.property("teacher_id")
-  project.should.have.property("reading_id")
+  project.should.have.property('group_instructions')
+  project.should.have.property('tags')
+  project.should.have.property('createdAt')
+  project.should.have.property('updatedAt')
+  project.should.have.property('teacher_id')
+  project.should.have.property('reading_id')
   project.reading_id.should.not.be.instanceOf(Object)
-  project.should.have.property("code")
-  project.should.have.property("label")
-  project.should.have.property("heat_vision")
+  project.should.have.property('code')
+  project.should.have.property('label')
+  project.should.have.property('heat_vision')
   // we didn't ask to populate teacher, so it shouldn't have it!
-  project.should.not.have.property("teacher")
+  project.should.not.have.property('teacher')
 }
 
 let teacherToken: string
@@ -55,11 +55,10 @@ let createdReading: any
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (projectId: string, authToken?: string, query?: string[]): Request {
+const request = function(projectId: string, authToken?: string, query?: string[]): Request {
   let url = `/api/v1/projects/${projectId}`
   if (query) url += `?${query.join('&')}`
-  let req = chai.request(data.SERVER)
-    .get(url)
+  let req = chai.request(data.SERVER).get(url)
 
   authToken && req.set('Authorization', authToken)
   return req
@@ -77,18 +76,19 @@ describe('GET /projects/:project_id', () => {
   before(async () => {
     const { reading } = await ReadingAPI.create(teacherToken, {
       public: true,
-      draft: false
+      draft: false,
     })
     expect(reading && reading._id).to.exist
     createdReading = reading
-    const project = await ProjectAPI.create({
-      teacher_id: teacherObj._id,
-      reading_id: reading._id,
-      label: 'PUT /api/v1/projects/:project_id test project',
-      group_instructions: 'dont fold',
-      types: ['emoji', 'text', 'audio', 'reply']
-    },
-      teacherToken
+    const project = await ProjectAPI.create(
+      {
+        teacher_id: teacherObj._id,
+        reading_id: reading._id,
+        label: 'PUT /api/v1/projects/:project_id test project',
+        group_instructions: 'dont fold',
+        types: ['emoji', 'text', 'audio', 'reply'],
+      },
+      teacherToken,
     )
     expect(project._id, 'did not successfully create project to test').not.to.be.undefined
     createdProject = project
@@ -104,7 +104,7 @@ describe('GET /projects/:project_id', () => {
     res.should.have.status(200)
 
     // check to make sure we get an object back that is the project
-    res.body.should.have.property("project")
+    res.body.should.have.property('project')
     const project = res.body.project
     project.should.be.instanceOf(Object)
   })
@@ -113,11 +113,11 @@ describe('GET /projects/:project_id', () => {
     res.should.have.status(200)
 
     // check to make sure we get an object back that is the project
-    res.body.should.have.property("project")
+    res.body.should.have.property('project')
 
     validateProject(res.body.project)
   })
-  it("should get a project by the project code", async () => {
+  it('should get a project by the project code', async () => {
     const res = await request(createdProject.code, teacherToken)
     expect(res).to.have.status(200)
 
@@ -125,10 +125,10 @@ describe('GET /projects/:project_id', () => {
     expect(res.body).to.have.property('project')
     validateProject(res.body.project)
   })
-  it("should get a project even if the project code is capitalized", async () => {
+  it('should get a project even if the project code is capitalized', async () => {
     const res = await request(createdProject.code.toUpperCase(), teacherToken)
     res.should.have.status(200)
-    res.body.should.have.property("project")
+    res.body.should.have.property('project')
   })
   it('should add a student to the students_ids array', async () => {
     let { username, password } = data.LOGIN_INFO.API_STUDENT
@@ -173,19 +173,19 @@ describe('GET /projects/:project_id', () => {
     res.body.project.should.have.property('reading_id')
     let reading = res.body.project.reading_id
 
-    reading.should.have.property("_id")
-    reading.should.have.property("words")
+    reading.should.have.property('_id')
+    reading.should.have.property('words')
     reading.words.should.be.instanceOf(Array)
     reading.words.length.should.be.above(0)
-    reading.should.have.property("title")
-    reading.should.have.property("owner_id")
-    reading.should.have.property("public")
-    reading.should.have.property("promoter_ids")
-    reading.should.have.property("source")
-    reading.should.have.property("tags")
-    reading.should.have.property("draft")
-    reading.should.have.property("version_id")
-    reading.should.have.property("questions")
+    reading.should.have.property('title')
+    reading.should.have.property('owner_id')
+    reading.should.have.property('public')
+    reading.should.have.property('promoter_ids')
+    reading.should.have.property('source')
+    reading.should.have.property('tags')
+    reading.should.have.property('draft')
+    reading.should.have.property('version_id')
+    reading.should.have.property('questions')
     reading.questions.should.be.instanceOf(Array)
   })
   it('should populate teacher', async () => {
@@ -197,13 +197,13 @@ describe('GET /projects/:project_id', () => {
     let teacher = res.body.project.teacher
 
     // test teacher further
-    teacher.should.have.property("_id")
-    teacher.should.have.property("fullname")
-    teacher.should.have.property("username")
+    teacher.should.have.property('_id')
+    teacher.should.have.property('fullname')
+    teacher.should.have.property('username')
 
     // properties the project object should not have
-    res.body.project.should.not.have.property("teacherRef")
-    teacher.should.not.have.property("password")
+    res.body.project.should.not.have.property('teacherRef')
+    teacher.should.not.have.property('password')
   })
   it('should populate both teacher and reading_id', async () => {
     const res = await request(createdProject._id, teacherToken, ['pop=reading_id', 'pop=teacher'])
@@ -221,7 +221,7 @@ describe('GET /projects/:project_id', () => {
     res.should.have.status(404)
   })
 
-  it("should return 404 when project is not found by code", async () => {
+  it('should return 404 when project is not found by code', async () => {
     const res = await request(Date.now().toString(), teacherToken)
     res.should.not.have.status(200)
     res.should.have.status(404)

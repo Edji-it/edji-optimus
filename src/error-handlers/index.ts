@@ -5,7 +5,7 @@ import { OAuthMiddleware } from './oauth'
 
 export const GeneralErrorHandlers: ErrorRequestHandler[] = [
   OAuthMiddleware,
-  Sentry.Handlers.errorHandler() // sentry docs say this should go first but I have it later because there are some "errors" that I want to handle without sending to sentry
+  Sentry.Handlers.errorHandler(), // sentry docs say this should go first but I have it later because there are some "errors" that I want to handle without sending to sentry
 ]
 
 export * from './mongo-validation'

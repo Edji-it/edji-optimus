@@ -11,7 +11,7 @@ describe('EdjiUtils', () => {
       const currentEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'test'
       const options = {
-        appId: 'test'
+        appId: 'test',
       }
       const edji = new EdjiUtils(options)
       expect(edji.appId).to.be.equal(options.appId)
@@ -23,7 +23,7 @@ describe('EdjiUtils', () => {
       const options = {
         appId: 'test',
         env: 'test',
-        doLog: true
+        doLog: true,
       }
       const edji = new EdjiUtils(options)
       expect(edji.appId).to.be.equal(options.appId)

@@ -39,21 +39,21 @@ token: string
 ## Test Cases
 
 1.  Pass correct `username` and `password` --> receive response
-    *  `res` should have a:
-        *  `user`: `any`
-            *  `user` should have a:
-                *  `_id`: `string`
-                *  `username`: `string`
-                *  `fullname`: `string`
-                *  `email`: `string`
-                *  `createdAt`: `Date`
-                *  `updatedAt`: `Date`
-            *  `user` should NOT have a:
-                *  `password`
-                *  `resetPasswordToken`
-                *  `resetPasswordExpires`
-                *  `accountArchiveToken`
-        *  `token`: `string`
+    - `res` should have a:
+      - `user`: `any`
+        - `user` should have a:
+          - `_id`: `string`
+          - `username`: `string`
+          - `fullname`: `string`
+          - `email`: `string`
+          - `createdAt`: `Date`
+          - `updatedAt`: `Date`
+        - `user` should NOT have a:
+          - `password`
+          - `resetPasswordToken`
+          - `resetPasswordExpires`
+          - `accountArchiveToken`
+      - `token`: `string`
 2.  Pass correct `username`, with mix of upper and lowercase letters, and correct `password`
 3.  Pass incorrect `username` --> receive `404`
 4.  Pass incorrect `password` --> receive `404`

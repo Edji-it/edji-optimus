@@ -37,7 +37,7 @@ user: {
 ## Test Cases
 
 1.  Pass with good id and 'good' values for all accepted values (outlined above) --> return `200` with user object
-    *  For each property in the update, the returned user should have an equal property
+    - For each property in the update, the returned user should have an equal property
 2.  Pass without `user` in body --> receive `400`
 3.  Pass with id which is not an id --> receive `400`
 4.  Pass with non-existant id --> receive `404`

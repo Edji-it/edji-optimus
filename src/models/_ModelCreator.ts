@@ -12,7 +12,12 @@ interface SaveAndIndexResults {
   indexResults?: any
 }
 
-export async function executeSaveAndIndex({ save, index, indexName, id }: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
+export async function executeSaveAndIndex({
+  save,
+  index,
+  indexName,
+  id,
+}: SaveAndIndexOptions): Promise<SaveAndIndexResults> {
   let queue: Array<Promise<any>> = []
   queue.push(wrapSave(save))
   index && queue.push(wrapSave(index))
@@ -33,7 +38,7 @@ export async function executeSaveAndIndex({ save, index, indexName, id }: SaveAn
         await elastic.delete({
           index: indexName,
           type: 'default',
-          id
+          id,
         })
       } catch (err) {
         captureException(err)
@@ -47,7 +52,7 @@ export async function executeSaveAndIndex({ save, index, indexName, id }: SaveAn
   } else {
     return {
       saveResults,
-      indexResults // can be undefined so watch out!
+      indexResults, // can be undefined so watch out!
     }
   }
 }

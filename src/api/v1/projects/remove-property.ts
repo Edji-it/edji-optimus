@@ -17,17 +17,17 @@ export async function RemoveProjectController(req: Request, res: Response, next:
     }
 
     let project = await Project.deleteOne({
-      _id: project_id, 
-      teacher_id: user._id 
+      _id: project_id,
+      teacher_id: user._id,
     })
 
-    if (project.n===0) {
+    if (project.n === 0) {
       return res.status(404).send({ error: 'no project at that id' })
     }
 
     return res.status(204).send()
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
       return res.status(406).send({ validationErrors })
     }
@@ -44,7 +44,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
 
     // consolidate _ids in to one array for removal
     let idArray: string[]
-    (idArray = reply_ids ? reply_ids : []).push(comment_id)
+    ;(idArray = reply_ids ? reply_ids : []).push(comment_id)
 
     if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project or property id passed' })
@@ -68,17 +68,17 @@ export async function RemovePropertyController(req: Request, res: Response, next
 }
 
 const REMOVE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string, user: any, comment_id: string, idArray: string[] }) => Promise<any>
+  [key: string]: (props: { project_id: string; user: any; comment_id: string; idArray: string[] }) => Promise<any>
 } = {
-  comments: function (props) {
+  comments: function(props) {
     return removeCommentFromArray(props, 'comments')
   },
-  answers: function (props) {
+  answers: function(props) {
     return removeCommentFromArray(props, 'answers')
   },
-  feedback: function (props) {
+  feedback: function(props) {
     return removeCommentFromArray(props, 'feedback')
-  }
+  },
 }
 
 const CUSTOM_REMOVABLE_PROPERTIES: string[] = Object.keys(REMOVE_CONTROLLERS)

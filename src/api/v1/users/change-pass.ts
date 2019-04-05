@@ -7,7 +7,7 @@ import { comparePasswords, generateLoginObjectForUser } from './../../../middlew
 
 const resetSchema = joi.object().keys({
   old_password: joi.string().required(),
-  new_password: joi.string().required()
+  new_password: joi.string().required(),
 })
 
 const changePasswordHandler: RequestHandler = async (req, res, next) => {

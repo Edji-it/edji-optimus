@@ -14,7 +14,7 @@ describe('createUniqueReferralCode', () => {
   let fakeReferral = {
     _id: new ObjectId(),
     code: '12345',
-    users_referred: []
+    users_referred: [],
   }
   let ReferralMock: SinonMock
   let referralSaveStub: SinonStub
@@ -33,9 +33,7 @@ describe('createUniqueReferralCode', () => {
   it('should return a generated code', async () => {
     referralSaveStub.resolves(fakeReferral)
 
-    ReferralMock
-      .expects('findOne')
-      .resolves(undefined)
+    ReferralMock.expects('findOne').resolves(undefined)
 
     let referral: any = await createUniqueReferral()
     referral.code.should.be.equal(fakeReferral.code)
@@ -45,8 +43,8 @@ describe('createUniqueReferralCode', () => {
   it('should attempt to find a unique code 5 times before throwing an error', async () => {
     referralSaveStub.resolves(fakeReferral)
 
-    ReferralMock
-      .expects('findOne').exactly(5)
+    ReferralMock.expects('findOne')
+      .exactly(5)
       .resolves([{ code: 'some_code' }])
 
     try {

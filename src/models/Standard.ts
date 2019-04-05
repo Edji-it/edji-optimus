@@ -6,11 +6,11 @@ import { Schema } from 'mongoose'
 const ModelCreator = require('./ModelCreator')
 
 // The Main Schema
-const Standard = ModelCreator("Standard", {
+const Standard = ModelCreator('Standard', {
   standard_type: { type: String, required: true },
   grade_level: { type: String },
   identifier: { type: String, required: true },
-  description: { type: String, required: true }
+  description: { type: String, required: true },
 })
 
 export default Standard

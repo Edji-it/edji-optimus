@@ -5,7 +5,7 @@ const Project = require('./../../../models/Project')
 const helpers = require('./_list')
 const _agg = require('./../../../aggregations')
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   const user = req.user
   const query = helpers.validateQuery(req.query)
   if (query.error) {
@@ -29,13 +29,16 @@ module.exports = function (req, res, next) {
 
   // run the query
   Project.aggregate(aggregation)
-    .then((response) => {
-      if (response[0]) { response = response[0] }
-      else { response = { total: 0, results: [] } }
+    .then(response => {
+      if (response[0]) {
+        response = response[0]
+      } else {
+        response = { total: 0, results: [] }
+      }
 
       return res.status(200).send({ total: response.total, projects: response.results })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

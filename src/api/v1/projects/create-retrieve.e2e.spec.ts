@@ -7,16 +7,18 @@ import { UserAPI, ReadingAPI, ProjectAPI } from '../../../test/methods'
 
 // prep for http calls
 chai.use(chaiHttp)
-const requestProjects = function (authToken: string) {
-  let req = chai.request(data.SERVER)
+const requestProjects = function(authToken: string) {
+  let req = chai
+    .request(data.SERVER)
     .get(`/api/v1/projects?size=5`)
     .set('Authorization', authToken)
 
   return req
 }
 
-const requestProject = function (projectId: string, authToken: string) {
-  let req = chai.request(data.SERVER)
+const requestProject = function(projectId: string, authToken: string) {
+  let req = chai
+    .request(data.SERVER)
     .get(`/api/v1/projects/${projectId}`)
     .set('Authorization', authToken)
 
@@ -40,9 +42,9 @@ describe('create and list projects workflow', () => {
       {
         reading_id: createdReading._id,
         teacher_id: heroUser._id,
-        label: 'create and list projects workflow'
+        label: 'create and list projects workflow',
       },
-      heroToken
+      heroToken,
     )
 
     // log in student and make sure the new reading does not already exist on the dashboard
@@ -50,7 +52,7 @@ describe('create and list projects workflow', () => {
     let { token: studentToken } = await UserAPI.login(studentUsn, studentPw)
     let res1 = await requestProjects(studentToken)
     res1.body.projects.length.should.be.above(1)
-    res1.body.projects.forEach((project) => {
+    res1.body.projects.forEach(project => {
       project._id.should.not.be.equal(createdProject._id)
     })
 
@@ -61,7 +63,7 @@ describe('create and list projects workflow', () => {
     let res2 = await requestProjects(studentToken)
     res2.body.projects.length.should.be.above(1)
     let projectFound: boolean = false
-    res2.body.projects.forEach((project) => {
+    res2.body.projects.forEach(project => {
       if (project._id === createdProject._id) {
         projectFound = true
       }

@@ -20,10 +20,7 @@ export default async function CreateProjectController(req: Request, res: Respons
 
     // just in case a Hero has chosen a custom code which exists in the database
     if (hasCustomCode) {
-      await SessionCode.updateOne(
-        { code: projectData.code },
-        { $set: { active: true } }
-      )
+      await SessionCode.updateOne({ code: projectData.code }, { $set: { active: true } })
     }
     /**
      * @deprecated 2/2/19
@@ -33,7 +30,7 @@ export default async function CreateProjectController(req: Request, res: Respons
     }
     res.status(201).send(project)
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       let validationErrors = cleanMongoValidationError(err)
       return res.status(406).send({ validationErrors })
     }

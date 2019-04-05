@@ -16,9 +16,9 @@ import Feedback from '../../../models/Feedback'
 export async function deleteFromS3(url: string): Promise<void> {
   try {
     const options = {
-      uri: [process.env.EDJI_GRAPPLE_DOMAIN, "v1", "s3", encodeURIComponent(url)].join("/"),
+      uri: [process.env.EDJI_GRAPPLE_DOMAIN, 'v1', 's3', encodeURIComponent(url)].join('/'),
       headers: { Authorization: process.env.EDJI_GRAPPLE_TOKEN },
-      json: true
+      json: true,
     }
     const res = await del(options)
   } catch (err) {

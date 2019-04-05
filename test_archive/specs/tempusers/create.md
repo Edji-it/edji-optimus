@@ -32,20 +32,20 @@ Coming soon?
 ## Test Cases
 
 1.  Pass good object
-    *  `res` should have a:
-        *  `status` = `201`
-        *  `user`: `any` should have a:
-            *  `_id`: `string`
-            *  `fullname`: `string`
-            *  `type`: `string`
-            *  `timer`: `Date`
-            *  `createdAt`: `Date`
-            *  `updatedAt`: `Date`
-        *  `token`: `string`
+    - `res` should have a:
+      - `status` = `201`
+      - `user`: `any` should have a:
+        - `_id`: `string`
+        - `fullname`: `string`
+        - `type`: `string`
+        - `timer`: `Date`
+        - `createdAt`: `Date`
+        - `updatedAt`: `Date`
+      - `token`: `string`
 2.  Pass without `user` --> receive `400`
 3.  Pass without `fullname`
-    *  `res` should have a:
-        *  `status` = `406`
-        *  `errors`: `any` should have a:
-            *  `validationErrors`: `any` should have a:
-                *  `fullname`: `string` = `required`
+    - `res` should have a:
+      - `status` = `406`
+      - `errors`: `any` should have a:
+        - `validationErrors`: `any` should have a:
+          - `fullname`: `string` = `required`

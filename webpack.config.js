@@ -13,15 +13,15 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
+        exclude: /node_modules/,
+      },
+    ],
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: ['.ts', '.tsx', '.js'],
   },
   output: {
     filename: 'bundle.js',
-    path: OUT_DIR
-  }
+    path: OUT_DIR,
+  },
 }

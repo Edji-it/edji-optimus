@@ -11,10 +11,9 @@ import { User } from '@sentry/node'
 
 // prep for http calls
 chai.use(chaiHttp)
-const request = function (institution_id: string, authToken: string): Request {
+const request = function(institution_id: string, authToken: string): Request {
   let url = `/api/v1/institutions/${institution_id}/outcomes`
-  let req = chai.request(data.SERVER)
-    .get(url)
+  let req = chai.request(data.SERVER).get(url)
   authToken && req.set('Authorization', authToken)
   return req
 }
@@ -25,7 +24,7 @@ let institution_id: string
 
 describe('GET api/v1/institutions/:institution_id/outcomes', () => {
   before(async () => {
-  // data used in tests
+    // data used in tests
     const { username, password } = data.LOGIN_INFO.API_HERO2
     let userRes = await UserAPI.login(username, password)
     token = userRes.token
@@ -34,7 +33,7 @@ describe('GET api/v1/institutions/:institution_id/outcomes', () => {
     expect(token).to.exist
     expect(user).to.exist
   })
-  
+
   it('should return a 200 with an array of outcomes if passed an active institution that has outcomes', async () => {
     let res = await request(institution_id, token)
     res.should.have.status(200)
@@ -45,19 +44,19 @@ describe('GET api/v1/institutions/:institution_id/outcomes', () => {
     outcomes.should.be.instanceOf(Array)
     outcomes.length.should.be.above(0)
     let outcome = outcomes[0]
-    outcome.should.have.property("_id")
-    outcome.should.have.property("standard")
-    outcome.should.have.property("short_name")
-    outcome.should.have.property("outcome_statement")
-    outcome.should.have.property("rubric")
+    outcome.should.have.property('_id')
+    outcome.should.have.property('standard')
+    outcome.should.have.property('short_name')
+    outcome.should.have.property('outcome_statement')
+    outcome.should.have.property('rubric')
 
     // check rubric for valid response properties
     let rubrics = outcome.rubric
     rubrics.should.be.instanceOf(Array)
     rubrics.length.should.be.above(0)
     let rubric = rubrics[0]
-    rubric.should.have.property("grade")
-    rubric.should.have.property("rubric_statement")
+    rubric.should.have.property('grade')
+    rubric.should.have.property('rubric_statement')
   })
 
   it('should return a 200 with an empty array an active institution that has no outcomes', async () => {

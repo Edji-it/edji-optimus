@@ -1,17 +1,18 @@
 // library imports
 const Q = require('q')
-let mongoose = require("mongoose")
+let mongoose = require('mongoose')
 
 // project imports
 const Project = require('./../../../models/Project')
 const helpers = require('./_retrieve')
 const Sentry = require('@sentry/node')
 
-module.exports = async function (req, res, next) {
+module.exports = async function(req, res, next) {
   let user = req.user
   const project_id = req.params.project_id
   let population = req.query.pop || []
-  if (typeof population == 'string') { // otherwise it's going to be an array of strings, which is what we want
+  if (typeof population == 'string') {
+    // otherwise it's going to be an array of strings, which is what we want
     population = [population]
   }
   let findParams = {}
@@ -41,10 +42,7 @@ module.exports = async function (req, res, next) {
     delete project.reading
     let { update } = await helpers.addIdToProject(user, project)
     if (update) {
-      let updatedNum = await Project.updateOne(
-        { _id: project._id },
-        update
-      )
+      let updatedNum = await Project.updateOne({ _id: project._id }, update)
       if (!updatedNum.nModified) {
         Sentry.captureException(new Error(`user: ${user._id} not added to project: ${project._id} upon update attempt`))
       }

@@ -1,11 +1,11 @@
 // library imports
 const Q = require('q')
-var mongoose = require("mongoose")
+var mongoose = require('mongoose')
 
 // project imports
 const Institution = require('./../../../models/Institution')
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   // the institution_id is a param that will be used to find the institution
   let institutionId = req.params.institution_id
 
@@ -13,16 +13,13 @@ module.exports = function (req, res, next) {
   if (!mongoose.validateEdjiId(institutionId)) {
     return res.status(403).send()
   }
-  
-  Institution.findById(
-    institutionId,
-    {
-      name: 1,
-      abbreviation: 1,
-      outcomes: 1
-    }
-  )
-    .then((institution) => {
+
+  Institution.findById(institutionId, {
+    name: 1,
+    abbreviation: 1,
+    outcomes: 1,
+  })
+    .then(institution => {
       // if instituion is null (meaning it did not exist in the collection)
       if (!institution) {
         return res.status(404).send()
@@ -30,7 +27,7 @@ module.exports = function (req, res, next) {
 
       return res.status(200).send({ institution: institution })
     })
-    .catch((err) => {
+    .catch(err => {
       next(err)
     })
 }

@@ -7,7 +7,9 @@ export async function ValidateTokenMiddleware(req: Request, res: Response, next:
   let { user } = req
 
   if (!reset_property || !unhashed_token) {
-    return res.status(400).send({ error: `cannot use token ${reset_property}, as reset_property and unhashed_token do not both exist` })
+    return res
+      .status(400)
+      .send({ error: `cannot use token ${reset_property}, as reset_property and unhashed_token do not both exist` })
   }
   if (!resetValue || typeof resetValue !== 'string') {
     return res.status(400).send({ error: `${reset_property} required and must be a string` })

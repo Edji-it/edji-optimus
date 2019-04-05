@@ -6,7 +6,7 @@ const stripe = require('./../_stripe').api
 const helpers = require('./../_stripe')
 const Sentry = require('@sentry/node')
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   let user = req.user
   const subscription_id = req.params.subscription_id
 
@@ -16,11 +16,12 @@ module.exports = function (req, res, next) {
   }
 
   // send an update to stripe to make sure we remove the cancellation
-  stripe.subscriptions.updateOne(subscription_id, { cancel_at_period_end: false })
-  .then((subscription) => {
-    return res.status(200).send({user: user, subscription: subscription})
-  })
-  .catch((err) => {
-    next(err)
-  })
+  stripe.subscriptions
+    .updateOne(subscription_id, { cancel_at_period_end: false })
+    .then(subscription => {
+      return res.status(200).send({ user: user, subscription: subscription })
+    })
+    .catch(err => {
+      next(err)
+    })
 }

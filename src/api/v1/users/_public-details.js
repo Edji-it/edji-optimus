@@ -1,4 +1,4 @@
-let validateRequest = function (students_ids, temp_ids) {
+let validateRequest = function(students_ids, temp_ids) {
   // if we do not have any students or temp _ids in the request, we can go ahead and skip this
   if (_idNull(students_ids) && _idNull(temp_ids)) {
     return false
@@ -6,7 +6,7 @@ let validateRequest = function (students_ids, temp_ids) {
   return true
 }
 
-let _idNull = function (_ids) {
+let _idNull = function(_ids) {
   if (!_ids || (_ids && _ids[0] === '')) {
     return true
   }
@@ -15,5 +15,5 @@ let _idNull = function (_ids) {
 
 module.exports = {
   validateRequest,
-  _idNull
+  _idNull,
 }
