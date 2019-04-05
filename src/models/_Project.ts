@@ -16,8 +16,6 @@ export const deleteOwnerProject = (): RequestHandler => {
         return res.status(404).send() // it would be sweet to figure out how to throw an error here and catch it in some middleware runner...
       }
       res.status(204)
-      res.body.deleted = deleteRes.n
-      res.status(204)
       return next()
     } catch (err) {
       next(err)
