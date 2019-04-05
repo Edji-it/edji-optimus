@@ -172,7 +172,6 @@ let model = ModelCreator("User", {
             'media',
             'createdAt',
             'updatedAt',
-            'school_name',
             'school_district',
             'phone_number',
             'sales_can_contact',

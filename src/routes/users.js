@@ -36,6 +36,7 @@ router.put("/", authRequired, async function (req, res, next) {
         'avatar',
         'identities',
         'referred_by',
+        'school_name',
         'school_district',
         'phone_number',
         'sales_can_contact',
@@ -44,6 +45,13 @@ router.put("/", authRequired, async function (req, res, next) {
 
     UPDATABLE_PROPERTIES.forEach((property) => {
         if (userData[property]) {
+            /**
+             * since school_name is @deprecated 4/4/2019
+             * set the school_district child property district_name to the value being passed in so we return the correct data to the front end
+             */
+            if (userData.school_name) {
+                userData.school_district.district_name = userData.school_name
+            }
             user[property] = userData[property]
         }
     })
