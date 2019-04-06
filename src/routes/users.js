@@ -13,7 +13,7 @@ const router = express.Router()
 
 /**
  * @deprecated 3/8/19
- */
+ */ 
 router.post('/', require('./../api/v1/users/create').default)
 
 router.put('/', authRequired, async function(req, res, next) {

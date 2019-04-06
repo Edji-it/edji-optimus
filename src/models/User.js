@@ -12,7 +12,7 @@ const emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))
 const validateEmail = function(email) {
   return email && emailRe.test(email)
 }
-
+ 
 const validateName = function(name) {
   // needs to return true for good names
   const listOfWordsItCantContainAtAll = [
