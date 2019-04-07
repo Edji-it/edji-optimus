@@ -212,9 +212,9 @@ let model = ModelCreator(
        * since school_name is @deprecated 4/4/2019
        * set the school child property district_name to the value being passed in so we return the correct data to the front end
        */
-      if (userData.school_name) {
-        userData.school.district_name = userData.school_name
-        delete userData.school_name
+      if (this.school_name) {
+        this.school.district_name = this.school_name
+        delete this.school_name
       }
     }
 
