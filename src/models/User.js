@@ -12,7 +12,7 @@ const emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))
 const validateEmail = function(email) {
   return email && emailRe.test(email)
 }
- 
+
 const validateName = function(name) {
   // needs to return true for good names
   const listOfWordsItCantContainAtAll = [
@@ -103,10 +103,10 @@ let model = ModelCreator(
     },
     identities: [String],
     school_district: {
-        school_name: String,
-        school_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
-        district_name: String,
-        district_id: String // these are not ObjectIds, but these are Ids from the NCES data collection
+      school_name: String,
+      school_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
+      district_name: String,
+      district_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
     },
     sales_can_contact: Boolean,
     phone_number: String,
@@ -167,33 +167,33 @@ let model = ModelCreator(
   },
   function(schema) {
     // add custom method which returns only the properties which we want to be viewable by the client
-    schema.methods.toPublic = function () {
-        // list out the properties it is ok to return to the front-end
-        const clientProperties = [
-            '_id',
-            'username',
-            'fullname',
-            'email',
-            'identities',
-            'last_hero_check',
-            'hero_status',
-            'referral_code',
-            'referred_by',
-            'license_ids',
-            'institution_ids',
-            'stripe_customer_id',
-            'avatar',
-            'following',
-            'prefs',
-            'media',
-            'createdAt',
-            'updatedAt',
-            'school_district',
-            'phone_number',
-            'sales_can_contact',
-            'archive_readings_before',
-            'oauth'
-        ]
+    schema.methods.toPublic = function() {
+      // list out the properties it is ok to return to the front-end
+      const clientProperties = [
+        '_id',
+        'username',
+        'fullname',
+        'email',
+        'identities',
+        'last_hero_check',
+        'hero_status',
+        'referral_code',
+        'referred_by',
+        'license_ids',
+        'institution_ids',
+        'stripe_customer_id',
+        'avatar',
+        'following',
+        'prefs',
+        'media',
+        'createdAt',
+        'updatedAt',
+        'school_district',
+        'phone_number',
+        'sales_can_contact',
+        'archive_readings_before',
+        'oauth',
+      ]
 
       // return all of the properties in the above array
       return _.pick(this, (value, key, object) => {

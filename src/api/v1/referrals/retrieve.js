@@ -30,11 +30,9 @@ module.exports = function(req, res, next) {
   } else {
     // here the user is auth'd to get the entire referral object, and does not need any user information
     // but we don't want to move the code over here yet because that would be more work
-    return res
-      .status(400)
-      .send({
-        error:
-          'this route does not yet return a user their referral information - use GET /users/referrals/:referral_code',
-      })
+    return res.status(400).send({
+      error:
+        'this route does not yet return a user their referral information - use GET /users/referrals/:referral_code',
+    })
   }
 }
