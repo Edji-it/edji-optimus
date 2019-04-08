@@ -4,10 +4,10 @@
   "window.zoomLevel": 0,
   "workbench.iconTheme": "vscode-icon-theme",
   "eslint.autoFixOnSave": true,
-  "eslint.validate":  [
+  "eslint.validate": [
     "javascript",
     "javascriptreact",
-    {"language":  "typescript",  "autoFix":  true  },
-    {"language":  "typescriptreact",  "autoFix":  true  }
-  ],
+    { "language": "typescript", "autoFix": true },
+    { "language": "typescriptreact", "autoFix": true }
+  ]
 }

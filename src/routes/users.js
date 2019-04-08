@@ -14,6 +14,7 @@ const router = express.Router()
 /**
  * @deprecated 3/8/19
  */
+
 router.post('/', require('./../api/v1/users/create').default)
 
 router.put('/', authRequired, async function(req, res, next) {
@@ -37,6 +38,7 @@ router.put('/', authRequired, async function(req, res, next) {
     'identities',
     'referred_by',
     'school_name',
+    'school',
     'phone_number',
     'sales_can_contact',
     'archive_readings_before',
