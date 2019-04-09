@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs')
 
 // project imports
 const User = require('./../models/User')
-const { generateLoginObjectForUser, login } = require('./../middleware/login-controller')
+const { generateLoginObjectForUser } = require('./../middleware/login-controller')
 const authRequired = require('./../middleware/auth-required')
 const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError
 
@@ -13,8 +13,23 @@ const router = express.Router()
 
 /**
  * @deprecated 3/8/19
- */ 
+ */
+
 router.post('/', require('./../api/v1/users/create').default)
+
+const USER_UPDATABLE_PROPERTIES = [
+  'fullname',
+  'email',
+  'prefs',
+  'media',
+  'avatar',
+  'identities',
+  'referred_by',
+  'school_district',
+  'phone_number',
+  'sales_can_contact',
+  'archive_readings_before',
+]
 
 router.put('/', authRequired, async function(req, res, next) {
   let userData = req.body.user
@@ -28,60 +43,48 @@ router.put('/', authRequired, async function(req, res, next) {
     return res.status(400).send({ error: "you dumb for tryna update a user's referred_by" })
   }
 
-    const UPDATABLE_PROPERTIES = [
-        'fullname',
-        'email',
-        'prefs',
-        'media',
-        'avatar',
-        'identities',
-        'referred_by',
-        'school_name',
-        'school_district',
-        'phone_number',
-        'sales_can_contact',
-        'archive_readings_before'
-    ]
+  USER_UPDATABLE_PROPERTIES.forEach(property => {
+    if (userData.hasOwnProperty(property)) {
+      /**
+       * since school_name is @deprecated 4/4/2019
+       * set the school_district child property district_name to the value being passed in so we return the correct data to the front end
+       */
+      if (userData.school_name) {
+        userData.school_district.district_name = userData.school_name
+      }
+      user[property] = userData[property]
+    }
+  })
 
-    UPDATABLE_PROPERTIES.forEach((property) => {
-        if (userData[property]) {
-            /**
-             * since school_name is @deprecated 4/4/2019
-             * set the school_district child property district_name to the value being passed in so we return the correct data to the front end
-             */
-            if (userData.school_name) {
-                userData.school_district.district_name = userData.school_name
-            }
-            user[property] = userData[property]
-        }
-    })
+  // /**
+  //  * @deprecated 4/4/19
+  //  */
+  // if (userData.school_name && !user.school) {
+  //   user.school = {
+  //     school_name: userData.school_name,
+  //   }
+  // }
 
-    try {
-        let result = await user.edjiSave()
-        if (!result)
-            return res.status(400).send({ error: 'no result returned from saving user' })
-        else
-            return res.status(201).json(generateLoginObjectForUser(result))
-    } catch (error) {
-        // constructs object with list of model-defined errors to send to user
-        if (error.name === "ValidationError") {
-            let validationErrors = cleanMongoValidationError(error)
-            return res.status(406).send({ validationErrors })
-        } else if (error.code === 11000) {
-            return res.status(409).send()
-        } else {
-            return next(error)
-        }
+  try {
+    let result = await user.edjiSave()
+    return res.status(201).send(generateLoginObjectForUser(result))
+  } catch (error) {
+    // constructs object with list of model-defined errors to send to user
+    if (error.name === 'ValidationError') {
+      let validationErrors = cleanMongoValidationError(error)
+      return res.status(406).send({ validationErrors })
+    } else if (error.code === 11000) {
+      return res.status(409).send()
+    } else {
+      return next(error)
     }
   }
-)
+})
 
 /**
  * Search route for followers
  */
 router.get('/following', authRequired, (req, res, next) => {
-  let user = req.user
-
   let allowedTypes = ['popular']
 
   let type = req.query.type || 'popular'
