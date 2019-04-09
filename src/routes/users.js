@@ -27,6 +27,7 @@ const USER_UPDATABLE_PROPERTIES = [
   'school_district',
   'phone_number',
   'sales_can_contact',
+  'school',
   'archive_readings_before',
 ]
 
@@ -43,7 +44,7 @@ router.put('/', authRequired, async function(req, res, next) {
   }
 
   USER_UPDATABLE_PROPERTIES.forEach(property => {
-    if (userData[property]) {
+    if (userData.hasOwnProperty(property)) {
       user[property] = userData[property]
     }
   })

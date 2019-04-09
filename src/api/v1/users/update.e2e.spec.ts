@@ -33,6 +33,7 @@ const UPDATABLE_PROPERTIES = [
   'school_district',
   'phone_number',
   'sales_can_contact',
+  'school',
   'archive_readings_before',
 ]
 
@@ -78,6 +79,9 @@ const getUserUpdate = () => {
     phone_number: dateTime.toString(),
     sales_can_contact: !!Math.round(Math.random()),
     archive_readings_before: dateTime.toISOString(),
+    school: {
+      district_name: dateTime.toString(),
+    },
   }
 }
 
