@@ -26,7 +26,6 @@ const request = function(body: any, authToken?: string): Request {
 
 const UPDATABLE_PROPERTIES = [
   'fullname',
-  'email',
   'prefs',
   'media',
   'avatar',
@@ -37,13 +36,12 @@ const UPDATABLE_PROPERTIES = [
   'archive_readings_before',
 ]
 
-const identities = ['teacher', 'student', 'robot']
+const identities = ['teacher', 'student', 'robot', 'administrator']
 
 const getUserUpdate = () => {
   const dateTime = new Date()
   return {
     fullname: 'test name' + dateTime.toString(),
-    email: 'test_update+' + dateTime.getTime() + '@edji.it',
     prefs: {
       onboarding: {
         createReadingFromDash: {},
@@ -84,11 +82,15 @@ const getUserUpdate = () => {
 }
 
 let authToken: string
+let userState: any
+let newUserCredentials
 
 describe('PUT /api/v1/users/@me', () => {
   before(async () => {
-    const { token } = await UserAPI.create()
+    const { user, token, credentials } = await UserAPI.create({}, { returnCreds: true })
     authToken = token
+    userState = user
+    newUserCredentials = credentials
   })
 
   for (let prop of UPDATABLE_PROPERTIES) {
@@ -111,7 +113,14 @@ describe('PUT /api/v1/users/@me', () => {
     expect(res.body).to.haveOwnProperty('user')
     expect(res.body.user.school).to.eql({ district_name: school_name })
   })
-  it('should not update other properties')
+  it('should not update other properties', async () => {
+    const res = await request({ user: { password: '12345', email: 'corbin@edji.it' } }, authToken)
+    expect(res).to.have.status(201)
+    // make sure returned properties don't get updated
+    expect(res.body.user.email).to.eql(userState.email)
+    const { token: newToken } = await UserAPI.login(newUserCredentials.username, newUserCredentials.password)
+    expect(newToken.length).to.be.greaterThan(0) // make sure password didn't get updated
+  })
   it('should ignore updates for properties which do not exist', async () => {
     const res = await request({ user: { does_not_exist: true } }, authToken) // should be equivalent to an empty request
     expect(res).to.have.status(201)
