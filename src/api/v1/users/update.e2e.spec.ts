@@ -94,10 +94,6 @@ describe('PUT /api/v1/users/@me', () => {
   for (let prop of UPDATABLE_PROPERTIES) {
     it(`should update the ${prop} property on a user object`, async () => {
       const updateProp = getUserUpdate()[prop]
-      // const expectedUpdate = {
-      //   ...userState,
-      //   [prop]: updateProp,
-      // }
       const body = { user: { [prop]: updateProp } }
       const res = await request(body, authToken)
       expect(res).to.have.status(201)
@@ -113,7 +109,7 @@ describe('PUT /api/v1/users/@me', () => {
     const res = await request({ user: { school_name } }, authToken)
     expect(res).to.have.status(201)
     expect(res.body).to.haveOwnProperty('user')
-    expect(res.body.user.district).to.eql({ school_name })
+    expect(res.body.user.school).to.eql({ district_name: school_name })
   })
   it('should not update other properties')
   it('should ignore updates for properties which do not exist', async () => {

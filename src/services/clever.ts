@@ -92,7 +92,7 @@ export default class Clever {
       }
       const dist = await this.getDistrict()
       // edjiUser.school_name = dist.name
-      edjiUser.school_district.district_name = dist.name
+      edjiUser.school.district_name = dist.name
     }
     return edjiUser
   }
@@ -134,9 +134,9 @@ interface EdjiUserFromCleverUser {
   email?: string
   oauth: OAuthObj[]
   identities: string[]
-  school_district?: {
+  school?: {
     school_name: string
-    shool_id: string
+    school_id: string
     district_name: string
     district_id: string
   }

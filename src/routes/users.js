@@ -44,26 +44,18 @@ router.put('/', authRequired, async function(req, res, next) {
   }
 
   USER_UPDATABLE_PROPERTIES.forEach(property => {
-    if (userData.hasOwnProperty(property)) {
-      /**
-       * since school_name is @deprecated 4/4/2019
-       * set the school_district child property district_name to the value being passed in so we return the correct data to the front end
-       */
-      if (userData.school_name) {
-        userData.school_district.district_name = userData.school_name
-      }
+    if (userData[property]) {
       user[property] = userData[property]
     }
   })
 
-  // /**
-  //  * @deprecated 4/4/19
-  //  */
-  // if (userData.school_name && !user.school) {
-  //   user.school = {
-  //     school_name: userData.school_name,
-  //   }
-  // }
+  /**
+   * @deprecated 4/4/19
+   */
+  if (userData.school_name) {
+    if (!user.school) user.school = {}
+    user.school.district_name = userData.school_name
+  }
 
   try {
     let result = await user.edjiSave()
