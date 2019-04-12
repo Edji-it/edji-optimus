@@ -102,7 +102,12 @@ let model = ModelCreator(
       validate: { validator: validateEmail, message: 'Invalid email', kind: 'emailRegex' },
     },
     identities: [String],
-    school_name: String,
+    school: {
+      school_name: String,
+      school_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
+      district_name: String,
+      district_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
+    },
     sales_can_contact: Boolean,
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
@@ -183,7 +188,7 @@ let model = ModelCreator(
         'media',
         'createdAt',
         'updatedAt',
-        'school_name',
+        'school',
         'phone_number',
         'sales_can_contact',
         'archive_readings_before',
@@ -202,6 +207,14 @@ let model = ModelCreator(
       } // get out of here object without an id (at one point, this was returning the entire node process)
       if (this.password && this.isModified('password')) {
         this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
+      }
+      /**
+       * since school_name is @deprecated 4/4/2019
+       * set the school child property district_name to the value being passed in so we return the correct data to the front end
+       */
+      if (this.school_name) {
+        this.school.district_name = this.school_name
+        delete this.school_name
       }
     }
 
