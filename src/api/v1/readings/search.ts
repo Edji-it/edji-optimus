@@ -13,7 +13,7 @@ export default async function SearchController(req: Request, res: Response, next
 
   try {
     const { hits } = await constructSearch(query, userId)
-    const results = await searchByIds(hits.hits.map(hit => hit._id))
+    const results = await searchByIds(hits.hits.map(hit => hit._id), query.pop)
     let body = {
       total: hits.total,
       returned: results.length,

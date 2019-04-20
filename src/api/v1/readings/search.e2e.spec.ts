@@ -71,6 +71,12 @@ describe('GET /api/v1/readings/_search', () => {
     })
     expect(allDates).to.eql(allDatesSorted)
   })
+  it('should get readings by owner', async () => {
+    const res = await searchRequest(['scope=owner'], token)
+    expect(res).to.have.status(200)
+    expect(res.body.results.length).to.be.above(10) // just want to make sure we've got enough results that sorting is an effective test
+    res.body.results.forEach(result => expect(result.owner_id).to.be.equal(user._id))
+  })
   it('should change sort order', async () => {
     const res = await searchRequest([`sort=createdAt`, `sort_order=desc`], token)
     expect(res).to.have.status(200)
