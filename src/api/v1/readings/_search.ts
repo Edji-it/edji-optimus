@@ -33,6 +33,7 @@ enum ScopeEnum {
   OWNER = 'owner',
 }
 const scopeValues = ['public', 'owner']
+const ownerPopulations = ['projects']
 
 const querySchema = joi.object().keys({
   _ids: joi.array().items(joi.string()),
@@ -64,6 +65,7 @@ const querySchema = joi.object().keys({
     .default(15),
   sort: joi.string(),
   sort_order: joi.string().valid(['asc', 'desc']),
+  pop: joi.alternatives().when('scope', { is: 'owner', then: joi.string().allow(ownerPopulations) }),
   body: joi.boolean(),
 })
 
