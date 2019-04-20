@@ -91,9 +91,23 @@ describe('GET /api/v1/readings/_search', () => {
     const res = await searchRequest(['pop=projects', 'scope=owner'], token)
     expect(res).to.have.status(200)
     expect(res.body.results.length).to.be.above(10)
+    let numberProjectsValidated = 0
     for (let reading of res.body.results) {
       expect(reading).to.haveOwnProperty('projects')
+      reading.projects.forEach(project => {
+        expect(project).to.haveOwnProperty('reading_id')
+        expect(project).to.haveOwnProperty('teacher_id')
+        expect(project).to.haveOwnProperty('label')
+        expect(project).to.haveOwnProperty('code')
+        expect(project).to.haveOwnProperty('types')
+        expect(project).to.haveOwnProperty('createdAt')
+        expect(project).to.haveOwnProperty('updatedAt')
+        expect(project).to.haveOwnProperty('comment_count')
+        expect(project).to.haveOwnProperty('student_count')
+        numberProjectsValidated++
+      })
     }
+    expect(numberProjectsValidated).to.be.above(0)
   })
   it('should not populate projects on public scope', async () => {
     const res = await searchRequest(['pop=projects'], token)

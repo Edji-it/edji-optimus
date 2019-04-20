@@ -147,7 +147,6 @@ export async function searchByIds(
                 types: '$$this.types',
                 createdAt: '$$this.createdAt',
                 updatedAt: '$$this.updatedAt',
-                students_ids: '$$this.students_ids',
                 comment_count: {
                   $size: '$$this.comments',
                 },
