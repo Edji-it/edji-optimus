@@ -91,8 +91,7 @@ export default class Clever {
         edjiUser.identities.push('administrator')
       }
       const dist = await this.getDistrict()
-      // edjiUser.school_name = dist.name
-      edjiUser.school.district_name = dist.name
+      edjiUser.school = { district_name: dist.name }
     }
     return edjiUser
   }
@@ -135,10 +134,10 @@ interface EdjiUserFromCleverUser {
   oauth: OAuthObj[]
   identities: string[]
   school?: {
-    school_name: string
-    school_id: string
-    district_name: string
-    district_id: string
+    school_name?: string
+    school_id?: string
+    district_name?: string
+    district_id?: string
   }
 }
 
