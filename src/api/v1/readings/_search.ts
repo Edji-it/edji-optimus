@@ -33,7 +33,7 @@ enum ScopeEnum {
   PUBLIC = 'public',
   OWNER = 'owner',
 }
-const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.PUBLIC]
+const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.OWNER]
 enum PopulationsEnum {
   PROJECTS = 'projects',
 }
