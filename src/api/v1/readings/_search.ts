@@ -25,6 +25,7 @@ export interface ReadingQuery {
   size?: number
   sort?: string // the field to sort on
   sort_order?: string // asc or desc - the order to sort by
+  pop?: PopulationsEnum[]
   body?: boolean // debugging tool to return the query body
 }
 
@@ -32,7 +33,11 @@ enum ScopeEnum {
   PUBLIC = 'public',
   OWNER = 'owner',
 }
-const scopeValues = ['public', 'owner']
+const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.OWNER]
+enum PopulationsEnum {
+  PROJECTS = 'projects',
+}
+const ownerPopulations = [PopulationsEnum.PROJECTS]
 
 const querySchema = joi.object().keys({
   _ids: joi.array().items(joi.string()),
@@ -64,6 +69,7 @@ const querySchema = joi.object().keys({
     .default(15),
   sort: joi.string(),
   sort_order: joi.string().valid(['asc', 'desc']),
+  pop: joi.alternatives().when('scope', { is: 'owner', then: joi.string().allow(ownerPopulations) }),
   body: joi.boolean(),
 })
 
@@ -90,8 +96,11 @@ export function validateSearchQuery(query: ReadingQuery): ValidationResult<Readi
  * supports the interface for querying multiple ids
  * @param ids list of ids that you want returned from the database (MUST be in the order you want them returned)
  */
-export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId; [key: string]: any }[]> {
-  let results: { _id: ObjectId; [key: string]: any }[] = await Reading.aggregate([
+export async function searchByIds(
+  ids: string[],
+  populations: PopulationsEnum[] = [],
+): Promise<{ _id: ObjectId; [key: string]: any }[]> {
+  let pipeline: any[] = [
     {
       $match: {
         _id: {
@@ -113,30 +122,69 @@ export async function searchByIds(ids: string[]): Promise<{ _id: ObjectId; [key:
         preserveNullAndEmptyArrays: true, // this makes sure that if we don't get an owner, it still preserves the reading
       },
     }, // owner comes back as an array, but there will only ever be one
-    {
-      $project: {
-        title: true,
-        owner_id: true,
-        public: true,
-        'owner._id': true,
-        'owner.fullname': true,
-        'owner.username': true,
-        'owner.avatar': true,
-        'owner.identities': true,
-        promoter_ids: true,
-        source: true,
-        subjects: true,
-        grade_levels: true,
-        cover_img: true,
-        tags: true,
-        draft: true,
-        version_id: true,
-        createdAt: true,
-        updatedAt: true,
-        words_preview: { $slice: ['$words', 200] },
+  ]
+  if (populations.includes(PopulationsEnum.PROJECTS)) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'projects',
+          localField: '_id',
+          foreignField: 'reading_id',
+          as: 'projects',
+        },
       },
+      {
+        $addFields: {
+          projects: {
+            $map: {
+              input: '$projects',
+              in: {
+                _id: '$$this._id',
+                reading_id: '$$this.reading_id',
+                teacher_id: '$$this.teacher_id',
+                label: '$$this.label',
+                code: '$$this.code',
+                types: '$$this.types',
+                createdAt: '$$this.createdAt',
+                updatedAt: '$$this.updatedAt',
+                comment_count: {
+                  $size: '$$this.comments',
+                },
+                student_count: {
+                  $sum: [{ $size: '$$this.students_ids' }, { $size: '$$this.temp_ids' }],
+                },
+              },
+            },
+          },
+        },
+      },
+    )
+  }
+  pipeline.push({
+    $project: {
+      title: true,
+      owner_id: true,
+      public: true,
+      'owner._id': true,
+      'owner.fullname': true,
+      'owner.username': true,
+      'owner.avatar': true,
+      'owner.identities': true,
+      promoter_ids: true,
+      source: true,
+      subjects: true,
+      grade_levels: true,
+      cover_img: true,
+      tags: true,
+      draft: true,
+      version_id: true,
+      createdAt: true,
+      updatedAt: true,
+      words_preview: { $slice: ['$words', 200] },
+      projects: true,
     },
-  ])
+  })
+  let results: { _id: ObjectId; [key: string]: any }[] = await Reading.aggregate(pipeline)
   results.sort((a, b) => {
     return ids.indexOf(a._id.toHexString()) > ids.indexOf(b._id.toHexString()) ? 1 : -1
   })
