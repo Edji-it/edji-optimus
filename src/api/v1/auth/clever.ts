@@ -1,6 +1,6 @@
 // library imports
 import { Request, Response, NextFunction } from 'express'
-import { create } from 'simple-oauth2'
+import { create, ModuleOptions, AuthorizationTokenConfig } from 'simple-oauth2'
 import { captureException } from '@sentry/node'
 
 // project imports
@@ -8,7 +8,7 @@ import Clever from './../../../services/clever'
 import * as User from './../../../models/User'
 import { sendUserDetails } from './../../../services/bumblebee'
 
-const creds = {
+const creds: ModuleOptions = {
   client: {
     id: process.env.OAUTH2_CLEVER_CLIENT_ID,
     secret: process.env.OAUTH2_CLEVER_CLIENT_SECRET,
@@ -38,7 +38,7 @@ export function CleverRedirect(req: Request, res: Response, next: NextFunction) 
 
 export async function CleverCallback(req: Request, res: Response, next: NextFunction) {
   // Get the access token object (the authorization code is given from the previous step).
-  const tokenConfig = {
+  const tokenConfig: AuthorizationTokenConfig = {
     code: req.query.code,
     redirect_uri,
   }

@@ -166,6 +166,25 @@ let model = ModelCreator(
     institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
   },
   function(schema) {
+    schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
+      return this.findOneAndUpdate(
+        {
+          'oauth.id': id,
+          'oauth.type': type,
+        },
+        {
+          $set: {
+            'oauth.$.singleUseToken': singleUseToken,
+            'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration,
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      ).exec()
+    })
+
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
       // list out the properties it is ok to return to the front-end
