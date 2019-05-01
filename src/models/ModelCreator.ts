@@ -2,7 +2,7 @@ import { executeSaveAndIndex, SaveAndIndexOptions } from './_ModelCreator'
 import elastic from '../services/elasticsearch'
 
 import { cleanMongoValidationError } from './../error-handlers/mongo-validation'
-const db = require('./../db')
+import db from './../db'
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator) {
@@ -46,7 +46,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     }
 
     let saveOptions: SaveAndIndexOptions = {
-      save: Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions),
+      save: Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions).exec(),
     }
     if (this.getIndexOptions) {
       let indexOptions: IndexOptions = this.getIndexOptions()
