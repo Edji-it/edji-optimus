@@ -1,6 +1,4 @@
-// package imports
-// const chai = require('chai')
-// const sinon = require('sinon')
+// library imports
 import { expect } from 'chai'
 import { stub, assert, SinonStub } from 'sinon'
 import randomstring = require('randomstring')
@@ -8,7 +6,6 @@ import bcrypt = require('bcryptjs')
 
 // project imports
 import * as stripe from './../api/v1/stripe/_stripe'
-// const _User = require('./_User')
 import { getUserHeroStatus, validateToken, createOneTimeTokenObject } from './_User'
 
 describe('_User', () => {
