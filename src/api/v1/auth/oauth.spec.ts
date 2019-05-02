@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { stub, SinonStub } from 'sinon'
 
 import * as bcrypt from 'bcryptjs'
 
@@ -7,12 +7,12 @@ import { generateOAuthObject, getRedirectURI, RedirectParams } from './oauth'
 
 describe('oauth', () => {
   describe('generateOAuthObject', () => {
+    let hashStub: SinonStub
     const fakeHashReturn = 'fakehash'
-    const hashStub = stub(bcrypt, 'hashSync').returns(fakeHashReturn)
-    afterEach(() => {
-      hashStub.resetHistory()
+    beforeEach(() => {
+      hashStub = stub(bcrypt, 'hashSync').returns(fakeHashReturn)
     })
-    after(() => {
+    afterEach(() => {
       hashStub.restore()
     })
     it('should generate a valid oauth object', () => {

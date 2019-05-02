@@ -1,10 +1,10 @@
 // library imports
-const bcrypt = require('bcryptjs')
-const randomstring = require('randomstring')
-const ms = require('ms')
+import { hashSync, compareSync } from 'bcryptjs'
+import { generate } from 'randomstring'
+import ms = require('ms')
 
 // project imports
-const _stripe = require('./../api/v1/stripe/_stripe')
+import * as _stripe from './../api/v1/stripe/_stripe'
 
 // constants
 const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
@@ -15,12 +15,12 @@ const ONE_TIME_TOKEN_SALT = 5
  * Returns a promise resolved with a boolean indicating whether or not
  * @param {User} user the user for which we should calculate the hero status
  */
-const getUserHeroStatus = async function(user) {
+export const getUserHeroStatus = async function(user) {
   // if a user has a license_id, we'll assume that they're all set
   if (user.license_ids && user.license_ids.length > 0) {
-    return Promise.resolve(true)
+    return true
   } else if (!user.stripe_customer_id) {
-    return Promise.resolve(false)
+    return false
   }
 
   const subscriptions = await _stripe.getHeroSubscriptions(user.stripe_customer_id, 'active')
@@ -37,7 +37,7 @@ const getUserHeroStatus = async function(user) {
  * Determines whether or not the user needs a refresh
  * @param {Date} lastRefreshTime the time of the user's last refresh
  */
-const refreshRequired = function(lastRefreshTime) {
+export const refreshRequired = function(lastRefreshTime) {
   if (!lastRefreshTime) {
     console.error('no last_refresh_time on User')
   }
@@ -48,7 +48,7 @@ const refreshRequired = function(lastRefreshTime) {
   return nextCheck < Date.now()
 }
 
-const messageCheckRequired = function(lastMessageCheckTime) {
+export const messageCheckRequired = function(lastMessageCheckTime) {
   if (!lastMessageCheckTime) {
     console.error('no last_message_check_time on User')
   }
@@ -64,18 +64,18 @@ const messageCheckRequired = function(lastMessageCheckTime) {
  * @param {number} validFor time in hours that the token should be valid for
  * @param {function} callback (tokenObject, tokenString) called with object to be assigned to the User object, and the pre-hash token value to be used as link
  */
-const createOneTimeTokenObject = function(validFor) {
+export const createOneTimeTokenObject = function(validFor) {
   if (!validFor) {
     validFor = 24
   } // time in hours
 
-  let unhashedToken = randomstring.generate({
+  let unhashedToken = generate({
     length: 20,
     charset: 'hex',
   })
   let timeInMs = ms(validFor + 'h')
   let tokenObj = {
-    token: bcrypt.hashSync(unhashedToken, ONE_TIME_TOKEN_SALT),
+    token: hashSync(unhashedToken, ONE_TIME_TOKEN_SALT),
     expiration: Date.now() + timeInMs,
   }
 
@@ -87,35 +87,22 @@ const createOneTimeTokenObject = function(validFor) {
  * @param {Object} tokenObj the token object stored on the user object, with token property and expiration property
  * @param {string} unhashedToken the token given to the user, likely in an email
  */
-const validateToken = function(unhashedToken, tokenObj) {
+export const validateToken = function(unhashedToken, tokenObj) {
   // check to see if the current time is past the expiration
   //  past this, the expiration is valid and we just have to compare tokens
   if (!tokenObj.expiration || Date.now() > new Date(tokenObj.expiration).getTime()) {
     return false
   }
 
-  let tokenValid = bcrypt.compareSync(unhashedToken, tokenObj.token)
-
-  return tokenValid
+  return compareSync(unhashedToken, tokenObj.token)
 }
 
 /**
  * Simple function to validate a User property as a valid one time use token storage
  * @param {string} propertyName name of property on User object which the user would like to assign as a one time use token
  */
-const isValidTokenProperty = function(propertyName) {
+export const isValidTokenProperty = function(propertyName) {
   // array of all the properties which should be treated as one time use jwt's
   let validProperties = ['reset_email', 'reset_password']
-  let isValidProperty = validProperties.indexOf(propertyName) > -1
-
-  return isValidProperty
-}
-
-module.exports = {
-  getUserHeroStatus,
-  refreshRequired,
-  messageCheckRequired,
-  createOneTimeTokenObject,
-  validateToken,
-  isValidTokenProperty,
+  return validProperties.indexOf(propertyName) > -1
 }
