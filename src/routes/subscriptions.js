@@ -2,7 +2,7 @@ const express = require('express')
 const authRequired = require('./../middleware/auth-required')
 const Q = require('q')
 
-let User = require('./../models/User')
+let User = require('../models/User').default
 
 let router = express.Router()
 

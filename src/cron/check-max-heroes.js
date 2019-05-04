@@ -1,5 +1,5 @@
 // project imports
-const User = require('./../models/User')
+const User = require('../models/User').default
 const _bumblebee = require('./../services/bumblebee')
 
 module.exports = function() {

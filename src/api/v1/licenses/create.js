@@ -1,11 +1,9 @@
 // library imports
-const Q = require('q')
-var mongoose = require('mongoose')
 
 // project imports
 const License = require('./../../../models/License')
 const Instituion = require('./../../../models/Institution')
-const User = require('./../../../models/User')
+const User = require('../../../models/User').default
 
 module.exports = function(req, res, next) {
   let new_license = req.body.license

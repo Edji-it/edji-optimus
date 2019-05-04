@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 
 // project imports
-const User = require('./../models/User')
+const User = require('../models/User').default
 const { generateLoginObjectForUser } = require('./../middleware/login-controller')
 const authRequired = require('./../middleware/auth-required')
 const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError

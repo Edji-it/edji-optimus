@@ -2,10 +2,19 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const _ = require('underscore')
+import { Document, Model, Schema } from 'mongoose'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
-const helpers = require('./_User')
+import {
+  getUserHeroStatus,
+  isValidTokenProperty,
+  validateToken,
+  createOneTimeTokenObject,
+  refreshRequired,
+  messageCheckRequired,
+} from './_User'
+import { OAuthObject } from '../api/v1/auth/oauth'
 
 // tests email against regex
 const emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
@@ -82,7 +91,7 @@ const OAuthObject = mongoose.Schema({
   singleUseTokenExpiration: Date,
 })
 
-let model = ModelCreator(
+const model: UserModel = ModelCreator(
   'User',
   {
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
@@ -274,7 +283,7 @@ let model = ModelCreator(
      * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
      */
     schema.methods.refresh = async function() {
-      let validHero = await helpers.getUserHeroStatus(this)
+      let validHero = await getUserHeroStatus(this)
       this.hero_status = validHero
       this.last_refresh_time = Date.now()
 
@@ -288,11 +297,11 @@ let model = ModelCreator(
      * @returns {string} that was set on the user
      */
     schema.methods.setOneTimeToken = async function(propertyName, expiration) {
-      if (!helpers.isValidTokenProperty(propertyName)) {
+      if (!isValidTokenProperty(propertyName)) {
         return
       }
 
-      const { unhashedToken, tokenObj } = helpers.createOneTimeTokenObject(expiration)
+      const { unhashedToken, tokenObj } = createOneTimeTokenObject(expiration)
       this[propertyName] = tokenObj
       return unhashedToken
     }
@@ -302,11 +311,11 @@ let model = ModelCreator(
      * @param {string} propertyName property name on user object which contains the token to be used
      */
     schema.methods.validateOneTimeToken = async function(propertyName, unhashedToken) {
-      if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
+      if (!isValidTokenProperty(propertyName) || !this[propertyName]) {
         throw new Error('ERR_INVALID_PROPERTY')
       }
 
-      let isValidToken = helpers.validateToken(unhashedToken, this[propertyName])
+      let isValidToken = validateToken(unhashedToken, this[propertyName])
 
       if (!isValidToken) {
         throw new Error('ERR_INVALID_TOKEN')
@@ -318,13 +327,19 @@ let model = ModelCreator(
       if (!this.last_refresh_time) {
         console.log('no last_refresh_time on ' + this.username)
       }
-      return helpers.refreshRequired(this.last_refresh_time)
+      return refreshRequired(this.last_refresh_time)
     })
 
     schema.virtual('message_check_required').get(function() {
-      return helpers.messageCheckRequired(this.last_message_check_time)
+      return messageCheckRequired(this.last_message_check_time)
     })
   },
 )
 
-module.exports = model
+interface User {}
+
+interface UserModel extends Model<any> {
+  findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<User>
+}
+
+export default model
