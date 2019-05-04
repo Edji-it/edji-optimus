@@ -1,8 +1,6 @@
 import { hashSync } from 'bcryptjs'
 import { stringify } from 'querystring'
 
-// import * as User from './../../../models/User'
-
 export const generateOAuthObject = (id: string | number, type: OauthType): OAuthObject => {
   return {
     id,
@@ -46,7 +44,7 @@ export interface RedirectParams {
 //   ).exec()
 // }
 
-interface OAuthObject {
+export interface OAuthObject {
   id: string | number
   type: OauthType
   singleUseToken: string

@@ -1,9 +1,6 @@
 // library imports
 const express = require('express')
 const mongoose = require('mongoose')
-const Q = require('q')
-const rp = require('request-promise-native')
-const _ = require('underscore')
 
 // project imports
 const Project = require('./../models/Project')

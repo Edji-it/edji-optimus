@@ -5,7 +5,7 @@ import { captureException } from '@sentry/node'
 
 // project imports
 import Clever from './../../../services/clever'
-import * as User from './../../../models/User'
+import User from '../../../models/User'
 import { sendUserDetails } from './../../../services/bumblebee'
 
 const creds: ModuleOptions = {
@@ -67,7 +67,7 @@ export async function CleverCallback(req: Request, res: Response, next: NextFunc
     )
     const encodedToken: string = encodeURIComponent(profile.oauth[0].singleUseToken)
     if (!user) {
-      user = User(profile)
+      user = new User(profile)
       await user.validate()
       try {
         await user.edjiSave()

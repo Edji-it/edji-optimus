@@ -3,7 +3,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { create, ModuleOptions, AuthorizationTokenConfig } from 'simple-oauth2'
 import { google } from 'googleapis'
 
-import * as User from './../../../models/User'
+import User from '../../../models/User'
 import { generateOAuthObject, getRedirectURI } from './oauth'
 
 const creds: ModuleOptions = {

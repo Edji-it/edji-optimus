@@ -15,7 +15,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     toJSON: { virtuals: true }, // makes mongoose virtuals accessible to JSON responses
   })
 
-  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = {}, next) {
+  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = {}) {
     this.preEdjiSave && (await this.preEdjiSave())
     this.updatedAt = Date.now()
     // mongoose does this stupid thing where it overwrites the last parameter as a callback
@@ -53,10 +53,6 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
       saveOptions.index = elastic.index(indexOptions)
       saveOptions.id = indexOptions.id
       saveOptions.indexName = indexOptions.index
-    }
-
-    if (options.forceSave) {
-      saveOptions.save = this.save()
     }
 
     let { saveResults, indexResults } = await executeSaveAndIndex(saveOptions)

@@ -3,7 +3,7 @@ import 'mocha'
 import { expect } from 'chai'
 
 // project imports
-import * as User from './User'
+import User from './User'
 
 const createUserInfo = function(identities?: string[]) {
   return {
@@ -19,7 +19,7 @@ const createUserInfo = function(identities?: string[]) {
 describe('User model', () => {
   it('should create a valid user', async () => {
     const userInfo = createUserInfo()
-    const user = User(userInfo)
+    const user = new User(userInfo)
     await user.validate()
   })
   it('should require an email', async () => {
@@ -27,7 +27,7 @@ describe('User model', () => {
       ...createUserInfo(),
       email: '',
     }
-    const user = User(userInfo)
+    const user = new User(userInfo)
     try {
       await user.validate()
     } catch (err) {
@@ -50,13 +50,13 @@ describe('User model', () => {
       ],
     }
     delete userInfo.email
-    const user = User(userInfo)
+    const user = new User(userInfo)
     await user.validate()
   })
   it('should return an error if auth is invalid', async () => {
     const userInfo = createUserInfo()
     delete userInfo.password
-    const user = User(userInfo)
+    const user = new User(userInfo)
     try {
       await user.validate()
     } catch (err) {
@@ -71,7 +71,7 @@ describe('User model', () => {
         ...createUserInfo(),
         email: testEmails[i],
       }
-      const user = User(userInfo)
+      const user = new User(userInfo)
       try {
         await user.validate()
       } catch (err) {
@@ -85,7 +85,7 @@ describe('User model', () => {
       ...createUserInfo(),
       email: 'has spaces@something.com',
     }
-    const user = User(userInfo)
+    const user = new User(userInfo)
     await user.validate()
     expect(user.email).to.be.equal('hasspaces@something.com')
   })
@@ -94,7 +94,7 @@ describe('User model', () => {
       ...createUserInfo(),
       email: 'fel_is_ñavi_dad@spanish.com',
     }
-    const user = User(userInfo)
+    const user = new User(userInfo)
     await user.validate()
   })
 })
