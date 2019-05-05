@@ -15,7 +15,8 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     toJSON: { virtuals: true }, // makes mongoose virtuals accessible to JSON responses
   })
 
-  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = {}) {
+  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = { validateBeforeSave: true }) {
+    const { validateBeforeSave } = options
     this.preEdjiSave && (await this.preEdjiSave())
     this.updatedAt = Date.now()
     // mongoose does this stupid thing where it overwrites the last parameter as a callback
@@ -33,20 +34,10 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     let error = this.validateSync()
     if (error) throw error
 
-    let queryOptions = {
-      query: { _id: this._id },
-      update: this,
-      mongooseOptions: {
-        new: true,
-        runValidators: true,
-        upsert: true,
-        setDefaultsOnInsert: true,
-      },
-      ...options,
-    }
-
     let saveOptions: SaveAndIndexOptions = {
-      save: Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions).exec(),
+      save: this.save({
+        validateBeforeSave,
+      }),
     }
     if (this.getIndexOptions) {
       let indexOptions: IndexOptions = this.getIndexOptions()
@@ -68,15 +59,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
 }
 
 interface EdjiSaveOptions {
-  query?: any
-  update?: any
-  mongooseOptions?: {
-    new: boolean
-    runValidators: boolean
-    upsert: boolean
-    setDefaultsOnInsert: boolean
-  }
-  forceSave?: boolean
+  validateBeforeSave: boolean
 }
 
 export interface IndexOptions {
