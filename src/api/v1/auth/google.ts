@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { create, ModuleOptions, AuthorizationTokenConfig } from 'simple-oauth2'
 import { google } from 'googleapis'
+import { captureException } from '@sentry/node'
 
 import User from '../../../models/User'
 import { generateOAuthObject, getRedirectURI } from './oauth'
@@ -68,22 +69,35 @@ export const GoogleCallback: RequestHandler = async (req, res, next) => {
     const { singleUseToken } = authObj
     const existingUser = await User.findAndGenerateOAuthLogin(authObj)
     if (existingUser) return res.redirect(getRedirectURI({ protocol, clientUrl, type, singleUseToken }))
-    // const oauthObj = generateOAuthObject(id, 'google')
-    // const user = User({
-    //   fullname,
-    //   email,
-    //   avatar,
-    //   oauth: [
-    //     {
-    //       type: 'google',
-    //       id,
-    //       singleUseToken: 'something',
-    //       singleUseTokenExpiration: 'something',
-    //     },
-    //   ],
-    // })
-    res.status(200).send(existingUser)
+
+    // now we need to attempt new user creation
+    const edjiUserFromGoogle = new User({ email, fullname, avatar, oauth: authObj })
+    try {
+      await edjiUserFromGoogle.edjiSave()
+      return res.redirect(getRedirectURI({ protocol, clientUrl, type, singleUseToken }))
+    } catch (err) {
+      if (err.code && err.code === 11000) {
+        // there's an account causing a duplicate error because the email is not unique (existing account)
+        // the user initiating this workflow has an email in their oauth provider which is causing a duplicate email error
+        // the only path we allow from here is for the initiating user to go back and log into their other account in order to link their new oauth provider
+        // in order to do that, we are saving the initiating user's oauth information to the duplicate user's account. If they log in with that new account
+        // and have the correct token, then we'll promote this pending_oauth object to the real deal!
+        await User.updateOne(
+          { email },
+          {
+            $set: {
+              pending_oauth: authObj,
+            },
+          },
+        )
+        return res.redirect(getRedirectURI({ protocol, clientUrl, type, singleUseToken, error: 'duplicate_user' }))
+      } else {
+        throw err
+      }
+    }
   } catch (err) {
-    next(err)
+    process.env.NODE_ENV !== 'production' && console.error(err)
+    captureException(err)
+    return res.redirect(getRedirectURI({ protocol, clientUrl, type, error: 'serverError' }))
   }
 }

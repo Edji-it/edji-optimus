@@ -195,6 +195,10 @@ const model: UserModel = ModelCreator(
       ).exec()
     })
 
+    // schema.static('createUserFromGoogle', function() {
+
+    // })
+
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
       // list out the properties it is ok to return to the front-end
