@@ -1,5 +1,4 @@
 // library imports
-const Q = require('q')
 var mongoose = require('mongoose')
 
 // project imports

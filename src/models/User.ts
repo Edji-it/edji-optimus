@@ -231,7 +231,6 @@ const model: UserModel = ModelCreator(
     }
 
     schema.methods.preEdjiSave = async function() {
-      console.log('running preEdjiSave!')
       if (!this._id) {
         return
       } // get out of here object without an id (at one point, this was returning the entire node process)
