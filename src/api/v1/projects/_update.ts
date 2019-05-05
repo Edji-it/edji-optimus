@@ -57,21 +57,11 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     propObj = new model(propData)
     propObj.author = user.fullname
     propObj.owner_id = user._id
-    propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
-    // if (propArrayName !== 'feedback') {
-    //   // if a comment or an answer, we need to build a new Comment from the schema
-    //   propObj = new Comment(propData)
-    //   propObj.author = user.fullname
-    //   propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
-    // } else {
-    //   propObj = new Feedback(propData)
-    //   propObj.owner_id = user._id
-    //   propObj.createdAt = Date.now() // since we're not directly calling save() on the Project, we are manually adding createdAt
-    // }
+    propObj.createdAt = Date.now()
     project[propArrayName].push(propObj)
   }
   propObj.updatedAt = Date.now() // also manually update updatedAt
-  await propObj.validate() // validate here
-  await project.edjiSave({ mongooseOptions: { new: true, runValidators: false } })
+  await propObj.validate() // manually validate here, don't validate project so that if anything goes wrong on project we can still save comments
+  await project.edjiSave({ runValidators: false })
   return propObj
 }

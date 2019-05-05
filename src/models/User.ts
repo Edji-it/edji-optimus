@@ -2,7 +2,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const _ = require('underscore')
-import { Document, Model, Schema } from 'mongoose'
+import { Model, Schema } from 'mongoose'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
@@ -175,6 +175,7 @@ const model: UserModel = ModelCreator(
     institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
   },
   function(schema) {
+    // function(schema: Schema<User>) {
     schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
       return this.findOneAndUpdate(
         {
@@ -230,6 +231,7 @@ const model: UserModel = ModelCreator(
     }
 
     schema.methods.preEdjiSave = async function() {
+      console.log('running preEdjiSave!')
       if (!this._id) {
         return
       } // get out of here object without an id (at one point, this was returning the entire node process)
@@ -280,7 +282,7 @@ const model: UserModel = ModelCreator(
     })
 
     /**
-     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
+     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the Model#edjiSave() function to return a promise, so this is what I'm doing for now...
      */
     schema.methods.refresh = async function() {
       let validHero = await getUserHeroStatus(this)
@@ -336,7 +338,9 @@ const model: UserModel = ModelCreator(
   },
 )
 
-interface User {}
+interface User {
+  // setOneTimeToken: (propertyName: string, expiration: number) => void
+}
 
 interface UserModel extends Model<any> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<User>
