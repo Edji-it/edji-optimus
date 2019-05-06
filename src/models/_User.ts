@@ -5,6 +5,7 @@ import ms = require('ms')
 
 // project imports
 import * as _stripe from './../api/v1/stripe/_stripe'
+import { OAuthType, OAuthObject } from './User'
 
 // constants
 const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
@@ -105,4 +106,13 @@ export const isValidTokenProperty = function(propertyName) {
   // array of all the properties which should be treated as one time use jwt's
   let validProperties = ['reset_email', 'reset_password']
   return validProperties.indexOf(propertyName) > -1
+}
+
+export const generateOAuthObject = (id: string | number, type: OAuthType): OAuthObject => {
+  return {
+    id,
+    type,
+    singleUseToken: hashSync(id + Date.now().toString(), 4),
+    singleUseTokenExpiration: Date.now() + 1000 * 60,
+  }
 }

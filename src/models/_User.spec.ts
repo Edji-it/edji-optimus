@@ -6,7 +6,7 @@ import bcrypt = require('bcryptjs')
 
 // project imports
 import * as stripe from './../api/v1/stripe/_stripe'
-import { getUserHeroStatus, validateToken, createOneTimeTokenObject } from './_User'
+import { getUserHeroStatus, validateToken, createOneTimeTokenObject, generateOAuthObject } from './_User'
 
 describe('_User', () => {
   describe('getUserHeroStatus', () => {
@@ -183,6 +183,27 @@ describe('_User', () => {
       let { unhashedToken, tokenObj } = createOneTimeTokenObject(1)
       let valid = validateToken(unhashedToken, tokenObj)
       valid.should.be.true
+    })
+  })
+  describe('generateOAuthObject', () => {
+    let hashStub: SinonStub
+    const fakeHashReturn = 'fakehash'
+    beforeEach(() => {
+      hashStub = stub(bcrypt, 'hashSync').returns(fakeHashReturn)
+    })
+    afterEach(() => {
+      hashStub.restore()
+    })
+    it('should generate a valid oauth object', () => {
+      const { id, type, singleUseToken, singleUseTokenExpiration } = generateOAuthObject('123', 'google')
+      expect(id).to.be.equal('123')
+      expect(type).to.be.equal('google')
+      expect(singleUseToken).to.be.equal(fakeHashReturn)
+      expect(singleUseTokenExpiration).to.be.approximately(
+        Date.now() + 1000 * 60,
+        100,
+        'expected singleUseTokenExpiration close to an hour from now',
+      )
     })
   })
 })

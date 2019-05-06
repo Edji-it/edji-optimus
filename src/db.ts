@@ -3,6 +3,7 @@ import mongoose = require('mongoose')
 const connect = function(mongooseInstance) {
   //sets up database connection based on current NODE_ENV
   console.log('wiring up the database for ' + process.env.NODE_ENV)
+  console.log('\nWHERE WE LOG STUFF\n', process.env.NODE_ENV, process.env.MONGO_HOST)
   mongooseInstance.connect(process.env.MONGO_HOST, {
     socketTimeoutMS: 120000,
     connectionTimeout: 120000,

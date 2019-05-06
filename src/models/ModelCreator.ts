@@ -1,7 +1,6 @@
 import { executeSaveAndIndex, SaveAndIndexOptions } from './_ModelCreator'
 import elastic from '../services/elasticsearch'
 
-import { cleanMongoValidationError } from './../error-handlers/mongo-validation'
 import db from './../db'
 
 //all models are created through this function
@@ -54,11 +53,10 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     schemaDecorator(Schema)
   }
 
-  const Model = db.model(modelName, Schema)
-  return Model
+  return db.model(modelName, Schema)
 }
 
-interface EdjiSaveOptions {
+export interface EdjiSaveOptions {
   validateBeforeSave: boolean
 }
 

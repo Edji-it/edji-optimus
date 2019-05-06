@@ -2,10 +2,12 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const _ = require('underscore')
-import { Model, Schema } from 'mongoose'
+import { Model, Document } from 'mongoose'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
+import { EdjiSaveOptions } from './ModelCreator'
+
 import {
   getUserHeroStatus,
   isValidTokenProperty,
@@ -13,8 +15,8 @@ import {
   createOneTimeTokenObject,
   refreshRequired,
   messageCheckRequired,
+  generateOAuthObject,
 } from './_User'
-import { OAuthObject } from '../api/v1/auth/oauth'
 
 // tests email against regex
 const emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
@@ -91,7 +93,7 @@ const OAuthObject = mongoose.Schema({
   singleUseTokenExpiration: Date,
 })
 
-const model: UserModel = ModelCreator(
+const UserModel: UserModel = ModelCreator(
   'User',
   {
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
@@ -175,7 +177,7 @@ const model: UserModel = ModelCreator(
     institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
   },
   function(schema) {
-    // function(schema: Schema<User>) {
+    // function(schema: Schema<UserDocument>) {
     schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
       return this.findOneAndUpdate(
         {
@@ -195,9 +197,16 @@ const model: UserModel = ModelCreator(
       ).exec()
     })
 
-    // schema.static('createUserFromGoogle', function() {
-
-    // })
+    schema.static('setPendingOAuth', function({ email, oauthObj: pending_oauth }) {
+      return this.updateOne(
+        { email },
+        {
+          $set: {
+            pending_oauth,
+          },
+        },
+      ).exec()
+    })
 
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
@@ -340,13 +349,47 @@ const model: UserModel = ModelCreator(
     })
   },
 )
+export default UserModel
 
-interface User {
-  // setOneTimeToken: (propertyName: string, expiration: number) => void
+export function fromGoogleUser({
+  email,
+  fullname,
+  avatar,
+  id,
+}: GoogleProfile): { user: UserDocument; oauthObj: OAuthObject } {
+  const oauthObj = generateOAuthObject(id, 'google')
+  return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
+}
+
+export interface UserDocument extends EdjiDocument {
+  email: string
+  fullname: string
+  avatar?: string
+  oauth?: OAuthObject[]
 }
 
 interface UserModel extends Model<any> {
-  findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<User>
+  findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
+  setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
 }
 
-export default model
+export interface OAuthObject {
+  id: string | number
+  type: OAuthType
+  singleUseToken: string
+  singleUseTokenExpiration: number
+}
+
+export type OAuthType = 'google' | 'clever'
+
+interface GoogleProfile {
+  email: string
+  fullname: string
+  avatar: string
+  id: string
+}
+
+// eventually to be moved to ModelCreator, when that is refactored to export syntax
+export interface EdjiDocument extends Document {
+  edjiSave: (options?: EdjiSaveOptions) => Promise<any>
+}

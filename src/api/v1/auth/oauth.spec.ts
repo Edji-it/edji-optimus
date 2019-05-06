@@ -1,36 +1,14 @@
 import { expect } from 'chai'
 import { stub, SinonStub } from 'sinon'
 
-import * as bcrypt from 'bcryptjs'
-
-import { generateOAuthObject, getRedirectURI, RedirectParams } from './oauth'
+import { getRedirectURI, RedirectParams, tester } from './oauth'
 
 describe('oauth', () => {
-  describe('generateOAuthObject', () => {
-    let hashStub: SinonStub
-    const fakeHashReturn = 'fakehash'
-    beforeEach(() => {
-      hashStub = stub(bcrypt, 'hashSync').returns(fakeHashReturn)
-    })
-    afterEach(() => {
-      hashStub.restore()
-    })
-    it('should generate a valid oauth object', () => {
-      const { id, type, singleUseToken, singleUseTokenExpiration } = generateOAuthObject('123', 'google')
-      expect(id).to.be.equal('123')
-      expect(type).to.be.equal('google')
-      expect(singleUseToken).to.be.equal(fakeHashReturn)
-      expect(singleUseTokenExpiration).to.be.approximately(
-        Date.now() + 1000 * 60,
-        100,
-        'expected singleUseTokenExpiration close to an hour from now',
-      )
-    })
-  })
+  // before(() => {
+  //   process.env.GOOGLE_REDIRECT_URI = 'https://edji.it/api/v1/auth/google/callback'
+  // })
   describe('getRedirectURI', () => {
     const defaultParams: RedirectParams = {
-      protocol: 'https',
-      clientUrl: '//edji.it',
       type: 'google',
       singleUseToken: '$2a$04$8PJ97HsD9NUssj1sQrrt1e.DDWZYUFz6y1GjW64Q7q.MpxFc6UgIi',
     }
@@ -67,4 +45,5 @@ describe('oauth', () => {
       expect(uri).to.be.equal('https://edji.it/#/oauth/google?error=serverError')
     })
   })
+  // describe('getTokenRedirectDestination', () => {})
 })
