@@ -16,7 +16,7 @@ const router = Router()
 // attach route handlers
 router.get('/', addRouteName('/'), authRequired, ListReadingsHandler)
 router.post('/', addRouteName('/'), authRequired, CreateReadingHandler)
-router.get('/_search', addRouteName('/_search'), authRequired, SearchReadingsController)
+router.get('/_search', addRouteName('/_search'), SearchReadingsController)
 router.post('/reports', addRouteName('/reports'), authRequired, SendReportHandler)
 router.get('/:temp_type', addRouteName('/:temp_type'), authRequired, TempTypeHandler)
 router.delete(

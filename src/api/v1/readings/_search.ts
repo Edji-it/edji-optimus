@@ -209,11 +209,6 @@ export function constructSearch(query: ReadingQuery, userId?: string): Promise<a
               draft: true,
             },
           },
-          {
-            exists: {
-              field: 'parent_id',
-            },
-          },
         ],
         filter: [],
       },
@@ -226,6 +221,11 @@ export function constructSearch(query: ReadingQuery, userId?: string): Promise<a
       body.query.bool.filter.push({
         match: {
           public: true,
+        },
+      })
+      body.query.bool.must_not.push({
+        exists: {
+          field: 'parent_id',
         },
       })
       break
