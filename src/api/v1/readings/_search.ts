@@ -172,6 +172,7 @@ export async function searchByIds(
       'owner.identities': true,
       promoter_ids: true,
       source: true,
+      parent_id: true,
       subjects: true,
       grade_levels: true,
       cover_img: true,
