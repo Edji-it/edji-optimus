@@ -440,11 +440,6 @@ describe('reading search helpers', () => {
                   draft: true,
                 },
               },
-              {
-                exists: {
-                  field: 'parent_id',
-                },
-              },
             ],
             must: [
               {

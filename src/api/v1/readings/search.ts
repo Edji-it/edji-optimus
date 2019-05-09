@@ -10,6 +10,10 @@ export default async function SearchController(req: Request, res: Response, next
   if (error) {
     return res.status(400).send({ error })
   }
+  // only allow unauthed users to query for public
+  if (!userId && query.scope !== 'public') {
+    return res.status(401).send()
+  }
 
   try {
     const { hits } = await constructSearch(query, userId)

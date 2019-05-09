@@ -172,6 +172,7 @@ export async function searchByIds(
       'owner.identities': true,
       promoter_ids: true,
       source: true,
+      parent_id: true,
       subjects: true,
       grade_levels: true,
       cover_img: true,
@@ -209,11 +210,6 @@ export function constructSearch(query: ReadingQuery, userId?: string): Promise<a
               draft: true,
             },
           },
-          {
-            exists: {
-              field: 'parent_id',
-            },
-          },
         ],
         filter: [],
       },
@@ -226,6 +222,11 @@ export function constructSearch(query: ReadingQuery, userId?: string): Promise<a
       body.query.bool.filter.push({
         match: {
           public: true,
+        },
+      })
+      body.query.bool.must_not.push({
+        exists: {
+          field: 'parent_id',
         },
       })
       break

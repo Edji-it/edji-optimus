@@ -113,8 +113,12 @@ describe('GET /api/v1/readings/_search', () => {
     const res = await searchRequest(['pop=projects'], token)
     expect(res).to.have.status(400)
   })
-  it('should reject a request without authentication', async () => {
-    const res = await searchRequest([])
+  it('should allow a request without authentication for public scope', async () => {
+    const res = await searchRequest(['scope=public'])
+    expect(res).to.have.status(200)
+  })
+  it('should reject a request for scope owner without authentication', async () => {
+    const res = await searchRequest(['scope=owner'])
     expect(res).to.have.status(401)
   })
 })
