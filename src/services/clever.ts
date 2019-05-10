@@ -62,38 +62,24 @@ export default class Clever {
     return this._sections
   }
 
-  async getEdjiUserShape(): Promise<EdjiUserFromCleverUser> {
+  async getCleverInfo(): Promise<CleverInfo> {
     if (!this._user) {
       await this.getUser()
     }
     const { id, name, email } = this._user
-    let singleUseToken = await hash(id + Date.now().toString(), 4) // important to use syncronus hashing here
-    const cleverObj: OAuthObj = {
-      type: 'clever',
-      id: id,
-      singleUseToken: singleUseToken,
-      singleUseTokenExpiration: Date.now() + 1000 * 60, // set token expiration to 1 minute
-    }
-    const edjiUser: EdjiUserFromCleverUser = {
-      fullname: name.first + ' ' + name.last,
-      oauth: [cleverObj],
-      identities: [],
-    }
-    if (email) {
-      edjiUser.email = email
-      cleverObj.email = email
-    }
+    const fullname = name.first + ' ' + name.last
+    const { name: district_name } = await this.getDistrict()
+    let identities = []
     if (this._type === 'student') {
-      edjiUser.identities.push('student')
+      identities.push('student')
     } else {
-      edjiUser.identities.push('teacher')
+      identities.push('teacher')
       if (this._type === 'school_admin' || this._type === 'district_admin') {
-        edjiUser.identities.push('administrator')
+        identities.push('administrator')
       }
-      const dist = await this.getDistrict()
-      edjiUser.school = { district_name: dist.name }
     }
-    return edjiUser
+
+    return { id, email, fullname, school: { district_name }, identities }
   }
 }
 
@@ -128,17 +114,12 @@ interface CleverSections {
     teachers: string[]
   }
 }
-interface EdjiUserFromCleverUser {
+interface CleverInfo {
   fullname: string
   email?: string
-  oauth: OAuthObj[]
   identities: string[]
-  school?: {
-    school_name?: string
-    school_id?: string
-    district_name?: string
-    district_id?: string
-  }
+  school: { district_name: string }
+  id: string
 }
 
 interface OAuthObj {
@@ -149,9 +130,4 @@ interface OAuthObj {
   email?: string // students wont have emails
 }
 
-export enum CleverType {
-  teacher = 'teacher',
-  student = 'student',
-  school_admin = 'school_admin',
-  district_admin = 'district_admin',
-}
+type CleverType = 'teacher' | 'student' | 'school_admin' | 'district_admin'
