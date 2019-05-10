@@ -173,6 +173,7 @@ export async function searchByIds(
       promoter_ids: true,
       source: true,
       parent_id: true,
+      owner_bookmarked: true,
       subjects: true,
       grade_levels: true,
       cover_img: true,
