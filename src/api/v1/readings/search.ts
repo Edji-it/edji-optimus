@@ -11,7 +11,7 @@ export default async function SearchController(req: Request, res: Response, next
     return res.status(400).send({ error })
   }
   // only allow unauthed users to query for public
-  if (!userId && query.scope === 'public') {
+  if (!userId && query.scope !== 'public') {
     return res.status(401).send()
   }
 
