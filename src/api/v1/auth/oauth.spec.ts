@@ -1,13 +1,25 @@
+// library imports
 import { expect } from 'chai'
-import { stub, SinonStub } from 'sinon'
+import { assert, stub, SinonStub, mock, SinonMock } from 'sinon'
+import * as sentry from '@sentry/node'
 
-import { getRedirectURI, RedirectParams, tester } from './oauth'
+// project imports
+import { getRedirectURI, RedirectParams, getTokenRedirectDestination, getUser } from './oauth'
+import * as helpers from './oauth'
+import * as User from './../../../models/User'
+import * as google from './../../../services/google'
+import clever from './../../../services/clever'
 
-describe('oauth', () => {
-  // before(() => {
-  //   process.env.GOOGLE_REDIRECT_URI = 'https://edji.it/api/v1/auth/google/callback'
-  // })
+describe('oauth helpers', () => {
   describe('getRedirectURI', () => {
+    const { CLIENT_URL, NODE_ENV } = process.env
+    beforeEach(() => {
+      process.env.CLIENT_URL = '//edji.it'
+      process.env.NODE_ENV = 'development'
+    })
+    after(() => {
+      Object.assign(process.env, { CLIENT_URL, NODE_ENV })
+    })
     const defaultParams: RedirectParams = {
       type: 'google',
       singleUseToken: '$2a$04$8PJ97HsD9NUssj1sQrrt1e.DDWZYUFz6y1GjW64Q7q.MpxFc6UgIi',
@@ -44,6 +56,116 @@ describe('oauth', () => {
       })
       expect(uri).to.be.equal('https://edji.it/#/oauth/google?error=serverError')
     })
+    it('should change the redirect if the CLIENT_URL changes', () => {
+      process.env.CLIENT_URL = '//dev.edji.it'
+      const uri = getRedirectURI(defaultParams)
+      expect(uri).to.be.equal(
+        'https://dev.edji.it/#/oauth/google?token=%242a%2404%248PJ97HsD9NUssj1sQrrt1e.DDWZYUFz6y1GjW64Q7q.MpxFc6UgIi',
+      )
+    })
   })
-  // describe('getTokenRedirectDestination', () => {})
+  describe('getTokenRedirectDestination', () => {
+    const getUserRes = <any>{
+      user: { _id: 123, email: 'hello@edji.it', edjiSave: stub().resolves() },
+      oauthObj: { singleUseToken: '54321' },
+    }
+    let getUserStub: SinonStub
+    let findAndGenerateOAuthLoginStub: SinonStub
+    let setPendingOAuthStub: SinonStub
+    let edjiSaveStub: SinonStub = getUserRes.user.edjiSave
+    let sentryStub: SinonStub
+    beforeEach(() => {
+      getUserStub = stub(helpers, 'getUser').resolves(getUserRes)
+      findAndGenerateOAuthLoginStub = stub(User.default, 'findAndGenerateOAuthLogin').resolves()
+      setPendingOAuthStub = stub(User.default, 'setPendingOAuth').resolves()
+      edjiSaveStub.resetHistory()
+      sentryStub = stub(sentry, 'captureException')
+    })
+    afterEach(() => {
+      getUserStub.restore()
+      findAndGenerateOAuthLoginStub.restore()
+      setPendingOAuthStub.restore()
+      sentryStub.restore()
+    })
+    it('should return correct destination for an existing user who is logging in', async () => {
+      findAndGenerateOAuthLoginStub.resetBehavior()
+      findAndGenerateOAuthLoginStub.resolves({})
+      const redirectTo = await getTokenRedirectDestination('google', 'a_unique_oauth_code')
+      assert.calledOnce(getUserStub)
+      assert.calledWithExactly(getUserStub, 'google', 'a_unique_oauth_code')
+      assert.calledOnce(findAndGenerateOAuthLoginStub)
+      assert.notCalled(edjiSaveStub)
+      assert.notCalled(setPendingOAuthStub)
+      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/google?token=54321')
+    })
+    it('should return correct destination for a new user', async () => {
+      const redirectTo = await getTokenRedirectDestination('clever', 'a_unique_oauth_code')
+      assert.calledOnce(edjiSaveStub)
+      assert.notCalled(setPendingOAuthStub)
+      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/clever?token=54321')
+    })
+    it('should return correct destination for an existing user who is a duplicate', async () => {
+      edjiSaveStub.resetBehavior()
+      edjiSaveStub.throws({ code: 11000 })
+      const redirectTo = await getTokenRedirectDestination('clever', 'a_unique_oauth_code')
+      assert.calledOnce(edjiSaveStub)
+      assert.calledOnce(setPendingOAuthStub)
+      assert.calledWithExactly(setPendingOAuthStub, { email: 'hello@edji.it', oauthObj: { singleUseToken: '54321' } })
+      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/clever?error=duplicate_user&token=54321')
+    })
+    it('should return correct destination for an error', async () => {
+      edjiSaveStub.resetBehavior()
+      edjiSaveStub.throws()
+      const redirectTo = await getTokenRedirectDestination('clever', 'a_unique_oauth_code')
+      assert.calledOnce(edjiSaveStub)
+      assert.notCalled(setPendingOAuthStub)
+      assert.calledOnce(sentryStub)
+      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/clever?error=serverError')
+    })
+  })
+  describe('getUser', () => {
+    const testToken = 'fhudiaugiorunvjalnid'
+    const getTokenStub = stub().resolves({ access_token: testToken })
+    const createResult: any = {
+      authorizationCode: {
+        getToken: getTokenStub,
+      },
+    }
+    const profile = {
+      someProp: Date.now(),
+    }
+    let getGoogleInfoStub: SinonStub
+    let fromOAuthUserStub: SinonStub
+    let createClientStub: SinonStub
+    let initStub: SinonStub
+    let getCleverInfoStub: SinonStub
+    beforeEach(() => {
+      getGoogleInfoStub = stub(google, 'getGoogleInfo').resolves(<any>profile)
+      fromOAuthUserStub = stub(User, 'fromOAuthUser').resolves()
+      createClientStub = stub(helpers, 'createOAuthClient').returns(createResult)
+      initStub = stub(clever.prototype, 'init').resolves()
+      getCleverInfoStub = stub(clever.prototype, 'getCleverInfo').resolves(<any>profile)
+    })
+    afterEach(() => {
+      getGoogleInfoStub.restore()
+      fromOAuthUserStub.restore()
+      getTokenStub.resetHistory()
+      createClientStub.restore()
+      initStub.restore()
+      getCleverInfoStub.restore()
+    })
+    it('should get the user from google', async () => {
+      await getUser('google', '12345')
+      assert.calledOnce(createClientStub)
+      assert.calledWithExactly(getGoogleInfoStub, testToken)
+      assert.calledWithExactly(fromOAuthUserStub, profile)
+    })
+    it('should get the user from clever', async () => {
+      await getUser('clever', '54321')
+      assert.calledOnce(initStub)
+      assert.calledOnce(getCleverInfoStub)
+      assert.calledOnce(createClientStub)
+      assert.calledWithExactly(fromOAuthUserStub, profile)
+    })
+  })
 })

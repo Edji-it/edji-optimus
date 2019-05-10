@@ -5,7 +5,7 @@ import { stub, SinonStub, assert, mock, SinonMock } from 'sinon'
 require('sinon-mongoose')
 
 // project imports
-import User, { OAuthObject, fromGoogleUser } from './User'
+import User, { OAuthObject, fromOAuthUser } from './User'
 import * as UserHelpers from './_User'
 
 const createUserInfo = function(identities?: string[]) {
@@ -179,7 +179,7 @@ describe('User model', () => {
     })
   })
 })
-describe('fromGoogleUser', () => {
+describe('fromOAuthUser', () => {
   let generateOauthObjectStub: SinonStub
   const userInfo = {
     id: '12345',
@@ -199,7 +199,7 @@ describe('fromGoogleUser', () => {
     generateOauthObjectStub.restore()
   })
   it('should return the expected properties', () => {
-    const { user, oauthObj } = fromGoogleUser(userInfo)
+    const { user, oauthObj } = fromOAuthUser(userInfo)
     assert.calledOnce(generateOauthObjectStub)
     expect(oauthObj).to.deep.equal({
       id: '12345',
@@ -210,7 +210,7 @@ describe('fromGoogleUser', () => {
     expect(user).to.be.instanceOf(User)
   })
   it('should create a valid user', async () => {
-    const { user } = fromGoogleUser(userInfo)
+    const { user } = fromOAuthUser(userInfo)
     await user.validate()
   })
 })

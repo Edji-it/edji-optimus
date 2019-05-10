@@ -351,22 +351,30 @@ const UserModel: UserModel = ModelCreator(
 )
 export default UserModel
 
-export function fromGoogleUser({
+export function fromOAuthUser({
   email,
   fullname,
   avatar,
   id,
-}: GoogleProfile): { user: UserDocument; oauthObj: OAuthObject } {
+}: OAuthProfile): { user: UserDocument; oauthObj: OAuthObject } {
   const oauthObj = generateOAuthObject(id, 'google')
   return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
 }
 
-export interface UserDocument extends EdjiDocument {
-  email: string
+interface iUser {
   fullname: string
+  email?: string
   avatar?: string
   oauth?: OAuthObject[]
+  school?: {
+    school_name?: string
+    school_id?: string
+    district_name?: string
+    district_id?: string
+  }
 }
+
+export interface UserDocument extends EdjiDocument, iUser {}
 
 interface UserModel extends Model<any> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
@@ -382,10 +390,7 @@ export interface OAuthObject {
 
 export type OAuthType = 'google' | 'clever'
 
-interface GoogleProfile {
-  email: string
-  fullname: string
-  avatar: string
+interface OAuthProfile extends iUser {
   id: string
 }
 
