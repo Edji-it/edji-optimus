@@ -18,15 +18,15 @@ import * as google from './../../../services/google'
 import clever from './../../../services/clever'
 
 describe('oauth helpers', () => {
+  const { CLIENT_URL, NODE_ENV } = process.env
+  beforeEach(() => {
+    process.env.CLIENT_URL = '//edji.it'
+    process.env.NODE_ENV = 'development'
+  })
+  after(() => {
+    Object.assign(process.env, { CLIENT_URL, NODE_ENV })
+  })
   describe('getRedirectURI', () => {
-    const { CLIENT_URL, NODE_ENV } = process.env
-    beforeEach(() => {
-      process.env.CLIENT_URL = '//edji.it'
-      process.env.NODE_ENV = 'development'
-    })
-    after(() => {
-      Object.assign(process.env, { CLIENT_URL, NODE_ENV })
-    })
     const defaultParams: RedirectParams = {
       type: 'google',
       singleUseToken: '$2a$04$8PJ97HsD9NUssj1sQrrt1e.DDWZYUFz6y1GjW64Q7q.MpxFc6UgIi',
@@ -103,13 +103,13 @@ describe('oauth helpers', () => {
       assert.calledOnce(findAndGenerateOAuthLoginStub)
       assert.notCalled(edjiSaveStub)
       assert.notCalled(setPendingOAuthStub)
-      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/google?token=54321')
+      expect(redirectTo).to.be.equal('https://edji.it/#/oauth/google?token=54321')
     })
     it('should return correct destination for a new user', async () => {
       const redirectTo = await getTokenRedirectDestination('clever', 'a_unique_oauth_code')
       assert.calledOnce(edjiSaveStub)
       assert.notCalled(setPendingOAuthStub)
-      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/clever?token=54321')
+      expect(redirectTo).to.be.equal('https://edji.it/#/oauth/clever?token=54321')
     })
     it('should return correct destination for an existing user who is a duplicate', async () => {
       edjiSaveStub.resetBehavior()
@@ -118,7 +118,7 @@ describe('oauth helpers', () => {
       assert.calledOnce(edjiSaveStub)
       assert.calledOnce(setPendingOAuthStub)
       assert.calledWithExactly(setPendingOAuthStub, { email: 'hello@edji.it', oauthObj: { singleUseToken: '54321' } })
-      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/clever?error=duplicate_user&token=54321')
+      expect(redirectTo).to.be.equal('https://edji.it/#/oauth/clever?error=duplicate_user&token=54321')
     })
     it('should return correct destination for an error', async () => {
       edjiSaveStub.resetBehavior()
@@ -127,7 +127,7 @@ describe('oauth helpers', () => {
       assert.calledOnce(edjiSaveStub)
       assert.notCalled(setPendingOAuthStub)
       assert.calledOnce(sentryStub)
-      expect(redirectTo).to.be.equal('http://localhost:3375/#/oauth/clever?error=serverError')
+      expect(redirectTo).to.be.equal('https://edji.it/#/oauth/clever?error=serverError')
     })
   })
   describe('getUser', () => {
