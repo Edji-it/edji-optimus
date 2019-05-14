@@ -39,14 +39,22 @@ export const createOAuthClient = (type: OAuthType): OAuthClient => {
 
 const GOOGLE_REDIRECT_URI = `${getProtocol()}:${process.env.OPTIMUS_URL}/api/v1/auth/google/callback`
 const CLEVER_REDIRECT_URI = `${getProtocol()}:${process.env.OPTIMUS_URL}/api/v1/auth/clever/callback`
+
 /**
  * @todo add state param for cross-origin scripting protection
  */
-export const GOOGLE_URI = createOAuthClient('google').authorizationCode.authorizeURL({
-  redirect_uri: GOOGLE_REDIRECT_URI,
-  scope: ['https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'],
-  // state: '<state>'
-})
+const providerRedirects: { [key in OAuthType]: string } = {
+  google: createOAuthClient('google').authorizationCode.authorizeURL({
+    redirect_uri: GOOGLE_REDIRECT_URI,
+    scope: ['https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'],
+    // state: '<state>'
+  }),
+  clever: createOAuthClient('clever').authorizationCode.authorizeURL({
+    redirect_uri: CLEVER_REDIRECT_URI,
+    // scope: '<scope>', // clever auto-assigns scope for library apps
+    // state: '<state>'
+  }),
+}
 
 function getProtocol(): 'http' | 'https' {
   return process.env.NODE_ENV === 'local' ? 'http' : 'https'
@@ -112,11 +120,24 @@ export const getTokenRedirectDestination = async (type: OAuthType, code: string)
   }
 }
 
-export const CallbackHandler: RequestHandler = async (req, res, next) => {
-  const { code } = req.query
-  const { type } = req.params
-  const destination = await getTokenRedirectDestination(type, code)
-  return res.redirect(destination)
+export const oauthCallbackHandler: RequestHandler = async (req, res, next) => {
+  try {
+    const { code } = req.query
+    const { type } = req.params
+    const destination = await getTokenRedirectDestination(type, code)
+    return res.redirect(destination)
+  } catch (err) {
+    return next(err)
+  }
+}
+
+export const redirectToProvider: RequestHandler = async (req, res, next) => {
+  try {
+    const { type } = req.params
+    return res.redirect(providerRedirects[type])
+  } catch (err) {
+    return next(err)
+  }
 }
 export interface RedirectParams {
   type: OAuthType

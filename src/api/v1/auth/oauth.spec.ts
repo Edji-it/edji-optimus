@@ -1,10 +1,17 @@
 // library imports
 import { expect } from 'chai'
-import { assert, stub, SinonStub, mock, SinonMock } from 'sinon'
+import { assert, stub, SinonStub } from 'sinon'
 import * as sentry from '@sentry/node'
 
 // project imports
-import { getRedirectURI, RedirectParams, getTokenRedirectDestination, getUser } from './oauth'
+import {
+  getRedirectURI,
+  RedirectParams,
+  getTokenRedirectDestination,
+  oauthCallbackHandler,
+  getUser,
+  redirectToProvider,
+} from './oauth'
 import * as helpers from './oauth'
 import * as User from './../../../models/User'
 import * as google from './../../../services/google'
@@ -166,6 +173,79 @@ describe('oauth helpers', () => {
       assert.calledOnce(getCleverInfoStub)
       assert.calledOnce(createClientStub)
       assert.calledWithExactly(fromOAuthUserStub, profile)
+    })
+  })
+  describe('oauthCallbackHandler', () => {
+    const mockRequest = {
+      query: {
+        code: '1234',
+      },
+      params: {
+        type: 'google',
+      },
+    }
+    const redirectStub = stub()
+    const mockResponse: any = {
+      redirect: redirectStub,
+    }
+    const mockDestination = 'https://edji.it'
+    let getDestinationStub: SinonStub
+    beforeEach(() => {
+      getDestinationStub = stub(helpers, 'getTokenRedirectDestination').resolves(mockDestination)
+    })
+    afterEach(() => {
+      getDestinationStub.restore()
+      redirectStub.resetHistory()
+    })
+    it('should call res.redirect with the destination', async () => {
+      await oauthCallbackHandler(<any>mockRequest, <any>mockResponse, stub())
+      assert.calledWithExactly(getDestinationStub, mockRequest.params.type, mockRequest.query.code)
+      assert.calledWithExactly(redirectStub, mockDestination)
+    })
+    it('should use default error handling if there is an error', async () => {
+      let mockNext = stub()
+      let mockError = new Error('an error while getting redirect destination')
+      getDestinationStub.resetBehavior()
+      getDestinationStub.throws(mockError)
+      await oauthCallbackHandler(<any>mockRequest, <any>mockResponse, mockNext)
+      assert.calledWithExactly(mockNext, mockError)
+    })
+  })
+  describe('redirectToProvider', () => {
+    const getMockRequest = (type: User.OAuthType): any => {
+      return {
+        params: {
+          type,
+        },
+      }
+    }
+    const redirectStub = stub()
+    const mockResponse: any = {
+      redirect: redirectStub,
+    }
+    const mockNext = stub()
+    afterEach(() => {
+      redirectStub.resetHistory()
+      mockNext.resetHistory()
+    })
+    it('should redirect to the correct google url', async () => {
+      redirectToProvider(getMockRequest('google'), mockResponse, mockNext)
+      assert.calledOnce(redirectStub)
+      assert.notCalled(mockNext)
+      expect(redirectStub.getCall(0).args[0]).to.contain('https://accounts.google.com/o/oauth2/v2/auth')
+    })
+    it('should redirect to the correct clever url', () => {
+      redirectToProvider(getMockRequest('clever'), mockResponse, mockNext)
+      assert.calledOnce(redirectStub)
+      assert.notCalled(mockNext)
+      expect(redirectStub.getCall(0).args[0]).to.contain('https://clever.com/oauth/authorize')
+    })
+    it('should call next with an error if there is a failure', async () => {
+      const mockError = new Error('an error for oauth')
+      redirectStub.throws(mockError)
+      redirectToProvider(getMockRequest('clever'), mockResponse, mockNext)
+      assert.calledOnce(redirectStub)
+      assert.calledWithExactly(mockNext, mockError)
     })
   })
 })
