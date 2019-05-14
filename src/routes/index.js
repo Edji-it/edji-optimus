@@ -7,7 +7,7 @@ let tempusers = require('./tempusers')
 let readings = require('./readings')
 // let comments = require("./comments")
 let projects = require('./projects')
-let auth = require('./auth')
+let auth = require('./auth').default
 let mailchimp = require('./mailchimp')
 let subscriptions = require('./subscriptions')
 
