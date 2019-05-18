@@ -79,10 +79,7 @@ export async function UpdatePropertyController(req: Request, res: Response, next
     }
     return res.status(200).send(updateObj)
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      let validationErrors = cleanMongoValidationError(err)
-      return res.status(406).send({ validationErrors })
-    } else if (err.message === 'err_no_project') {
+    if (err.message === 'err_no_project') {
       return res.status(404).send({ error: 'no project found for that id' })
     } else if (err.message === 'err_not_authorized') {
       return res.status(403).send()
