@@ -31,7 +31,7 @@ export async function updatePropertyArray({ project_id, user, update: propData }
    * just validate comment/answer to avoid running validators on entire project in findOneAndUpdate
    *  this will throw an error which should be caught by the route's catch
    */
-  let project = await Project.findById(project_id)
+  const project = await Project.findById(project_id)
   if (!project) throw new Error('err_no_project')
 
   let propObj

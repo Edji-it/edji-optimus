@@ -123,6 +123,7 @@ export class ProjectAPI {
       reading_id?: string
       label?: string
       comments?: iComment[]
+      [key: string]: any
     },
     authToken: string,
   ): Promise<any> {

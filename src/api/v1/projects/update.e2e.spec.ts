@@ -4,7 +4,7 @@ import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
-import { ObjectId } from 'mongodb'
+import { ObjectId, ObjectID } from 'mongodb'
 
 // project imports
 import { UserAPI, ProjectAPI, TempUserAPI } from './../../../test/methods'
@@ -34,6 +34,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         teacher_id: userId,
         reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
         label: 'PUT /api/v1/projects/:project_id test project',
+        co_owner_ids: [],
       },
       authToken,
     )
@@ -67,7 +68,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(res.body.heat_vision).not.to.be.equal(initialValue)
     })
     it('should return the state of all updatable properties', async () => {
-      const expectedUpdatable = ['heat_vision', 'tags', 'report_evals', 'label']
+      const expectedUpdatable = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
       const res = await request(projectState._id, projectState, authToken)
       expect(res).to.have.status(200)
       const returnedUpdated = Object.keys(res.body)
@@ -254,7 +255,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         }
         expect(testedComments, 'did not attempt to update any comments').to.be.greaterThan(0)
       })
-      it('should reject edits to a comment if the authenticated user id does not match the user_id of the comment', async () => {
+      it('should reject edits to a comment if the user is not an owner or co_owner', async () => {
         const { username, password } = data.LOGIN_INFO.API_STUDENT
         const { token } = await UserAPI.login(username, password)
         const commentId = createdComments[0]._id
@@ -266,6 +267,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         const res = await request(projectState._id, commentData, token)
         expect(res).to.have.status(403)
       })
+      it('should accept edits to a comment if the user is a co_owner')
       it('should reject an unauthorized request', async () => {
         const res = await request(projectState._id, { doesnt_matter: 'nothing' })
         expect(res).to.have.status(401)
@@ -391,4 +393,42 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(res).to.have.status(401)
     })
   })
+  // describe('PUT /api/v1/projects/:project_id/co_owner_ids', () => {
+  //   let coOwnerToken, studentToken
+  //   before(async () => {
+  //     const { username, password } = data.LOGIN_INFO.API_HERO
+  //     const { token } = await UserAPI.login(username, password)
+  //     coOwnerToken = token
+  //   })
+  //   before(async () => {
+  //     const { username, password } = data.LOGIN_INFO.API_STUDENT
+  //     const { token } = await UserAPI.login(username, password)
+  //     studentToken = token
+  //   })
+  //   const request = function(projectId: string, body: any, authToken?: string): Request {
+  //     let req = chai
+  //       .request(data.SERVER)
+  //       .put(`/api/v1/projects/${projectId}/co_owner_ids`)
+  //       .send(body)
+
+  //     authToken && req.set('Authorization', authToken)
+  //     return req
+  //   }
+  //   it('should allow co_owner_ids to be updated by the project owner', async () => {
+  //     const co_owner_ids = [new ObjectID().toHexString()]
+  //     const res = await request(projectState._id, co_owner_ids, authToken)
+  //     expect(res).to.have.status(200)
+  //     expect(res.body.co_owner_ids).to.deep.equal(co_owner_ids)
+  //   })
+  //   it('should return a 403 if a non-owner tries to update co_owner_ids', async () => {
+  //     const co_owner_ids = [new ObjectID().toHexString()]
+  //     const res = await request(projectState._id, co_owner_ids, studentToken)
+  //     expect(res).to.have.status(403)
+  //   })
+  //   it('should return a 403 if a co-owner tries to update co_owner_ids', async () => {
+  //     const co_owner_ids = [new ObjectID().toHexString()]
+  //     const res = await request(projectState._id, co_owner_ids, coOwnerToken)
+  //     expect(res).to.have.status(403)
+  //   })
+  // })
 })
