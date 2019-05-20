@@ -20,7 +20,7 @@ module.exports = async function(req, res, next) {
   }
 
   try {
-    let institution = await institution.edjiSave()
+    let institution = await instance.edjiSave()
     return res.status(200).send({ institution })
   } catch (err) {
     next(err)
