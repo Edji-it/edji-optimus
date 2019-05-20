@@ -162,6 +162,14 @@ export class ProjectAPI {
       .send(body)
     return res.body
   }
+  static async update(projectId: string, body: any, authToken: string): Promise<any> {
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
+      .put(`/api/v1/projects/${projectId}`)
+      .set('Authorization', authToken)
+      .send(body)
+    return res.body
+  }
 }
 
 interface ApiLoginObject extends LoginObject {

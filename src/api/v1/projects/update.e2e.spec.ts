@@ -4,7 +4,7 @@ import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
-import { ObjectId, ObjectID } from 'mongodb'
+import { ObjectId } from 'mongodb'
 
 // project imports
 import { UserAPI, ProjectAPI, TempUserAPI } from './../../../test/methods'
@@ -267,7 +267,6 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         const res = await request(projectState._id, commentData, token)
         expect(res).to.have.status(403)
       })
-      it('should accept edits to a comment if the user is a co_owner')
       it('should reject an unauthorized request', async () => {
         const res = await request(projectState._id, { doesnt_matter: 'nothing' })
         expect(res).to.have.status(401)
@@ -361,10 +360,9 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
     })
     it('should modify the feedback', async () => {
       // we need the _id for the feedback object
-      const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
-      expect(project).to.have.property('feedback')
-      const feedbackArray = project.feedback
-      expect(feedbackArray.length).to.be.greaterThan(0)
+      expect(projectState).to.have.property('feedback')
+      const feedbackArray = projectState.feedback
+      expect(feedbackArray).to.be.length.greaterThan(0)
       let feedbackObj = feedbackArray[feedbackArray.length - 1]
 
       const evalStr = `eval-${Date.now()}`
@@ -380,6 +378,24 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       const evaluation = feedback.evaluation
       expect(evaluation).to.equal(evalStr)
     })
+    it('should let a co_owner add feedback', async () => {
+      const { username, password } = data.LOGIN_INFO.API_HERO
+      const { token } = await UserAPI.login(username, password)
+      // make apitesthero a co owner
+      await ProjectAPI.update(projectState._id, { co_owner_ids: ['5ab5b2851714720023f12362'] }, authToken)
+      expect(projectState.feedback).to.be.length.greaterThan(0)
+      const feedback = projectState.feedback[0]
+      const res = await request(projectState._id, feedback, token)
+      expect(res).to.have.status(200)
+    })
+    it('should not let a random user add feedback', async () => {
+      const { username, password } = data.LOGIN_INFO.API_STUDENT
+      const { token } = await UserAPI.login(username, password)
+      expect(projectState.feedback).to.be.length.greaterThan(0)
+      const feedback = projectState.feedback[0]
+      const res = await request(projectState._id, feedback, token)
+      expect(res).to.have.status(403)
+    })
     it('should get a 406 for an invalid request', async () => {
       const res = await request(projectState._id, invalidFeedback, authToken)
       expect(res).to.have.status(406)
@@ -393,42 +409,4 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(res).to.have.status(401)
     })
   })
-  // describe('PUT /api/v1/projects/:project_id/co_owner_ids', () => {
-  //   let coOwnerToken, studentToken
-  //   before(async () => {
-  //     const { username, password } = data.LOGIN_INFO.API_HERO
-  //     const { token } = await UserAPI.login(username, password)
-  //     coOwnerToken = token
-  //   })
-  //   before(async () => {
-  //     const { username, password } = data.LOGIN_INFO.API_STUDENT
-  //     const { token } = await UserAPI.login(username, password)
-  //     studentToken = token
-  //   })
-  //   const request = function(projectId: string, body: any, authToken?: string): Request {
-  //     let req = chai
-  //       .request(data.SERVER)
-  //       .put(`/api/v1/projects/${projectId}/co_owner_ids`)
-  //       .send(body)
-
-  //     authToken && req.set('Authorization', authToken)
-  //     return req
-  //   }
-  //   it('should allow co_owner_ids to be updated by the project owner', async () => {
-  //     const co_owner_ids = [new ObjectID().toHexString()]
-  //     const res = await request(projectState._id, co_owner_ids, authToken)
-  //     expect(res).to.have.status(200)
-  //     expect(res.body.co_owner_ids).to.deep.equal(co_owner_ids)
-  //   })
-  //   it('should return a 403 if a non-owner tries to update co_owner_ids', async () => {
-  //     const co_owner_ids = [new ObjectID().toHexString()]
-  //     const res = await request(projectState._id, co_owner_ids, studentToken)
-  //     expect(res).to.have.status(403)
-  //   })
-  //   it('should return a 403 if a co-owner tries to update co_owner_ids', async () => {
-  //     const co_owner_ids = [new ObjectID().toHexString()]
-  //     const res = await request(projectState._id, co_owner_ids, coOwnerToken)
-  //     expect(res).to.have.status(403)
-  //   })
-  // })
 })
