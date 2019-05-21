@@ -40,9 +40,18 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     propObj = project[propArrayName].id(propData._id)
   }
 
+  if (propArrayName === 'feedback') {
+    // check if user owns project or is a co_owner
+    if (
+      !user._id.equals(project.teacher_id) &&
+      !(project.co_owner_ids && project.co_owner_ids.some(id => user._id.equals(id)))
+    )
+      throw new Error('err_not_authorized')
+  }
+
   // we still might not find the property in its array on the project, so we'll create it here if not found
   if (propObj) {
-    if (propArrayName !== 'feedback' && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
+    if (propObj.user_id && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
     // this is a cleaning function mostly used for cleaning audio data stashed in s3
     if (propData.url && propData.url !== propObj.url) {
       deleteFromS3(propObj.url)
