@@ -58,7 +58,11 @@ workflows:
   test:
     jobs:
       - build
-      - version
+      - version:
+          filters:
+            branches:
+              only:
+                - dev
       - hot_rod_trigger:
           requires:
             - build
