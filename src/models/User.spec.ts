@@ -199,7 +199,7 @@ describe('fromOAuthUser', () => {
     generateOauthObjectStub.restore()
   })
   it('should return the expected properties', () => {
-    const { user, oauthObj } = fromOAuthUser(userInfo)
+    const { user, oauthObj } = fromOAuthUser(userInfo, 'google')
     assert.calledOnce(generateOauthObjectStub)
     expect(oauthObj).to.deep.equal({
       id: '12345',
@@ -210,7 +210,7 @@ describe('fromOAuthUser', () => {
     expect(user).to.be.instanceOf(User)
   })
   it('should create a valid user', async () => {
-    const { user } = fromOAuthUser(userInfo)
+    const { user } = fromOAuthUser(userInfo, 'clever')
     await user.validate()
   })
 })
