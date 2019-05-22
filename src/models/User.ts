@@ -351,13 +351,11 @@ const UserModel: UserModel = ModelCreator(
 )
 export default UserModel
 
-export function fromOAuthUser({
-  email,
-  fullname,
-  avatar,
-  id,
-}: OAuthProfile): { user: UserDocument; oauthObj: OAuthObject } {
-  const oauthObj = generateOAuthObject(id, 'google')
+export function fromOAuthUser(
+  { email, fullname, avatar, id }: OAuthProfile,
+  type: OAuthType,
+): { user: UserDocument; oauthObj: OAuthObject } {
+  const oauthObj = generateOAuthObject(id, type)
   return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
 }
 

@@ -77,7 +77,7 @@ export const getUser = async (type: OAuthType, code: string) => {
       }
       const { access_token: googleToken } = await googleOAuth2.authorizationCode.getToken(googleTokenConfig)
       const profile = await getGoogleInfo(googleToken)
-      return fromOAuthUser(profile)
+      return fromOAuthUser(profile, 'google')
     case 'clever':
       const cleverClient = createOAuthClient('clever')
       const tokenConfig: AuthorizationTokenConfig = {
@@ -88,7 +88,7 @@ export const getUser = async (type: OAuthType, code: string) => {
       const client = new Clever(cleverToken)
       await client.init()
       const cleverProfile = await client.getCleverInfo()
-      return fromOAuthUser(cleverProfile)
+      return fromOAuthUser(cleverProfile, 'clever')
   }
 }
 
