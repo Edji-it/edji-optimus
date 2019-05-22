@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 // Project Imports
-import User = require('../../../../models/User')
+import User from '../../../../models/User'
 import { createQuery, userCanResetPass } from './_find-user'
 
 export async function PasswordHandler(req: Request, res: Response, next: NextFunction) {

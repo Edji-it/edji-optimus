@@ -2,16 +2,16 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import * as User from './../../../models/User'
+import User from '../../../models/User'
 import * as Referral from './../../../models/Referral'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 import { cleanMongoValidationError } from './../../../error-handlers'
 
 const createController: RequestHandler = async function(req, res, next) {
   let userData: any = req.body.user
-
   try {
-    let user: any = await User(userData).edjiSave({ forceSave: true })
+    const user = new User(userData)
+    await user.edjiSave()
     // update the referring user's Referral object to reflect their referral
     if (user.referred_by) {
       await Referral.findOneAndUpdate(

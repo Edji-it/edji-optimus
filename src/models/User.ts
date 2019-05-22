@@ -2,10 +2,21 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const _ = require('underscore')
+import { Model, Document } from 'mongoose'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
-const helpers = require('./_User')
+import { EdjiSaveOptions } from './ModelCreator'
+
+import {
+  getUserHeroStatus,
+  isValidTokenProperty,
+  validateToken,
+  createOneTimeTokenObject,
+  refreshRequired,
+  messageCheckRequired,
+  generateOAuthObject,
+} from './_User'
 
 // tests email against regex
 const emailRe = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
@@ -82,7 +93,7 @@ const OAuthObject = mongoose.Schema({
   singleUseTokenExpiration: Date,
 })
 
-let model = ModelCreator(
+const UserModel: UserModel = ModelCreator(
   'User',
   {
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
@@ -166,6 +177,37 @@ let model = ModelCreator(
     institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
   },
   function(schema) {
+    // function(schema: Schema<UserDocument>) {
+    schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
+      return this.findOneAndUpdate(
+        {
+          'oauth.id': id,
+          'oauth.type': type,
+        },
+        {
+          $set: {
+            'oauth.$.singleUseToken': singleUseToken,
+            'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration,
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      ).exec()
+    })
+
+    schema.static('setPendingOAuth', function({ email, oauthObj: pending_oauth }) {
+      return this.updateOne(
+        { email },
+        {
+          $set: {
+            pending_oauth,
+          },
+        },
+      ).exec()
+    })
+
     // add custom method which returns only the properties which we want to be viewable by the client
     schema.methods.toPublic = function() {
       // list out the properties it is ok to return to the front-end
@@ -252,10 +294,10 @@ let model = ModelCreator(
     })
 
     /**
-     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the #Model.edjiSave() function to return a promise, so this is what I'm doing for now...
+     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the Model#edjiSave() function to return a promise, so this is what I'm doing for now...
      */
     schema.methods.refresh = async function() {
-      let validHero = await helpers.getUserHeroStatus(this)
+      let validHero = await getUserHeroStatus(this)
       this.hero_status = validHero
       this.last_refresh_time = Date.now()
 
@@ -269,11 +311,11 @@ let model = ModelCreator(
      * @returns {string} that was set on the user
      */
     schema.methods.setOneTimeToken = async function(propertyName, expiration) {
-      if (!helpers.isValidTokenProperty(propertyName)) {
+      if (!isValidTokenProperty(propertyName)) {
         return
       }
 
-      const { unhashedToken, tokenObj } = helpers.createOneTimeTokenObject(expiration)
+      const { unhashedToken, tokenObj } = createOneTimeTokenObject(expiration)
       this[propertyName] = tokenObj
       return unhashedToken
     }
@@ -283,11 +325,11 @@ let model = ModelCreator(
      * @param {string} propertyName property name on user object which contains the token to be used
      */
     schema.methods.validateOneTimeToken = async function(propertyName, unhashedToken) {
-      if (!helpers.isValidTokenProperty(propertyName) || !this[propertyName]) {
+      if (!isValidTokenProperty(propertyName) || !this[propertyName]) {
         throw new Error('ERR_INVALID_PROPERTY')
       }
 
-      let isValidToken = helpers.validateToken(unhashedToken, this[propertyName])
+      let isValidToken = validateToken(unhashedToken, this[propertyName])
 
       if (!isValidToken) {
         throw new Error('ERR_INVALID_TOKEN')
@@ -299,13 +341,58 @@ let model = ModelCreator(
       if (!this.last_refresh_time) {
         console.log('no last_refresh_time on ' + this.username)
       }
-      return helpers.refreshRequired(this.last_refresh_time)
+      return refreshRequired(this.last_refresh_time)
     })
 
     schema.virtual('message_check_required').get(function() {
-      return helpers.messageCheckRequired(this.last_message_check_time)
+      return messageCheckRequired(this.last_message_check_time)
     })
   },
 )
+export default UserModel
 
-module.exports = model
+export function fromOAuthUser(
+  { email, fullname, avatar, id }: OAuthProfile,
+  type: OAuthType,
+): { user: UserDocument; oauthObj: OAuthObject } {
+  const oauthObj = generateOAuthObject(id, type)
+  return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
+}
+
+interface iUser {
+  fullname: string
+  email?: string
+  avatar?: string
+  oauth?: OAuthObject[]
+  school?: {
+    school_name?: string
+    school_id?: string
+    district_name?: string
+    district_id?: string
+  }
+}
+
+export interface UserDocument extends EdjiDocument, iUser {}
+
+interface UserModel extends Model<any> {
+  findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
+  setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
+}
+
+export interface OAuthObject {
+  id: string | number
+  type: OAuthType
+  singleUseToken: string
+  singleUseTokenExpiration: number
+}
+
+export type OAuthType = 'google' | 'clever'
+
+interface OAuthProfile extends iUser {
+  id: string
+}
+
+// eventually to be moved to ModelCreator, when that is refactored to export syntax
+export interface EdjiDocument extends Document {
+  edjiSave: (options?: EdjiSaveOptions) => Promise<any>
+}

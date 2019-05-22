@@ -9,7 +9,7 @@ const createMessageList = async function(obj) {
   }
 
   let messages = MessageList(obj)
-  return messages.edjiSave({ forceSave: true })
+  return messages.edjiSave()
 }
 
 /**

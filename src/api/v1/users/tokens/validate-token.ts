@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import User = require('../../../../models/User')
+import User from '../../../../models/User'
 
 export async function ValidateTokenMiddleware(req: Request, res: Response, next: NextFunction) {
   let { reset_property, unhashed_token } = req.params

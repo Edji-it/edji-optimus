@@ -1,8 +1,7 @@
 import { executeSaveAndIndex, SaveAndIndexOptions } from './_ModelCreator'
 import elastic from '../services/elasticsearch'
 
-import { cleanMongoValidationError } from './../error-handlers/mongo-validation'
-const db = require('./../db')
+import db from './../db'
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator) {
@@ -15,7 +14,8 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     toJSON: { virtuals: true }, // makes mongoose virtuals accessible to JSON responses
   })
 
-  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = {}, next) {
+  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = { validateBeforeSave: true }) {
+    const { validateBeforeSave } = options
     this.preEdjiSave && (await this.preEdjiSave())
     this.updatedAt = Date.now()
     // mongoose does this stupid thing where it overwrites the last parameter as a callback
@@ -33,30 +33,16 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     let error = this.validateSync()
     if (error) throw error
 
-    let queryOptions = {
-      query: { _id: this._id },
-      update: this,
-      mongooseOptions: {
-        new: true,
-        runValidators: true,
-        upsert: true,
-        setDefaultsOnInsert: true,
-      },
-      ...options,
-    }
-
     let saveOptions: SaveAndIndexOptions = {
-      save: Model.findOneAndUpdate(queryOptions.query, queryOptions.update, queryOptions.mongooseOptions),
+      save: this.save({
+        validateBeforeSave,
+      }),
     }
     if (this.getIndexOptions) {
       let indexOptions: IndexOptions = this.getIndexOptions()
       saveOptions.index = elastic.index(indexOptions)
       saveOptions.id = indexOptions.id
       saveOptions.indexName = indexOptions.index
-    }
-
-    if (options.forceSave) {
-      saveOptions.save = this.save()
     }
 
     let { saveResults, indexResults } = await executeSaveAndIndex(saveOptions)
@@ -67,20 +53,11 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     schemaDecorator(Schema)
   }
 
-  const Model = db.model(modelName, Schema)
-  return Model
+  return db.model(modelName, Schema)
 }
 
-interface EdjiSaveOptions {
-  query?: any
-  update?: any
-  mongooseOptions?: {
-    new: boolean
-    runValidators: boolean
-    upsert: boolean
-    setDefaultsOnInsert: boolean
-  }
-  forceSave?: boolean
+export interface EdjiSaveOptions {
+  validateBeforeSave: boolean
 }
 
 export interface IndexOptions {

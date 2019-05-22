@@ -2,16 +2,12 @@
 import { Router } from 'express'
 
 // controllers
-import { CleverRedirect, CleverCallback } from './clever'
-import { GoogleRedirect, GoogleCallback } from './google'
+import { oauthCallbackHandler, redirectToProvider } from './oauth'
 import { addRouteName } from '../../../utils/edji-utils'
 
 const router = Router()
 
-router.get('/clever', addRouteName('/clever'), CleverRedirect)
-router.get('/clever/callback', addRouteName('/clever/callback'), CleverCallback)
-// router.get('/google', Passport.authenticate('google', { scope: ['email', 'profile'] }))
-router.get('/google', addRouteName('/google'), GoogleRedirect)
-router.get('/google/callback', addRouteName('/google/callback'), GoogleCallback)
+router.get('/:type', addRouteName('/:type'), redirectToProvider)
+router.get('/:type/callback', addRouteName('/:type/callback'), oauthCallbackHandler)
 
 export default router

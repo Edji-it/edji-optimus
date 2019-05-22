@@ -1,5 +1,4 @@
 // library imports
-const Q = require('q')
 
 // project imports
 const License = require('./../../../models/License')
@@ -80,7 +79,7 @@ module.exports = function(req, res, next) {
     },
   ])
     .then(licenses => {
-      return res.status(200).send({ licenses: licenses })
+      return res.status(200).send({ licenses })
     })
     .catch(err => {
       next(err)
