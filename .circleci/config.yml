@@ -19,7 +19,6 @@ jobs:
 
     steps:
       - checkout
-
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -38,6 +37,16 @@ jobs:
       - run: yarn test:ci
       - store_test_results:
           path: test-results
+  version:
+    docker:
+      - image: circleci/node:10.15
+    working_directory: ~/repo
+    steps:
+      # add write permissions to circleci ssh
+      - add_ssh_keys:
+          fingerprints:
+            - "17:5b:f9:81:92:12:12:30:60:e4:cc:a7:a7:ac:84:94"
+      - run: ./scripts/release.sh
   hot_rod_trigger:
     docker:
       - image: circleci/node:10.15
@@ -48,6 +57,7 @@ workflows:
   test:
     jobs:
       - build
+      - version
       - hot_rod_trigger:
           requires:
             - build
