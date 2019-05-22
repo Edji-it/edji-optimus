@@ -20,7 +20,7 @@ var Model = ModelCreator(
   'Project',
   {
     teacher_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'User' },
-    co_owners: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    co_owner_ids: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     reading_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'Reading' },
     comments: [Comment.schema],
     answers: [Comment.schema],

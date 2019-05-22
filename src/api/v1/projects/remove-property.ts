@@ -9,12 +9,10 @@ export async function RemovePropertyController(req: Request, res: Response, next
   try {
     const { project_id, remove_property } = req.params
     const comment_id = req.query.comment_id || req.params.comment_id // need the req.params check here for legacy calls from the projects route
-    const reply_ids = req.query.reply_ids
+    const reply_ids = req.query.reply_ids || []
     let user = req.user
 
-    // consolidate _ids in to one array for removal
-    let idArray: string[]
-    ;(idArray = reply_ids ? reply_ids : []).push(comment_id)
+    reply_ids.push(comment_id)
 
     if (!mongoose['validateEdjiId'](project_id)) {
       return res.status(400).send({ error: 'invalid project or property id passed' })
@@ -24,7 +22,7 @@ export async function RemovePropertyController(req: Request, res: Response, next
       return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }
 
-    await REMOVE_CONTROLLERS[remove_property]({ project_id, user, comment_id, idArray })
+    await REMOVE_CONTROLLERS[remove_property]({ project_id, user, comment_id, idArray: reply_ids })
 
     return res.status(204).send()
   } catch (err) {

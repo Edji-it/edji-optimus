@@ -34,6 +34,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         teacher_id: userId,
         reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
         label: 'PUT /api/v1/projects/:project_id test project',
+        co_owner_ids: [],
       },
       authToken,
     )
@@ -67,7 +68,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(res.body.heat_vision).not.to.be.equal(initialValue)
     })
     it('should return the state of all updatable properties', async () => {
-      const expectedUpdatable = ['heat_vision', 'tags', 'report_evals', 'label']
+      const expectedUpdatable = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
       const res = await request(projectState._id, projectState, authToken)
       expect(res).to.have.status(200)
       const returnedUpdated = Object.keys(res.body)
@@ -130,7 +131,6 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       // add at least one comment before all tests so that any test can be successful if run by itself
       before(async () => {
         const comment = {
-          user_id: userId,
           start: 5,
           end: 100,
         }
@@ -141,8 +141,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         createdComments.push(res)
       })
       it('should create a new comment with minimal parameters', async () => {
-        const minComment = {
-          user_id: userId,
+        const minComment: any = {
           start: 5,
           end: 100,
         }
@@ -151,7 +150,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         const comment = res.body
         expect(comment).to.have.property('_id')
         expect(comment).to.have.property('user_id')
-        expect(comment.user_id).to.be.equal(minComment.user_id)
+        expect(comment.user_id).to.be.equal(userId)
         expect(comment).to.have.property('start')
         expect(comment.start).to.be.equal(minComment.start)
         expect(comment).to.have.property('end')
@@ -163,8 +162,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         createdComments.push(comment)
       })
       it('should create a new comment with all the properties', async () => {
-        const maxComment = {
-          user_id: userId,
+        const maxComment: any = {
           start: 5,
           end: 100,
           data: 'a data here',
@@ -186,7 +184,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         const comment = res.body
         expect(comment).to.have.property('_id')
         expect(comment).to.have.property('user_id')
-        expect(comment.user_id).to.be.equal(maxComment.user_id)
+        expect(comment.user_id).to.be.equal(userId)
         expect(comment).to.have.property('start')
         expect(comment.start).to.be.equal(maxComment.start)
         expect(comment).to.have.property('end')
@@ -221,7 +219,6 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       it('should create a new comment if the _id of the comment that was passed does not exist in the comments array', async () => {
         const commentData = {
           _id: new ObjectId().toHexString(),
-          user_id: userId,
           start: 5,
           end: 100,
         }
@@ -232,11 +229,12 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         expect(comment._id).to.be.equal(commentData._id)
         createdComments.push(comment)
       })
-      it('should reject a comment that does not have required properties', async () => {
-        const res = await request(projectState._id, { data: 'haha this wont work' }, authToken)
-        expect(res).to.have.status(406)
-        expect(res.body).to.have.property('validationErrors')
-      })
+      /** commented out because user_id is now automatically assigned and everything else has defaults */
+      // it('should reject a comment that does not have required properties', async () => {
+      //   const res = await request(projectState._id, { data: 'haha this wont work' }, authToken)
+      //   expect(res).to.have.status(406)
+      //   expect(res.body).to.have.property('validationErrors')
+      // })
       it('should update an existing comment if passed an id', async () => {
         let testedComments = 0
         for (let i = 0; i < createdComments.length; i++) {
@@ -254,7 +252,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         }
         expect(testedComments, 'did not attempt to update any comments').to.be.greaterThan(0)
       })
-      it('should reject edits to a comment if the authenticated user id does not match the user_id of the comment', async () => {
+      it('should reject edits to a comment if the user is not an owner or co_owner', async () => {
         const { username, password } = data.LOGIN_INFO.API_STUDENT
         const { token } = await UserAPI.login(username, password)
         const commentId = createdComments[0]._id
@@ -359,10 +357,9 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
     })
     it('should modify the feedback', async () => {
       // we need the _id for the feedback object
-      const { project } = await ProjectAPI.retrieve(projectState._id, authToken)
-      expect(project).to.have.property('feedback')
-      const feedbackArray = project.feedback
-      expect(feedbackArray.length).to.be.greaterThan(0)
+      expect(projectState).to.have.property('feedback')
+      const feedbackArray = projectState.feedback
+      expect(feedbackArray).to.be.length.greaterThan(0)
       let feedbackObj = feedbackArray[feedbackArray.length - 1]
 
       const evalStr = `eval-${Date.now()}`
@@ -377,6 +374,24 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(feedback).to.have.property('evaluation')
       const evaluation = feedback.evaluation
       expect(evaluation).to.equal(evalStr)
+    })
+    it('should let a co_owner add feedback', async () => {
+      const { username, password } = data.LOGIN_INFO.API_HERO
+      const { token } = await UserAPI.login(username, password)
+      // make apitesthero a co owner
+      await ProjectAPI.update(projectState._id, { co_owner_ids: ['5ab5b2851714720023f12362'] }, authToken)
+      expect(projectState.feedback).to.be.length.greaterThan(0)
+      const feedback = projectState.feedback[0]
+      const res = await request(projectState._id, feedback, token)
+      expect(res).to.have.status(200)
+    })
+    it('should not let a random user add feedback', async () => {
+      const { username, password } = data.LOGIN_INFO.API_STUDENT
+      const { token } = await UserAPI.login(username, password)
+      expect(projectState.feedback).to.be.length.greaterThan(0)
+      const feedback = projectState.feedback[0]
+      const res = await request(projectState._id, feedback, token)
+      expect(res).to.have.status(403)
     })
     it('should get a 406 for an invalid request', async () => {
       const res = await request(projectState._id, invalidFeedback, authToken)

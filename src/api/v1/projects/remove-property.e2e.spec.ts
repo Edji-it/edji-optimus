@@ -14,43 +14,41 @@ chai.use(chaiHttp)
 let authToken: string
 let userId: string
 let createdProject: any
+let coTeacherToken: string
 
 describe('delete project properties', () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
     authToken = token
-    expect(authToken).not.to.be.undefined
     userId = user._id
-    expect(userId).to.not.be.undefined
   })
   before(async () => {
+    // log in API_HERO so we can make it a co teacher
+    const { username, password } = data.LOGIN_INFO.API_HERO
+    const { user: apiHero, token } = await UserAPI.login(username, password)
+    coTeacherToken = token
     // find a project _id to use that we can add a comment or answer to (make flexible)
     const project = await ProjectAPI.create(
       {
         teacher_id: userId,
         reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
         label: 'PUT /api/v1/projects/:project_id test project',
+        co_owner_ids: [apiHero._id],
       },
       authToken,
     )
     expect(project._id, 'did not successfully create project to test').not.to.be.undefined
     createdProject = project
   })
+  after(async () => {
+    await ProjectAPI.delete(createdProject._id, authToken)
+  })
 
   const commentTypes = ['comments', 'answers']
   for (let commentType of commentTypes) {
     describe(`DELETE /api/v1/projects/:project_id/${commentType}/:comment_id`, () => {
       let createdComments = []
-      const requestCreate = function(projectId: string, body: any, authToken?: string): Request {
-        let req = chai
-          .request(data.SERVER)
-          .put(`/api/v1/projects/${projectId}/${commentType}`)
-          .send(body)
-
-        authToken && req.set('Authorization', authToken)
-        return req
-      }
 
       const requestDelete = (
         projectId: string,
@@ -74,40 +72,40 @@ describe('delete project properties', () => {
         return req
       }
 
-      // add at least one comment before all tests so that any test can be successful if run by itself
+      let studentToken
       before(async () => {
-        const comment = {
-          user_id: userId,
-          start: 5,
-          end: 100,
-        }
-        const res = await ProjectAPI.createComment(createdProject._id, comment, authToken, commentType)
-        expect(res).to.have.property('start')
-        expect(res.start).to.be.equal(comment.start)
-        createdComments.push(res)
+        const { username, password } = data.LOGIN_INFO.API_STUDENT
+        const { token } = await UserAPI.login(username, password)
+        studentToken = token
       })
 
-      it(`should delete a new ${commentType}`, async () => {
-        const minComment = {
-          user_id: userId,
-          start: 5,
-          end: 100,
-        }
+      const minComment = {
+        start: 5,
+        end: 100,
+      }
+
+      it(`should let a student delete their ${commentType}`, async () => {
         // create a new comment that we'll delete in the next step
-        const createRes = await requestCreate(createdProject._id, minComment, authToken)
-        expect(createRes).to.have.status(200)
-        const comment = createRes.body
+        const comment = await ProjectAPI.createComment(createdProject._id, minComment, studentToken, commentType)
         expect(comment).to.have.property('_id')
 
         // delete the newly created comment
-        const deleteRes = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], authToken)
+        const deleteRes = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], studentToken)
         expect(deleteRes).to.have.status(204)
       })
-      it(`should reject delete request to a ${commentType} if the authenticated user id does not match the user_id of the comment`, async () => {
-        const { username, password } = data.LOGIN_INFO.API_STUDENT
-        const { token } = await UserAPI.login(username, password)
-        const commentId = createdComments[0]._id
-        const res = await requestDelete(createdProject._id, `${commentType}`, commentId, [], token)
+      it(`should let a project owner delete student ${commentType}`, async () => {
+        const comment = await ProjectAPI.createComment(createdProject._id, minComment, studentToken, commentType)
+        const res = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], authToken)
+        expect(res).to.have.status(204)
+      })
+      it(`should let a co-teacher delete student ${commentType}`, async () => {
+        const comment = await ProjectAPI.createComment(createdProject._id, minComment, studentToken, commentType)
+        const res = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], coTeacherToken)
+        expect(res).to.have.status(204)
+      })
+      it(`should reject delete request to a ${commentType} if the user is not authorized`, async () => {
+        const comment = await ProjectAPI.createComment(createdProject._id, minComment, authToken, commentType)
+        const res = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], studentToken)
         expect(res).to.have.status(403)
       })
       it('should reject an unauthorized request', async () => {
@@ -117,29 +115,19 @@ describe('delete project properties', () => {
       // this next test only applies to comments, we can't really run it for answers
       if (commentType === 'comments') {
         it(`should delete a new ${commentType} that has replies`, async () => {
-          const minComment = {
-            user_id: userId,
-            start: 5,
-            end: 100,
-          }
           // need to set the reply_to to the comment _id above once we add it to the project in the call below
           const minReply = {
-            user_id: userId,
             reply_to: '',
             start: 5,
             end: 100,
           }
           // create a new comment that we'll delete in the final step
-          const createRes = await requestCreate(createdProject._id, minComment, authToken)
-          expect(createRes).to.have.status(200)
-          const comment = createRes.body
+          const comment = await ProjectAPI.createComment(createdProject._id, minComment, authToken, commentType)
           expect(comment).to.have.property('_id')
           minReply.reply_to = comment._id
 
           // create a new reply comment to the parent comment above that we'll delete in the final step
-          const createReplyRes = await requestCreate(createdProject._id, minReply, authToken)
-          expect(createReplyRes).to.have.status(200)
-          const reply = createReplyRes.body
+          const reply = await ProjectAPI.createComment(createdProject._id, minReply, authToken, commentType)
           expect(reply).to.have.property('_id')
           expect(reply).to.have.property('reply_to')
 
@@ -182,7 +170,7 @@ describe('delete project properties', () => {
       authToken && req.set('Authorization', authToken)
       return req
     }
-    it('should delete a feedback object', async () => {
+    it('should delete a feedback object as a project owner', async () => {
       // create feedback
       const createFeedback = await requestCreate(createdProject._id, feedbackObject, authToken)
       expect(createFeedback).to.have.status(200)
@@ -201,6 +189,13 @@ describe('delete project properties', () => {
       const deleteFeedback = await requestDelete(createdProject._id, feedbackObj._id, authToken)
       expect(deleteFeedback).to.have.status(204)
     })
+    it('should delete a feedback object as a co-teacher', async () => {
+      const createFeedback = await requestCreate(createdProject._id, feedbackObject, authToken)
+      expect(createFeedback).to.have.status(200)
+      const feedback = createFeedback.body
+      const deleteFeedback = await requestDelete(createdProject._id, feedback._id, coTeacherToken)
+      expect(deleteFeedback).to.have.status(204)
+    })
     it('should receive a 400 if passed an invalid project id', async () => {
       const res = await requestDelete('invalid_id', 'feedbackId', authToken)
       expect(res).to.have.status(400)
@@ -209,8 +204,8 @@ describe('delete project properties', () => {
       const res = await requestDelete('invalid_id', 'feedbackId', '')
       expect(res).to.have.status(401)
     })
-    it('should return 403 if the user requesting to delete the feedback object is not the project owner', async () => {
-      let { username, password } = data.LOGIN_INFO.API_HERO
+    it('should return 403 if the user requesting to delete the feedback object is not authorized', async () => {
+      let { username, password } = data.LOGIN_INFO.API_HERO2
       let { token } = await UserAPI.login(username, password)
       expect(token).not.to.be.undefined
       const res = await requestDelete(createdProject._id, '59bda04985c6ab346c12dbba', token)

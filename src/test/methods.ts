@@ -123,6 +123,7 @@ export class ProjectAPI {
       reading_id?: string
       label?: string
       comments?: iComment[]
+      [key: string]: any
     },
     authToken: string,
   ): Promise<any> {
@@ -157,6 +158,14 @@ export class ProjectAPI {
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
       .put(`/api/v1/projects/${projectId}/${commentType}`)
+      .set('Authorization', authToken)
+      .send(body)
+    return res.body
+  }
+  static async update(projectId: string, body: any, authToken: string): Promise<any> {
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
+      .put(`/api/v1/projects/${projectId}`)
       .set('Authorization', authToken)
       .send(body)
     return res.body

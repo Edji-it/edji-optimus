@@ -31,7 +31,7 @@ export async function updatePropertyArray({ project_id, user, update: propData }
    * just validate comment/answer to avoid running validators on entire project in findOneAndUpdate
    *  this will throw an error which should be caught by the route's catch
    */
-  let project = await Project.findById(project_id)
+  const project = await Project.findById(project_id)
   if (!project) throw new Error('err_no_project')
 
   let propObj
@@ -40,9 +40,18 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     propObj = project[propArrayName].id(propData._id)
   }
 
+  if (propArrayName === 'feedback') {
+    // check if user owns project or is a co_owner
+    if (
+      !user._id.equals(project.teacher_id) &&
+      !(project.co_owner_ids && project.co_owner_ids.some(id => user._id.equals(id)))
+    )
+      throw new Error('err_not_authorized')
+  }
+
   // we still might not find the property in its array on the project, so we'll create it here if not found
   if (propObj) {
-    if (propArrayName !== 'feedback' && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
+    if (propObj.user_id && !user._id.equals(propObj.user_id)) throw new Error('err_not_authorized')
     // this is a cleaning function mostly used for cleaning audio data stashed in s3
     if (propData.url && propData.url !== propObj.url) {
       deleteFromS3(propObj.url)
@@ -56,7 +65,7 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     // if a comment or an answer, we need to build a new Comment from the schema
     propObj = new model(propData)
     propObj.author = user.fullname
-    propObj.owner_id = user._id
+    propObj.user_id = user._id
     propObj.createdAt = Date.now()
     project[propArrayName].push(propObj)
   }
