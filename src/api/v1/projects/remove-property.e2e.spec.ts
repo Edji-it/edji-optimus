@@ -14,23 +14,27 @@ chai.use(chaiHttp)
 let authToken: string
 let userId: string
 let createdProject: any
+let coTeacherToken: string
 
 describe('delete project properties', () => {
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_TEACHER
     const { user, token } = await UserAPI.login(username, password)
     authToken = token
-    expect(authToken).not.to.be.undefined
     userId = user._id
-    expect(userId).to.not.be.undefined
   })
   before(async () => {
+    // log in API_HERO so we can make it a co teacher
+    const { username, password } = data.LOGIN_INFO.API_HERO
+    const { user: apiHero, token } = await UserAPI.login(username, password)
+    coTeacherToken = token
     // find a project _id to use that we can add a comment or answer to (make flexible)
     const project = await ProjectAPI.create(
       {
         teacher_id: userId,
         reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
         label: 'PUT /api/v1/projects/:project_id test project',
+        co_owner_ids: [apiHero._id],
       },
       authToken,
     )
@@ -92,7 +96,12 @@ describe('delete project properties', () => {
       it(`should let a project owner delete student ${commentType}`, async () => {
         const comment = await ProjectAPI.createComment(createdProject._id, minComment, studentToken, commentType)
         const res = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], authToken)
-        expect(res).to.have.status(403)
+        expect(res).to.have.status(204)
+      })
+      it(`should let a co-teacher delete student ${commentType}`, async () => {
+        const comment = await ProjectAPI.createComment(createdProject._id, minComment, studentToken, commentType)
+        const res = await requestDelete(createdProject._id, `${commentType}`, comment._id, [], coTeacherToken)
+        expect(res).to.have.status(204)
       })
       it(`should reject delete request to a ${commentType} if the user is not authorized`, async () => {
         const comment = await ProjectAPI.createComment(createdProject._id, minComment, authToken, commentType)
@@ -161,7 +170,7 @@ describe('delete project properties', () => {
       authToken && req.set('Authorization', authToken)
       return req
     }
-    it('should delete a feedback object', async () => {
+    it('should delete a feedback object as a project owner', async () => {
       // create feedback
       const createFeedback = await requestCreate(createdProject._id, feedbackObject, authToken)
       expect(createFeedback).to.have.status(200)
@@ -180,6 +189,13 @@ describe('delete project properties', () => {
       const deleteFeedback = await requestDelete(createdProject._id, feedbackObj._id, authToken)
       expect(deleteFeedback).to.have.status(204)
     })
+    it('should delete a feedback object as a co-teacher', async () => {
+      const createFeedback = await requestCreate(createdProject._id, feedbackObject, authToken)
+      expect(createFeedback).to.have.status(200)
+      const feedback = createFeedback.body
+      const deleteFeedback = await requestDelete(createdProject._id, feedback._id, coTeacherToken)
+      expect(deleteFeedback).to.have.status(204)
+    })
     it('should receive a 400 if passed an invalid project id', async () => {
       const res = await requestDelete('invalid_id', 'feedbackId', authToken)
       expect(res).to.have.status(400)
@@ -188,8 +204,8 @@ describe('delete project properties', () => {
       const res = await requestDelete('invalid_id', 'feedbackId', '')
       expect(res).to.have.status(401)
     })
-    it('should return 403 if the user requesting to delete the feedback object is not the project owner', async () => {
-      let { username, password } = data.LOGIN_INFO.API_HERO
+    it('should return 403 if the user requesting to delete the feedback object is not authorized', async () => {
+      let { username, password } = data.LOGIN_INFO.API_HERO2
       let { token } = await UserAPI.login(username, password)
       expect(token).not.to.be.undefined
       const res = await requestDelete(createdProject._id, '59bda04985c6ab346c12dbba', token)
