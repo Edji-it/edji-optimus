@@ -165,14 +165,14 @@ describe('oauth helpers', () => {
       await getUser('google', '12345')
       assert.calledOnce(createClientStub)
       assert.calledWithExactly(getGoogleInfoStub, testToken)
-      assert.calledWithExactly(fromOAuthUserStub, profile)
+      assert.calledWithExactly(fromOAuthUserStub, profile, 'google')
     })
     it('should get the user from clever', async () => {
       await getUser('clever', '54321')
       assert.calledOnce(initStub)
       assert.calledOnce(getCleverInfoStub)
       assert.calledOnce(createClientStub)
-      assert.calledWithExactly(fromOAuthUserStub, profile)
+      assert.calledWithExactly(fromOAuthUserStub, profile, 'clever')
     })
   })
   describe('oauthCallbackHandler', () => {
