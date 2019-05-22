@@ -6,7 +6,7 @@ import { captureException } from '@sentry/node'
 
 // project impors
 import * as TempUser from './../models/TempUser'
-import * as User from './../models/User'
+import User from '../models/User'
 
 const passwordSecret = process.env.OPTIMUS_PW_SECRET
 
@@ -67,7 +67,7 @@ export const decodeTokenToUser = function(authHeader: string): Promise<any> {
       userJWT.id,
       { $set: { last_action_time: Date.now() } },
       { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
-    )
+    ).exec()
   } else {
     return Promise.reject('invalid token')
   }

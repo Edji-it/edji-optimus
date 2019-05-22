@@ -1,7 +1,7 @@
 // library imports
 import 'mocha'
 import * as chai from 'chai'
-const expect = chai.expect
+import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 import { Request } from 'superagent'
 import { ObjectId } from 'mongodb'
@@ -63,43 +63,32 @@ describe('POST /api/v1/projects', () => {
   })
   it('should create a new project', async () => {
     const res = await request(defaultProject, authToken)
-    res.should.have.status(201)
+    expect(res).to.have.status(201)
     const project = res.body
-    project.should.have.property('_id')
-    project.should.have.property('teacher_id')
-    project.teacher_id.should.equal(userId)
-    project.should.have.property('reading_id')
-    project.should.have.property('label')
-    project.should.have.property('code')
-    project.should.have.property('types')
-    project.should.have.property('temp_ids')
-    project.should.have.property('students_ids')
-    project.should.have.property('comments')
-    project.should.have.property('updatedAt')
-    project.should.have.property('createdAt')
+    expect(project).to.haveOwnProperty('_id')
+    expect(project).to.haveOwnProperty('teacher_id')
+    expect(project.teacher_id).to.be.equal(userId)
+    expect(project).to.haveOwnProperty('reading_id')
+    expect(project).to.haveOwnProperty('label')
+    expect(project).to.haveOwnProperty('code')
+    expect(project).to.haveOwnProperty('types')
+    expect(project).to.haveOwnProperty('temp_ids')
+    expect(project).to.haveOwnProperty('students_ids')
+    expect(project).to.haveOwnProperty('comments')
+    expect(project).to.haveOwnProperty('updatedAt')
+    expect(project).to.haveOwnProperty('createdAt')
 
     createdProjects.push(project)
   })
   it('should create a new project with a learning outcome', async () => {
     const res = await request(outcomeProject, authToken)
-    res.should.have.status(201)
+    expect(res).to.have.status(201)
     const project = res.body
-    project.should.have.property('_id')
-    project.should.have.property('teacher_id')
-    project.teacher_id.should.equal(userId)
-    project.should.have.property('reading_id')
-    project.should.have.property('label')
-    project.should.have.property('code')
-    project.should.have.property('types')
-    project.should.have.property('temp_ids')
-    project.should.have.property('students_ids')
-    project.should.have.property('comments')
-    project.should.have.property('updatedAt')
-    project.should.have.property('createdAt')
-    project.should.have.property('outcomes')
-    const outcomes = project.outcomes[0]
-    outcomes.should.have.property('outcome_id')
-    outcomes.should.have.property('outcome_statement')
+    expect(project).to.haveOwnProperty('outcomes')
+    const outcomes = project.outcomes.map(({ outcome_id, outcome_statement }) => {
+      return { outcome_id, outcome_statement }
+    })
+    expect(outcomes).to.deep.equal(outcomeProject.outcomes)
 
     createdProjects.push(project)
   })
@@ -139,25 +128,24 @@ describe('POST /api/v1/projects', () => {
   })
   it('should return "required" errors for all missing fields that are required', async () => {
     const res = await request({ missing: 'everything' }, authToken)
-    res.should.have.status(406)
+    expect(res).to.have.status(406)
     const error = res.body
-    error.should.have.property('validationErrors')
-    error.validationErrors.should.have.property('label')
-    error.validationErrors.label.should.equal('required')
-    error.validationErrors.should.have.property('reading_id')
-    error.validationErrors.reading_id.should.equal('required')
+    expect(error).to.haveOwnProperty('validationErrors')
+    expect(error.validationErrors).to.deep.equal({
+      label: 'required',
+      reading_id: 'required',
+    })
   })
   it('should catch invalid types in `types` array', async () => {
     let project = { ...defaultProject, types: ['not_a_type'] }
     let res = await request(project, authToken)
-    res.should.have.status(406)
+    expect(res).to.have.status(406)
     let error = res.body
-    error.should.have.property('validationErrors')
-    error.validationErrors.should.have.property('types.0')
-    error.validationErrors['types.0'].should.equal('enum')
+    expect(error).to.haveOwnProperty('validationErrors')
+    expect(error.validationErrors).to.deep.equal({ 'types.0': 'enum' })
   })
   it('should reject an unauthorized user', async () => {
     let res = await request(defaultProject)
-    res.should.have.status(401)
+    expect(res).to.have.status(401)
   })
 })

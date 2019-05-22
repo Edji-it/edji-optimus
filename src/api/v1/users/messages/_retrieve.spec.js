@@ -20,7 +20,7 @@ describe('_retrieve messages', () => {
       messageStub.restore()
     })
 
-    it('should save a MessageList with forceSave', done => {
+    it('should save a MessageList', done => {
       let list = { _id: mongoose.Types.ObjectId() }
       messageStub.resolves(list)
 
@@ -29,10 +29,6 @@ describe('_retrieve messages', () => {
         .then(result => {
           result.should.have.property('_id')
           result._id.should.be.equal(list._id)
-
-          let options = messageStub.firstCall.args[0]
-          options.should.have.property('forceSave')
-          options.forceSave.should.be.true
 
           sinon.assert.calledOnce(messageStub)
 

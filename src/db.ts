@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 
 const connect = function(mongooseInstance) {
   //sets up database connection based on current NODE_ENV
@@ -14,10 +14,10 @@ const connect = function(mongooseInstance) {
   })
 }
 
-mongoose.validateEdjiId = require('./middleware/validate-ids').isValidId
+mongoose['validateEdjiId'] = require('./middleware/validate-ids').isValidId
 
 connect(mongoose)
 
 mongoose.Promise = Promise
 
-module.exports = mongoose
+export default mongoose

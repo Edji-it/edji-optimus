@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 // project imports
-import * as User from './../../../models/User'
+import User from '../../../models/User'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 
 export default async function LinkAccounts(req: Request, res: Response, next: NextFunction) {

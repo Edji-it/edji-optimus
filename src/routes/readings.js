@@ -9,7 +9,7 @@ const joi = require('joi')
 
 let Reading = require('./../models/Reading')
 let Project = require('./../models/Project')
-let User = require('./../models/User')
+let User = require('../models/User').default
 let ReadingVersion = require('./../models/ReadingVersion')
 let MountModelToRouter = require('./MountModelToRouter')
 const authRequired = require('./../middleware/auth-required')

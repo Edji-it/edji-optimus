@@ -5,7 +5,6 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
-const passport = require('passport') // passport gets configured elsewhere
 const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 
 // set up all environment variables
@@ -27,8 +26,6 @@ app.use(bodyParser.json({ limit: '20mb' }))
 
 // this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
-
-app.use(passport.initialize())
 
 app.use(require('./middleware/login-controller').middleware)
 

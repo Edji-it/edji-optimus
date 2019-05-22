@@ -1,5 +1,5 @@
 // project imports
-const User = require('./../../../models/User')
+const User = require('../../../models/User').default
 const Project = require('./../../../models/Project')
 const pipolog = require('./../../../pipolog').pipoLog
 
