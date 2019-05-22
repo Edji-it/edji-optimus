@@ -11,6 +11,9 @@ export async function removeCommentFromArray({ project_id, user, comment_id, idA
           teacher_id: user._id, // this lets teachers delete a student's comment
         },
         {
+          co_owner_ids: user._id,
+        },
+        {
           [commentType]: {
             $elemMatch: {
               _id: comment_id,
