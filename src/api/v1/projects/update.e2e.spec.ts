@@ -131,7 +131,6 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       // add at least one comment before all tests so that any test can be successful if run by itself
       before(async () => {
         const comment = {
-          user_id: userId,
           start: 5,
           end: 100,
         }
@@ -142,8 +141,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         createdComments.push(res)
       })
       it('should create a new comment with minimal parameters', async () => {
-        const minComment = {
-          user_id: userId,
+        const minComment: any = {
           start: 5,
           end: 100,
         }
@@ -152,7 +150,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         const comment = res.body
         expect(comment).to.have.property('_id')
         expect(comment).to.have.property('user_id')
-        expect(comment.user_id).to.be.equal(minComment.user_id)
+        expect(comment.user_id).to.be.equal(userId)
         expect(comment).to.have.property('start')
         expect(comment.start).to.be.equal(minComment.start)
         expect(comment).to.have.property('end')
@@ -164,8 +162,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         createdComments.push(comment)
       })
       it('should create a new comment with all the properties', async () => {
-        const maxComment = {
-          user_id: userId,
+        const maxComment: any = {
           start: 5,
           end: 100,
           data: 'a data here',
@@ -187,7 +184,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         const comment = res.body
         expect(comment).to.have.property('_id')
         expect(comment).to.have.property('user_id')
-        expect(comment.user_id).to.be.equal(maxComment.user_id)
+        expect(comment.user_id).to.be.equal(userId)
         expect(comment).to.have.property('start')
         expect(comment.start).to.be.equal(maxComment.start)
         expect(comment).to.have.property('end')
@@ -222,7 +219,6 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       it('should create a new comment if the _id of the comment that was passed does not exist in the comments array', async () => {
         const commentData = {
           _id: new ObjectId().toHexString(),
-          user_id: userId,
           start: 5,
           end: 100,
         }
@@ -233,11 +229,12 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         expect(comment._id).to.be.equal(commentData._id)
         createdComments.push(comment)
       })
-      it('should reject a comment that does not have required properties', async () => {
-        const res = await request(projectState._id, { data: 'haha this wont work' }, authToken)
-        expect(res).to.have.status(406)
-        expect(res.body).to.have.property('validationErrors')
-      })
+      /** commented out because user_id is now automatically assigned and everything else has defaults */
+      // it('should reject a comment that does not have required properties', async () => {
+      //   const res = await request(projectState._id, { data: 'haha this wont work' }, authToken)
+      //   expect(res).to.have.status(406)
+      //   expect(res.body).to.have.property('validationErrors')
+      // })
       it('should update an existing comment if passed an id', async () => {
         let testedComments = 0
         for (let i = 0; i < createdComments.length; i++) {

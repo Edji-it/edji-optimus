@@ -65,7 +65,7 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     // if a comment or an answer, we need to build a new Comment from the schema
     propObj = new model(propData)
     propObj.author = user.fullname
-    propObj.owner_id = user._id
+    propObj.user_id = user._id
     propObj.createdAt = Date.now()
     project[propArrayName].push(propObj)
   }
