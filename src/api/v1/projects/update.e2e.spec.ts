@@ -34,7 +34,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         teacher_id: userId,
         reading_id: '59bda04985c6ab346c12dbba', // this is not a real project id
         label: 'PUT /api/v1/projects/:project_id test project',
-        co_owner_ids: [],
+        co_owner_ids: ['5ab5b2851714720023f12362'],
       },
       authToken,
     )
@@ -85,6 +85,12 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         ).to.be.true,
       ])
     })
+    it('should let a co-owner update properties', async () => {
+      const { username, password } = data.LOGIN_INFO.API_HERO
+      const { token } = await UserAPI.login(username, password)
+      const res = await request(projectState._id, { heat_vision: true }, token)
+      expect(res).to.have.status(200)
+    })
     it('should return 400 if the request does not send any properties to update', async () => {
       const res = await request(projectState._id, {}, authToken)
       expect(res).to.have.status(400)
@@ -106,7 +112,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(res).to.have.status(404)
     })
     it('should return 404 if the user is attempting to update a real project which they do not own', async () => {
-      let { username, password } = data.LOGIN_INFO.API_HERO
+      let { username, password } = data.LOGIN_INFO.API_HERO2
       let { token } = await UserAPI.login(username, password)
       expect(token).not.to.be.undefined
       const res = await request(projectState._id, { heat_vision: true }, token)
