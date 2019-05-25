@@ -71,6 +71,15 @@ export class UserAPI {
 
     return res.body
   }
+
+  static async getState(key: string, authToken: string): Promise<any> {
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
+      .get(`/api/v1/users/@me/state/${key}`)
+      .set('Authorization', authToken)
+
+    return res.body
+  }
 }
 
 export class TempUserAPI {
