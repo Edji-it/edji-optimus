@@ -13,14 +13,14 @@ describe('projects _retrieve', () => {
     })
 
     it('should populate all possible properties', () => {
-      let possibleProperties = ['reading_id', 'teacher']
+      let possibleProperties = ['reading_id', 'teacher', 'co_owners']
 
       let checkPopulation = {}
       possibleProperties.forEach(prop => {
         checkPopulation[prop] = { populated: false } // leaving room for later in case we need to provide custom validators
       })
 
-      let aggregation = helpers.populateProperties(['reading_id', 'teacher'])
+      let aggregation = helpers.populateProperties(possibleProperties)
       aggregation.forEach(obj => {
         if (obj.$addFields) {
           for (let field in obj.$addFields) {

@@ -55,6 +55,39 @@ const populationProperties = {
       },
     },
   ],
+  co_owners: [
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'co_owner_ids',
+        foreignField: '_id',
+        as: 'co_owners',
+      },
+    },
+    {
+      $addFields: {
+        co_owners: {
+          $map: {
+            input: '$co_owners',
+            as: 'co_owner',
+            in: {
+              _id: '$$co_owner._id',
+              fullname: '$$co_owner.fullname',
+              username: '$$co_owner.username',
+              archive_readings_before: '$$co_owner.archive_readings_before',
+              hero_status: '$$co_owner.hero_status',
+            },
+          },
+          // _id: '$co_owners._id',
+          // _id: { $arrayElemAt: ['$teacherRef._id', 0] },
+          // fullname: { $arrayElemAt: ['$teacherRef.fullname', 0] },
+          // username: { $arrayElemAt: ['$teacherRef.username', 0] },
+          // archive_readings_before: { $arrayElemAt: ['$teacherRef.archive_readings_before', 0] },
+          // hero_status: { $arrayElemAt: ['$teacherRef.hero_status', 0] },
+        },
+      },
+    },
+  ],
 }
 
 /**
