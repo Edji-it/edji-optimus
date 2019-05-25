@@ -27,7 +27,7 @@ export async function UpdateProjectController(req: Request, res: Response, next:
     let project = await Project.findOneAndUpdate(
       {
         _id: project_id,
-        teacher_id: user._id,
+        $or: [{ teacher_id: user._id }, { co_owner_ids: user._id }],
       },
       propertiesToUpdate,
       {
