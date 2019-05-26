@@ -34,9 +34,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     if (error) throw error
 
     let saveOptions: SaveAndIndexOptions = {
-      save: this.save({
-        validateBeforeSave,
-      }),
+      save: this.save(),
     }
     if (this.getIndexOptions) {
       let indexOptions: IndexOptions = this.getIndexOptions()
