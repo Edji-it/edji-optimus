@@ -17,8 +17,8 @@ export function cleanMongoValidationError(error: any): { [key: string]: string }
 }
 
 export const handleMongoValidationMiddleware: ErrorRequestHandler = (err, req, res, next) => {
-  if (err.name === 'ValidationError') {
+  if (err && err.name === 'ValidationError') {
     return res.status(406).send({ validationErrors: cleanMongoValidationError(err) })
   }
-  next()
+  next(err)
 }
