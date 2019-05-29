@@ -258,6 +258,17 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
         }
         expect(testedComments, 'did not attempt to update any comments').to.be.greaterThan(0)
       })
+      it(`should successfully update ${commentType} on an invalid project`, async () => {
+        const res = await request(
+          '5ce9f45941828800214fa53f',
+          {
+            _id: '5ce9f4af41828800214fa541',
+            data: 'testing ' + Date.now(),
+          },
+          authToken,
+        )
+        expect(res).to.have.status(200)
+      })
       it('should reject edits to a comment if the user is not an owner or co_owner', async () => {
         const { username, password } = data.LOGIN_INFO.API_STUDENT
         const { token } = await UserAPI.login(username, password)

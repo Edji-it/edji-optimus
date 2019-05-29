@@ -1,7 +1,6 @@
 // library imports
 import { del } from 'request-promise-native'
 import { captureException } from '@sentry/node'
-import { ObjectId } from 'mongodb'
 
 // project imports
 import * as Project from '../../../models/Project'
@@ -71,6 +70,6 @@ export async function updatePropertyArray({ project_id, user, update: propData }
   }
   propObj.updatedAt = Date.now() // also manually update updatedAt
   await propObj.validate() // manually validate here, don't validate project so that if anything goes wrong on project we can still save comments
-  await project.edjiSave({ runValidators: false })
+  await Project.findByIdAndUpdate(project._id, project, { runValidators: false })
   return propObj
 }
