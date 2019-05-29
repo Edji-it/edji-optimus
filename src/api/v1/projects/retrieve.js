@@ -33,10 +33,10 @@ module.exports = async function(req, res, next) {
     if (!projects || projects.length < 1) {
       return res.status(404).send()
     }
-
     // aggregate returns as an array, we need this to just be the set of properties
     let project = projects[0]
     // clear out the properties that we don't need
+    /** @todo remove these in the projection to save the time/memory of sending them back to optimus */
     delete project.teacherRef
     delete project.reading
     let { update } = await helpers.addIdToProject(user, project)
@@ -52,8 +52,8 @@ module.exports = async function(req, res, next) {
     // some properties needs to be added to the project before sending it
     helpers.decorateProject(project)
     // send back the project
-    res.status(200).send({ project: project })
+    return res.status(200).send({ project: project })
   } catch (err) {
-    next(err)
+    return next(err)
   }
 }
