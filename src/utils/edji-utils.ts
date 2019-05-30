@@ -41,6 +41,7 @@ export class EdjiUtils {
       const request_id: string = requestIdHeader || v4()
       if (!requestIdHeader) res.setHeader(this.requestIdHeader, request_id)
       res.setHeader('X-Powered-By', 'Autobots')
+      res.setHeader('X-Optimus-Version', process.env.npm_package_version)
       const _this = this
       // this hook gets called right before the request is sent, so that we'll know how long the request took
       onHeaders(res, function() {
