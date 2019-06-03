@@ -135,7 +135,9 @@ let updateUserReferral = function(user) {
     })
 }
 
-// Update a reading if in draft
+/**
+ * @deprecated 6/3/19
+ */
 router.put('/:reading_id', authRequired, function(req, res, next) {
   var reading_upd = req.body.reading
   var reading_id = req.params.reading_id
