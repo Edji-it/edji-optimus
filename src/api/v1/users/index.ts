@@ -13,6 +13,7 @@ import LoginHandler from './login'
 import PublicDetailsHandler from './public-details'
 import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
+import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
 
 const router = Router()
 router.post('/', addRouteName('/'), CreateHandler)
@@ -24,5 +25,8 @@ router.get('/public-details', addRouteName('/public-details'), PublicDetailsHand
 router.get('/:user_id', addRouteName('/:user_id'), authRequired, require('./check-user-id'), require('./retrieve'))
 router.put('/@me/link', addRouteName('/@me/link'), authRequired, LinkController)
 router.post('/@me/change_password', authRequired, require('./change-pass').default)
+router.get('/@me/state', addRouteName('/@me/state'), authRequired, GetStatesHandler)
+router.get('/@me/state/:key', addRouteName('/@me/state/:key'), authRequired, GetStateHandler)
+router.post('/@me/state/:key', addRouteName('/@me/state/:key'), authRequired, PostStateHandler)
 
 export default router
