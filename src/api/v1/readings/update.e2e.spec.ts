@@ -59,8 +59,8 @@ describe('PUT /api/v1/readings/:reading_id', () => {
       subjects: ['geography'],
       grade_levels: [7, 8, 9],
       owner_bookmarked: !createdReading.owner_bookmarked,
+      createdAt: '2017-09-16T20:56:20.821Z',
     }
-    /** @todo include createdAt in this test */
     const res = await request(createdReading._id, update, authToken)
     expect(res).to.have.status(200)
     const reading = await ReadingAPI.retrieve(createdReading._id, authToken)
