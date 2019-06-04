@@ -2,7 +2,7 @@
 import * as joi from 'joi'
 import { ValidationResult } from 'joi'
 import { ObjectId } from 'mongodb'
-import elastic from '../../../services/elasticsearch'
+import { search } from '../../../services/elasticsearch'
 
 // project imports
 import * as Reading from './../../../models/Reading'
@@ -26,6 +26,8 @@ export interface ReadingQuery {
   sort?: string // the field to sort on
   sort_order?: string // asc or desc - the order to sort by
   pop?: PopulationsEnum[]
+  buckets?: string[]
+  bucket_max?: number
   body?: boolean // debugging tool to return the query body
 }
 
@@ -70,6 +72,15 @@ const querySchema = joi.object().keys({
   sort: joi.string(),
   sort_order: joi.string().valid(['asc', 'desc']),
   pop: joi.alternatives().when('scope', { is: 'owner', then: joi.string().allow(ownerPopulations) }),
+  buckets: joi
+    .array()
+    .items(joi.string())
+    .single(),
+  bucket_max: joi
+    .number()
+    .min(0)
+    .max(25)
+    .default(10),
   body: joi.boolean(),
 })
 
@@ -193,7 +204,7 @@ export async function searchByIds(
   return results
 }
 
-export function constructSearch(query: ReadingQuery, userId?: string): Promise<any> {
+export function constructSearch(query: ReadingQuery, userId?: string) {
   // fieldQuery will be added to based on query properties
   let fieldQuery = {
     bool: {
@@ -240,6 +251,18 @@ export function constructSearch(query: ReadingQuery, userId?: string): Promise<a
         })
       }
       break
+  }
+
+  if (query.hasOwnProperty('buckets')) {
+    body.aggs = {}
+    for (let bucket of query.buckets) {
+      body.aggs[bucket] = {
+        terms: {
+          field: `${bucket}.keyword`,
+          size: query.bucket_max,
+        },
+      }
+    }
   }
 
   if (query.hasOwnProperty('q')) {
@@ -307,7 +330,7 @@ export function constructSearch(query: ReadingQuery, userId?: string): Promise<a
     ]
   }
 
-  return elastic.search({
+  return search({
     index: 'readings',
     type: 'default',
     _source: false,

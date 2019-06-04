@@ -7,7 +7,7 @@ require('sinon-mongoose')
 
 // project imports
 import { validateSearchQuery, constructSearch, searchByIds } from './_search'
-import elastic from '../../../services/elasticsearch'
+import * as elastic from '../../../services/elasticsearch'
 import * as Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
@@ -489,6 +489,153 @@ describe('reading search helpers', () => {
                 },
               },
             ],
+          },
+        },
+      })
+    })
+    it('should construct a query which include a single bucket', async () => {
+      const query = <any>{ buckets: ['subject'], bucket_max: 10 }
+      await constructSearch(query)
+      assert.calledOnce(elasticStub)
+      let { body } = elasticStub.firstCall.args[0]
+      expect(body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true,
+                },
+              },
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true,
+                },
+              },
+              {
+                exists: {
+                  field: 'parent_id',
+                },
+              },
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
+        aggs: {
+          subject: {
+            terms: {
+              field: 'subject.keyword',
+              size: 10,
+            },
+          },
+        },
+      })
+    })
+    it('should construct a query with multiple buckets', async () => {
+      const query = <any>{ buckets: ['subject', 'tags'], bucket_max: 10 }
+      await constructSearch(query)
+      assert.calledOnce(elasticStub)
+      let { body } = elasticStub.firstCall.args[0]
+      expect(body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true,
+                },
+              },
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true,
+                },
+              },
+              {
+                exists: {
+                  field: 'parent_id',
+                },
+              },
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
+        aggs: {
+          subject: {
+            terms: {
+              field: 'subject.keyword',
+              size: 10,
+            },
+          },
+          tags: {
+            terms: {
+              field: 'tags.keyword',
+              size: 10,
+            },
+          },
+        },
+      })
+    })
+    it('should allow specification of maximum returned bucket values', async () => {
+      const query = <any>{ buckets: ['tags'], bucket_max: 20 }
+      await constructSearch(query)
+      assert.calledOnce(elasticStub)
+      let { body } = elasticStub.firstCall.args[0]
+      expect(body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true,
+                },
+              },
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true,
+                },
+              },
+              {
+                exists: {
+                  field: 'parent_id',
+                },
+              },
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
+        aggs: {
+          tags: {
+            terms: {
+              field: 'tags.keyword',
+              size: 20,
+            },
           },
         },
       })

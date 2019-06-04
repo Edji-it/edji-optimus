@@ -1,7 +1,9 @@
+// library imports
 import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiHttp = require('chai-http')
 
+// project imports
 import data = require('../../../test/constants')
 import { UserAPI } from './../../../test/methods'
 
@@ -108,6 +110,19 @@ describe('GET /api/v1/readings/_search', () => {
       })
     }
     expect(numberProjectsValidated).to.be.above(0)
+  })
+  it('should return buckets', async () => {
+    const res = await searchRequest(['buckets=subjects', 'buckets=tags'], token)
+    expect(res).to.have.status(200)
+    expect(res.body).to.haveOwnProperty('buckets')
+    const buckets = res.body.buckets
+    expect(buckets).to.haveOwnProperty('subjects')
+    expect(buckets).to.haveOwnProperty('tags')
+    expect(buckets.subjects.length, 'expected subjects to have a non-zero length').to.be.greaterThan(0)
+    for (let subject of buckets.subjects) {
+      expect(subject).to.haveOwnProperty('key')
+      expect(subject).to.haveOwnProperty('doc_count')
+    }
   })
   it('should not populate projects on public scope', async () => {
     const res = await searchRequest(['pop=projects'], token)
