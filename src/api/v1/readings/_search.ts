@@ -79,8 +79,8 @@ const querySchema = joi.object().keys({
   bucket_max: joi
     .number()
     .min(0)
-    .max(25)
-    .default(10),
+    .max(30)
+    .default(20),
   body: joi.boolean(),
 })
 
