@@ -5,6 +5,9 @@ const Q = require('q')
 const helpers = require('./_list')
 const ReadingVersion = require('./../../../models/ReadingVersion')
 
+/**
+ * @deprecated 6/4/19 - usage stopped when dashboard call was moved to search
+ */
 module.exports = function(req, res, next) {
   const user = req.user
   const query = helpers.validateQuery(req.query)

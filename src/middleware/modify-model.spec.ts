@@ -23,6 +23,11 @@ describe('modify-model', () => {
       body: {
         someParam: Date.now(),
       },
+      context: {
+        user: {
+          _id: '59bd8ff45239f3001105dba8',
+        },
+      },
     }
     const mockResponse: any = {
       status: mockStatus,
@@ -38,7 +43,7 @@ describe('modify-model', () => {
       assert.calledOnce(mockNext)
       assert.calledWithExactly(
         updateStub,
-        { _id: mockRequest.params.reading_id },
+        { _id: mockRequest.params.reading_id, owner_id: mockRequest.context.user._id },
         { $set: mockRequest.body },
         { runValidators: true },
       )
