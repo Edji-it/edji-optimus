@@ -3,8 +3,6 @@ import * as Joi from 'joi'
 import { RequestHandler } from 'express'
 import { BadRequestError } from './../schemas/Error'
 
-/** @todo write tests */
-
 export const withQueryValidator = (schema: Joi.Schema): RequestHandler => {
   return req => {
     try {
