@@ -36,7 +36,7 @@ app.use(require('./middleware/header-management'))
 app.use(require('./middleware/sentry'))
 
 // attach the new routes
-app.use('/api', addRouteName('/api'), require('./api').default)
+app.use('/api', addRouteName('/api'), require('./api').default, require('./middleware/handle-http').sendResponse())
 
 // attach the old routes
 app.use(require('./routes'))
