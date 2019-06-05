@@ -102,7 +102,7 @@ export interface LoginObject {
 }
 
 export class ReadingAPI {
-  static async create(authToken: string, overrideProperties: any = {}): Promise<any> {
+  static async create(authToken: string, overrideProperties: any = {}): Promise<{ reading: any }> {
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
       .post('/api/v1/readings')
@@ -113,6 +113,13 @@ export class ReadingAPI {
           ...overrideProperties,
         },
       })
+    return res.body
+  }
+  static async retrieve(readingId: string, authToken: string): Promise<any> {
+    let res: ChaiHttp.Response = await chai
+      .request(data.SERVER)
+      .get(`/readings/${readingId}`)
+      .set('Authorization', authToken)
     return res.body
   }
   static async delete(readingId: string, authToken: string): Promise<any> {

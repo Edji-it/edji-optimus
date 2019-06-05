@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 let ModelCreator = require('./ModelCreator')
 let Question = require('./Question')
-let Tags = require('./Tags')
 
 const indexableProperties = [
   'html',
@@ -36,7 +35,7 @@ module.exports = ModelCreator(
     promoter_ids: [String],
     source: String,
     cover_img: String,
-    tags: [Tags.schema],
+    tags: [String],
     draft: { type: Boolean },
     grade_levels: [Number],
     subjects: [String],

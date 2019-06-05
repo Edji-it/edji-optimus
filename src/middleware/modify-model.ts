@@ -1,0 +1,35 @@
+import { RequestHandler } from 'express'
+import { Model } from 'mongoose'
+
+export const simpleUpdate = (model: Model<any>, idParam: string, updateable?: string[]): RequestHandler => {
+  return async (req, res, next) => {
+    try {
+      const update = req.body
+      const { _id: owner_id } = req.context.user
+      const _id = req.params[idParam]
+      if (updateable) {
+        const invalidKeys = Object.keys(update).filter(key => !updateable.includes(key))
+        if (invalidKeys.length > 0)
+          return res
+            .status(400)
+            .send({ error: 'attempted to update properties which are not allowed', keys: invalidKeys })
+      }
+      const { n: readingsFound } = await model.updateOne(
+        { _id, owner_id },
+        { $set: { ...update } },
+        { runValidators: true },
+      )
+      switch (readingsFound) {
+        case 0:
+          res.status(403)
+          break
+        case 1:
+        default:
+          res.status(200)
+      }
+      next()
+    } catch (err) {
+      return next(err)
+    }
+  }
+}

@@ -1,5 +1,4 @@
 // library imports
-import 'mocha'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiHttp = require('chai-http')

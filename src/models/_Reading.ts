@@ -1,5 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
+import { pick } from 'underscore'
 
 // project imports
 import * as Reading from './Reading'
@@ -54,3 +55,19 @@ export const deleteReadingRelatedContent = (): RequestHandler => {
     }
   }
 }
+
+export const READING_CAN_UPDATE = [
+  'html',
+  'words',
+  'title',
+  'public',
+  'source',
+  'cover_img',
+  'tags',
+  'draft',
+  'questions',
+  'subjects',
+  'grade_levels',
+  'owner_bookmarked',
+  'createdAt',
+]

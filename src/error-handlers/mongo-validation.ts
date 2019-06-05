@@ -1,5 +1,6 @@
 // library imports
 import { ErrorRequestHandler } from 'express'
+import { pick } from 'underscore'
 
 // this could use more typing and probably re-writing in the future, but for now the front end relies heavily on these
 //  error responses for objects which are validated heavily (readings, users, etc...)
@@ -17,8 +18,12 @@ export function cleanMongoValidationError(error: any): { [key: string]: string }
 }
 
 export const handleMongoValidationMiddleware: ErrorRequestHandler = (err, req, res, next) => {
-  if (err && err.name === 'ValidationError') {
-    return res.status(406).send({ validationErrors: cleanMongoValidationError(err) })
+  switch (err.name) {
+    case 'ValidationError':
+      return res.status(406).send({ validationErrors: cleanMongoValidationError(err) })
+    case 'CastError':
+      return res.status(406).send(err)
+    default:
+      return next(err)
   }
-  next(err)
 }
