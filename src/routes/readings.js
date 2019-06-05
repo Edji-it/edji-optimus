@@ -136,7 +136,7 @@ let updateUserReferral = function(user) {
 }
 
 /**
- * @deprecated 6/3/19
+ * @deprecated 6/3/19 v1.1.15 in favor of PUT /api/v1/readings/:reading_id
  */
 router.put('/:reading_id', authRequired, function(req, res, next) {
   var reading_upd = req.body.reading

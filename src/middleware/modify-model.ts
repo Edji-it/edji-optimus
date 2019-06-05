@@ -14,12 +14,12 @@ export const simpleUpdate = (model: Model<any>, idParam: string, updateable?: st
             .status(400)
             .send({ error: 'attempted to update properties which are not allowed', keys: invalidKeys })
       }
-      const { n: readingsFound } = await model.updateOne(
+      const { n: documentsFound } = await model.updateOne(
         { _id, owner_id },
         { $set: { ...update } },
         { runValidators: true },
       )
-      switch (readingsFound) {
+      switch (documentsFound) {
         case 0:
           res.status(403)
           break

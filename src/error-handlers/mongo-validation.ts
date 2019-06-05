@@ -1,6 +1,5 @@
 // library imports
 import { ErrorRequestHandler } from 'express'
-import { pick } from 'underscore'
 
 // this could use more typing and probably re-writing in the future, but for now the front end relies heavily on these
 //  error responses for objects which are validated heavily (readings, users, etc...)
