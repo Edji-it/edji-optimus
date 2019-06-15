@@ -20,6 +20,10 @@ const Comment: Model<iCommentModel> = ModelCreator('Comment', {
     x: Number,
     y: Number,
   },
+  box: {
+    start: Number,
+    end: Number,
+  },
   reply_to: { type: Schema.Types.ObjectId, ref: 'Comment' },
   replies: Array,
   questionId: String,
