@@ -1,4 +1,5 @@
-import { Client, DeleteDocumentResponse, SearchParams, SearchResponse } from 'elasticsearch'
+import { Client, DeleteDocumentResponse, SearchParams, SearchResponse, UpdateDocumentParams } from 'elasticsearch'
+import { captureException } from '@sentry/core'
 
 let client = new Client({
   host: process.env.EDJI_QUICKSHADOW_DOMAIN,
@@ -24,12 +25,15 @@ export const formatSearchResults = ({ hits, aggregations }: SearchResponse<any>)
     buckets[key] = aggregations[key].buckets
   }
   return { hits, buckets, total: hits.total }
-  // let body = {
-  //   total: hits.total,
-  //   returned: results.length,
-  //   aggregations,
-  //   results,
-  // }
+}
+
+export const update = async (params: UpdateDocumentParams) => {
+  try {
+    const results = await client.update(params)
+    return results
+  } catch (err) {
+    captureException(err)
+  }
 }
 
 interface EdjiSearchResponse {

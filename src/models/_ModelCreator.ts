@@ -33,15 +33,18 @@ export async function executeSaveAndIndex({
       // reject stuff
       return Promise.reject(saveResults)
     } else if (saveFailed) {
-      try {
-        // roll back the index
-        await elastic.delete({
-          index: indexName,
-          type: 'default',
-          id,
-        })
-      } catch (err) {
-        captureException(err)
+      // only try and roll back elastic if an indexName was given
+      if (indexName) {
+        try {
+          // roll back the index
+          await elastic.delete({
+            index: indexName,
+            type: 'default',
+            id,
+          })
+        } catch (err) {
+          captureException(err)
+        }
       }
       return Promise.reject(saveResults)
     } else if (indexFailed) {
