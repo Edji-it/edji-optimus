@@ -26,10 +26,6 @@ const CreateReadingHandler: RequestHandler = async function(req, res, next) {
     }
     return res.status(201).send({ reading })
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      let validationErrors = cleanMongoValidationError(err)
-      return res.status(406).send({ validationErrors })
-    }
     return next(err)
   }
 }
