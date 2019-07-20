@@ -97,7 +97,9 @@ export const getTokenRedirectDestination = async (type: OAuthType, code: string)
     const { user, oauthObj } = await getUser(type, code)
     const { singleUseToken } = oauthObj
     const existingUser = await User.findAndGenerateOAuthLogin(oauthObj)
+    console.log('existingUser')
     if (existingUser) return getRedirectURI({ type, singleUseToken })
+    console.log('creating new user')
     try {
       await user.edjiSave()
       return getRedirectURI({ type, singleUseToken })

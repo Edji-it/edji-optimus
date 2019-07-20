@@ -20,7 +20,7 @@ export function addRouteName(name: string): RequestHandler {
 export class EdjiUtils {
   appId: string
   env: string
-  //  default local logging to false
+  //  default local logging to false - will be true for dev
   doLog: boolean = process.env.NODE_ENV === 'production'
   requestIdHeader: string = 'X-Request-Id'
   requestTimeHeader: string = 'X-Response-Time'
