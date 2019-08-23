@@ -171,6 +171,10 @@ const UserModel: UserModel = ModelCreator(
         {
           title: String,
           pages: [String],
+          pages_data: [{
+            data: String,
+            image: String
+          }]
         },
       ],
     },
