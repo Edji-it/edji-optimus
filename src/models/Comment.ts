@@ -24,7 +24,7 @@ const Comment: Model<iCommentModel> = ModelCreator('Comment', {
     start: Number,
     end: Number,
     start_x: Number,
-    start_y: Number
+    start_y: Number,
   },
   reply_to: { type: Schema.Types.ObjectId, ref: 'Comment' },
   replies: Array,
