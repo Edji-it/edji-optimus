@@ -62,6 +62,17 @@ const getUserUpdate = () => {
             '//image-dev.edji.it/pdf/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7-0.jpg',
           ],
           title: 'a test name ' + dateTime.getTime(),
+          uuid: '9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7',
+          converted: false,
+          updatedTime: Date,
+          requestedTime: Date,
+          pdf: {
+            pages: [
+              '//image-dev.edji.it/pdf/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7-0.json',
+            ],
+            location: '//image-dev.edji.it/pdf/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7/original.pdf',
+          },
+          disable_words: false,
         },
       ],
       images: [
