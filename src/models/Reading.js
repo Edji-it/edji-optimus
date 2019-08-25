@@ -57,5 +57,12 @@ module.exports = ModelCreator(
         body,
       }
     }
+
+    schema.statics.getIndexOptions = function() {
+      return {
+        index: 'readings',
+        type: 'default',
+      }
+    }
   },
 )

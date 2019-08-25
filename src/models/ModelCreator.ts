@@ -1,6 +1,9 @@
+// library imports
 import { executeSaveAndIndex, SaveAndIndexOptions } from './_ModelCreator'
 import elastic from '../services/elasticsearch'
+import { Model } from 'mongoose'
 
+// local imports
 import db from './../db'
 
 //all models are created through this function
@@ -14,8 +17,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     toJSON: { virtuals: true }, // makes mongoose virtuals accessible to JSON responses
   })
 
-  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = { validateBeforeSave: true }) {
-    const { validateBeforeSave } = options
+  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = {}) {
     this.preEdjiSave && (await this.preEdjiSave())
     this.updatedAt = Date.now()
     // mongoose does this stupid thing where it overwrites the last parameter as a callback
@@ -54,13 +56,15 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
   return db.model(modelName, Schema)
 }
 
-export interface EdjiSaveOptions {
-  validateBeforeSave: boolean
-}
+export interface EdjiSaveOptions {}
 
 export interface IndexOptions {
   index: string
   type: string
   id: string
   body: string
+}
+
+export interface EdjiModel extends Model<any> {
+  getIndexOptions: () => { index: string; type: string }
 }

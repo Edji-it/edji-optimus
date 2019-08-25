@@ -1,7 +1,11 @@
+// library imports
 import { RequestHandler } from 'express'
-import { Model } from 'mongoose'
 
-export const simpleUpdate = (model: Model<any>, idParam: string, updateable?: string[]): RequestHandler => {
+// project imports
+import { update as updateIndex } from './../services/elasticsearch'
+import { EdjiModel } from '../models/ModelCreator'
+
+export const simpleUpdate = (model: EdjiModel, idParam: string, updateable?: string[]): RequestHandler => {
   return async (req, res, next) => {
     try {
       const update = req.body
@@ -26,6 +30,13 @@ export const simpleUpdate = (model: Model<any>, idParam: string, updateable?: st
         case 1:
         default:
           res.status(200)
+      }
+      if (model.getIndexOptions) {
+        updateIndex({
+          ...model.getIndexOptions(),
+          id: _id,
+          body: { doc: update },
+        })
       }
       next()
     } catch (err) {
