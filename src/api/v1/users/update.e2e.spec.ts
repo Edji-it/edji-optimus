@@ -64,8 +64,8 @@ const getUserUpdate = () => {
           title: 'a test name ' + dateTime.getTime(),
           uuid: '9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7',
           converted: false,
-          updatedTime: Date,
-          requestedTime: Date,
+          updatedTime: dateTime.toISOString(),
+          requestedTime: dateTime.toISOString(),
           pdf: {
             pages: [
               '//image-dev.edji.it/pdf/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7/9f0f28b9-afef-44d8-ba2d-2d82ba8c6bf7-0.json',
