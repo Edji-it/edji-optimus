@@ -169,8 +169,17 @@ const UserModel: UserModel = ModelCreator(
       ],
       documents: [
         {
+          uuid: String,
           title: String,
           pages: [String],
+          converted: Boolean,
+          updatedTime: Date,
+          requestedTime: Date,
+          pdf: {
+            pages: [String],
+            location: String,
+          },
+          disable_words: Boolean,
         },
       ],
     },

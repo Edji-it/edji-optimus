@@ -20,6 +20,12 @@ const Comment: Model<iCommentModel> = ModelCreator('Comment', {
     x: Number,
     y: Number,
   },
+  box: {
+    start: Number,
+    end: Number,
+    start_x: Number,
+    start_y: Number,
+  },
   reply_to: { type: Schema.Types.ObjectId, ref: 'Comment' },
   replies: Array,
   questionId: String,
@@ -42,6 +48,12 @@ export interface iComment {
   loc?: {
     x: number
     y: number
+  }
+  box?: {
+    start: number
+    end: number
+    start_x: number
+    start_y: number
   }
   reply_to?: ObjectID
   replies?: any[]
