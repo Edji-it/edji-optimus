@@ -13,7 +13,7 @@ describe('PUT /api/v1/licenses/accept', () => {
   it('should get an error when making put call and leaving license_id off', done => {
     chai
       .request(TEST.SERVER)
-      .put(ENDPOINT_URL + '/123/accept') // this is a call with no id
+      .put(ENDPOINT_URL + '/59bda3de709c57353bab8b8b/accept') // this is a call with no id
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
         res.should.not.have.status(200)

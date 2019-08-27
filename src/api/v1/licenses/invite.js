@@ -9,23 +9,12 @@ const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function(req, res, next) {
-  let user = req.user
   let subject = 'Welcome to Edji Academy!'
 
   let { email, name, role } = req.body
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
-
-  // we cannot add a license id to the user's object if it is not passed in
-  if (!license_id) {
-    return res.status(400).send({ error: 'license id is necessary to retrieve information' })
-  }
-
-  // we cannot add a license id to the user's object if it is not passed in
-  if (!mongoose.validateEdjiId(license_id)) {
-    return res.status(403).send()
-  }
 
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!email || email.length == 0) {

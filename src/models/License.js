@@ -44,6 +44,7 @@ var Model = ModelCreator('License', {
       role: { type: String, enum: licenseRoleEnum }, // the role for that particular license
     },
   ],
+  link_tokens: [String],
   roles: [
     {
       user_id: { type: mongoose.Schema.ObjectId, required: true },

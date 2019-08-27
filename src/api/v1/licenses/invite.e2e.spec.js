@@ -12,10 +12,10 @@ describe('PUT /api/v1/licenses/invite', () => {
   let invite_email = 'optimus@prime.ed'
 
   // should attempt an update on the license object and not pass in a license_id and get the appropriate error message
-  it('should get an error when making PUT call and leaving license_id off', done => {
+  it('should get an error with an invalid license id', done => {
     chai
       .request(TEST.SERVER)
-      .put(ENDPOINT_URL + '/123/invite') // this is a call with no id
+      .put(ENDPOINT_URL + '123/invite') // this is a call with no id
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .send({
         email: invite_email,
@@ -23,7 +23,7 @@ describe('PUT /api/v1/licenses/invite', () => {
       })
       .end((err, res) => {
         res.should.not.have.status(200)
-        res.should.have.status(403)
+        res.should.have.status(400)
         done()
       })
   })
