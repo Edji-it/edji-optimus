@@ -10,9 +10,9 @@ import AcceptHandler from './accept'
 
 const router = Router()
 router.put(
-  '/:license_id/accept',
-  addRouteName('/:license_id/accept'),
-  validateIdParameters('license_id'),
+  '/:invite_id/accept',
+  addRouteName('/:invite_id/accept'),
+  validateIdParameters('invite_id'),
   authRequired,
   AcceptHandler,
 )

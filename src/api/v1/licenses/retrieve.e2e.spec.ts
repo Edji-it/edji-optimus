@@ -9,9 +9,6 @@ import { Request } from 'superagent'
 import { UserAPI } from './../../../test/methods'
 import * as data from './../../../test/constants'
 
-// local variables
-const ENDPOINT_URL = '/api/v1/licenses/'
-
 const request = function(authToken?: string): Request {
   let url = '/api/v1/licenses/'
   let req = chai.request(data.SERVER).get(url)
