@@ -36,7 +36,7 @@ module.exports = function(req, res, next) {
   }
 
   // add the email address of the person we're sending a license invitation to that license
-  let expiration_date = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14)
+  let expiration_date = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 365)
   // used to store the license across steps of the promise, because it will eventually be sent back to the user
   let licenseSend
   License.findById(license_id)
