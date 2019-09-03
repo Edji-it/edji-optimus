@@ -66,7 +66,7 @@ module.exports = function(req, res, next) {
       licenseSend = updatedLicense
 
       // get the institution info for the email
-      return Institution.findById(licenseSend.owning_institution)
+      return Institution.findById(licenseSend.owning_institution).exec()
     })
     .then(institution => {
       // there's an error on our end if a user's License has a non-existant owning_institution
