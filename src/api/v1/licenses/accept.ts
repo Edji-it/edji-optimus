@@ -23,12 +23,8 @@ const AcceptHandler: RequestHandler = async (req, res, next) => {
       user.hero_status = true
     }
 
-    // update the user object to add the owning_institution if the owning_institution doesn't already exist on their object
-    if (!user.institution_ids.some(id => id.equals(license.owning_institution))) {
-      user.institution_ids.push(license.owning_institution)
-    }
-
     // save the updated user and return it back
+    user.institution_ids.push(license.owning_institution)
     const updatedUser = await user.edjiSave()
     return res.status(200).send({ user: updatedUser.toPublic() })
   } catch (err) {
