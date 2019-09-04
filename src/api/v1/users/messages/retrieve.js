@@ -1,6 +1,7 @@
 // project imports
 const MessageList = require('./../../../../models/MessageList')
 const helpers = require('./_retrieve')
+const User = require('./../../../../models/User').default
 
 module.exports = function(req, res, next) {
   let user = req.user
@@ -36,11 +37,11 @@ module.exports = function(req, res, next) {
           messageList.messages.push({ key: 'user_refresh_required', added_at_time: Date.now() })
         }
 
-        user.last_refresh_time = Date.now()
-
-        return user.edjiSave().then(result => {
-          return res.status(200).send({ messages: messageList.messages })
-        })
+        return User.updateOne({ _id: user._id }, { $set: { last_refresh_time: Date.now() } })
+          .exec()
+          .then(update => {
+            return res.status(200).send({ messages: messageList.messages })
+          })
       })
       .catch(err => {
         next(err)
