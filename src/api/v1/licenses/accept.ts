@@ -8,11 +8,12 @@ const AcceptHandler: RequestHandler = async (req, res, next) => {
   try {
     const user = req.user
 
-    const license = req.query.link_token
-      ? await getLicenseWithLinkToken(req.query.link_token)
-      : await getLicenseWithInvitationId(req.params.invite_id, user._id)
+    const license =
+      req.query.type === 'academy_token'
+        ? await getLicenseWithAcademyToken(req.params.invite_id)
+        : await getLicenseWithInvitationId(req.params.invite_id, user._id)
 
-    if (!license) return res.status(403).send()
+    if (!license) return res.status(403).send({ error: 'invalid license' })
 
     const matchingLicense = user.license_ids.find(license => license._id.equals(license.license_id))
 
@@ -32,8 +33,8 @@ const AcceptHandler: RequestHandler = async (req, res, next) => {
   }
 }
 
-const getLicenseWithLinkToken = (linkToken: string) => {
-  return License.findOne({ link_tokens: linkToken })
+const getLicenseWithAcademyToken = (token: string) => {
+  return License.findOne({ link_tokens: token }).exec()
 }
 
 const getLicenseWithInvitationId = async (invitationId: string, userId: string) => {
