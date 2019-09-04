@@ -38,6 +38,7 @@ describe('PUT /api/v1/licenses/accept', function() {
   it('should get an error if the specified license does not exist', async () => {
     const res = await request('59bda3de709c57353bab8b8b', { authToken })
     expect(res).to.have.status(403)
+    expect(res.body).to.have.property('error', 'invalid license')
   })
   it('should get an error if the license is invalid', async () => {
     const res = await request('123', { authToken })

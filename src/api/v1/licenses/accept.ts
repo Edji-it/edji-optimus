@@ -13,7 +13,7 @@ const AcceptHandler: RequestHandler = async (req, res, next) => {
         ? await getLicenseWithAcademyToken(req.params.invite_id)
         : await getLicenseWithInvitationId(req.params.invite_id, user._id)
 
-    if (!license) return res.status(403).send()
+    if (!license) return res.status(403).send({ error: 'invalid license' })
 
     const matchingLicense = user.license_ids.find(license => license._id.equals(license.license_id))
 
