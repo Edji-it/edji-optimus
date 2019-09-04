@@ -9,11 +9,8 @@ import { Request } from 'superagent'
 import * as TEST from './../../../test/constants'
 import { UserAPI } from '../../../test/methods'
 
-const request = function(
-  licenseId: string,
-  { authToken, linkToken }: { authToken?: string; linkToken?: string },
-): Request {
-  const url = `/api/v1/licenses/${licenseId}/accept${linkToken ? `?link_token=${linkToken}` : ''}`
+const request = function(licenseId: string, { authToken, type }: { authToken?: string; type?: string }): Request {
+  const url = `/api/v1/licenses/${licenseId}/accept${type ? `?type=${type}` : ''}`
   const req = chai
     .request(TEST.SERVER)
     .put(url)
@@ -25,14 +22,14 @@ const request = function(
 
 describe('PUT /api/v1/licenses/accept', function() {
   let authToken
-  const linkToken = '59bda3de709c57353bab8b8b'
+  const academyToken = '59bda3de709c57353bab8b8b'
   before(async () => {
     const { username, password } = TEST.LOGIN_INFO.API_HERO2
     const { token } = await UserAPI.login(username, password)
     authToken = token
   })
   it('should join an academy with a link token', async () => {
-    const res = await request('5ccf0425221a26c2a8e3d510', { authToken, linkToken })
+    const res = await request(academyToken, { authToken, type: 'academy_token' })
     expect(res).to.have.status(200)
     expect(res.body).to.haveOwnProperty('user')
     expect(res.body.user).to.have.property('_id', '59bda04a85c6ab346c12dbbc')
