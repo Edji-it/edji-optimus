@@ -3,6 +3,7 @@ import 'mocha'
 import { expect } from 'chai'
 import { stub, SinonStub, assert, mock, SinonMock } from 'sinon'
 require('sinon-mongoose')
+import { ObjectId } from 'mongodb'
 
 // project imports
 import User, { OAuthObject, fromOAuthUser } from './User'
@@ -109,6 +110,17 @@ describe('User model', () => {
       }
       const user = new User(userInfo)
       await user.validate()
+    })
+    it('should ensure that institution_ids is unique', async () => {
+      const id = new ObjectId('5b006d759dbfbf137ec0df23')
+      const userInfo = {
+        ...createUserInfo(),
+        institution_ids: [id, id],
+      }
+      const user = new User(userInfo)
+      await user.validate()
+      expect(user.institution_ids).to.be.lengthOf(1)
+      expect(id.equals(user.institution_ids[0])).to.be.true
     })
   })
   describe('findAndGenerateOAuthLogin', () => {

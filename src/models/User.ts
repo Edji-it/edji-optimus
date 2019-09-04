@@ -277,6 +277,16 @@ const UserModel: UserModel = ModelCreator(
       let hasOauth = !!(this.oauth && this.oauth.length > 0)
       let isValid = (hasPassword && hasUsername) || hasOauth
 
+      // ensure that institution_ids are unique
+      if (this.institution_ids && this.institution_ids.length) {
+        let recordedIds: string[] = []
+        this.institution_ids = this.institution_ids.filter(id => {
+          if (recordedIds.includes(id.toString())) return
+          recordedIds.push(id.toString())
+          return id
+        })
+      }
+
       if (!isValid) {
         // this is a mongoose method which provides the error to the mongoose error aggrigator
         this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')

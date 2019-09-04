@@ -1,6 +1,4 @@
 // library imports
-const Q = require('q')
-var mongoose = require('mongoose')
 
 // project imports
 const License = require('./../../../models/License')
@@ -9,23 +7,12 @@ const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body
 module.exports = function(req, res, next) {
-  let user = req.user
   let subject = 'Welcome to Edji Academy!'
 
   let { email, name, role } = req.body
 
   // the license_id is a param that will be passed in to add to the user's object
   let license_id = req.params.license_id
-
-  // we cannot add a license id to the user's object if it is not passed in
-  if (!license_id) {
-    return res.status(400).send({ error: 'license id is necessary to retrieve information' })
-  }
-
-  // we cannot add a license id to the user's object if it is not passed in
-  if (!mongoose.validateEdjiId(license_id)) {
-    return res.status(403).send()
-  }
 
   // we cannot add an email address to the pending_invitations if no email is included in the request body
   if (!email || email.length == 0) {
@@ -47,7 +34,7 @@ module.exports = function(req, res, next) {
   }
 
   // add the email address of the person we're sending a license invitation to that license
-  let expiration_date = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 14)
+  let expiration = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ * 365)
   // used to store the license across steps of the promise, because it will eventually be sent back to the user
   let licenseSend
   License.findById(license_id)
@@ -56,23 +43,18 @@ module.exports = function(req, res, next) {
       if (!license) {
         return res.status(404).send({ error: 'no license exists for that license_id' })
       }
-      // see if we already have an invitation for this user
-      let invititationPos = license.pending_invitations
-        .map(invite => {
-          return invite.email
-        })
-        .indexOf(email)
 
       // update the expiration date if the invite already exists
-      if (invititationPos > -1) {
-        license.pending_invitations[invititationPos].expiration = expiration_date
+      const licenseToUpdate = license.pending_invitations.find(invite => invite.email === email)
+      if (licenseToUpdate) {
+        licenseToUpdate.expiration = expiration
       } else {
         // if the invitation does not exist, let's add it
         license.pending_invitations.push({
-          email: email,
-          name: name,
-          expiration: expiration_date,
-          role: role,
+          email,
+          name,
+          expiration,
+          role,
         })
       }
 
@@ -80,21 +62,16 @@ module.exports = function(req, res, next) {
       return license.edjiSave()
     })
     .then(updatedLicense => {
-      // if license is null (meaning it did not get updated in the collection)
-      if (!updatedLicense) {
-        return Q.reject('license not found')
-      }
-
       // assign this to preserve it across the promise stages
       licenseSend = updatedLicense
 
       // get the institution info for the email
-      return Institution.findById(licenseSend.owning_institution)
+      return Institution.findById(licenseSend.owning_institution).exec()
     })
     .then(institution => {
       // there's an error on our end if a user's License has a non-existant owning_institution
       if (!institution) {
-        return Q.reject("no institution exists for license's owning_institution")
+        return Promise.reject("no institution exists for license's owning_institution")
       }
 
       // specify the email template to use on the email service
@@ -122,9 +99,7 @@ module.exports = function(req, res, next) {
         from: 'Edji <academy@edji.it>',
       })
     })
-    .then(success => {
-      return res.status(200).send({ license: licenseSend })
-    })
+    .then(() => res.status(200).send({ license: licenseSend }))
     .catch(err => {
       next(err)
     })
