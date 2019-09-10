@@ -102,6 +102,8 @@ const UserModel: UserModel = ModelCreator(
       required: false,
       validate: { validator: validateName, message: 'Invalid name', kind: 'badWords' },
     },
+    firstname: { type: String },
+    lastname: { type: String },
     password: { type: String },
     oauth: [OAuthObject],
     pending_oauth: OAuthObject, // this stores the last user's oauth info who attempted to create an account via oauth, but got a duplicate email error
