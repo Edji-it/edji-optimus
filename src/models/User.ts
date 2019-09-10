@@ -99,7 +99,7 @@ const UserModel: UserModel = ModelCreator(
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
     fullname: {
       type: String,
-      required: true,
+      required: false,
       validate: { validator: validateName, message: 'Invalid name', kind: 'badWords' },
     },
     password: { type: String },
@@ -273,9 +273,9 @@ const UserModel: UserModel = ModelCreator(
     schema.pre('validate', function() {
       // make sure it has a password or an oauth type
       let hasPassword = !!this.password
-      let hasUsername = !!this.username
+      let hasEmail = !!this.email
       let hasOauth = !!(this.oauth && this.oauth.length > 0)
-      let isValid = (hasPassword && hasUsername) || hasOauth
+      let isValid = (hasPassword && hasEmail) || hasOauth
 
       // ensure that institution_ids are unique
       if (this.institution_ids && this.institution_ids.length) {
