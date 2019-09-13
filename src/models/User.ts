@@ -126,6 +126,10 @@ const UserModel: UserModel = ModelCreator(
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
     referred_by: { type: String },
+    heard_about_us: {
+      source: { type: String },
+      detail: { type: String}
+    },
     reset_email: { type: OneTimeTokenObject, default: null },
     reset_password: { type: OneTimeTokenObject, default: null },
     archive_readings_before: { type: Date },
@@ -236,6 +240,7 @@ const UserModel: UserModel = ModelCreator(
         'hero_status',
         'referral_code',
         'referred_by',
+        'heard_about_us',
         'license_ids',
         'institution_ids',
         'stripe_customer_id',

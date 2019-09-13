@@ -27,6 +27,7 @@ const USER_UPDATABLE_PROPERTIES = [
   'avatar',
   'identities',
   'referred_by',
+  'heard_about_us',
   'school_district',
   'phone_number',
   'sales_can_contact',
