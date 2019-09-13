@@ -19,6 +19,9 @@ router.post('/', require('./../api/v1/users/create').default)
 
 const USER_UPDATABLE_PROPERTIES = [
   'fullname',
+  'firstname',
+  'lastname',
+  'initials',
   'prefs',
   'media',
   'avatar',
