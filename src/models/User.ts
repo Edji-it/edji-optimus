@@ -99,9 +99,11 @@ const UserModel: UserModel = ModelCreator(
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
     fullname: {
       type: String,
-      required: true,
       validate: { validator: validateName, message: 'Invalid name', kind: 'badWords' },
     },
+    initials: { type: String },
+    firstname: { type: String },
+    lastname: { type: String },
     password: { type: String },
     oauth: [OAuthObject],
     pending_oauth: OAuthObject, // this stores the last user's oauth info who attempted to create an account via oauth, but got a duplicate email error
@@ -123,6 +125,10 @@ const UserModel: UserModel = ModelCreator(
     phone_number: String,
     referral_code: { type: String, unique: true }, // refers code in Referrals collection
     referred_by: { type: String },
+    heard_about_us: {
+      source: { type: String },
+      detail: { type: String },
+    },
     reset_email: { type: OneTimeTokenObject, default: null },
     reset_password: { type: OneTimeTokenObject, default: null },
     archive_readings_before: { type: Date },
@@ -224,12 +230,16 @@ const UserModel: UserModel = ModelCreator(
         '_id',
         'username',
         'fullname',
+        'firstname',
+        'lastname',
+        'initials',
         'email',
         'identities',
         'last_hero_check',
         'hero_status',
         'referral_code',
         'referred_by',
+        'heard_about_us',
         'license_ids',
         'institution_ids',
         'stripe_customer_id',
@@ -273,9 +283,9 @@ const UserModel: UserModel = ModelCreator(
     schema.pre('validate', function() {
       // make sure it has a password or an oauth type
       let hasPassword = !!this.password
-      let hasUsername = !!this.username
+      let hasEmail = !!this.email
       let hasOauth = !!(this.oauth && this.oauth.length > 0)
-      let isValid = (hasPassword && hasUsername) || hasOauth
+      let isValid = (hasPassword && hasEmail) || hasOauth
 
       // ensure that institution_ids are unique
       if (this.institution_ids && this.institution_ids.length) {
