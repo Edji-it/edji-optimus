@@ -27,24 +27,3 @@ export async function sendMessage(message: string, toChannel: string = 'metric-b
     })
   }
 }
-
-export async function sendUserDetails(user: any): Promise<void> {
-  try {
-    if (user.identities.join('') === 'student') return
-    const options: RequestPromiseOptions = {
-      headers: { Authorization: process.env.EDJI_BUMBLEBEE_TOKEN },
-      body: {
-        userDetails: user.toPublic(),
-      },
-      json: true,
-    }
-    if (process.env.NODE_ENV === 'production') {
-      await post([process.env.EDJI_BUMBLEBEE_DOMAIN, 'newuser'].join('/'), options)
-    } else {
-      console.log('dev new user message received and stubbed', 'userDetails', options.body.userDetails)
-    }
-  } catch (err) {
-    // for right now, I don't want bumblebee ever interfering with the working logic of a route
-    captureException(err)
-  }
-}
