@@ -99,12 +99,10 @@ describe('POST /api/v1/users', () => {
     const res = await request({ identities: ['teacher'] })
     expect(res).to.have.status(406)
     expect(res.body).to.haveOwnProperty('validationErrors')
-    const { validationErrors } = res.body
-    // it would return these, but we're manually handling the validation of emails here
-    // expect(validationErrors).to.haveOwnProperty('email')
-    // expect(validationErrors.email).to.be.equal('required')
-    expect(validationErrors).to.haveOwnProperty('fullname')
-    expect(validationErrors.fullname).to.be.equal('required')
+    expect(res.body.validationErrors).to.deep.equal({
+      auth: 'auth',
+      email: 'required',
+    })
   })
 
   it('should return an error if auth requirements are not met', async () => {

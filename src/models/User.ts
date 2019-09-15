@@ -99,7 +99,6 @@ const UserModel: UserModel = ModelCreator(
     username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
     fullname: {
       type: String,
-      required: false,
       validate: { validator: validateName, message: 'Invalid name', kind: 'badWords' },
     },
     initials: { type: String },
@@ -128,7 +127,7 @@ const UserModel: UserModel = ModelCreator(
     referred_by: { type: String },
     heard_about_us: {
       source: { type: String },
-      detail: { type: String}
+      detail: { type: String },
     },
     reset_email: { type: OneTimeTokenObject, default: null },
     reset_password: { type: OneTimeTokenObject, default: null },
