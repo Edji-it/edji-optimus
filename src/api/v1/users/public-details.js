@@ -46,6 +46,8 @@ export default function(req, res, next) {
           _id: 1,
           fullname: 1,
           username: 1,
+          avatar: 1,
+          initials: 1,
           hero_status: 1,
           archive_readings_before: 1,
           userType: 'registered',
