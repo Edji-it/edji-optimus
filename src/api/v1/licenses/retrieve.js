@@ -55,6 +55,7 @@ module.exports = function(req, res, next) {
           abbreviation: 1,
         },
         license_type: 1,
+        link_tokens: 1,
         users: {
           _id: 1,
           username: 1,
