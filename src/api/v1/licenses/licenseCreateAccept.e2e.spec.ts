@@ -57,6 +57,9 @@ describe('license create, add invite, and accept invite success', () => {
     expect(res.body).to.haveOwnProperty('license')
     const license = res.body.license
     expect(license).to.haveOwnProperty('_id')
+    expect(license)
+      .to.haveOwnProperty('link_tokens')
+      .lengthOf(1)
     LICENSE_ID = license._id
   })
 
@@ -70,9 +73,8 @@ describe('license create, add invite, and accept invite success', () => {
     expect(license).to.haveOwnProperty('pending_invitations')
 
     const pending_invitation = license.pending_invitations[license.pending_invitations.length - 1]
-    expect(pending_invitation).to.haveOwnProperty('email')
+    expect(pending_invitation).to.have.property('email', body.email)
     expect(pending_invitation).to.haveOwnProperty('expiration')
-    expect(pending_invitation.email).to.be.equal(body.email)
     INVITE_ID = pending_invitation._id
   })
 

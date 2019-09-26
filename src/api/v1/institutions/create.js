@@ -2,7 +2,7 @@
 const Instituion = require('./../../../models/Institution')
 
 module.exports = async function(req, res, next) {
-  let new_institution = req.body.institution
+  const new_institution = req.body.institution
 
   if (!new_institution) {
     return res.status(400).send({ error: 'license properties were never sent' })
@@ -11,8 +11,8 @@ module.exports = async function(req, res, next) {
   new_institution.license_ids = []
 
   // create the license from the properties and model and then validate it
-  let instance = Instituion(new_institution)
-  let error = instance.validateSync()
+  const instance = Instituion(new_institution)
+  const error = instance.validateSync()
 
   // if any of the properties that come in are missing or invalid
   if (error) {
@@ -20,7 +20,7 @@ module.exports = async function(req, res, next) {
   }
 
   try {
-    let institution = await instance.edjiSave()
+    const institution = await instance.edjiSave()
     return res.status(200).send({ institution })
   } catch (err) {
     next(err)
