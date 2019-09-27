@@ -12,9 +12,6 @@ module.exports = function(req, res, next) {
     return res.status(400).send({ error: 'license properties were never sent' })
   }
 
-  // add the pending_invitations array (empty) to the new_license
-  new_license.pending_invitations = []
-
   // create the license from the properties and model and then validate it
   let license = License(new_license)
   let error = license.validateSync()

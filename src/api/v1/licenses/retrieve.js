@@ -43,18 +43,7 @@ module.exports = function(req, res, next) {
       },
     },
     {
-      $project: {
-        _id: 1,
-        max_users: 1,
-        pending_invitations: 1,
-        roles: 1,
-        createdAt: 1,
-        updatedAt: 1,
-        owning_institution: {
-          name: 1,
-          abbreviation: 1,
-        },
-        license_type: 1,
+      $addFields: {
         users: {
           _id: 1,
           username: 1,
