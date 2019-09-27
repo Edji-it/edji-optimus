@@ -179,6 +179,8 @@ const UserModel: UserModel = ModelCreator(
           title: String,
           pages: [String],
           converted: Boolean,
+          pdfConverted: Boolean,
+          error: Object,
           updatedTime: Date,
           requestedTime: Date,
           pdf: {
