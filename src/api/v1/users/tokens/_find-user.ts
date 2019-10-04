@@ -8,7 +8,7 @@ export function createQuery({ username, email }): any {
 
 export function userCanResetPass(user: any): any {
   let canReset = false
-  if ((user.username || user.password) && user.password) {
+  if ((user.username || user.email) && user.password) {
     canReset = true
   }
   return canReset
