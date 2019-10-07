@@ -19,7 +19,7 @@ const RetrieveCardHandler: RequestHandler = async (req, res, next) => {
   try {
     const customer = await stripe.customers.retrieve(customer_id)
     const card = await stripe.customers.retrieveSource(customer_id, customer.default_source)
-    return res.status(200).send({ card: card })
+    return res.status(200).send({ card })
   } catch (err) {
     return next(err)
   }

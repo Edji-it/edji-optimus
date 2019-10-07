@@ -21,7 +21,7 @@ const RetrieveCustomerHandler: RequestHandler = async (req, res, next) => {
     // the sources property of the customer object contains sensitive payment information
     // we'll remove this because there is no reason to expose this information outside of the Stripe dashboard
     delete customer.sources
-    return res.status(200).send({ customer: customer })
+    return res.status(200).send({ customer })
   } catch (err) {
     return next(err)
   }
