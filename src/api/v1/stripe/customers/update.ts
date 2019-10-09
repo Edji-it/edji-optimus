@@ -24,7 +24,7 @@ const UpdatePaymentMethod: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const updatedCard = await stripe.customers.createSource(customer_id, {
+    const updatedCard = await stripe.customers.update(customer_id, {
       source: body.value.token,
     })
     return res.status(200).send({ updatedCard })
