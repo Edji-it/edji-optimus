@@ -1,11 +1,13 @@
 // library imports
+import { RequestHandler } from 'express'
 const Q = require('q')
 
 // project imports
 const stripe = require('./../_stripe').api
 const helper = require('./../_stripe')
 
-module.exports = function(req, res, next) {
+// module.exports = function(req, res, next) {
+const DeleteSubscription: RequestHandler = async (req, res, next) => {
   let user = req.user
 
   // the stripe_cust_id is a param that is the user's Stripe customer ID
@@ -42,3 +44,5 @@ module.exports = function(req, res, next) {
       next(err)
     })
 }
+
+export default DeleteSubscription
