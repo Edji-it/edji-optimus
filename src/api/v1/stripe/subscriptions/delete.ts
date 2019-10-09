@@ -1,10 +1,9 @@
 // library imports
 import { RequestHandler } from 'express'
-const Q = require('q')
 
 // project imports
-const stripe = require('./../_stripe').api
-const helper = require('./../_stripe')
+import { api as stripe } from './../_stripe'
+import { getHeroSubscriptions } from './../_stripe'
 
 // module.exports = function(req, res, next) {
 const DeleteSubscription: RequestHandler = async (req, res, next) => {
@@ -22,27 +21,22 @@ const DeleteSubscription: RequestHandler = async (req, res, next) => {
    * However, the customer_id will not be removed from the current user object, and their hero_status will remain
    * active until the would-be next billing
    */
-  // first we need to get the subscription for the customer_id
-  helper
-    .getHeroSubscriptions(customer_id, 'active')
-    .then(subscriptions => {
-      // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
-      if (subscriptions.length < 1) {
-        return res.status(304).send()
-      }
-      let promises = []
-      // once we get the subscription_id we can cancel it - if there are multiple, cancel them all
-      subscriptions.forEach(subscription => {
-        promises.push(stripe.subscriptions.updateOne(subscription.id, { cancel_at_period_end: true }))
-      })
-      return Promise.all(promises)
+  try {
+    // first we need to get the subscription for the customer_id
+    const subscriptions = await getHeroSubscriptions(customer_id, 'active')
+    // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
+    if (subscriptions.length < 1) {
+      return res.status(304).send()
+    }
+    const promises = subscriptions.map(async sub => {
+      await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
     })
-    .then(canceled => {
-      return res.status(200).send({ canceled })
-    })
-    .catch(err => {
-      next(err)
-    })
+    const canceledSubs = await Promise.all(promises)
+    console.log(canceledSubs)
+    return res.status(200).send({ canceled: true })
+  } catch (err) {
+    return next(err)
+  }
 }
 
 export default DeleteSubscription
