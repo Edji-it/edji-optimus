@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-const stripe = require('./../_stripe').api
+import { stripe } from './../_stripe'
 
 const RetrieveCardHandler: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id

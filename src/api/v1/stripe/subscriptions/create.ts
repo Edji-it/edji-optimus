@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 
 // project imports
 import validateBody from './_create'
-import * as stripe from './../_stripe'
+import { stripe } from './../_stripe'
 
 const CreateSubscription: RequestHandler = async (req, res, next) => {
   const user = req.user
@@ -14,7 +14,7 @@ const CreateSubscription: RequestHandler = async (req, res, next) => {
 
   try {
     const customer = await stripe.retrieveOrCreateCustomer(req.user, body.value.token)
-    const subscription = await stripe.api.subscriptions.create({
+    const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       coupon: body.value.couponCode,
       plan: 'yearly',

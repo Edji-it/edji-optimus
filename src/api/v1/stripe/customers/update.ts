@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-import { api as stripe } from './../_stripe'
+import { stripe } from './../_stripe'
 
 // project imports
 import validateBody from './_update'
