@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { api as stripe } from './../_stripe'
+import { stripe } from './../_stripe'
 
 const UpdateSubscription: RequestHandler = async (req, res, next) => {
   let user = req.user
