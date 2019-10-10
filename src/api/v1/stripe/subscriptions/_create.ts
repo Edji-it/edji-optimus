@@ -1,8 +1,8 @@
 // library imports
-const joi = require('joi')
+import * as joi from 'joi'
 
 // project imports
-const _stripe = require('./../_stripe')
+import * as _stripe from './../_stripe'
 
 /**
  * Validates query parameters against a query and returns with an object that either does or does not have an `error` property
@@ -12,7 +12,6 @@ const validateBody = function(reqBody) {
   if (reqBody.token == '') {
     delete reqBody.token
   }
-
   const bodySchema = joi
     .object({
       token: joi.string(),
@@ -23,6 +22,4 @@ const validateBody = function(reqBody) {
   return joi.validate(reqBody, bodySchema)
 }
 
-module.exports = {
-  validateBody: validateBody,
-}
+export default validateBody
