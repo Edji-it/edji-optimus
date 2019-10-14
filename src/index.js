@@ -27,6 +27,9 @@ app.use(bodyParser.json({ limit: '20mb' }))
 // this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
 
+// initializes aws config
+require('./services/aws')
+
 app.use(require('./middleware/login-controller').middleware)
 
 // Access allowed for development

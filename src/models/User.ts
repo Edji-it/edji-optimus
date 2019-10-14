@@ -7,6 +7,7 @@ import { Model, Document } from 'mongoose'
 // project imports
 const ModelCreator = require('./ModelCreator')
 import { EdjiSaveOptions } from './ModelCreator'
+import { bad } from './badwords'
 
 import {
   getUserHeroStatus,
@@ -25,38 +26,7 @@ const validateEmail = function(email) {
 }
 
 const validateName = function(name) {
-  // needs to return true for good names
-  const listOfWordsItCantContainAtAll = [
-    'fuck',
-    'cunt',
-    'nigger',
-    'bitch',
-    'bastard',
-    'bugger',
-    'bloody',
-    'penis',
-    'vagina',
-    'blowjob',
-    'pussy',
-    'titties',
-    'titty',
-    'asshole',
-    'nipple',
-    'damn',
-    'dammit',
-    'twot',
-    'faggot',
-    'kike',
-    'hymie',
-    'canabis',
-    'cocaine',
-    'heroin',
-    'marajuana',
-    'opium',
-    'xanax',
-  ]
-
-  return !listOfWordsItCantContainAtAll.find(word => {
+  return !bad.find(word => {
     return name.indexOf(word) > -1
   })
 }

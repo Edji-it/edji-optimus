@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@sentry/node": "4.2.3",
+    "@types/aws-sdk": "^2.7.0",
+    "aws-sdk": "^2.548.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "crypto-js": "^3.1.9-1",
