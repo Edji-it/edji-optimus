@@ -2,21 +2,21 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import validateBody from './_create'
+import { validateBody } from './_create'
 import { stripe, retrieveOrCreateCustomer } from './../_stripe'
 
 const CreateSubscription: RequestHandler = async (req, res, next) => {
   const user = req.user
-  const body = validateBody(req.body)
-  if (body.error) {
-    return res.status(400).send({ error: body.error })
+  const { error, value } = validateBody(req.body)
+  if (error) {
+    return res.status(400).send({ error: error })
   }
 
   try {
-    const customer = await retrieveOrCreateCustomer(req.user, body.value.token)
+    const customer = await retrieveOrCreateCustomer(req.user, value.token)
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
-      coupon: body.value.couponCode,
+      coupon: value.couponCode,
       plan: 'yearly',
     })
     // set customer id and hero_status updates on user object

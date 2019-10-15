@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { stripe } from './../_stripe'
 
 // project imports
-import validateBody from './_update'
+import { validateBody } from './_update'
 
 const UpdatePaymentMethod: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id
