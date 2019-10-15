@@ -8,7 +8,7 @@ const UpdateSubscription: RequestHandler = async (req, res, next) => {
   let user = req.user
   const subscription_id = req.params.subscription_id
 
-  if (!subscription_id) {
+  if (!subscription_id || subscription_id.length < 2) {
     return res.status(400).send({ error: 'invalid parameters: missing subscription_id' })
   }
 

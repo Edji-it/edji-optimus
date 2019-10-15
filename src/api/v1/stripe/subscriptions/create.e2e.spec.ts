@@ -9,7 +9,6 @@ const TEST = require('../../../../test/constants')
 
 // local variables
 const ENDPOINT_URL = '/api/v1/stripe/subscriptions/'
-const HERO_CUSTOMER_ID = 'cus_CY7dBlTnqRV2i5'
 const token = 'src_1FR74WGXFrmoasogdoEIFiO6'
 
 const request = function(body?: any, authToken?: string): Request {
