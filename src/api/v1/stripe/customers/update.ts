@@ -8,8 +8,8 @@ import validateBody from './_update'
 const UpdatePaymentMethod: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id
   const { error, value } = validateBody(req.body)
-  if (body.error) {
-    return res.status(400).send({ error: body.error })
+  if (error) {
+    return res.status(400).send({ error: error })
   }
   const user = req.user
 
@@ -25,7 +25,7 @@ const UpdatePaymentMethod: RequestHandler = async (req, res, next) => {
 
   try {
     const updatedCard = await stripe.customers.update(customer_id, {
-      source: body.value.token,
+      source: value.token,
     })
     return res.status(200).send({ updatedCard })
   } catch (err) {
