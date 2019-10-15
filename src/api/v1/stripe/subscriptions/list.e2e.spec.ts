@@ -7,10 +7,10 @@ chai.use(require('chai-http'))
 const TEST = require('../../../../test/constants')
 
 // local variables
-const ENDPOINT_URL = '/api/v1/stripe/customers/'
+const ENDPOINT_URL = '/api/v1/stripe/subscriptions/'
 const HERO_CUSTOMER_ID = 'cus_CY7dBlTnqRV2i5'
 
-describe('GET /stripe/customers/:customer_id', () => {
+describe('GET /stripe/subscriptions', () => {
   // it('should get a 401 without auth', done => {
   //   chai
   //     .request(TEST.SERVER)
