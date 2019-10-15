@@ -5,11 +5,12 @@ import { RequestHandler } from 'express'
 import { getHeroSubscriptions } from './../_stripe'
 
 const ListSubscriptions: RequestHandler = async (req, res, next) => {
-  let customer_id = req.user.stripe_customer_id
+  const user = req.user
 
-  if (!customer_id) {
+  if (!user.stripe_customer_id) {
     return res.status(200).send({ subscriptions: [] })
   }
+  const customer_id = user.stripe_customer_id
 
   try {
     const subscriptions = await getHeroSubscriptions(customer_id, 'all')
