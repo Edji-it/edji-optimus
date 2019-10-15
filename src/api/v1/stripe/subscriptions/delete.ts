@@ -27,7 +27,9 @@ const DeleteSubscription: RequestHandler = async (req, res, next) => {
     if (subscriptions.length < 1) {
       return res.status(400).send()
     }
-    const promises = subscriptions.map(async sub => {
+    const promises = subscriptions.map(sub => {
+      stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
+    })
       await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
     })
     await Promise.all(promises)

@@ -11,7 +11,7 @@ const TEST = require('../../../../test/constants')
 const ENDPOINT_URL = '/api/v1/stripe/subscriptions/'
 const token = 'src_1FR74WGXFrmoasogdoEIFiO6'
 
-const request = function(body?: any, authToken?: string): Request {
+const request = function(body: any, authToken?: string): Request {
   let req = chai
     .request(TEST.SERVER)
     .post(`${ENDPOINT_URL}`)

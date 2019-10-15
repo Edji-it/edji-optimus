@@ -7,7 +7,7 @@ import validateBody from './_update'
 
 const UpdatePaymentMethod: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id
-  const body = validateBody(req.body)
+  const { error, value } = validateBody(req.body)
   if (body.error) {
     return res.status(400).send({ error: body.error })
   }
