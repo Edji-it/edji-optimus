@@ -7,13 +7,12 @@ import { getHeroSubscriptions } from './../_stripe'
 
 // module.exports = function(req, res, next) {
 const DeleteSubscription: RequestHandler = async (req, res, next) => {
-  let user = req.user
+  const user = req.user
 
-  // the stripe_cust_id is a param that is the user's Stripe customer ID
-  const customer_id = req.user.stripe_customer_id
-  if (!customer_id) {
-    return res.status(400).send({ error: 'invalid parameters: missing customer_id' })
+  if (!user.stripe_customer_id) {
+    return res.status(400).send({ error: 'user is not a stripe customer' })
   }
+  const customer_id = user.stripe_customer_id
 
   /**
    * Using the Stripe API, delete the current billing for the customer ID from Stripe to cancel any future billing
