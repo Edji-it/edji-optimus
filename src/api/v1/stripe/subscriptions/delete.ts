@@ -25,7 +25,7 @@ const DeleteSubscription: RequestHandler = async (req, res, next) => {
     const subscriptions = await getHeroSubscriptions(customer_id, 'active')
     // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
     if (subscriptions.length < 1) {
-      return res.status(304).send()
+      return res.status(400).send()
     }
     const promises = subscriptions.map(async sub => {
       await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
