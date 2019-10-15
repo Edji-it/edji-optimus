@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-import { stripe } from './../_stripe'
+import { retrieveCustomer } from './../_stripe'
 
 const RetrieveCustomerHandler: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id
@@ -17,10 +17,7 @@ const RetrieveCustomerHandler: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const customer = await stripe.customers.retrieve(customer_id)
-    // the sources property of the customer object contains sensitive payment information
-    // we'll remove this because there is no reason to expose this information outside of the Stripe dashboard
-    delete customer.sources
+    const customer = await retrieveCustomer(customer_id)
     return res.status(200).send({ customer })
   } catch (err) {
     return next(err)

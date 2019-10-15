@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-import { stripe } from './../_stripe'
+import { updateCustomerCard } from './../_stripe'
 
 // project imports
 import { validateBody } from './_update'
@@ -24,9 +24,7 @@ const UpdatePaymentMethod: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const updatedCard = await stripe.customers.update(customer_id, {
-      source: value.token,
-    })
+    const updatedCard = await updateCustomerCard(customer_id, value.token)
     return res.status(200).send({ updatedCard })
   } catch (err) {
     return next(err)

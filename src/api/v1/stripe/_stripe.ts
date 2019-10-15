@@ -7,7 +7,7 @@ import * as sentry from '@sentry/node'
  * @param {Object} user the user attached to the request body by auth middleware
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
-export const retrieveOrCreateCustomer = async function(user, paymentToken) {
+export const retrieveOrCreateCustomer = async (user: any, paymentToken: string) => {
   // get the user if they've already got a customer_id
   if (user && user.stripe_customer_id) {
     return await stripe.customers.retrieve(user.stripe_customer_id)
@@ -23,7 +23,7 @@ export const retrieveOrCreateCustomer = async function(user, paymentToken) {
   }
 }
 
-export const getHeroSubscriptions = async function(customerId, status) {
+export const getHeroSubscriptions = async (customerId: string, status: string) => {
   const plan = 'yearly'
   if (!status) {
     status = 'active'
@@ -49,7 +49,40 @@ export const getHeroSubscriptions = async function(customerId, status) {
   }
 }
 
-export const getStripeDate = function(utcSeconds) {
+export const retrieveCustomerCard = async (customer_id: string) => {
+  try {
+    const customer = await stripe.customers.retrieve(customer_id)
+    const card = await stripe.customers.retrieveSource(customer_id, customer.default_source)
+    return card
+  } catch (err) {
+    return err
+  }
+}
+
+export const retrieveCustomer = async (customer_id: string) => {
+  try {
+    const customer = await stripe.customers.retrieve(customer_id)
+    // the sources property of the customer object contains sensitive payment information
+    // we'll remove this because there is no reason to expose this information outside of the Stripe dashboard
+    delete customer.sources
+    return customer
+  } catch (err) {
+    return err
+  }
+}
+
+export const updateCustomerCard = async (customer_id: string, token: string) => {
+  try {
+    const updatedCard = await stripe.customers.update(customer_id, {
+      source: token,
+    })
+    return updatedCard
+  } catch (err) {
+    return err
+  }
+}
+
+export const getStripeDate = (utcSeconds: any) => {
   // Stripe sends the date back as the UTC Epoch, so we'll convert it here
   let date = new Date(0)
   date.setUTCSeconds(utcSeconds)

@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-import { stripe } from './../_stripe'
+import { retrieveCustomerCard } from './../_stripe'
 
 const RetrieveCardHandler: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id
@@ -17,8 +17,7 @@ const RetrieveCardHandler: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const customer = await stripe.customers.retrieve(customer_id)
-    const card = await stripe.customers.retrieveSource(customer_id, customer.default_source)
+    const card = await retrieveCustomerCard(customer_id)
     return res.status(200).send({ card })
   } catch (err) {
     return next(err)
