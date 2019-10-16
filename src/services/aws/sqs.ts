@@ -1,11 +1,16 @@
 import { SQS } from 'aws-sdk'
 
-const sqs = new SQS({ apiVersion: '2012-11-05' })
+const instance = new SQS({ apiVersion: '2012-11-05' })
 
-const sendMessage = (params: SQS.SendMessageRequest) => {
-  return sqs.sendMessage(params).promise()
+const sendMessage = ({ queueUrl, body }: { queueUrl: string; body: any }) => {
+  if (typeof body === 'object') body = JSON.stringify(body)
+  const params: SQS.SendMessageRequest = {
+    QueueUrl: queueUrl,
+    MessageBody: body,
+  }
+  return instance.sendMessage(params).promise()
 }
 
-export const edjiSQS = {
+export const sqs = {
   sendMessage,
 }

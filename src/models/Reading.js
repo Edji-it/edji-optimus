@@ -2,27 +2,6 @@ const mongoose = require('mongoose')
 let ModelCreator = require('./ModelCreator')
 let Question = require('./Question')
 
-const indexableProperties = [
-  'html',
-  'title',
-  'parent_id',
-  'owner_id',
-  'public',
-  'questions',
-  'promoter_ids',
-  'source',
-  'cover_img',
-  'tags',
-  'draft',
-  'grade_levels',
-  'subjects',
-  'version_id',
-  'owner_bookmarked',
-  'default_instructions',
-  'createdAt',
-  'updatedAt',
-]
-
 module.exports = ModelCreator(
   'Reading',
   {
@@ -46,17 +25,9 @@ module.exports = ModelCreator(
   },
   function(schema) {
     schema.methods.getIndexOptions = function() {
-      let body = {}
-      let len = indexableProperties.length
-      for (let i = 0; i < len; i++) {
-        let propertyName = indexableProperties[i]
-        body[propertyName] = this[propertyName]
-      }
       return {
-        index: 'readings',
-        type: 'default',
-        id: this._id.toString(),
-        body,
+        queueUrl: process.env.INDEX_READING_QUEUE_URL,
+        collection: 'readings',
       }
     }
 
