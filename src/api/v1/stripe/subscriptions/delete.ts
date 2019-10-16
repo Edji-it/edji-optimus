@@ -2,8 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { stripe } from './../_stripe'
-import { getHeroSubscriptions } from './../_stripe'
+import { cancelSubscriptions, getHeroSubscriptions } from './../_stripe'
 
 // module.exports = function(req, res, next) {
 const DeleteSubscription: RequestHandler = async (req, res, next) => {
@@ -27,10 +26,7 @@ const DeleteSubscription: RequestHandler = async (req, res, next) => {
     if (subscriptions.length < 1) {
       return res.status(400).send()
     }
-    const promises = subscriptions.map(sub => {
-      stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
-    })
-    await Promise.all(promises)
+    await cancelSubscriptions(subscriptions)
     return res.status(200).send({ canceled: true })
   } catch (err) {
     return next(err)

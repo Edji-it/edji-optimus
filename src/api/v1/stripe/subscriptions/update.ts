@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { stripe } from './../_stripe'
+import { rejoinSubscription } from './../_stripe'
 
 const UpdateSubscription: RequestHandler = async (req, res, next) => {
   let user = req.user
@@ -13,8 +13,8 @@ const UpdateSubscription: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const subscription = await stripe.subscriptions.update(subscription_id, { cancel_at_period_end: false })
-    return res.status(200).send({ user: user, subscription: subscription })
+    await rejoinSubscription(subscription_id)
+    return res.status(200).send({ user })
   } catch (err) {
     return next(err)
   }
