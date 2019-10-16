@@ -1,6 +1,9 @@
 const STRIPE_KEY = process.env.STRIPE_API_TOKEN
-const stripe = require('stripe')(STRIPE_KEY)
+export const stripe = require('stripe')(STRIPE_KEY)
 import * as sentry from '@sentry/node'
+
+// API reference export (don't use this directly in API calls, used for testing only)
+export const api = stripe
 
 // Edji Stripe defaults
 const plan = 'yearly'
