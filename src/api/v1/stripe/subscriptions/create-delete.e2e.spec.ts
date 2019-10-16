@@ -62,3 +62,15 @@ describe('DELETE /stripe/subscriptions', () => {
       })
   })
 })
+
+describe('create a user and create, delete, and rejoin subscription', () => {
+  it('should create a new Edji user', done => {})
+
+  it('should create a new customer and subscription for Edji user', done => {})
+
+  it('should update a customers credit card', done => {})
+
+  it('should delete a subsscription', done => {})
+
+  it('should rejoin a subscription', done => {})
+})
