@@ -2,7 +2,7 @@
 import { expect } from 'chai'
 
 // local imports
-import validateBody from './_create'
+import { validateBody } from './_create'
 
 describe('subscriptions _create helpers', () => {
   describe('validateBody', () => {
