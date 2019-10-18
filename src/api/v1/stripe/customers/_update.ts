@@ -12,7 +12,7 @@ export const validateBody = reqBody => {
 
   const bodySchema = joi
     .object({
-      token: joi.string(),
+      token: joi.string().allow(''),
     })
     .or('token')
 
