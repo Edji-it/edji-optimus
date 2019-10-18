@@ -141,7 +141,7 @@ describe('create a user and create, delete, and rejoin subscription', () => {
         expect(err).to.not.exist
         expect(res).to.have.status(200)
         expect(res.body).to.have.property('canceled')
-        assert.isBoolean(res.body.canceled)
+        expect(res.body.canceled).to.be.true // or false
         assert.equal(res.body.canceled, true)
         done()
       })
