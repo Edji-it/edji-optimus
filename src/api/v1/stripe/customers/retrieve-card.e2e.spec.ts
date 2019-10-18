@@ -56,18 +56,6 @@ describe('GET /stripe/customers/:stripe_id/card', () => {
       })
   })
 
-  it('should get a 400 for a request that is missing the customer_id', done => {
-    chai
-      .request(TEST.SERVER)
-      .get(`${ENDPOINT_URL}/f/card`)
-      .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
-      .end((err, res) => {
-        expect(res).to.not.have.status(200)
-        expect(res).to.have.status(400)
-        done()
-      })
-  })
-
   it('should get a 401 for a user customer_id that does not match the customer_id passed in', done => {
     chai
       .request(TEST.SERVER)
