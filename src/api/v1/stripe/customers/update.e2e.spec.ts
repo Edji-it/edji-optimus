@@ -49,15 +49,6 @@ describe('PUT /stripe/customers/:stripe_id', () => {
     expect(res).to.have.status(400)
   })
 
-  it('should get a 400 for a request that is missing the customer_id', async () => {
-    const update = {
-      token: token,
-    }
-    const res = await request('f', update, TEST.LOGIN_TOKENS.API_HERO2)
-    expect(res).to.not.have.status(200)
-    expect(res).to.have.status(400)
-  })
-
   it('should get a 401 for a user customer_id that does not match the customer_id passed in', async () => {
     const update = {
       token: token,
