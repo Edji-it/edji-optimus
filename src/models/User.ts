@@ -147,6 +147,7 @@ const UserModel: UserModel = ModelCreator(
     avatar: String,
     following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     prefs: {
+      teachingGrades: [Number],
       recentEmoji: [String],
       onboarding: {
         highlighting: {
