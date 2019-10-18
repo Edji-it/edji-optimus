@@ -153,7 +153,5 @@ export const rejoinSubscription = async (subscription_id: string) => {
  * @param utcSeconds Stripe UTC Epoch date
  */
 export const getStripeDate = (utcSeconds: any) => {
-  let date = new Date(0)
-  date.setUTCSeconds(utcSeconds)
-  return date.toDateString()
+  return new Date().setUTCSeconds(utcSeconds)
 }
