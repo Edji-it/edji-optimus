@@ -128,7 +128,7 @@ describe('create a user and create, delete, and rejoin subscription', () => {
     expect(res).to.have.status(200)
     expect(res.body).to.have.property('user')
     const user = res.body.user
-    expect(user).to.have.property('stripe_customer_id')
+    expect(user).to.have.property('stripe_customer_id').and.be.a('string')
     expect(user.stripe_customer_id).to.be.a('string')
   })
 
