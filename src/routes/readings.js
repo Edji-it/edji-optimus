@@ -647,6 +647,7 @@ router.get('/feed', function(req, res, next) {
     tags: true,
     draft: true,
     version_id: true,
+    default_instructions: true,
     createdAt: true,
     updatedAt: true,
     heroic: { $gt: [{ $size: '$questions' }, 0] }, // see if the reading makes use of hero features,

@@ -15,6 +15,7 @@ const responseShape = {
   updatedAt: 1,
   version_count: 1,
   owner_bookmarked: 1,
+  default_instructions: 1,
 }
 
 const acceptedTypes: string[] = ['draft', 'owner_bookmarked']

@@ -69,5 +69,6 @@ export const READING_CAN_UPDATE = [
   'subjects',
   'grade_levels',
   'owner_bookmarked',
+  'default_instructions',
   'createdAt',
 ]
