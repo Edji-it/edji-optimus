@@ -27,10 +27,4 @@ describe('PUT /stripe/subscriptions/:subscription_id', () => {
     expect(res).to.not.have.status(200)
     expect(res).to.have.status(401)
   })
-
-  it('should get a 400 when subscription_id is missing', async () => {
-    const res = await request('f', TEST.LOGIN_TOKENS.API_HERO2)
-    expect(res).to.not.have.status(200)
-    expect(res).to.have.status(400)
-  })
 })
