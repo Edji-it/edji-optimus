@@ -93,294 +93,291 @@ const OAuthObject = mongoose.Schema({
   singleUseTokenExpiration: Date,
 })
 
-const UserModel: UserModel = ModelCreator(
-  'User',
-  {
-    username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
-    fullname: {
-      type: String,
-      validate: { validator: validateName, message: 'Invalid name', kind: 'badWords' },
-    },
-    initials: { type: String },
-    firstname: { type: String },
-    lastname: { type: String },
-    password: { type: String },
-    oauth: [OAuthObject],
-    pending_oauth: OAuthObject, // this stores the last user's oauth info who attempted to create an account via oauth, but got a duplicate email error
-    // email is pretty much required, except in the case of a student logging in through Clever, so email validation is done manually
-    email: {
-      type: String,
-      set: toLower,
-      unique: true,
-      validate: { validator: validateEmail, message: 'Invalid email', kind: 'emailRegex' },
-    },
-    identities: [String],
-    school: {
-      school_name: String,
-      school_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
-      district_name: String,
-      district_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
-    },
-    sales_can_contact: Boolean,
-    phone_number: String,
-    referral_code: { type: String, unique: true }, // refers code in Referrals collection
-    referred_by: { type: String },
-    heard_about_us: {
-      source: { type: String },
-      detail: { type: String },
-    },
-    reset_email: { type: OneTimeTokenObject, default: null },
-    reset_password: { type: OneTimeTokenObject, default: null },
-    archive_readings_before: { type: Date },
-    last_action_time: Date, // the time the user last hit the server with an Authorization token
-    last_message_check_time: { type: Date, default: Date.now() },
-    last_refresh_time: { type: Date, default: Date.now() },
-    message_list_id: { type: mongoose.Schema.ObjectId, ref: 'MessageList' },
-    hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
-    stripe_customer_id: String, // the user's stripe customer id
-    license_ids: [
-      {
-        license_id: { type: mongoose.Schema.ObjectId, ref: 'License', required: true },
-        joined: { type: Date, required: true },
-      },
-    ], // the license id for the user's school's license
-    avatar: String,
-    following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    prefs: {
-      teachingGrades: [Number],
-      recentEmoji: [String],
-      onboarding: {
-        highlighting: {
-          firstDone: Date,
-          lastDone: Date,
-        },
-        newReading: {
-          firstDone: Date,
-          lastDone: Date,
-        },
-        createReadingFromDash: {
-          firstDone: Date,
-          lastDone: Date,
-        },
-        firstReadingCreated: {
-          firstDone: Date,
-        },
-      },
-    },
-    media: {
-      images: [
-        {
-          title: String,
-          url: String,
-        },
-      ],
-      documents: [
-        {
-          uuid: String,
-          title: String,
-          pages: [String],
-          converted: Boolean,
-          pdfConverted: Boolean,
-          error: Object,
-          updatedTime: Date,
-          requestedTime: Date,
-          pdf: {
-            pages: [String],
-            location: String,
-          },
-          disable_words: Boolean,
-        },
-      ],
-    },
-    institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
+const schema = {
+  username: { type: String, set: toLower, unique: true, sparse: true, validate: usernameValidator },
+  fullname: {
+    type: String,
+    validate: { validator: validateName, message: 'Invalid name', kind: 'badWords' },
   },
-  function(schema) {
-    // function(schema: Schema<UserDocument>) {
-    schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
-      return this.findOneAndUpdate(
-        {
-          'oauth.id': id,
-          'oauth.type': type,
+  initials: { type: String },
+  firstname: { type: String },
+  lastname: { type: String },
+  password: { type: String },
+  oauth: [OAuthObject],
+  pending_oauth: OAuthObject, // this stores the last user's oauth info who attempted to create an account via oauth, but got a duplicate email error
+  // email is pretty much required, except in the case of a student logging in through Clever, so email validation is done manually
+  email: {
+    type: String,
+    set: toLower,
+    unique: true,
+    validate: { validator: validateEmail, message: 'Invalid email', kind: 'emailRegex' },
+  },
+  identities: [String],
+  school: {
+    school_name: String,
+    school_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
+    district_name: String,
+    district_id: String, // these are not ObjectIds, but these are Ids from the NCES data collection
+  },
+  sales_can_contact: Boolean,
+  phone_number: String,
+  referral_code: { type: String, unique: true }, // refers code in Referrals collection
+  referred_by: { type: String },
+  heard_about_us: {
+    source: { type: String },
+    detail: { type: String },
+  },
+  reset_email: { type: OneTimeTokenObject, default: null },
+  reset_password: { type: OneTimeTokenObject, default: null },
+  archive_readings_before: { type: Date },
+  last_action_time: Date, // the time the user last hit the server with an Authorization token
+  last_message_check_time: { type: Date, default: Date.now() },
+  last_refresh_time: { type: Date, default: Date.now() },
+  message_list_id: { type: mongoose.Schema.ObjectId, ref: 'MessageList' },
+  hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
+  stripe_customer_id: String, // the user's stripe customer id
+  license_ids: [
+    {
+      license_id: { type: mongoose.Schema.ObjectId, ref: 'License', required: true },
+      joined: { type: Date, required: true },
+    },
+  ], // the license id for the user's school's license
+  avatar: String,
+  following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+  prefs: {
+    recentEmoji: [String],
+    onboarding: {
+      highlighting: {
+        firstDone: Date,
+        lastDone: Date,
+      },
+      newReading: {
+        firstDone: Date,
+        lastDone: Date,
+      },
+      createReadingFromDash: {
+        firstDone: Date,
+        lastDone: Date,
+      },
+      firstReadingCreated: {
+        firstDone: Date,
+      },
+    },
+  },
+  media: {
+    images: [
+      {
+        title: String,
+        url: String,
+      },
+    ],
+    documents: [
+      {
+        uuid: String,
+        title: String,
+        pages: [String],
+        converted: Boolean,
+        pdfConverted: Boolean,
+        error: Object,
+        updatedTime: Date,
+        requestedTime: Date,
+        pdf: {
+          pages: [String],
+          location: String,
         },
-        {
-          $set: {
-            'oauth.$.singleUseToken': singleUseToken,
-            'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration,
-          },
+        disable_words: Boolean,
+      },
+    ],
+  },
+  institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
+}
+
+const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
+  // function(schema: Schema<UserDocument>) {
+  schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
+    return this.findOneAndUpdate(
+      {
+        'oauth.id': id,
+        'oauth.type': type,
+      },
+      {
+        $set: {
+          'oauth.$.singleUseToken': singleUseToken,
+          'oauth.$.singleUseTokenExpiration': singleUseTokenExpiration,
         },
-        {
-          new: true,
-          runValidators: true,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    ).exec()
+  })
+
+  schema.static('setPendingOAuth', function({ email, oauthObj: pending_oauth }) {
+    return this.updateOne(
+      { email },
+      {
+        $set: {
+          pending_oauth,
         },
-      ).exec()
+      },
+    ).exec()
+  })
+
+  // add custom method which returns only the properties which we want to be viewable by the client
+  schema.methods.toPublic = function() {
+    // list out the properties it is ok to return to the front-end
+    const clientProperties = [
+      '_id',
+      'username',
+      'fullname',
+      'firstname',
+      'lastname',
+      'initials',
+      'email',
+      'identities',
+      'last_hero_check',
+      'hero_status',
+      'referral_code',
+      'referred_by',
+      'heard_about_us',
+      'license_ids',
+      'institution_ids',
+      'stripe_customer_id',
+      'avatar',
+      'following',
+      'prefs',
+      'media',
+      'createdAt',
+      'updatedAt',
+      'school',
+      'phone_number',
+      'sales_can_contact',
+      'archive_readings_before',
+      'oauth',
+    ]
+
+    // return all of the properties in the above array
+    return _.pick(this, (value, key, object) => {
+      return clientProperties.indexOf(key) > -1
     })
+  }
 
-    schema.static('setPendingOAuth', function({ email, oauthObj: pending_oauth }) {
-      return this.updateOne(
-        { email },
-        {
-          $set: {
-            pending_oauth,
-          },
-        },
-      ).exec()
-    })
+  schema.methods.preEdjiSave = async function() {
+    if (!this._id) {
+      return
+    } // get out of here object without an id (at one point, this was returning the entire node process)
+    if (this.password && this.isModified('password')) {
+      this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
+    }
+    /**
+     * since school_name is @deprecated 4/4/2019
+     * set the school child property district_name to the value being passed in so we return the correct data to the front end
+     */
+    if (this.school_name) {
+      this.school.district_name = this.school_name
+      delete this.school_name
+    }
+  }
 
-    // add custom method which returns only the properties which we want to be viewable by the client
-    schema.methods.toPublic = function() {
-      // list out the properties it is ok to return to the front-end
-      const clientProperties = [
-        '_id',
-        'username',
-        'fullname',
-        'firstname',
-        'lastname',
-        'initials',
-        'email',
-        'identities',
-        'last_hero_check',
-        'hero_status',
-        'referral_code',
-        'referred_by',
-        'heard_about_us',
-        'license_ids',
-        'institution_ids',
-        'stripe_customer_id',
-        'avatar',
-        'following',
-        'prefs',
-        'media',
-        'createdAt',
-        'updatedAt',
-        'school',
-        'phone_number',
-        'sales_can_contact',
-        'archive_readings_before',
-        'oauth',
-      ]
+  // add custom validator to make sure user has either oauth type or username/password
+  schema.pre('validate', function() {
+    // make sure it has a password or an oauth type
+    let hasPassword = !!this.password
+    let hasEmail = !!this.email
+    let hasOauth = !!(this.oauth && this.oauth.length > 0)
+    let isValid = (hasPassword && hasEmail) || hasOauth
 
-      // return all of the properties in the above array
-      return _.pick(this, (value, key, object) => {
-        return clientProperties.indexOf(key) > -1
+    // ensure that institution_ids are unique
+    if (this.institution_ids && this.institution_ids.length) {
+      let recordedIds: string[] = []
+      this.institution_ids = this.institution_ids.filter(id => {
+        if (recordedIds.includes(id.toString())) return
+        recordedIds.push(id.toString())
+        return id
       })
     }
 
-    schema.methods.preEdjiSave = async function() {
-      if (!this._id) {
-        return
-      } // get out of here object without an id (at one point, this was returning the entire node process)
-      if (this.password && this.isModified('password')) {
-        this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
-      }
+    if (!isValid) {
+      // this is a mongoose method which provides the error to the mongoose error aggrigator
+      this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
+    }
+  })
+
+  /**
+   * clean emails before validating
+   */
+  schema.pre('validate', function() {
+    if (!this.email) {
       /**
-       * since school_name is @deprecated 4/4/2019
-       * set the school child property district_name to the value being passed in so we return the correct data to the front end
+       * clever requires us to be more flexible than other systems so we do by allowing users without emails to still sign up
+       * this will be the case with students signing in through Clever Library
        */
-      if (this.school_name) {
-        this.school.district_name = this.school_name
-        delete this.school_name
+      const cleverObj = this.oauth && this.oauth.length > 0 && this.oauth.find(obj => obj.type === 'clever')
+      if (cleverObj) {
+        if (cleverObj.email) this.email = cleverObj.email
+      } else {
+        return this.invalidate('email', 'Invalid email', this.email, 'required')
       }
     }
+    if (this.email) this.email = this.email.replace(/ /g, '')
+  })
 
-    // add custom validator to make sure user has either oauth type or username/password
-    schema.pre('validate', function() {
-      // make sure it has a password or an oauth type
-      let hasPassword = !!this.password
-      let hasEmail = !!this.email
-      let hasOauth = !!(this.oauth && this.oauth.length > 0)
-      let isValid = (hasPassword && hasEmail) || hasOauth
+  /**
+   * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the Model#edjiSave() function to return a promise, so this is what I'm doing for now...
+   */
+  schema.methods.refresh = async function() {
+    let validHero = await getUserHeroStatus(this)
+    this.hero_status = validHero
+    this.last_refresh_time = Date.now()
 
-      // ensure that institution_ids are unique
-      if (this.institution_ids && this.institution_ids.length) {
-        let recordedIds: string[] = []
-        this.institution_ids = this.institution_ids.filter(id => {
-          if (recordedIds.includes(id.toString())) return
-          recordedIds.push(id.toString())
-          return id
-        })
-      }
+    return this.edjiSave()
+  }
 
-      if (!isValid) {
-        // this is a mongoose method which provides the error to the mongoose error aggrigator
-        this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
-      }
-    })
-
-    /**
-     * clean emails before validating
-     */
-    schema.pre('validate', function() {
-      if (!this.email) {
-        /**
-         * clever requires us to be more flexible than other systems so we do by allowing users without emails to still sign up
-         * this will be the case with students signing in through Clever Library
-         */
-        const cleverObj = this.oauth && this.oauth.length > 0 && this.oauth.find(obj => obj.type === 'clever')
-        if (cleverObj) {
-          if (cleverObj.email) this.email = cleverObj.email
-        } else {
-          return this.invalidate('email', 'Invalid email', this.email, 'required')
-        }
-      }
-      if (this.email) this.email = this.email.replace(/ /g, '')
-    })
-
-    /**
-     * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the Model#edjiSave() function to return a promise, so this is what I'm doing for now...
-     */
-    schema.methods.refresh = async function() {
-      let validHero = await getUserHeroStatus(this)
-      this.hero_status = validHero
-      this.last_refresh_time = Date.now()
-
-      return this.edjiSave()
+  /**
+   * Generates and assigns a one time use token based on provided property
+   * @param {string} propertyName the property to assign as a one time use token
+   * @param {number} expiration the number of hours that the expiration should last
+   * @returns {string} that was set on the user
+   */
+  schema.methods.setOneTimeToken = async function(propertyName, expiration) {
+    if (!isValidTokenProperty(propertyName)) {
+      return
     }
 
-    /**
-     * Generates and assigns a one time use token based on provided property
-     * @param {string} propertyName the property to assign as a one time use token
-     * @param {number} expiration the number of hours that the expiration should last
-     * @returns {string} that was set on the user
-     */
-    schema.methods.setOneTimeToken = async function(propertyName, expiration) {
-      if (!isValidTokenProperty(propertyName)) {
-        return
-      }
+    const { unhashedToken, tokenObj } = createOneTimeTokenObject(expiration)
+    this[propertyName] = tokenObj
+    return unhashedToken
+  }
 
-      const { unhashedToken, tokenObj } = createOneTimeTokenObject(expiration)
-      this[propertyName] = tokenObj
-      return unhashedToken
+  /**
+   * Validates and a token stored on the User based on provided property name
+   * @param {string} propertyName property name on user object which contains the token to be used
+   */
+  schema.methods.validateOneTimeToken = async function(propertyName, unhashedToken) {
+    if (!isValidTokenProperty(propertyName) || !this[propertyName]) {
+      throw new Error('ERR_INVALID_PROPERTY')
     }
 
-    /**
-     * Validates and a token stored on the User based on provided property name
-     * @param {string} propertyName property name on user object which contains the token to be used
-     */
-    schema.methods.validateOneTimeToken = async function(propertyName, unhashedToken) {
-      if (!isValidTokenProperty(propertyName) || !this[propertyName]) {
-        throw new Error('ERR_INVALID_PROPERTY')
-      }
+    let isValidToken = validateToken(unhashedToken, this[propertyName])
 
-      let isValidToken = validateToken(unhashedToken, this[propertyName])
-
-      if (!isValidToken) {
-        throw new Error('ERR_INVALID_TOKEN')
-      }
+    if (!isValidToken) {
+      throw new Error('ERR_INVALID_TOKEN')
     }
+  }
 
-    // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
-    schema.virtual('refresh_required').get(function() {
-      if (!this.last_refresh_time) {
-        console.log('no last_refresh_time on ' + this.username)
-      }
-      return refreshRequired(this.last_refresh_time)
-    })
+  // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
+  schema.virtual('refresh_required').get(function() {
+    if (!this.last_refresh_time) {
+      console.log('no last_refresh_time on ' + this.username)
+    }
+    return refreshRequired(this.last_refresh_time)
+  })
 
-    schema.virtual('message_check_required').get(function() {
-      return messageCheckRequired(this.last_message_check_time)
-    })
-  },
-)
+  schema.virtual('message_check_required').get(function() {
+    return messageCheckRequired(this.last_message_check_time)
+  })
+})
 export default UserModel
 
 export function fromOAuthUser(
