@@ -1,10 +1,10 @@
 // library imports
 import { Model } from 'mongoose'
-import { iIndexMessage } from 'edji-types'
+import { captureException } from '@sentry/node'
 
 // local imports
 import db from './../db'
-import { sqs } from './../services/aws'
+import { indexDocuments } from '../services/flak'
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator) {
@@ -37,14 +37,10 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
 
     const results = await this.save()
     if (this.getIndexOptions) {
-      const { collection, queueUrl }: IndexOptions = this.getIndexOptions()
-      const body: iIndexMessage = {
-        collection,
-        documents: [this._id.toHexString()],
-      }
-      await sqs.sendMessage({
-        queueUrl,
-        body,
+      let { collection }: IndexOptions = this.getIndexOptions()
+      await indexDocuments({ collection, documents: [this._id] }).catch(err => {
+        captureException(JSON.stringify(err))
+        return Promise.reject(err)
       })
     }
 

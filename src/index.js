@@ -9,13 +9,8 @@ const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 
 // initializes aws config and env vars
 require('./services/aws')
-require('./services/aws/cloudformation')
-  .initializeCloudFormationEnv()
-  .then(() => {
-    console.log('CloudFormation environment retrieved')
-    // validate env variables
-    require('./../config')
-  })
+
+require('./../config')
 
 // setup error logging
 const Sentry = require('@sentry/node')
