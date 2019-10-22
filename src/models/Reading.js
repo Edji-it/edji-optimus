@@ -18,6 +18,7 @@ const indexableProperties = [
   'subjects',
   'version_id',
   'owner_bookmarked',
+  'default_instructions',
   'createdAt',
   'updatedAt',
 ]
@@ -41,6 +42,7 @@ module.exports = ModelCreator(
     subjects: [String],
     version_id: { type: mongoose.Schema.ObjectId, ref: 'ReadingVersion', required: true },
     owner_bookmarked: { type: Boolean },
+    default_instructions: String,
   },
   function(schema) {
     schema.methods.getIndexOptions = function() {

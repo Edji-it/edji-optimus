@@ -191,6 +191,7 @@ export async function searchByIds(
       tags: true,
       draft: true,
       version_id: true,
+      default_instructions: true,
       createdAt: true,
       updatedAt: true,
       words_preview: { $slice: ['$words', 200] },
