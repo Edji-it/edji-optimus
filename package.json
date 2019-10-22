@@ -1,6 +1,6 @@
 {
   "name": "edji-optimus",
-  "version": "1.1.26",
+  "version": "1.1.30",
   "description": "Node backend for Edji.",
   "scripts": {
     "build": "webpack",
@@ -50,7 +50,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "simple-oauth2": "^2.2.1",
-    "stripe": "^4.23.1",
+    "stripe": "^7.9.1",
     "typescript": "^2.8.3",
     "underscore": "^1.8.3",
     "uuid": "^3.3.2"
@@ -78,6 +78,7 @@
     "@types/simple-oauth2": "^2.2.1",
     "@types/sinon": "^7.0.10",
     "@types/sinon-chai": "^3.2.2",
+    "@types/stripe": "^6.32.8",
     "@types/underscore": "^1.8.9",
     "@types/uuid": "^3.4.4",
     "@typescript-eslint/eslint-plugin": "^1.5.0",

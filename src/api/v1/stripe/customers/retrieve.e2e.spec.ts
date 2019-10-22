@@ -1,5 +1,6 @@
 // library import
-const chai = require('chai')
+import * as chai from 'chai'
+import { expect } from 'chai'
 chai.use(require('chai-http'))
 
 // project imports
@@ -15,8 +16,8 @@ describe('GET /stripe/customers/:customer_id', () => {
       .request(TEST.SERVER)
       .get(ENDPOINT_URL + HERO_CUSTOMER_ID) // this is optimusprime's customer id
       .end((err, res) => {
-        res.should.not.have.status(200)
-        res.should.have.status(401)
+        expect(res).to.not.have.status(200)
+        expect(res).to.have.status(401)
         done()
       })
   })
@@ -31,10 +32,10 @@ describe('GET /stripe/customers/:customer_id', () => {
           return done(err)
         }
 
-        res.should.have.status(200)
-        res.body.should.have.property('customer')
-        res.body.customer.should.have.property('id')
-        res.body.customer.id.should.be.equal(HERO_CUSTOMER_ID)
+        expect(res).to.have.status(200)
+        expect(res.body).to.have.property('customer')
+        expect(res.body.customer).to.have.property('id')
+        expect(res.body.customer.id).to.equal(HERO_CUSTOMER_ID)
 
         done()
       })
@@ -46,8 +47,8 @@ describe('GET /stripe/customers/:customer_id', () => {
       .get(ENDPOINT_URL + HERO_CUSTOMER_ID) // this is optimusprime's customer id
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        res.should.not.have.status(200)
-        res.should.have.status(400)
+        expect(res).to.not.have.status(200)
+        expect(res).to.have.status(400)
 
         done()
       })
@@ -59,8 +60,8 @@ describe('GET /stripe/customers/:customer_id', () => {
       .get(ENDPOINT_URL + HERO_CUSTOMER_ID) // this is optimusprime's customer id
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO)
       .end((err, res) => {
-        res.should.not.have.status(200)
-        res.should.have.status(401)
+        expect(res).to.not.have.status(200)
+        expect(res).to.have.status(401)
 
         done()
       })

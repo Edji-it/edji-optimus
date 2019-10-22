@@ -1,9 +1,9 @@
 // package imports
-const chai = require('chai')
-const sinon = require('sinon')
+import { expect } from 'chai'
+import { stub, assert } from 'sinon'
 
 // project imports
-const _stripe = require('./_stripe')
+import { api, retrieveOrCreateCustomer } from './_stripe'
 
 describe('_stripe', () => {
   describe('retrieveOrCreateCustomer', () => {
@@ -12,8 +12,8 @@ describe('_stripe', () => {
 
     beforeEach(() => {
       // stub these functions
-      retrieveCustomer = sinon.stub(_stripe.api.customers, 'retrieve').resolves()
-      createCustomer = sinon.stub(_stripe.api.customers, 'create').resolves()
+      retrieveCustomer = stub(api.customers, 'retrieve').resolves()
+      createCustomer = stub(api.customers, 'create').resolves()
     })
 
     afterEach(() => {
@@ -29,14 +29,11 @@ describe('_stripe', () => {
     }
 
     it('should call retrieve from stripes api', done => {
-      // unit under test
-      _stripe
-        .retrieveOrCreateCustomer(fakeUser, 'someString')
+      retrieveOrCreateCustomer(fakeUser, 'someString')
         .then(() => {
-          // assertions
-          sinon.assert.calledOnce(retrieveCustomer)
-          sinon.assert.calledWith(retrieveCustomer, fakeUser.stripe_customer_id)
-          sinon.assert.notCalled(createCustomer)
+          assert.calledOnce(retrieveCustomer)
+          assert.calledWith(retrieveCustomer, fakeUser.stripe_customer_id)
+          assert.notCalled(createCustomer)
 
           done()
         })
@@ -52,17 +49,16 @@ describe('_stripe', () => {
       }
 
       // unit under test
-      _stripe
-        .retrieveOrCreateCustomer(sentUser, 'newstring')
+      retrieveOrCreateCustomer(sentUser, 'newstring')
         .then(() => {
           // assertions
-          sinon.assert.calledOnce(createCustomer)
-          sinon.assert.notCalled(retrieveCustomer)
+          assert.calledOnce(createCustomer)
+          assert.notCalled(retrieveCustomer)
 
           let calledUser = createCustomer.firstCall.args[0] // get the object that it was called with for testing
-          calledUser.should.be.instanceOf(Object)
-          calledUser.should.have.property('email')
-          calledUser.email.should.be.equal(sentUser.email)
+          expect(calledUser).to.be.instanceOf(Object)
+          expect(calledUser).to.have.property('email')
+          expect(calledUser.email).to.equal(sentUser.email)
 
           done()
         })
@@ -72,30 +68,28 @@ describe('_stripe', () => {
     })
 
     it('should reject a user without an email', done => {
-      _stripe
-        .retrieveOrCreateCustomer({}, 'payment')
+      retrieveOrCreateCustomer({}, 'payment')
         .then(() => {
           done(new Error('should not have successfully resolved'))
         })
         .catch(err => {
           // assertions
-          sinon.assert.notCalled(createCustomer)
-          sinon.assert.notCalled(retrieveCustomer)
+          assert.notCalled(createCustomer)
+          assert.notCalled(retrieveCustomer)
 
           done()
         })
     })
 
     it('should reject if there is no user passed', done => {
-      _stripe
-        .retrieveOrCreateCustomer(false, 'payment')
+      retrieveOrCreateCustomer(false, 'payment')
         .then(() => {
           done(new Error('should not have successfully resolved'))
         })
         .catch(err => {
           // assertions
-          sinon.assert.notCalled(createCustomer)
-          sinon.assert.notCalled(retrieveCustomer)
+          assert.notCalled(createCustomer)
+          assert.notCalled(retrieveCustomer)
 
           done()
         })
