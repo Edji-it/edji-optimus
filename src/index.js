@@ -7,7 +7,9 @@ const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 
-// set up all environment variables
+// initializes aws config and env vars
+require('./services/aws')
+
 require('./../config')
 
 // setup error logging

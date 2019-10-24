@@ -1,10 +1,10 @@
 // library imports
-import { executeSaveAndIndex, SaveAndIndexOptions } from './_ModelCreator'
-import elastic from '../services/elasticsearch'
 import { Model } from 'mongoose'
+import { captureException } from '@sentry/node'
 
 // local imports
 import db from './../db'
+import { indexDocuments } from '../services/flak'
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator) {
@@ -35,18 +35,16 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     let error = this.validateSync()
     if (error) throw error
 
-    let saveOptions: SaveAndIndexOptions = {
-      save: this.save(),
-    }
+    const results = await this.save()
     if (this.getIndexOptions) {
-      let indexOptions: IndexOptions = this.getIndexOptions()
-      saveOptions.index = elastic.index(indexOptions)
-      saveOptions.id = indexOptions.id
-      saveOptions.indexName = indexOptions.index
+      let { collection }: IndexOptions = this.getIndexOptions()
+      await indexDocuments({ collection, documents: [this._id] }).catch(err => {
+        captureException(JSON.stringify(err))
+        return Promise.reject(err)
+      })
     }
 
-    let { saveResults, indexResults } = await executeSaveAndIndex(saveOptions)
-    return saveResults
+    return results
   }
 
   if (typeof schemaDecorator === 'function') {
@@ -59,10 +57,8 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
 export interface EdjiSaveOptions {}
 
 export interface IndexOptions {
-  index: string
-  type: string
-  id: string
-  body: string
+  queueUrl: string
+  collection: any // really a string with a type, but couldn't easily type this
 }
 
 export interface EdjiModel extends Model<any> {
