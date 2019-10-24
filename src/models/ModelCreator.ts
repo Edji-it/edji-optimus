@@ -41,7 +41,6 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
       // this gets fired asynchronously, so that we don't wait for it, because we don't have good retry handling anyway
       indexDocuments({ collection, documents: [this._id] }).catch(err => {
         captureException(err)
-        return Promise.reject(err)
       })
     }
 

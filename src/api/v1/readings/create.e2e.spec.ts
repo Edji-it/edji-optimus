@@ -22,17 +22,18 @@ let authToken: string
 let ownerId: string
 
 describe('POST /api/v1/readings', () => {
-  let createdReadingId: string
+  const createdReadings: string[] = []
   before(async () => {
     const { username: createReadingUsername, password: createReadingPassword } = data.LOGIN_INFO.API_TEACHER
     let userRes = await UserAPI.login(createReadingUsername, createReadingPassword)
     authToken = userRes.token
     ownerId = userRes.user._id
   })
-  afterEach(async () => {
-    if (createdReadingId) {
-      await ReadingAPI.delete(createdReadingId, authToken)
-      createdReadingId = undefined
+  after(async () => {
+    if (createdReadings.length > 0) {
+      for (let reading of createdReadings) {
+        await ReadingAPI.delete(reading, authToken)
+      }
     }
   })
 
@@ -45,7 +46,7 @@ describe('POST /api/v1/readings', () => {
 
     // reading validation
     let reading = res.body.reading
-    createdReadingId = reading._id // stores reading for later tests
+    createdReadings.push(reading._id) // stores reading for later tests
     reading.should.have.property('_id')
     reading.should.have.property('owner_id')
     reading.should.have.property('title')
@@ -67,7 +68,7 @@ describe('POST /api/v1/readings', () => {
     res.body.should.have.property('reading')
     res.body.reading.should.have.property('version_id')
     res.body.reading.version_id.should.be.equal(createReading.version_id.toString())
-    createdReadingId = res.body.reading._id
+    createdReadings.push(res.body.reading._id)
   })
   it('should create a reading as a draft', async () => {
     let createReading: any = {
