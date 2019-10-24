@@ -38,8 +38,9 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     const results = await this.save()
     if (this.getIndexOptions) {
       let { collection }: IndexOptions = this.getIndexOptions()
-      await indexDocuments({ collection, documents: [this._id] }).catch(err => {
-        captureException(JSON.stringify(err))
+      // this gets fired asynchronously, so that we don't wait for it, because we don't have good retry handling anyway
+      indexDocuments({ collection, documents: [this._id] }).catch(err => {
+        captureException(err)
         return Promise.reject(err)
       })
     }
