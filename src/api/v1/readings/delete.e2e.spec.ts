@@ -18,6 +18,8 @@ const request = function(reading_id: string, authToken?: string) {
 let authToken: string
 let ownerId: string
 
+const waitForIndexing = () => new Promise(resolve => setTimeout(() => resolve(), 200))
+
 describe('DELETE /api/v1/readings/:reading_id', () => {
   before(async () => {
     const { username: createReadingUsername, password: createReadingPassword } = data.LOGIN_INFO.API_TEACHER
@@ -27,6 +29,7 @@ describe('DELETE /api/v1/readings/:reading_id', () => {
   })
   it('should delete a reading', async () => {
     const { reading } = await ReadingAPI.create(authToken)
+    await waitForIndexing()
     const res = await request(reading._id, authToken)
     expect(res).to.have.status(200)
     expect(res.body).to.eql({
