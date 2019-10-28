@@ -10,6 +10,9 @@ export const PostStateHandler: RequestHandler = async (req, res, next) => {
   const link = req.user._id
   const value = req.body
   try {
+    if (req.user.type === 'temp') {
+      return res.status(201).send()
+    }
     await UserState.findOneAndUpdate({ key, link }, { $set: { value } }, { upsert: true })
     return res.status(201).send()
   } catch (err) {
