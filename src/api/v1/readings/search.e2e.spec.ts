@@ -71,7 +71,7 @@ describe('GET /api/v1/readings/_search', () => {
     let allDatesSorted = allDates.slice().sort((a, b) => {
       return new Date(a).getTime() > new Date(b).getTime() ? 1 : -1
     })
-    expect(allDates).to.eql(allDatesSorted)
+    expect(allDates).to.deep.equal(allDatesSorted)
   })
   it('should get readings by owner', async () => {
     const res = await searchRequest(['scope=owner'], token)
@@ -87,7 +87,7 @@ describe('GET /api/v1/readings/_search', () => {
     let allDatesSorted = allDates.slice().sort((a, b) => {
       return new Date(a).getTime() > new Date(b).getTime() ? -1 : 1
     })
-    expect(allDates).to.eql(allDatesSorted)
+    expect(allDates).to.deep.equal(allDatesSorted)
   })
   it('should populate projects', async () => {
     const res = await searchRequest(['pop=projects', 'scope=owner'], token)

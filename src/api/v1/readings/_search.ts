@@ -21,6 +21,8 @@ export interface ReadingQuery {
   subjects?: string
   version_id?: string
   owner_bookmarked?: boolean
+  district_id?: string
+  school_id?: string
   from?: number
   size?: number
   sort?: string // the field to sort on
@@ -59,6 +61,8 @@ const querySchema = joi.object().keys({
   subjects: joi.string(),
   version_id: joi.string(),
   owner_bookmarked: joi.boolean(),
+  district_id: joi.string(),
+  school_id: joi.string(),
   from: joi
     .number()
     .min(0)
@@ -207,13 +211,13 @@ export async function searchByIds(
 
 export function constructSearch(query: ReadingQuery, userId?: string) {
   // fieldQuery will be added to based on query properties
-  let fieldQuery = {
+  const fieldQuery = {
     bool: {
       must: [],
       should: [],
     },
   }
-  let body: any = {
+  const body: any = {
     query: {
       bool: {
         must: [fieldQuery],
@@ -227,6 +231,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
         filter: [],
       },
     },
+    _source: '',
   }
 
   switch (query.scope) {
@@ -284,7 +289,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
   // add conditions for all fields where we can directly set the value
   for (let field of queriableStringFields) {
     if (query.hasOwnProperty(field)) {
-      let val = query[field]
+      const val = query[field]
       body.query.bool.must.push({
         match: {
           [field]: val,
@@ -295,7 +300,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
 
   for (let field of queriableBooleanFields) {
     if (query.hasOwnProperty(field)) {
-      let val = query[field]
+      const val = query[field]
       body.query.bool.filter.push({
         match: {
           [field]: val,
@@ -304,10 +309,25 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     }
   }
 
+  if (query.district_id) {
+    body.query.bool.filter.push({
+      term: {
+        'owner.school.district_id': query.district_id,
+      },
+    })
+  }
+
+  if (query.school_id) {
+    body.query.bool.filter.push({
+      term: {
+        'owner.school.school_id': query.school_id,
+      },
+    })
+  }
+
   // handle pulling apart grade_levels here so that the search query url matches the front end
   if (query.hasOwnProperty('grade_levels_lte') || query.hasOwnProperty('grade_levels_gte')) {
     const { grade_levels_lte: lte, grade_levels_gte: gte } = query
-
     if (lte === gte) {
       body.query.bool.filter.push({
         match: { grade_levels: lte },
