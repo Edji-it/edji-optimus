@@ -1,7 +1,7 @@
 // library imports
 const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
-const _ = require('underscore')
+import { hashSync } from 'bcryptjs'
+import { pick } from 'underscore'
 import { Model, Document } from 'mongoose'
 
 // project imports
@@ -228,7 +228,7 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
     ]
 
     // return all of the properties in the above array
-    return _.pick(this, (value, key, object) => {
+    return pick(this, (value, key, object) => {
       return clientProperties.indexOf(key) > -1
     })
   }
@@ -238,7 +238,7 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
       return
     } // get out of here object without an id (at one point, this was returning the entire node process)
     if (this.password && this.isModified('password')) {
-      this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
+      this.password = hashSync(this.password, 10) // set the new password to a hash of itself
     }
     /**
      * since school_name is @deprecated 4/4/2019
@@ -361,6 +361,7 @@ export function fromOAuthUser(
 interface iUser {
   fullname: string
   email?: string
+  password?: string
   avatar?: string
   oauth?: OAuthObject[]
   school?: {
@@ -373,10 +374,12 @@ interface iUser {
 
 export interface UserDocument extends EdjiDocument, iUser {}
 
-interface UserModel extends Model<any> {
+interface UserQueryHelpers {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
   setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
 }
+
+interface UserModel extends Model<UserDocument, UserQueryHelpers> {}
 
 export interface OAuthObject {
   id: string | number

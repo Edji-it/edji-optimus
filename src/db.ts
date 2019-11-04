@@ -5,7 +5,7 @@ const connect = function(mongooseInstance) {
   console.log('wiring up the database for ' + process.env.NODE_ENV)
   mongooseInstance.connect(process.env.MONGO_HOST, {
     socketTimeoutMS: 120000,
-    connectionTimeout: 120000,
+    useNewUrlParser: true,
   })
 
   mongooseInstance.connection.on('error', console.error.bind(console, 'connection error:'))

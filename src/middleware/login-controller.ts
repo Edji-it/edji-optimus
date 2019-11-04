@@ -7,6 +7,7 @@ import { captureException } from '@sentry/node'
 // project impors
 import * as TempUser from './../models/TempUser'
 import User from '../models/User'
+import db from '../db'
 
 const passwordSecret = process.env.OPTIMUS_PW_SECRET
 
@@ -51,26 +52,22 @@ export const generateLoginObjectForUser = function(user: any) {
 
 /**
  * @param authHeader the authorization header from the request
+ * @param projection a mongodb projection, used to recall only a part of the user object
  * @returns a mongoose User object!
  */
-export const decodeTokenToUser = function(authHeader: string): Promise<any> {
+export const decodeTokenToUser = async function(authHeader: string, projection?: any): Promise<any> {
   const userJWT: DecodedJWT = <DecodedJWT>verify(authHeader, passwordSecret) // syncronously decode token
-  if (userJWT.type === 'temp') {
-    return TempUser.findByIdAndUpdate(
+  if (!userJWT) throw new Error('invalid token')
+
+  const model = userJWT.type === 'temp' ? TempUser : User
+
+  return model
+    .findByIdAndUpdate(
       userJWT.id,
       { $set: { last_action_time: Date.now() } },
       { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
     )
-  } else if (userJWT) {
-    // set their last action time! Whoo this is so exciting!
-    return User.findByIdAndUpdate(
-      userJWT.id,
-      { $set: { last_action_time: Date.now() } },
-      { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
-    ).exec()
-  } else {
-    return Promise.reject('invalid token')
-  }
+    .exec()
 }
 
 export const middleware: RequestHandler = async function(req, res, next) {
@@ -83,6 +80,20 @@ export const middleware: RequestHandler = async function(req, res, next) {
     }
   }
   next()
+}
+
+/**
+ * @param projection a mongodb projection to use when recalling the user
+ */
+const authorizeRequest: (projection: any) => RequestHandler = projection => {
+  return (req, res, next) => {
+    if (!req.headers.authorization) return res.status(401).send()
+    try {
+      next()
+    } catch (err) {
+      return next(err)
+    }
+  }
 }
 
 interface DecodedJWT {
