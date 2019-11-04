@@ -5,13 +5,13 @@ const router = require('express').Router()
 const authRequired = require('../../../../middleware/auth-required')
 const checkId = require('./../check-user-id')
 import { addRouteName } from '../../../../utils/edji-utils'
-import { middleware as LegacyAuth } from '../../../../middleware/login-controller'
+import { addUserToRequest } from '../../../../middleware/login-controller'
 
 // attach routes
 router.get(
   '/:user_id/messages',
   addRouteName('/:user_id/messages'),
-  LegacyAuth,
+  addUserToRequest({ message_list_id: true }),
   authRequired,
   checkId,
   require('./retrieve'),

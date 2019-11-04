@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 import { hashSync } from 'bcryptjs'
 import { pick } from 'underscore'
 import { Model, Document } from 'mongoose'
+import { ObjectId } from 'mongodb'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
@@ -338,14 +339,19 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
 
   // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
   schema.virtual('refresh_required').get(function() {
-    if (!this.last_refresh_time) {
-      console.log('no last_refresh_time on ' + this.username)
+    if (this.isSelected('last_refresh_time')) {
+      return refreshRequired(this.last_refresh_time)
+    } else {
+      return false
     }
-    return refreshRequired(this.last_refresh_time)
   })
 
   schema.virtual('message_check_required').get(function() {
-    return messageCheckRequired(this.last_message_check_time)
+    if (this.isSelected('last_message_check_time')) {
+      return messageCheckRequired(this.last_message_check_time)
+    } else {
+      return false
+    }
   })
 })
 export default UserModel
@@ -358,12 +364,13 @@ export function fromOAuthUser(
   return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
 }
 
-interface iUser {
+export interface iUser {
   fullname: string
   email?: string
   password?: string
   avatar?: string
   oauth?: OAuthObject[]
+  message_list_id: ObjectId
   school?: {
     school_name?: string
     school_id?: string
