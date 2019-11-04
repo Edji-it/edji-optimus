@@ -370,7 +370,10 @@ export interface iUser {
   password?: string
   avatar?: string
   oauth?: OAuthObject[]
+  pending_oauth?: OAuthObject
   message_list_id: ObjectId
+  referred_by?: string
+  institution_ids?: ObjectId[]
   school?: {
     school_name?: string
     school_id?: string
@@ -381,23 +384,22 @@ export interface iUser {
 
 export interface UserDocument extends EdjiDocument, iUser {}
 
-interface UserQueryHelpers {
+interface UserModel extends Model<UserDocument> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
   setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
 }
 
-interface UserModel extends Model<UserDocument, UserQueryHelpers> {}
-
 export interface OAuthObject {
   id: string | number
   type: OAuthType
+  email?: string
   singleUseToken: string
   singleUseTokenExpiration: number
 }
 
 export type OAuthType = 'google' | 'clever'
 
-interface OAuthProfile extends iUser {
+interface OAuthProfile extends Partial<iUser> {
   id: string
 }
 

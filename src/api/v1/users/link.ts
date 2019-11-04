@@ -22,7 +22,7 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
       return res.status(403).send()
     }
     if (!user.oauth) user.oauth = []
-    user.oauth.push(...oauthUser.pending_oauth)
+    user.oauth.push({ ...oauthUser.pending_oauth })
     user.pending_oauth = null
     await user.edjiSave()
     return res.status(200).send(generateLoginObjectForUser(user))
