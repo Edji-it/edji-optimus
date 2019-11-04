@@ -14,19 +14,27 @@ import PublicDetailsHandler from './public-details'
 import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
 import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
+import { middleware as LegacyAuth } from '../../../middleware/login-controller'
 
 const router = Router()
-router.post('/', addRouteName('/'), CreateHandler)
-router.post('/login', addRouteName('/login'), LoginHandler)
+router.post('/', addRouteName('/'), LegacyAuth, CreateHandler)
+router.post('/login', addRouteName('/login'), LegacyAuth, LoginHandler)
 router.use(MessagesRouter)
-router.use(ReferralsRouter)
-router.use('/tokens', addRouteName('/tokens'), TokenController)
-router.get('/public-details', addRouteName('/public-details'), PublicDetailsHandler)
-router.get('/:user_id', addRouteName('/:user_id'), authRequired, require('./check-user-id'), require('./retrieve'))
-router.put('/@me/link', addRouteName('/@me/link'), authRequired, LinkController)
-router.post('/@me/change_password', authRequired, require('./change-pass').default)
-router.get('/@me/state', addRouteName('/@me/state'), authRequired, GetStatesHandler)
-router.get('/@me/state/:key', addRouteName('/@me/state/:key'), authRequired, GetStateHandler)
-router.post('/@me/state/:key', addRouteName('/@me/state/:key'), authRequired, PostStateHandler)
+router.use(LegacyAuth, ReferralsRouter)
+router.use('/tokens', addRouteName('/tokens'), LegacyAuth, TokenController)
+router.get('/public-details', addRouteName('/public-details'), LegacyAuth, PublicDetailsHandler)
+router.get(
+  '/:user_id',
+  addRouteName('/:user_id'),
+  LegacyAuth,
+  authRequired,
+  require('./check-user-id'),
+  require('./retrieve'),
+)
+router.put('/@me/link', addRouteName('/@me/link'), LegacyAuth, authRequired, LinkController)
+router.post('/@me/change_password', LegacyAuth, authRequired, require('./change-pass').default)
+router.get('/@me/state', addRouteName('/@me/state'), LegacyAuth, authRequired, GetStatesHandler)
+router.get('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, GetStateHandler)
+router.post('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, PostStateHandler)
 
 export default router

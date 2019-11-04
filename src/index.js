@@ -47,7 +47,7 @@ app.get('/healthcheck', require('./healthcheck'))
 app.use(methodOverride()) // this passes the errors through middleware
 app.use(require('./error-handlers').GeneralErrorHandlers)
 
-let port = process.env.PORT || 3354
+const port = process.env.PORT || 3354
 
 server.listen(port, () => {
   console.log('Server connected at ' + port)
