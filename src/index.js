@@ -29,13 +29,11 @@ app.use(bodyParser.json({ limit: '20mb' }))
 // this is required for sockets... which are no longer here... but we left it in anyhow
 var server = require('http').createServer(app)
 
-app.use(require('./middleware/login-controller').middleware)
-
 // Access allowed for development
 app.use(require('./middleware/header-management'))
 
-// sets user properties for sentry, if they exist
-app.use(require('./middleware/sentry'))
+// // sets user properties for sentry, if they exist
+// app.use(require('./middleware/sentry'))
 
 // attach the new routes
 app.use('/api', addRouteName('/api'), require('./api').default, require('./middleware/handle-http').sendResponse())
@@ -49,7 +47,7 @@ app.get('/healthcheck', require('./healthcheck'))
 app.use(methodOverride()) // this passes the errors through middleware
 app.use(require('./error-handlers').GeneralErrorHandlers)
 
-let port = process.env.PORT || 3354
+const port = process.env.PORT || 3354
 
 server.listen(port, () => {
   console.log('Server connected at ' + port)

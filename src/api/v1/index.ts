@@ -13,17 +13,18 @@ import LicensesRouter from './licenses'
 import TempUsersRouter from './temp_users'
 import ReadingsRouter from './readings'
 import { addRouteName } from '../../utils/edji-utils'
+import { middleware as LegacyAuth } from '../../middleware/login-controller'
 
 // attach routes
-router.use('/readings', addRouteName('/readings'), ReadingsRouter)
-router.use('/projects', addRouteName('/projects'), ProjectsRouter)
-router.use('/auth', addRouteName('/auth'), AuthRouter)
-router.use('/stripe', addRouteName('/stripe'), StripeRouter)
+router.use('/readings', addRouteName('/readings'), LegacyAuth, ReadingsRouter)
+router.use('/projects', addRouteName('/projects'), LegacyAuth, ProjectsRouter)
+router.use('/auth', addRouteName('/auth'), LegacyAuth, AuthRouter)
+router.use('/stripe', addRouteName('/stripe'), LegacyAuth, StripeRouter)
 router.use('/users', addRouteName('/users'), UsersRouter)
-router.use('/referrals', addRouteName('/referrals'), ReferralsRouter)
-router.use('/licenses', addRouteName('/licenses'), LicensesRouter)
-router.use('/institutions', addRouteName('/institutions'), InstitutionsRouter)
-router.use('/temp_users', addRouteName('/temp_users'), TempUsersRouter)
-router.use('/standards', addRouteName('/standards'), StandardsRouter)
+router.use('/referrals', addRouteName('/referrals'), LegacyAuth, ReferralsRouter)
+router.use('/licenses', addRouteName('/licenses'), LegacyAuth, LicensesRouter)
+router.use('/institutions', addRouteName('/institutions'), LegacyAuth, InstitutionsRouter)
+router.use('/temp_users', addRouteName('/temp_users'), LegacyAuth, TempUsersRouter)
+router.use('/standards', addRouteName('/standards'), LegacyAuth, StandardsRouter)
 
 export default router
