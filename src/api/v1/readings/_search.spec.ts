@@ -110,6 +110,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
       })
     })
     for (let i = 0; i < queriableStringProperties.length; i++) {
@@ -155,9 +156,61 @@ describe('reading search helpers', () => {
               ],
             },
           },
+          _source: '',
         })
       })
     }
+    it('should query for school and district id', async () => {
+      await constructSearch({ district_id: '2622050', school_id: '262205005926' })
+      assert.calledOnce(elasticStub)
+      let { index, type, body } = elasticStub.firstCall.args[0]
+      expect(index).to.be.equal('readings')
+      expect(type).to.be.equal('default')
+      expect(body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  public: true,
+                },
+              },
+              {
+                term: {
+                  'owner.school.district_id': '2622050',
+                },
+              },
+              {
+                term: {
+                  'owner.school.school_id': '262205005926',
+                },
+              },
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true,
+                },
+              },
+              {
+                exists: {
+                  field: 'parent_id',
+                },
+              },
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
+        _source: '',
+      })
+    })
     for (let i = 0; i < queriableBooleanProperties.length; i++) {
       let field = queriableBooleanProperties[i]
       it(`should construct a query for ${field}`, async () => {
@@ -201,6 +254,7 @@ describe('reading search helpers', () => {
               ],
             },
           },
+          _source: '',
         })
       })
     }
@@ -244,6 +298,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
       })
     })
     it('should construct a query for grade_levels', async () => {
@@ -290,6 +345,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
       })
     })
     it('should filter if the grade levels lte and gte are equal', async () => {
@@ -332,6 +388,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
       })
     })
     it('should sort by a field', async () => {
@@ -369,6 +426,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
         sort: [
           {
             createdAt: 'asc',
@@ -411,6 +469,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
         sort: [
           {
             createdAt: 'desc',
@@ -451,6 +510,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
       })
     })
     it('should construct the correct query for retrieving the public readings by scope', async () => {
@@ -491,6 +551,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
       })
     })
     it('should construct a query which include a single bucket', async () => {
@@ -530,6 +591,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
         aggs: {
           subject: {
             terms: {
@@ -577,6 +639,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
         aggs: {
           subject: {
             terms: {
@@ -630,6 +693,7 @@ describe('reading search helpers', () => {
             ],
           },
         },
+        _source: '',
         aggs: {
           tags: {
             terms: {
