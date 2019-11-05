@@ -18,9 +18,10 @@ const request = function(reading_id: string, authToken?: string) {
 let authToken: string
 let ownerId: string
 
-const waitForIndexing = () => new Promise(resolve => setTimeout(() => resolve(), 200))
+const waitForIndexing = () => new Promise(resolve => setTimeout(() => resolve(), 300))
 
-describe('DELETE /api/v1/readings/:reading_id', () => {
+describe('DELETE /api/v1/readings/:reading_id', function() {
+  this.retries(2)
   before(async () => {
     const { username: createReadingUsername, password: createReadingPassword } = data.LOGIN_INFO.API_TEACHER
     let userRes = await UserAPI.login(createReadingUsername, createReadingPassword)
