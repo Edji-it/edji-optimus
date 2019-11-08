@@ -19,12 +19,4 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
 
-const config = {
-  ENV: envVars.NODE_ENV,
-  SERVER: {
-    PORT: envVars.PORT,
-  },
-  CLIENT_URL: envVars.CLIENT_URL,
-}
-
-module.exports = config
+module.exports = envVars
