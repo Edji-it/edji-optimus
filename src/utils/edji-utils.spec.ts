@@ -8,16 +8,16 @@ import { EdjiUtils } from './edji-utils'
 describe('EdjiUtils', () => {
   describe('constructor', () => {
     it('should assign proper defaults', () => {
-      const currentEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'test'
+      const currentEnv = process.env.EDJI_STAGE
+      process.env.EDJI_STAGE = 'test'
       const options = {
         appId: 'test',
       }
       const edji = new EdjiUtils(options)
       expect(edji.appId).to.be.equal(options.appId)
-      expect(edji.env).to.be.equal(process.env.NODE_ENV)
+      expect(edji.env).to.be.equal(process.env.EDJI_STAGE)
       expect(edji.doLog).to.be.equal(false)
-      process.env.NODE_ENV = currentEnv
+      process.env.EDJI_STAGE = currentEnv
     })
     it('should allow overriding of defaults', () => {
       const options = {

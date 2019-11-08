@@ -5,6 +5,10 @@ const envSchema = joi.object({
     .string()
     .allow(['development', 'production', 'test', 'local'])
     .required(),
+  EDJI_STAGE: joi
+    .string()
+    .allow(['local', 'test', 'development', 'production'])
+    .required(),
   PORT: joi.number().required(),
   CLIENT_URL: joi.string().required(),
   OPTIMUS_URL: joi.string().required(),

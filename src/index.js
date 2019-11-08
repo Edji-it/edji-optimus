@@ -16,7 +16,7 @@ require('./../config')
 const Sentry = require('@sentry/node')
 Sentry.init({
   dsn: 'https://c581687e3838434b859f1249b31d5a26@sentry.io/299438',
-  environment: process.env.NODE_ENV,
+  environment: process.env.EDJI_STAGE,
 })
 
 // configure express
