@@ -101,7 +101,8 @@ describe('create a user and create, delete, and rejoin subscription', () => {
     createdUser = user
   })
 
-  it('should create a new customer and subscription for Edji user', async () => {
+  it('should create a new customer and subscription for Edji user', async function() {
+    this.timeout(6000)
     const body = {
       token: STRIPE_PAYMENT_TOKEN_VISA,
     }
@@ -128,7 +129,9 @@ describe('create a user and create, delete, and rejoin subscription', () => {
     expect(res).to.have.status(200)
     expect(res.body).to.have.property('user')
     const user = res.body.user
-    expect(user).to.have.property('stripe_customer_id').and.be.a('string')
+    expect(user)
+      .to.have.property('stripe_customer_id')
+      .and.be.a('string')
     expect(user.stripe_customer_id).to.be.a('string')
   })
 
