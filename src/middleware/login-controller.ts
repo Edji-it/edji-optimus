@@ -6,7 +6,7 @@ import { captureException } from '@sentry/node'
 
 // project impors
 import * as TempUser from './../models/TempUser'
-import User from '../models/User'
+import User, { iUser } from '../models/User'
 
 const passwordSecret = process.env.OPTIMUS_PW_SECRET
 
@@ -51,29 +51,26 @@ export const generateLoginObjectForUser = function(user: any) {
 
 /**
  * @param authHeader the authorization header from the request
+ * @param projection a mongodb projection, used to recall only a part of the user object
  * @returns a mongoose User object!
  */
-export const decodeTokenToUser = function(authHeader: string): Promise<any> {
-  const userJWT: DecodedJWT = <DecodedJWT>verify(authHeader, passwordSecret) // syncronously decode token
-  if (userJWT.type === 'temp') {
-    return TempUser.findByIdAndUpdate(
-      userJWT.id,
+export const decodeTokenToUser = (authHeader: string, projection: any = {}): Promise<any> => {
+  const jwt: DecodedJWT = <DecodedJWT>verify(authHeader, passwordSecret) // syncronously decode token
+  if (!jwt) throw new Error('invalid token')
+
+  const model = jwt.type === 'temp' ? TempUser : User
+
+  return model
+    .findByIdAndUpdate(
+      jwt.id,
       { $set: { last_action_time: Date.now() } },
       { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
     )
-  } else if (userJWT) {
-    // set their last action time! Whoo this is so exciting!
-    return User.findByIdAndUpdate(
-      userJWT.id,
-      { $set: { last_action_time: Date.now() } },
-      { new: true, runValidators: false, upsert: false, setDefaultsOnInsert: false },
-    ).exec()
-  } else {
-    return Promise.reject('invalid token')
-  }
+    .select(projection)
+    .exec()
 }
 
-export const middleware: RequestHandler = async function(req, res, next) {
+export const middleware: RequestHandler = async (req, res, next) => {
   if (req.headers.authorization) {
     try {
       req.user = await decodeTokenToUser(req.headers.authorization)
@@ -85,7 +82,28 @@ export const middleware: RequestHandler = async function(req, res, next) {
   next()
 }
 
+/**
+ * @param projection a mongodb projection to use when recalling the user
+ */
+export const addUserToRequest: (projection?: UserProjection) => RequestHandler = (projection = { type: true }) => {
+  return async (req, res, next) => {
+    try {
+      if (req.headers.authorization) {
+        const user = await decodeTokenToUser(req.headers.authorization, projection)
+        req.user = req.context.user = user
+      }
+      next()
+    } catch (err) {
+      return next(err)
+    }
+  }
+}
+
 interface DecodedJWT {
   id: string
   type?: string
 }
+
+type UserProjection = Projection<iUser>
+
+type Projection<T> = { [P in keyof T]?: boolean }

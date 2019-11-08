@@ -70,7 +70,7 @@
     "@types/jsonwebtoken": "^8.3.2",
     "@types/mocha": "^5.2.5",
     "@types/mongodb": "^3.1.14",
-    "@types/mongoose": "^5.3.1",
+    "@types/mongoose": "^5.5.28",
     "@types/ms": "^0.7.30",
     "@types/node": "^11.11.3",
     "@types/on-headers": "^1.0.0",

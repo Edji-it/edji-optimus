@@ -151,12 +151,8 @@ describe('delete project properties', () => {
       feedback_to: '5c55f320844a4f0040845788',
       evaluation: 'Good job!',
     }
-    const invalidFeedback = {
-      outcome_id: '5c50f4c20b944f00963beb59',
-      feedback_to: '5c55f320844a4f0040845788',
-    }
     const requestCreate = function(projectId: string, feedback: any, authToken?: string): Request {
-      let req = chai
+      const req = chai
         .request(data.SERVER)
         .put(`/api/v1/projects/${projectId}/feedback`)
         .send(feedback)
@@ -165,7 +161,7 @@ describe('delete project properties', () => {
       return req
     }
     const requestDelete = function(projectId: string, feedbackId: string, authToken?: string): Request {
-      let req = chai.request(data.SERVER).del(`/api/v1/projects/${projectId}/feedback?=${feedbackId}`)
+      const req = chai.request(data.SERVER).del(`/api/v1/projects/${projectId}/feedback?comment_id=${feedbackId}`)
 
       authToken && req.set('Authorization', authToken)
       return req
@@ -183,7 +179,7 @@ describe('delete project properties', () => {
       expect(project).to.have.property('feedback')
       const feedbackArray = project.feedback
       expect(feedbackArray.length).to.be.greaterThan(0)
-      let feedbackObj = feedbackArray[feedbackArray.length - 1]
+      const feedbackObj = feedbackArray[feedbackArray.length - 1]
 
       // delete that feedback
       const deleteFeedback = await requestDelete(createdProject._id, feedbackObj._id, authToken)

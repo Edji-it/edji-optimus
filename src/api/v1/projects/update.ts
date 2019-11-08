@@ -1,81 +1,58 @@
 // library imports
-import { Request, Response, NextFunction } from 'express'
-import * as mongoose from 'mongoose'
+import { RequestHandler } from 'express'
 import { pick } from 'underscore'
 
 // project imports
 import * as Project from '../../../models/Project'
-import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
 import { updatePropertyArray } from './_update'
+import { ObjectId } from 'bson'
 
-export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
+export const UpdateProjectController: RequestHandler = async (req, res, next) => {
   try {
     const { project_id } = req.params
-    let user = req.user
+    const user = req.user
     let updateData: any = req.body
 
-    // I couldn't figure out how to get typescript to allow me to call `validateEdjiId` on mongoose because it doesn't exist in mongoose types
-    if (!mongoose['validateEdjiId'](project_id)) {
-      return res.status(400).send({ error: 'invalid project id passed' })
-    }
-
-    const propertiesToUpdate: any = pick(updateData, SIMPLY_UPDATABLE_PROPERTIES)
-    const attemptedUpdateProperties: string[] = Object.keys(propertiesToUpdate)
+    const updateObject: any = pick(updateData, SIMPLY_UPDATABLE_PROPERTIES)
+    const attemptedUpdateProperties: string[] = Object.keys(updateObject)
     if (attemptedUpdateProperties.length === 0) {
       return res.status(400).send({ error: 'no valid update properties in project body' })
     }
-    let project = await Project.findOneAndUpdate(
+
+    const { n: matchedCount } = await Project.updateOne(
       {
         _id: project_id,
         $or: [{ teacher_id: user._id }, { co_owner_ids: user._id }],
       },
-      propertiesToUpdate,
-      {
-        new: true,
-        runValidators: true,
-      },
+      { $set: updateObject },
+      { runValidators: true },
     )
-    if (!project) {
+
+    if (matchedCount < 1) {
       return res.status(404).send({ error: 'no project at that id' })
     }
-    let updated = pick(project, attemptedUpdateProperties)
-    return res.status(200).send(updated)
+    return res.status(200).send(updateObject)
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      let validationErrors = cleanMongoValidationError(err)
-      return res.status(406).send({ validationErrors })
-    }
     return next(err)
   }
 }
 
-export async function UpdatePropertyController(req: Request, res: Response, next: NextFunction) {
+export const UpdatePropertyController: RequestHandler = async (req, res, next) => {
   try {
     // project_id and update_property are required by express routing
     const { project_id, update_property } = req.params
-    const { user } = req
+    const user: lightUser = req.user
     const update: any = req.body
 
     if (!update) {
       return res.status(400).send({ error: 'no updatable fields found on request body' })
     }
 
-    if (!mongoose['validateEdjiId'](project_id)) {
-      return res.status(400).send({ error: 'invalid project or property id passed' })
-    }
-
     if (!CUSTOM_UPDATABLE_PROPERTIES.includes(update_property)) {
       return res.status(400).send({ error: 'requested update of a property which could not be updated' })
     }
 
-    let updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user, update })
-    /**
-     * @deprecated this is temporary transition handling for old routes
-     */
-    if (req.params.wrap_comment) {
-      let returnProperty = update_property.slice(0, -1)
-      updateObj = { [returnProperty]: updateObj }
-    }
+    const updateObj = await UPDATE_CONTROLLERS[update_property]({ project_id, user, update })
     return res.status(200).send(updateObj)
   } catch (err) {
     if (err.message === 'err_no_project') {
@@ -90,7 +67,7 @@ export async function UpdatePropertyController(req: Request, res: Response, next
 }
 
 const UPDATE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string; user: any; update: any }) => Promise<any>
+  [key: string]: (props: { project_id: string; user: lightUser; update: any }) => Promise<any>
 } = {
   comments: function(props) {
     return updatePropertyArray(props, 'comments')
@@ -120,9 +97,14 @@ const UPDATE_CONTROLLERS: {
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
     return { _id: user._id }
   },
-  // co_owner_ids: updateCoOwner,
 }
 
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
 
 const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
+
+export interface lightUser {
+  _id: ObjectId
+  fullname: string
+  type?: string
+}

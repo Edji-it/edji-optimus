@@ -1,8 +1,9 @@
 // library imports
 const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
-const _ = require('underscore')
+import { hashSync } from 'bcryptjs'
+import { pick } from 'underscore'
 import { Model, Document } from 'mongoose'
+import { ObjectId } from 'mongodb'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
@@ -228,7 +229,7 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
     ]
 
     // return all of the properties in the above array
-    return _.pick(this, (value, key, object) => {
+    return pick(this, (value, key, object) => {
       return clientProperties.indexOf(key) > -1
     })
   }
@@ -238,7 +239,7 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
       return
     } // get out of here object without an id (at one point, this was returning the entire node process)
     if (this.password && this.isModified('password')) {
-      this.password = bcrypt.hashSync(this.password, 10) // set the new password to a hash of itself
+      this.password = hashSync(this.password, 10) // set the new password to a hash of itself
     }
     /**
      * since school_name is @deprecated 4/4/2019
@@ -338,14 +339,19 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
 
   // allow refreshRequired to be accessed like a property on a User object (like user.refreshRequired)
   schema.virtual('refresh_required').get(function() {
-    if (!this.last_refresh_time) {
-      console.log('no last_refresh_time on ' + this.username)
+    if (this.isSelected('last_refresh_time')) {
+      return refreshRequired(this.last_refresh_time)
+    } else {
+      return false
     }
-    return refreshRequired(this.last_refresh_time)
   })
 
   schema.virtual('message_check_required').get(function() {
-    return messageCheckRequired(this.last_message_check_time)
+    if (this.isSelected('last_message_check_time')) {
+      return messageCheckRequired(this.last_message_check_time)
+    } else {
+      return false
+    }
   })
 })
 export default UserModel
@@ -358,22 +364,28 @@ export function fromOAuthUser(
   return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
 }
 
-interface iUser {
+export interface iUser {
   fullname: string
   email?: string
+  password?: string
   avatar?: string
   oauth?: OAuthObject[]
+  pending_oauth?: OAuthObject
+  message_list_id: ObjectId
+  referred_by?: string
+  institution_ids?: ObjectId[]
   school?: {
     school_name?: string
     school_id?: string
     district_name?: string
     district_id?: string
   }
+  type?: string
 }
 
 export interface UserDocument extends EdjiDocument, iUser {}
 
-interface UserModel extends Model<any> {
+interface UserModel extends Model<UserDocument> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
   setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
 }
@@ -381,13 +393,14 @@ interface UserModel extends Model<any> {
 export interface OAuthObject {
   id: string | number
   type: OAuthType
+  email?: string
   singleUseToken: string
   singleUseTokenExpiration: number
 }
 
 export type OAuthType = 'google' | 'clever'
 
-interface OAuthProfile extends iUser {
+interface OAuthProfile extends Partial<iUser> {
   id: string
 }
 

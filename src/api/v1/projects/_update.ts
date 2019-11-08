@@ -25,18 +25,20 @@ export async function deleteFromS3(url: string): Promise<void> {
   }
 }
 
-export async function updatePropertyArray({ project_id, user, update: propData }, propArrayName) {
+export async function updatePropertyArray({ project_id, user, update: propData }, propArrayName: string) {
   /**
    * just validate comment/answer to avoid running validators on entire project in findOneAndUpdate
    *  this will throw an error which should be caught by the route's catch
    */
-  const project = await Project.findById(project_id)
+  const project = await Project.findById(project_id).select({ co_owner_ids: 1, teacher_id: 1, [propArrayName]: 1 })
   if (!project) throw new Error('err_no_project')
+
+  const updateArray = project[propArrayName]
 
   let propObj
   if (propData._id) {
     // this method only works because it's an array of subdocuments in mongoose
-    propObj = project[propArrayName].id(propData._id)
+    propObj = updateArray.id(propData._id)
   }
 
   if (propArrayName === 'feedback') {
@@ -66,10 +68,10 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     propObj.author = user.fullname
     propObj.user_id = user._id
     propObj.createdAt = Date.now()
-    project[propArrayName].push(propObj)
+    updateArray.push(propObj)
   }
   propObj.updatedAt = Date.now() // also manually update updatedAt
   await propObj.validate() // manually validate here, don't validate project so that if anything goes wrong on project we can still save comments
-  await Project.findByIdAndUpdate(project._id, project, { runValidators: false })
+  await Project.updateOne({ _id: project._id }, { $set: { [propArrayName]: updateArray } }, { runValidators: false })
   return propObj
 }

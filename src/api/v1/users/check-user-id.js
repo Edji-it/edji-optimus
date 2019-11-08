@@ -9,7 +9,6 @@ module.exports = function(req, res, next) {
   if (user._id.equals(user_id)) {
     return next()
   } else {
-    console.log('UNAUTHORIZED', user_id, user._id)
     return res.status(401).send()
   }
 }
