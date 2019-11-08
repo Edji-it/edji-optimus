@@ -21,12 +21,12 @@ export class EdjiUtils {
   appId: string
   env: string
   //  default local logging to false - will be true for dev
-  doLog: boolean = process.env.NODE_ENV === 'production'
+  doLog: boolean = process.env.EDJI_STAGE === 'production'
   requestIdHeader: string = 'X-Request-Id'
   requestTimeHeader: string = 'X-Response-Time'
   constructor({ appId, env, doLog }: UtilOptions) {
     this.appId = appId
-    this.env = env || process.env.NODE_ENV
+    this.env = env || process.env.EDJI_STAGE
     if (doLog === true) this.doLog = true
   }
 
@@ -94,7 +94,6 @@ export class EdjiUtils {
     try {
       await post(LOGS_ENDPOINT, options)
     } catch (err) {
-      process.env.NODE_ENV === 'local' && console.error(err.body)
       captureException(err)
     }
   }
@@ -108,7 +107,7 @@ export class EdjiUtils {
 
 interface UtilOptions {
   appId: string // the name that will identify the app in the logs
-  env?: string // defaults to the NODE_ENV if nothing is passed explicitly
+  env?: string // defaults to the EDJI_STAGE if nothing is passed explicitly
   doLog?: boolean // option for turning off logging if desired
 }
 

@@ -26,28 +26,4 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
 
-const config = {
-  MONGO: {
-    HOST: serviceVars.MONGO_HOST,
-  },
-  OAUTH: {
-    GOOGLE: {
-      CLIENT_ID: serviceVars.OAUTH2_GOOGLE_CLIENT_ID,
-      CLIENT_SECRET: serviceVars.OAUTH2_GOOGLE_CLIENT_SECRET,
-    },
-  },
-  STRIPE: {
-    API_KEY: serviceVars.STRIPE_API_TOKEN,
-  },
-  EDJI_API: {
-    GRAPPLE: {
-      DOMAIN: serviceVars.EDJI_GRAPPLE_TOKEN,
-      TOKEN: serviceVars.EDJI_GRAPPLE_TOKEN,
-    },
-  },
-  MAILCHIMP: {
-    TOKEN: serviceVars.MAILCHIMP_API_TOKEN,
-  },
-}
-
-module.exports = config
+module.exports = serviceVars

@@ -57,7 +57,7 @@ const providerRedirects: { [key in OAuthType]: string } = {
 }
 
 function getProtocol(): 'http' | 'https' {
-  return process.env.NODE_ENV === 'local' ? 'http' : 'https'
+  return process.env.EDJI_STAGE === 'local' ? 'http' : 'https'
 }
 
 export const getRedirectURI = ({ type, singleUseToken, error }: RedirectParams): string => {

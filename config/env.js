@@ -5,6 +5,10 @@ const envSchema = joi.object({
     .string()
     .allow(['development', 'production', 'test', 'local'])
     .required(),
+  EDJI_STAGE: joi
+    .string()
+    .allow(['local', 'test', 'development', 'production'])
+    .required(),
   PORT: joi.number().required(),
   CLIENT_URL: joi.string().required(),
   OPTIMUS_URL: joi.string().required(),
@@ -15,12 +19,4 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
 
-const config = {
-  ENV: envVars.NODE_ENV,
-  SERVER: {
-    PORT: envVars.PORT,
-  },
-  CLIENT_URL: envVars.CLIENT_URL,
-}
-
-module.exports = config
+module.exports = envVars

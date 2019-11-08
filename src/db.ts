@@ -4,8 +4,8 @@ mongoose.Promise = Promise
 // hacky old assignment before typescript - now using the middleware in route is prefered
 mongoose['validateEdjiId'] = require('./middleware/validate-ids').isValidId
 
-//sets up database connection based on current NODE_ENV
-console.log('wiring up the database for ' + process.env.NODE_ENV)
+//sets up database connection based on current EDJI_STAGE
+console.log('wiring up the database for ' + process.env.EDJI_STAGE)
 mongoose.connect(process.env.MONGO_HOST, {
   socketTimeoutMS: 120000,
   useNewUrlParser: true,

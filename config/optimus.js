@@ -10,10 +10,4 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
 
-const config = {
-  OPTIMUS: {
-    PW_SECRET: optimusVars.OPTIMUS_PW_SECRET,
-  },
-}
-
-module.exports = config
+module.exports = optimusVars

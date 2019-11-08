@@ -9,7 +9,7 @@ import { captureException } from '@sentry/node'
  * @param {string} toChannel the channel you want to post a message to
  */
 export async function sendMessage(message: string, toChannel: string = 'metric-bots'): Promise<void> {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.EDJI_STAGE === 'production') {
     const options: RequestPromiseOptions = {
       headers: { Authorization: process.env.EDJI_BUMBLEBEE_TOKEN },
       body: {

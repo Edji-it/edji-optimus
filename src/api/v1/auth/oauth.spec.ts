@@ -18,13 +18,13 @@ import * as google from './../../../services/google'
 import clever from './../../../services/clever'
 
 describe('oauth helpers', () => {
-  const { CLIENT_URL, NODE_ENV } = process.env
+  const { CLIENT_URL, EDJI_STAGE } = process.env
   beforeEach(() => {
     process.env.CLIENT_URL = '//edji.it'
-    process.env.NODE_ENV = 'development'
+    process.env.EDJI_STAGE = 'development'
   })
   after(() => {
-    Object.assign(process.env, { CLIENT_URL, NODE_ENV })
+    Object.assign(process.env, { CLIENT_URL, EDJI_STAGE })
   })
   describe('getRedirectURI', () => {
     const defaultParams: RedirectParams = {
