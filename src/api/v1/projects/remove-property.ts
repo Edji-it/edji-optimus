@@ -14,10 +14,6 @@ export async function RemovePropertyController(req: Request, res: Response, next
 
     reply_ids.push(comment_id)
 
-    if (!mongoose['validateEdjiId'](project_id)) {
-      return res.status(400).send({ error: 'invalid project or property id passed' })
-    }
-
     if (!CUSTOM_REMOVABLE_PROPERTIES.includes(remove_property)) {
       return res.status(400).send({ error: 'requested removal of a property which could not be removed' })
     }

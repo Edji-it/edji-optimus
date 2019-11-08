@@ -53,6 +53,7 @@ router.delete(
   '/:project_id/:remove_property',
   addRouteName('/:project_id/:remove_property'),
   authRequired,
+  validateIdParameters('project_id'),
   RemovePropertyController,
 )
 

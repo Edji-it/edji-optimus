@@ -1,14 +1,12 @@
 // library imports
-import { Request, Response, NextFunction } from 'express'
-import * as mongoose from 'mongoose'
+import { RequestHandler } from 'express'
 import { pick } from 'underscore'
 
 // project imports
 import * as Project from '../../../models/Project'
-import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
 import { updatePropertyArray } from './_update'
 
-export async function UpdateProjectController(req: Request, res: Response, next: NextFunction) {
+export const UpdateProjectController: RequestHandler = async (req, res, next) => {
   try {
     const { project_id } = req.params
     let user = req.user
@@ -38,7 +36,7 @@ export async function UpdateProjectController(req: Request, res: Response, next:
   }
 }
 
-export async function UpdatePropertyController(req: Request, res: Response, next: NextFunction) {
+export const UpdatePropertyController: RequestHandler = async (req, res, next) => {
   try {
     // project_id and update_property are required by express routing
     const { project_id, update_property } = req.params
