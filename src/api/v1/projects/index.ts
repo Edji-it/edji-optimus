@@ -32,7 +32,7 @@ router.get('/:project_id', addRouteName('/:project_id'), LegacyAuth, require('./
 router.put(
   '/:project_id',
   addRouteName('/:project_id'),
-  addUserToRequest({}),
+  addUserToRequest(),
   validateIdParameters('project_id'),
   authRequired,
   UpdateProjectController,
@@ -50,7 +50,7 @@ router.get('/:project_code/validate', addRouteName('/:project_code/validate'), L
 router.put(
   '/:project_id/:update_property',
   addRouteName('/:project_id/:update_property'),
-  addUserToRequest({ fullname: true }),
+  addUserToRequest({ type: true, fullname: true }),
   authRequired,
   validateIdParameters('project_id'),
   UpdatePropertyController,
