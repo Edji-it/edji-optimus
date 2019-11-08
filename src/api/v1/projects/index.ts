@@ -26,7 +26,13 @@ router.post(
   sendResponse(),
 )
 router.get('/:project_id', addRouteName('/:project_id'), require('./retrieve'))
-router.put('/:project_id', addRouteName('/:project_id'), authRequired, UpdateProjectController)
+router.put(
+  '/:project_id',
+  addRouteName('/:project_id'),
+  validateIdParameters('project_id'),
+  authRequired,
+  UpdateProjectController,
+)
 router.delete(
   '/:project_id',
   addRouteName('/:project_id'),
@@ -40,6 +46,7 @@ router.put(
   '/:project_id/:update_property',
   addRouteName('/:project_id/:update_property'),
   authRequired,
+  validateIdParameters('project_id'),
   UpdatePropertyController,
 )
 router.delete(
