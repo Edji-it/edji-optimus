@@ -1,5 +1,4 @@
 import { get, OptionsWithUrl } from 'request-promise-native'
-import { hash } from 'bcryptjs'
 
 const cleverUrl = 'https://api.clever.com/v2.0'
 
@@ -7,7 +6,7 @@ export default class Clever {
   private _userId: string
   private _user: CleverTeacher
   private _type: CleverType
-  private _district: CleverDistrictInfo
+  // private _district: CleverDistrictInfo
   private _sections: CleverSections
   private _rpOptions: OptionsWithUrl
   constructor(_token: string) {
@@ -44,14 +43,14 @@ export default class Clever {
     return this._user
   }
 
-  async getDistrict(): Promise<CleverDistrictInfo> {
-    const { data } = await get({
-      ...this._rpOptions,
-      url: [cleverUrl, `${this._type}s`, this._userId, 'district'].join('/'),
-    })
-    this._district = data
-    return this._district
-  }
+  // async getDistrict(): Promise<CleverDistrictInfo> {
+  //   const { data } = await get({
+  //     ...this._rpOptions,
+  //     url: [cleverUrl, `${this._type}s`, this._userId, 'district'].join('/'),
+  //   })
+  //   this._district = data
+  //   return this._district
+  // }
 
   async getSections(): Promise<CleverSections> {
     const { data } = await get({
@@ -68,7 +67,7 @@ export default class Clever {
     }
     const { id, name, email } = this._user
     const fullname = name.first + ' ' + name.last
-    const { name: district_name } = await this.getDistrict()
+    // const { name: district_name } = await this.getDistrict()
     let identities = []
     if (this._type === 'student') {
       identities.push('student')
@@ -79,7 +78,7 @@ export default class Clever {
       }
     }
 
-    return { id, email, fullname, school: { district_name }, identities }
+    return { id, email, fullname, identities }
   }
 }
 
@@ -118,7 +117,7 @@ interface CleverInfo {
   fullname: string
   email?: string
   identities: string[]
-  school: { district_name: string }
+  // school: { district_name: string }
   id: string
 }
 
