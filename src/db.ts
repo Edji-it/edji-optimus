@@ -16,4 +16,11 @@ mongoose.connection.once('open', function() {
   console.log('Connected to Mongo!')
 })
 
+// when something interrupts the process, disconnect from mongodb
+process.on('SIGINT', () => {
+  mongoose.disconnect(err => {
+    process.exit(err ? 1 : 0)
+  })
+})
+
 export default mongoose
