@@ -75,6 +75,7 @@ export const middleware: RequestHandler = async (req, res, next) => {
     try {
       req.user = await decodeTokenToUser(req.headers.authorization)
       req.context.user = req.user
+      console.log('user', req.user)
     } catch (err) {
       return next(err)
     }
@@ -85,7 +86,7 @@ export const middleware: RequestHandler = async (req, res, next) => {
 /**
  * @param projection a mongodb projection to use when recalling the user
  */
-export const addUserToRequest: (projection?: UserProjection) => RequestHandler = (projection = {}) => {
+export const addUserToRequest: (projection?: UserProjection) => RequestHandler = (projection = { type: true }) => {
   return async (req, res, next) => {
     try {
       if (req.headers.authorization) {

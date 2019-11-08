@@ -380,6 +380,7 @@ export interface iUser {
     district_name?: string
     district_id?: string
   }
+  type?: string
 }
 
 export interface UserDocument extends EdjiDocument, iUser {}
