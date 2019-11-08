@@ -5,11 +5,12 @@ import { pick } from 'underscore'
 // project imports
 import * as Project from '../../../models/Project'
 import { updatePropertyArray } from './_update'
+import { ObjectId } from 'bson'
 
 export const UpdateProjectController: RequestHandler = async (req, res, next) => {
   try {
     const { project_id } = req.params
-    let user = req.user
+    const user = req.user
     let updateData: any = req.body
 
     const updateObject: any = pick(updateData, SIMPLY_UPDATABLE_PROPERTIES)
@@ -40,7 +41,7 @@ export const UpdatePropertyController: RequestHandler = async (req, res, next) =
   try {
     // project_id and update_property are required by express routing
     const { project_id, update_property } = req.params
-    const { user } = req
+    const user: lightUser = req.user
     const update: any = req.body
 
     if (!update) {
@@ -66,7 +67,7 @@ export const UpdatePropertyController: RequestHandler = async (req, res, next) =
 }
 
 const UPDATE_CONTROLLERS: {
-  [key: string]: (props: { project_id: string; user: any; update: any }) => Promise<any>
+  [key: string]: (props: { project_id: string; user: lightUser; update: any }) => Promise<any>
 } = {
   comments: function(props) {
     return updatePropertyArray(props, 'comments')
@@ -96,9 +97,14 @@ const UPDATE_CONTROLLERS: {
     if (!res.nModified || res.nModified < 1) throw new Error('err_no_project')
     return { _id: user._id }
   },
-  // co_owner_ids: updateCoOwner,
 }
 
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
 
 const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
+
+export interface lightUser {
+  _id: ObjectId
+  fullname: string
+  type?: string
+}

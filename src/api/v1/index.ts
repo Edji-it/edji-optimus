@@ -17,7 +17,7 @@ import { middleware as LegacyAuth } from '../../middleware/login-controller'
 
 // attach routes
 router.use('/readings', addRouteName('/readings'), LegacyAuth, ReadingsRouter)
-router.use('/projects', addRouteName('/projects'), LegacyAuth, ProjectsRouter)
+router.use('/projects', addRouteName('/projects'), ProjectsRouter)
 router.use('/auth', addRouteName('/auth'), LegacyAuth, AuthRouter)
 router.use('/stripe', addRouteName('/stripe'), LegacyAuth, StripeRouter)
 router.use('/users', addRouteName('/users'), UsersRouter)

@@ -85,7 +85,7 @@ export const middleware: RequestHandler = async (req, res, next) => {
 /**
  * @param projection a mongodb projection to use when recalling the user
  */
-export const addUserToRequest: (projection: UserProjection) => RequestHandler = projection => {
+export const addUserToRequest: (projection?: UserProjection) => RequestHandler = (projection = {}) => {
   return async (req, res, next) => {
     try {
       if (req.headers.authorization) {
