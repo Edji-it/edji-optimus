@@ -75,7 +75,6 @@ export const middleware: RequestHandler = async (req, res, next) => {
     try {
       req.user = await decodeTokenToUser(req.headers.authorization)
       req.context.user = req.user
-      console.log('user', req.user)
     } catch (err) {
       return next(err)
     }
