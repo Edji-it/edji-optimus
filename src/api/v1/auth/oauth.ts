@@ -71,20 +71,24 @@ export const getUser = async (type: OAuthType, code: string) => {
   switch (type) {
     case 'google':
       const googleOAuth2 = createOAuthClient('google')
-      const googleTokenConfig: AuthorizationTokenConfig = {
+      const googleTokenConfig: Partial<AuthorizationTokenConfig> = {
         code,
         redirect_uri: GOOGLE_REDIRECT_URI,
       }
-      const { access_token: googleToken } = await googleOAuth2.authorizationCode.getToken(googleTokenConfig)
+      const { access_token: googleToken } = await googleOAuth2.authorizationCode.getToken(<AuthorizationTokenConfig>(
+        googleTokenConfig
+      ))
       const profile = await getGoogleInfo(googleToken)
       return fromOAuthUser(profile, 'google')
     case 'clever':
       const cleverClient = createOAuthClient('clever')
-      const tokenConfig: AuthorizationTokenConfig = {
+      const tokenConfig: Partial<AuthorizationTokenConfig> = {
         code: code,
         redirect_uri: CLEVER_REDIRECT_URI,
       }
-      const { access_token: cleverToken } = await cleverClient.authorizationCode.getToken(tokenConfig)
+      const { access_token: cleverToken } = await cleverClient.authorizationCode.getToken(<AuthorizationTokenConfig>(
+        tokenConfig
+      ))
       const client = new Clever(cleverToken)
       await client.init()
       const cleverProfile = await client.getCleverInfo()
@@ -124,7 +128,7 @@ export const oauthCallbackHandler: RequestHandler = async (req, res, next) => {
   try {
     const { code } = req.query
     const { type } = req.params
-    const destination = await getTokenRedirectDestination(type, code)
+    const destination = await getTokenRedirectDestination(<OAuthType>type, code)
     return res.redirect(destination)
   } catch (err) {
     return next(err)
