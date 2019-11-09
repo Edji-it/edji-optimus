@@ -10,6 +10,7 @@ mongoose.connect(process.env.MONGO_HOST, <any>{
   socketTimeoutMS: 120000,
   useNewUrlParser: true,
   retryWrites: false,
+  useUnifiedTopology: true,
 })
 
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'))
