@@ -6,9 +6,10 @@ mongoose['validateEdjiId'] = require('./middleware/validate-ids').isValidId
 
 //sets up database connection based on current EDJI_STAGE
 console.log('wiring up the database for ' + process.env.EDJI_STAGE)
-mongoose.connect(process.env.MONGO_HOST, {
+mongoose.connect(process.env.MONGO_HOST, <any>{
   socketTimeoutMS: 120000,
   useNewUrlParser: true,
+  retryWrites: false,
 })
 
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'))
