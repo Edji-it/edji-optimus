@@ -23,6 +23,7 @@ module.exports = {
   entry: ENTRY,
   mode: 'production',
   target: 'node', // default includes some stuff we need like fs
+  devtool: 'source-map',
   externals: [nodeExternals()], // ignore all modules in node_modules
   module: {
     rules: [
