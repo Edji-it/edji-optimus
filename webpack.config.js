@@ -8,6 +8,7 @@ const OUT_DIR = path.resolve(__dirname, 'build')
 const plugins = []
 const release = require('./scripts/get-release-id')()
 if (release) {
+  console.log(`releasing sourcemaps for ${release} to sentry`)
   plugins.push(
     new SentryWebpackPlugin({
       release,
@@ -20,6 +21,7 @@ if (release) {
 
 module.exports = {
   entry: ENTRY,
+  mode: 'production',
   target: 'node', // default includes some stuff we need like fs
   externals: [nodeExternals()], // ignore all modules in node_modules
   module: {
@@ -38,5 +40,5 @@ module.exports = {
     filename: 'bundle.js',
     path: OUT_DIR,
   },
-  plugins: [],
+  plugins,
 }
