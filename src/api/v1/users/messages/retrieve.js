@@ -7,7 +7,7 @@ module.exports = function(req, res, next) {
   let user = req.user
 
   // throttle the database calls if the user has gotten messages recently
-  if (!user.message_check_required) {
+  if (!user.message_check_required || user.type === 'temp') {
     return res.status(200).send({ messages: [] })
   }
 
