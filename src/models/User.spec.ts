@@ -157,6 +157,7 @@ describe('User model', () => {
       expect(args[2]).to.deep.equal({
         new: true,
         runValidators: true,
+        upsert: false,
       })
     })
   })

@@ -180,6 +180,7 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
       {
         new: true,
         runValidators: true,
+        upsert: false,
       },
     ).exec()
   })
