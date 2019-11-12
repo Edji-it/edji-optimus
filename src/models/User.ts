@@ -362,7 +362,9 @@ export function fromOAuthUser(
   type: OAuthType,
 ): { user: UserDocument; oauthObj: OAuthObject } {
   const oauthObj = generateOAuthObject(id, type)
-  return { user: new UserModel({ email, fullname, avatar, oauth: [oauthObj] }), oauthObj }
+  const props: iUser = { fullname, avatar, oauth: [oauthObj] }
+  if (email) props.email = email
+  return { user: new UserModel(props), oauthObj }
 }
 
 export interface iUser {
@@ -372,7 +374,7 @@ export interface iUser {
   avatar?: string
   oauth?: OAuthObject[]
   pending_oauth?: OAuthObject
-  message_list_id: ObjectId
+  message_list_id?: ObjectId
   referred_by?: string
   institution_ids?: ObjectId[]
   school?: {
