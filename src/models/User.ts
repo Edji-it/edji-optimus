@@ -358,11 +358,12 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
 export default UserModel
 
 export function fromOAuthUser(
-  { email, fullname, avatar, id }: OAuthProfile,
+  { email, fullname, avatar, id, identities }: OAuthProfile,
   type: OAuthType,
 ): { user: UserDocument; oauthObj: OAuthObject } {
+  if (!identities) identities = []
   const oauthObj = generateOAuthObject(id, type)
-  const props: iUser = { fullname, avatar, oauth: [oauthObj] }
+  const props: iUser = { fullname, avatar, oauth: [oauthObj], identities }
   if (email) props.email = email
   return { user: new UserModel(props), oauthObj }
 }
@@ -372,6 +373,7 @@ export interface iUser {
   email?: string
   password?: string
   avatar?: string
+  identities?: string[]
   oauth?: OAuthObject[]
   pending_oauth?: OAuthObject
   message_list_id?: ObjectId

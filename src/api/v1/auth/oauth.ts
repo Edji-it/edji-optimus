@@ -92,6 +92,7 @@ export const getUser = async (type: OAuthType, code: string) => {
       const client = new Clever(cleverToken)
       await client.init()
       const cleverProfile = await client.getCleverInfo()
+      console.log('cleverProfile', cleverProfile)
       return fromOAuthUser(cleverProfile, 'clever')
   }
 }
@@ -103,6 +104,8 @@ export const getTokenRedirectDestination = async (type: OAuthType, code: string)
     const existingUser = await User.findAndGenerateOAuthLogin(oauthObj)
     if (existingUser) return getRedirectURI({ type, singleUseToken })
     try {
+      console.log('user', user)
+      console.log('redirect', getRedirectURI({ type, singleUseToken }))
       await user.edjiSave()
       return getRedirectURI({ type, singleUseToken })
     } catch (err) {
