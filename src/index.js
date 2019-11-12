@@ -9,15 +9,17 @@ const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 
 // initializes aws config and env vars
 require('./services/aws')
-
 require('./../config')
 
 // setup error logging
 const Sentry = require('@sentry/node')
-Sentry.init({
+const sentryParams = {
   dsn: 'https://c581687e3838434b859f1249b31d5a26@sentry.io/299438',
   environment: process.env.EDJI_STAGE,
-})
+}
+const release = require('../scripts/get-release-id')()
+if (release) sentryParams.release = release
+Sentry.init(sentryParams)
 
 // configure express
 var app = express()

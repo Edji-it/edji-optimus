@@ -1,8 +1,22 @@
 const path = require('path')
 const nodeExternals = require('webpack-node-externals')
+const SentryWebpackPlugin = require('@sentry/webpack-plugin')
 
 const ENTRY = path.resolve(__dirname, 'src/index.js')
 const OUT_DIR = path.resolve(__dirname, 'build')
+
+const plugins = []
+const release = require('./scripts/get-release-id')()
+if (release) {
+  plugins.push(
+    new SentryWebpackPlugin({
+      release,
+      include: './build',
+      ignoreFile: '.gitignore',
+      ignore: ['node_modules', 'webpack.config.js'],
+    }),
+  )
+}
 
 module.exports = {
   entry: ENTRY,
@@ -24,4 +38,5 @@ module.exports = {
     filename: 'bundle.js',
     path: OUT_DIR,
   },
+  plugins: [],
 }
