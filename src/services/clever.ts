@@ -77,8 +77,9 @@ export default class Clever {
         identities.push('administrator')
       }
     }
-
-    return { id, email, fullname, identities }
+    const result: CleverInfo = { id, fullname, identities }
+    if (email) result.email = email
+    return result
   }
 }
 
