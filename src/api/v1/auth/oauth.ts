@@ -75,9 +75,9 @@ export const getUser = async (type: OAuthType, code: string) => {
         code,
         redirect_uri: GOOGLE_REDIRECT_URI,
       }
-      const { access_token: googleToken } = await googleOAuth2.authorizationCode.getToken(<AuthorizationTokenConfig>(
-        googleTokenConfig
-      ))
+      const { access_token: googleToken } = await googleOAuth2.authorizationCode.getToken(
+        <AuthorizationTokenConfig>googleTokenConfig,
+      )
       const profile = await getGoogleInfo(googleToken)
       return fromOAuthUser(profile, 'google')
     case 'clever':
@@ -86,9 +86,9 @@ export const getUser = async (type: OAuthType, code: string) => {
         code: code,
         redirect_uri: CLEVER_REDIRECT_URI,
       }
-      const { access_token: cleverToken } = await cleverClient.authorizationCode.getToken(<AuthorizationTokenConfig>(
-        tokenConfig
-      ))
+      const { access_token: cleverToken } = await cleverClient.authorizationCode.getToken(
+        <AuthorizationTokenConfig>tokenConfig,
+      )
       const client = new Clever(cleverToken)
       await client.init()
       const cleverProfile = await client.getCleverInfo()
