@@ -23,7 +23,7 @@
   "private": true,
   "engines": {
     "node": "^12.13",
-    "yarn": "^1.13"
+    "yarn": "^1.19"
   },
   "dependencies": {
     "@sentry/node": "^5.7.1",
