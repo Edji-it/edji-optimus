@@ -65,7 +65,7 @@ describe('PUT /api/v1/readings/:reading_id', () => {
     expect(res).to.have.status(200)
     const reading = await ReadingAPI.retrieve(createdReading._id, authToken)
     const deepEqualCompare = Object.keys(update).filter(key => key !== 'questions')
-    expect(pick(reading, deepEqualCompare)).to.deep.equal(pick(update, deepEqualCompare))
+    expect(pick(reading, deepEqualCompare)).to.deep.equal(pick(update, <any>deepEqualCompare))
     expect(reading.questions).lengthOf(update.questions.length)
     expect(pick(reading.questions[0], Object.keys(update.questions[0]))).to.deep.equal(update.questions[0])
   })
