@@ -1,5 +1,5 @@
 // library imports
-import { Model } from 'mongoose'
+import { Model, Schema, SchemaDefinition, Document } from 'mongoose'
 import { captureException } from '@sentry/node'
 
 // local imports
@@ -7,7 +7,11 @@ import db from './../db'
 import { indexDocuments } from '../services/flak'
 
 //all models are created through this function
-module.exports = function(modelName, schemaJson, schemaDecorator) {
+const createModel: (
+  modelName: string,
+  schemaJson: SchemaDefinition,
+  schemaDecorator?: (schema: Schema) => void,
+) => EdjiModel = function(modelName, schemaJson, schemaDecorator) {
   schemaJson.createdAt = { type: Date, default: Date.now }
   schemaJson.updatedAt = { type: Date, default: Date.now }
 
@@ -51,7 +55,15 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     schemaDecorator(Schema)
   }
 
-  return db.model(modelName, Schema)
+  return <EdjiModel>db.model(modelName, Schema)
+}
+
+export default createModel
+
+export interface EdjiDocument extends Document {
+  edjiSave: (options?: EdjiSaveOptions) => Promise<any>
+  preEdjiSave: () => Promise<any>
+  getIndexOptions?: () => { queueUrl: string; collection: string }
 }
 
 export interface EdjiSaveOptions {}

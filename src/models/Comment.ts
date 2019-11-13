@@ -4,7 +4,7 @@
  */
 import { Document, Model, Schema } from 'mongoose'
 import { ObjectID } from 'mongodb'
-const ModelCreator = require('./ModelCreator')
+import ModelCreator from './ModelCreator'
 
 const Comment: Model<iCommentModel> = ModelCreator('Comment', {
   user_id: { type: String, required: true }, // could be any type of user, maybe we want to add a user_type field?
