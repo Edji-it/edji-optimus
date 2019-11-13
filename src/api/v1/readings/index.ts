@@ -11,7 +11,7 @@ import { validateIdParameters } from './../../../middleware'
 import { addRouteName } from '../../../utils/edji-utils'
 import { deleteOwnerReading, deleteReadingRelatedContent, READING_CAN_UPDATE } from './../../../models/_Reading'
 import { simpleUpdate } from '../../../middleware/modify-model'
-import * as Reading from './../../../models/Reading'
+import Reading from './../../../models/Reading'
 
 const router = Router()
 

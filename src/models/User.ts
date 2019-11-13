@@ -1,8 +1,7 @@
 // library imports
-const mongoose = require('mongoose')
 import { hashSync } from 'bcryptjs'
 import { pick } from 'underscore'
-import { Model, Document } from 'mongoose'
+import { Model, Document, Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 // project imports
@@ -51,12 +50,12 @@ let oauthEnum = {
   message: 'oauth type invalid',
 }
 
-const OneTimeTokenObject = mongoose.Schema({
+const OneTimeTokenObject = new Schema({
   token: { type: String, required: true },
   expiration: { type: Date, required: true, default: Date.now() + 1000 /* s */ * 3600 /* h */ * 24 },
 })
 
-const OAuthObject = mongoose.Schema({
+const OAuthObject = new Schema({
   type: { type: String, enum: oauthEnum },
   id: String,
   email: String,
@@ -104,17 +103,17 @@ const schema = {
   last_action_time: Date, // the time the user last hit the server with an Authorization token
   last_message_check_time: { type: Date, default: Date.now() },
   last_refresh_time: { type: Date, default: Date.now() },
-  message_list_id: { type: mongoose.Schema.ObjectId, ref: 'MessageList' },
+  message_list_id: { type: Schema.Types.ObjectId, ref: 'MessageList' },
   hero_status: Boolean, // whether or not we concluded the user was a hero at the last check
   stripe_customer_id: String, // the user's stripe customer id
   license_ids: [
     {
-      license_id: { type: mongoose.Schema.ObjectId, ref: 'License', required: true },
+      license_id: { type: Schema.Types.ObjectId, ref: 'License', required: true },
       joined: { type: Date, required: true },
     },
   ], // the license id for the user's school's license
   avatar: String,
-  following: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+  following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   prefs: {
     recentEmoji: [String],
     onboarding: {
@@ -160,7 +159,7 @@ const schema = {
       },
     ],
   },
-  institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
+  institution_ids: [{ type: Schema.Types.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
 }
 
 const UserModel: UserModel = ModelCreator('User', schema, function(schema) {

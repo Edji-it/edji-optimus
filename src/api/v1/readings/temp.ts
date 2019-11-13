@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import * as Reading from '../../../models/Reading'
+import Reading from '../../../models/Reading'
 
 const responseShape = {
   title: 1,
