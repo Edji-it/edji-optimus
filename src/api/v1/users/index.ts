@@ -14,7 +14,7 @@ import PublicDetailsHandler from './public-details'
 import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
 import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
-import { middleware as LegacyAuth } from '../../../middleware/login-controller'
+import { LegacyAuth } from '../../../middleware'
 
 const router = Router()
 router.post('/', addRouteName('/'), LegacyAuth, CreateHandler)
