@@ -7,6 +7,7 @@ import { captureException } from '@sentry/node'
 // project impors
 import * as TempUser from './../models/TempUser'
 import User, { iUser } from '../models/User'
+import { addUserToSentry } from './sentry'
 
 const passwordSecret = process.env.OPTIMUS_PW_SECRET
 
@@ -71,27 +72,29 @@ export const decodeTokenToUser = (authHeader: string, projection: any = {}): Pro
 }
 
 export const middleware: RequestHandler = async (req, res, next) => {
-  if (req.headers.authorization) {
-    try {
-      req.user = await decodeTokenToUser(req.headers.authorization)
-      req.context.user = req.user
-    } catch (err) {
-      return next(err)
-    }
+  if (!req.headers.authorization) return next()
+  try {
+    const user = await decodeTokenToUser(req.headers.authorization)
+    req.user = req.context.user = user
+    await addUserToSentry(user)
+    next()
+  } catch (err) {
+    return next(err)
   }
-  next()
 }
+
+export const LegacyAuth = middleware
 
 /**
  * @param projection a mongodb projection to use when recalling the user
  */
 export const addUserToRequest: (projection?: UserProjection) => RequestHandler = (projection = { type: true }) => {
   return async (req, res, next) => {
+    if (!req.headers.authorization) return next()
     try {
-      if (req.headers.authorization) {
-        const user = await decodeTokenToUser(req.headers.authorization, projection)
-        req.user = req.context.user = user
-      }
+      const user = await decodeTokenToUser(req.headers.authorization, projection)
+      req.user = req.context.user = user
+      await addUserToSentry(user)
       next()
     } catch (err) {
       return next(err)

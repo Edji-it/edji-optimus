@@ -13,7 +13,7 @@ import LicensesRouter from './licenses'
 import TempUsersRouter from './temp_users'
 import ReadingsRouter from './readings'
 import { addRouteName } from '../../utils/edji-utils'
-import { middleware as LegacyAuth } from '../../middleware/login-controller'
+import { LegacyAuth } from '../../middleware'
 
 // attach routes
 router.use('/readings', addRouteName('/readings'), LegacyAuth, ReadingsRouter)

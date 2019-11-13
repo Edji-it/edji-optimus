@@ -26,6 +26,7 @@
     "yarn": "^1.19"
   },
   "dependencies": {
+    "@sentry/integrations": "^5.8.0",
     "@sentry/node": "^5.7.1",
     "aws-sdk": "^2.548.0",
     "bcryptjs": "^2.4.3",

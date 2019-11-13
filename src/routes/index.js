@@ -9,15 +9,14 @@ const projects = require('./projects')
 const auth = require('./auth').default
 const mailchimp = require('./mailchimp')
 const subscriptions = require('./subscriptions')
-const LegacyAuth = require('../middleware/login-controller').middleware
 
 // attach old routes to the router
-router.use('/users', LegacyAuth, users)
-router.use('/tempusers', LegacyAuth, tempusers)
-router.use('/readings', LegacyAuth, readings)
-router.use('/projects', LegacyAuth, projects)
-router.use('/auth', LegacyAuth, auth)
-router.use('/mailchimp', LegacyAuth, mailchimp)
-router.use('/subscriptions', LegacyAuth, subscriptions)
+router.use('/users', users)
+router.use('/tempusers', tempusers)
+router.use('/readings', readings)
+router.use('/projects', projects)
+router.use('/auth', auth)
+router.use('/mailchimp', mailchimp)
+router.use('/subscriptions', subscriptions)
 
 module.exports = router

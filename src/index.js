@@ -6,24 +6,19 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
+const { LegacyAuth } = require('./middleware')
 
 // initializes aws config and env vars
 require('./services/aws')
 require('./../config')
 
 // setup error logging
-const Sentry = require('@sentry/node')
-const sentryParams = {
-  dsn: 'https://c581687e3838434b859f1249b31d5a26@sentry.io/299438',
-  environment: process.env.EDJI_STAGE,
-}
-const release = require('../scripts/get-release-id')()
-if (release) sentryParams.release = release
-Sentry.init(sentryParams)
+const { initSentry, sentryRequestHandler } = require('./middleware/sentry')
+initSentry()
 
 // configure express
 var app = express()
-app.use(Sentry.Handlers.requestHandler())
+app.use(sentryRequestHandler())
 const edji = new EdjiUtils({ appId: 'optimus' })
 app.use(edji.attachLogs, edji.initContext)
 app.use(bodyParser.json({ limit: '20mb' }))
@@ -34,14 +29,11 @@ var server = require('http').createServer(app)
 // Access allowed for development
 app.use(require('./middleware/header-management'))
 
-// // sets user properties for sentry, if they exist
-// app.use(require('./middleware/sentry'))
-
 // attach the new routes
 app.use('/api', addRouteName('/api'), require('./api').default, require('./middleware/handle-http').sendResponse())
 
 // attach the old routes
-app.use(require('./routes'))
+app.use(LegacyAuth, require('./routes'))
 
 app.get('/healthcheck', require('./healthcheck'))
 
