@@ -51,7 +51,7 @@ describe('modify-model', () => {
         { runValidators: true },
       )
       assert.calledWithExactly(mockStatus, 200)
-      assert.notCalled(mockModel.updateIndex)
+      assert.calledOnce(mockModel.updateIndex)
     })
     it('should not update a model with invalid update properties', async () => {
       await simpleUpdate(mockModel, 'reading_id', [])(mockRequest, mockResponse, mockNext)

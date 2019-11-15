@@ -29,8 +29,8 @@ export const simpleUpdate = (model: EdjiModel, idParam: string, updateable?: str
         case 1:
         default:
           res.status(200)
+          model.updateIndex(_id)
       }
-      model.updateIndex(_id)
       next()
     } catch (err) {
       return next(err)
