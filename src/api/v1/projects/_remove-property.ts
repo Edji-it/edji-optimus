@@ -1,5 +1,5 @@
 // project imports
-import * as Project from '../../../models/Project'
+import Project from '../../../models/Project'
 import { deleteFromS3 } from './_update'
 
 export async function removeCommentFromArray({ project_id, user, comment_id, idArray }, commentType: string) {

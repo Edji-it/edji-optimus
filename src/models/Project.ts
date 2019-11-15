@@ -1,32 +1,31 @@
-/**
- * Project Model
- */
-var mongoose = require('mongoose')
-var Tags = require('./Tags')
+// library imports
+import { Schema } from 'mongoose'
+import { ObjectId } from 'mongodb'
 
 // project imports
 const SessionCode = require('./SessionCode')
-const Comment = require('./Comment').default
-const Feedback = require('./Feedback').default
-const ModelCreator = require('./ModelCreator')
+const Tags = require('./Tags')
+import Comment, { iComment } from './Comment'
+import Feedback from './Feedback'
+import ModelCreator, { EdjiDocument } from './ModelCreator'
 
 /** mongoose hook for validation against acceptable values for `types` */
-var typesEnum = {
+const typesEnum = {
   values: ['emoji', 'text', 'audio', 'reply'],
   message: 'enum validator failed for path `{PATH}` with value `{VALUE}`',
 }
 
-var Model = ModelCreator(
+const ProjectModel = ModelCreator<ProjectDocument>(
   'Project',
   {
-    teacher_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'User' },
-    co_owner_ids: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    reading_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'Reading' },
+    teacher_id: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+    co_owner_ids: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    reading_id: { type: Schema.Types.ObjectId, required: true, ref: 'Reading' },
     comments: [Comment.schema],
     answers: [Comment.schema],
     feedback: [Feedback.schema],
-    students_ids: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    temp_ids: [{ type: mongoose.Schema.ObjectId, ref: 'TempUser' }],
+    students_ids: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    temp_ids: [{ type: Schema.Types.ObjectId, ref: 'TempUser' }],
     label: { type: String, required: true },
     code: { type: String, unique: true },
     types: [{ type: String, enum: typesEnum, default: 'emoji' }],
@@ -34,7 +33,7 @@ var Model = ModelCreator(
     heat_vision: { type: Boolean, default: false },
     report_evals: [
       {
-        user_id: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
+        user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         evaluation: { type: String, required: true },
         createdAt: { type: Date, required: true, default: Date.now() },
       },
@@ -42,12 +41,12 @@ var Model = ModelCreator(
     group_instructions: String,
     outcomes: [
       {
-        outcome_id: { type: mongoose.Schema.ObjectId, required: true },
+        outcome_id: { type: Schema.Types.ObjectId, required: true },
         outcome_statement: { type: String, required: true },
       },
     ],
   },
-  schema => {
+  (schema: Schema<ProjectDocument>) => {
     // grab a session code and add it to the project before saving
     schema.methods.preEdjiSave = async function() {
       if (this.code) return
@@ -76,4 +75,12 @@ var Model = ModelCreator(
   },
 )
 
-module.exports = Model
+export default ProjectModel
+
+interface iProject {
+  comments: iComment[]
+  teacher_id: ObjectId
+  co_owner_ids: ObjectId[]
+}
+
+interface ProjectDocument extends EdjiDocument, iProject {}

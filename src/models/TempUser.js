@@ -1,7 +1,7 @@
 /**
  * Temporary User Model
  */
-var ModelCreator = require('./ModelCreator')
+var ModelCreator = require('./ModelCreator').default
 
 //the same code exists in the User object
 var nameRe = /(?:([^a-zA-Z0-9\s]))/g

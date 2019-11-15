@@ -1,8 +1,7 @@
-import { EdjiDocument } from './ModelCreator'
-import { Model, Schema } from 'mongoose'
+import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
+import { Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
-let ModelCreator = require('./ModelCreator')
 let Question = require('./Question')
 
 const ReadingModel: ReadingModel = ModelCreator(
@@ -27,12 +26,10 @@ const ReadingModel: ReadingModel = ModelCreator(
     default_instructions: String,
   },
   function(schema: Schema<ReadingDocument>) {
-    schema.methods.getIndexOptions = function() {
-      return {
-        queueUrl: process.env.INDEX_READING_QUEUE_URL,
-        collection: 'readings',
-      }
-    }
+    schema.static('getIndexOptions', () => ({
+      queueUrl: process.env.INDEX_READING_QUEUE_URL,
+      collection: 'readings',
+    }))
   },
 )
 
@@ -59,4 +56,4 @@ interface iReading {
 }
 
 interface ReadingDocument extends EdjiDocument, iReading {}
-interface ReadingModel extends Model<ReadingDocument> {}
+interface ReadingModel extends EdjiModel<ReadingDocument> {}

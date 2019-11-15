@@ -2,11 +2,11 @@
  * Comment Model
  * - Attached to Project objects
  */
-import { Document, Model, Schema } from 'mongoose'
+import { Schema } from 'mongoose'
 import { ObjectID } from 'mongodb'
-import ModelCreator from './ModelCreator'
+import ModelCreator, { EdjiModel, EdjiDocument } from './ModelCreator'
 
-const Comment: Model<iCommentModel> = ModelCreator('Comment', {
+const Comment: EdjiModel<iCommentDocument> = ModelCreator('Comment', {
   user_id: { type: String, required: true }, // could be any type of user, maybe we want to add a user_type field?
   start: { type: Number, required: true, default: -1 },
   end: { type: Number, required: true, default: -1 },
@@ -33,7 +33,7 @@ const Comment: Model<iCommentModel> = ModelCreator('Comment', {
 
 export default Comment
 
-interface iCommentModel extends iComment, Document {}
+interface iCommentDocument extends iComment, EdjiDocument {}
 
 export interface iComment {
   user_id: string

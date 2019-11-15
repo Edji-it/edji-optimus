@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { ObjectId } from 'mongodb'
 
-const Project = require('./Project')
+import Project from './Project'
 
 describe('Project model', () => {
   it('should fail to create a project', () => {

@@ -1,4 +1,4 @@
-var ModelCreator = require('./ModelCreator')
+var ModelCreator = require('./ModelCreator').default
 var mongoose = require('mongoose')
 
 module.exports = ModelCreator('ReadingVersion', {

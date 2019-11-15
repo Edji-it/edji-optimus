@@ -1,4 +1,4 @@
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 
 let answerTypesEnum = {
   values: ['open-ended'],

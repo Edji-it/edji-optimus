@@ -1,4 +1,4 @@
-ModelCreator = require('./ModelCreator')
+ModelCreator = require('./ModelCreator').default
 
 const codeSchema = {
   code: {

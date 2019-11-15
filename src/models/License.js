@@ -1,7 +1,7 @@
 /**
  * License Model
  */
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 const { ObjectId } = require('mongodb')
 const mongoose = require('mongoose')
 

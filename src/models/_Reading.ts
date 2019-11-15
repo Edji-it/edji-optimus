@@ -4,7 +4,7 @@ import { pick } from 'underscore'
 
 // project imports
 import Reading from './Reading'
-import * as Project from './Project'
+import Project from './Project'
 import * as ReadingVersion from './ReadingVersion'
 import { deleteOne } from './../services/elasticsearch'
 

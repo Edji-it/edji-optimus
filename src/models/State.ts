@@ -1,10 +1,11 @@
 // library imports
 import { Schema } from 'mongoose'
+import { ObjectId } from 'mongodb'
 
 // project imports
-const ModelCreator = require('./ModelCreator')
+import ModelCreator, { EdjiDocument } from './ModelCreator'
 
-export const UserState = ModelCreator(
+export const UserState = ModelCreator<StateDocument>(
   'UserState',
   {
     link: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
@@ -16,4 +17,8 @@ export const UserState = ModelCreator(
   },
 )
 
-export const setState = async () => {}
+interface StateDocument extends EdjiDocument {
+  link: ObjectId
+  key: string
+  value: any
+}

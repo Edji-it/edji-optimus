@@ -1,7 +1,7 @@
 /**
  * Institution Model
  */
-var ModelCreator = require('./ModelCreator')
+var ModelCreator = require('./ModelCreator').default
 var mongoose = require('mongoose')
 
 var Model = ModelCreator('Institution', {

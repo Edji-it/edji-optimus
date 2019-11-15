@@ -3,7 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 
 // project imports
-const Project = require('./../models/Project')
+const Project = require('./../models/Project').default
 const authRequired = require('./../middleware/auth-required')
 const { RemovePropertyController } = require('./../api/v1/projects/remove-property')
 

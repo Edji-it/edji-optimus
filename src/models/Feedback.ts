@@ -2,11 +2,11 @@
  * Feedback Model
  * - Attached to Project objects
  */
-import { Document, Model, Schema } from 'mongoose'
+import { Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
-const ModelCreator = require('./ModelCreator')
+import ModelCreator, { EdjiDocument } from './ModelCreator'
 
-const Feedback: Model<iFeedback> = ModelCreator('Feedback', {
+const Feedback = ModelCreator('Feedback', {
   owner_id: { type: Schema.Types.ObjectId },
   outcome_id: { type: Schema.Types.ObjectId },
   feedback_to: { type: Schema.Types.ObjectId, ref: 'Comment' },
@@ -15,7 +15,7 @@ const Feedback: Model<iFeedback> = ModelCreator('Feedback', {
 
 export default Feedback
 
-export interface iFeedback extends Document {
+export interface iFeedback extends EdjiDocument {
   owner_id: ObjectId
   outcome_id: ObjectId
   feedback_to: ObjectId

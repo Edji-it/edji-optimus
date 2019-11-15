@@ -5,7 +5,7 @@ import { Model, Schema, SchemaDefinition } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 // project imports
-import ModelCreator, { EdjiDocument } from './ModelCreator'
+import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
 import { bad } from './badwords'
 
 import {
@@ -161,8 +161,7 @@ const schema = {
   institution_ids: [{ type: Schema.Types.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
 }
 
-const UserModel: UserModel = <Model<UserDocument>>ModelCreator('User', schema, function(schema: Schema<UserDocument>) {
-  // function(schema: Schema<UserDocument>) {
+const UserModel = ModelCreator<UserDocument>('User', schema, function(schema: Schema<UserDocument>) {
   schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
     return this.findOneAndUpdate(
       {
@@ -345,7 +344,8 @@ const UserModel: UserModel = <Model<UserDocument>>ModelCreator('User', schema, f
     }
   })
 })
-export default UserModel
+
+export default <UserModel>UserModel // this override is only because I can't figure out how to get the UserModel to properly extend EdjiModel<T>
 
 export function fromOAuthUser(
   { email, fullname, avatar, id, identities }: OAuthProfile,
@@ -385,7 +385,7 @@ export interface UserDocument extends EdjiDocument, iUser {
   validateOneTimeToken: (property: string, token: string) => void
 }
 
-interface UserModel extends Model<UserDocument> {
+interface UserModel extends EdjiModel<UserDocument> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
   setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
 }

@@ -2,7 +2,7 @@
 const mongoose = require('mongoose')
 
 // project imports
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 
 // define the schema for a single message independently, for readability and b/c mongoose won't let you specify an array easily
 const messageSchema = new mongoose.Schema({

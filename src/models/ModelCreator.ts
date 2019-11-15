@@ -1,17 +1,29 @@
 // library imports
 import { Model, Schema, SchemaDefinition, Document } from 'mongoose'
 import { captureException } from '@sentry/node'
+import { ObjectId } from 'mongodb'
 
 // local imports
 import db from './../db'
 import { indexDocuments } from '../services/flak'
 
+export interface ModelCreator {
+  <T extends EdjiDocument>(
+    modelName: string,
+    schemaJson: SchemaDefinition,
+    schemaDecorator?: (schema: Schema) => void,
+  ): EdjiModel<T>
+}
+
+const updateDocumentIndex = (collection, id: ObjectId | string) => {
+  if (id instanceof ObjectId) id = id.toHexString()
+  indexDocuments({ collection, documents: [id] }).catch(err => {
+    captureException(err)
+  })
+}
+
 //all models are created through this function
-const createModel: (
-  modelName: string,
-  schemaJson: SchemaDefinition,
-  schemaDecorator?: (schema: Schema) => void,
-) => EdjiModel = function(modelName, schemaJson, schemaDecorator) {
+const createModel: ModelCreator = function(modelName, schemaJson, schemaDecorator) {
   schemaJson.createdAt = { type: Date, default: Date.now }
   schemaJson.updatedAt = { type: Date, default: Date.now }
 
@@ -43,19 +55,20 @@ const createModel: (
     if (this.getIndexOptions) {
       let { collection }: IndexOptions = this.getIndexOptions()
       // this gets fired asynchronously, so that we don't wait for it, because we don't have good retry handling anyway
-      indexDocuments({ collection, documents: [this._id] }).catch(err => {
-        captureException(err)
-      })
+      updateDocumentIndex(collection, this)
     }
 
     return results
   }
 
-  if (typeof schemaDecorator === 'function') {
-    schemaDecorator(Schema)
+  Schema.statics.updateIndex = function(id: ObjectId) {
+    if (this.getIndexOptions) {
+      const { collection } = this.getIndexOptions()
+      updateDocumentIndex(collection, id)
+    }
   }
 
-  return <EdjiModel>db.model(modelName, Schema)
+  return <EdjiModel<any>>db.model(modelName, Schema)
 }
 
 export default createModel
@@ -63,7 +76,6 @@ export default createModel
 export interface EdjiDocument extends Document {
   edjiSave: (options?: EdjiSaveOptions) => Promise<any>
   preEdjiSave: () => Promise<any>
-  getIndexOptions?: () => { queueUrl: string; collection: string }
 }
 
 export interface EdjiSaveOptions {}
@@ -73,6 +85,7 @@ export interface IndexOptions {
   collection: any // really a string with a type, but couldn't easily type this
 }
 
-export interface EdjiModel extends Model<any> {
-  getIndexOptions: () => { index: string; type: string }
+export interface EdjiModel<T extends EdjiDocument> extends Model<T> {
+  getIndexOptions?: () => IndexOptions
+  updateIndex?: (id: ObjectId | string) => void
 }

@@ -1,6 +1,5 @@
 // library imports
 import { RequestHandler } from 'express'
-import * as joi from 'joi'
 
 // project imports
 import { UserState } from './../../../models/State'
@@ -38,9 +37,7 @@ export const GetStatesHandler: RequestHandler = async (req, res, next) => {
       key: {
         $in: keys,
       },
-    })
-      .lean()
-      .exec()
+    }).exec()
     let combinedStates = {}
     for (let state of states) {
       combinedStates[state.key] = state.value

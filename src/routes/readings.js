@@ -8,7 +8,7 @@ const Sentry = require('@sentry/node')
 const joi = require('joi')
 
 let Reading = require('./../models/Reading').default
-let Project = require('./../models/Project')
+let Project = require('./../models/Project').default
 let User = require('../models/User').default
 let ReadingVersion = require('./../models/ReadingVersion')
 let MountModelToRouter = require('./MountModelToRouter')

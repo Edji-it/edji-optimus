@@ -1,9 +1,8 @@
 // Library Imports
 import * as mongoose from 'mongoose'
-import { Schema } from 'mongoose'
 
 // Project Imports
-const ModelCreator = require('./ModelCreator')
+import ModelCreator from './ModelCreator'
 
 // The Main Schema
 const Standard = ModelCreator('Standard', {
