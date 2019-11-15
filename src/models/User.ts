@@ -7,7 +7,6 @@ import { ObjectId } from 'mongodb'
 
 // project imports
 const ModelCreator = require('./ModelCreator')
-import { EdjiSaveOptions } from './ModelCreator'
 import { bad } from './badwords'
 
 import {
@@ -411,5 +410,5 @@ interface OAuthProfile extends Partial<iUser> {
 
 // eventually to be moved to ModelCreator, when that is refactored to export syntax
 export interface EdjiDocument extends Document {
-  edjiSave: (options?: EdjiSaveOptions) => Promise<any>
+  edjiSave: () => Promise<any>
 }
