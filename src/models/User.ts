@@ -162,7 +162,7 @@ const schema = {
 }
 
 const UserModel = ModelCreator<UserDocument>('User', schema, function(schema: Schema<UserDocument>) {
-  schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
+  schema.statics.findAndGenerateOAuthLogin = function({ type, id, singleUseToken, singleUseTokenExpiration }) {
     return this.findOneAndUpdate(
       {
         'oauth.id': id,
@@ -180,9 +180,9 @@ const UserModel = ModelCreator<UserDocument>('User', schema, function(schema: Sc
         upsert: false,
       },
     ).exec()
-  })
+  }
 
-  schema.static('setPendingOAuth', function({ email, oauthObj: pending_oauth }) {
+  schema.statics.setPendingOAuth = function({ email, oauthObj: pending_oauth }) {
     return this.updateOne(
       { email },
       {
@@ -191,7 +191,7 @@ const UserModel = ModelCreator<UserDocument>('User', schema, function(schema: Sc
         },
       },
     ).exec()
-  })
+  }
 
   // add custom method which returns only the properties which we want to be viewable by the client
   schema.methods.toPublic = function() {
