@@ -5,7 +5,7 @@ let router = express.Router()
 const Mailchimp = require('mailchimp-api-v3')
 let api = new Mailchimp(process.env.MAILCHIMP_API_TOKEN)
 
-router.post('/add', function(req, res) {
+router.post('/add', function(req, res, next) {
   if (process.env.EDJI_STAGE === 'production') {
     let listId
 
