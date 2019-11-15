@@ -24,17 +24,9 @@ const ReadingModel: any = ModelCreator(
     default_instructions: String,
   },
   function(schema) {
-    schema.methods.getIndexOptions = function() {
-      return {
-        queueUrl: process.env.INDEX_READING_QUEUE_URL,
-        collection: 'readings',
-      }
-    }
-
     schema.statics.getIndexOptions = function() {
       return {
-        index: 'readings',
-        type: 'default',
+        collection: 'readings',
       }
     }
   },

@@ -16,6 +16,7 @@ const CreateReadingHandler: RequestHandler = async function(req, res, next) {
   try {
     reading = new Reading(reading) // reassign reading as the mongoose model
     await assignVersionId(reading, user._id)
+    console.log('saving reading')
     await reading.validate()
     reading = await reading.edjiSave()
     try {

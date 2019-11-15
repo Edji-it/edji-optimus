@@ -1,5 +1,5 @@
 // library imports
-import { Model } from 'mongoose'
+import { Model, Document, Schema, SchemaDefinition } from 'mongoose'
 import { captureException } from '@sentry/node'
 import { ObjectId } from 'mongodb'
 
@@ -15,7 +15,11 @@ const updateDocumentIndex = (collection, id: ObjectId | string) => {
 }
 
 //all models are created through this function
-const ModelCreator = function(modelName, schemaJson, schemaDecorator) {
+const ModelCreator = function(
+  modelName: string,
+  schemaJson: SchemaDefinition,
+  schemaDecorator: (schema: Schema) => void,
+) {
   schemaJson.createdAt = { type: Date, default: Date.now }
   schemaJson.updatedAt = { type: Date, default: Date.now }
 
@@ -78,4 +82,6 @@ export interface EdjiModel extends Model<any> {
   updateIndex?: (id: ObjectId | string) => void
 }
 
-// module.exports = ModelCreator
+export interface EdjiDocument extends Document {
+  edjiSave: () => Promise<any>
+}

@@ -2,12 +2,12 @@
 const mongoose = require('mongoose')
 import { hashSync } from 'bcryptjs'
 import { pick } from 'underscore'
-import { Model, Document } from 'mongoose'
+import { Model, Document, Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 // project imports
 // const ModelCreator = require('./ModelCreator').default
-import ModelCreator from './ModelCreator'
+import ModelCreator, { EdjiDocument } from './ModelCreator'
 import { bad } from './badwords'
 
 import {
@@ -163,7 +163,7 @@ const schema = {
   institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
 }
 
-const UserModel: any = ModelCreator('User', schema, function(schema) {
+const UserModel: any = ModelCreator('User', schema, function(schema: Schema<UserDocument>) {
   // function(schema: Schema<UserDocument>) {
   schema.statics.findAndGenerateOAuthLogin = function({ type, id, singleUseToken, singleUseTokenExpiration }) {
     return this.findOneAndUpdate(
@@ -254,16 +254,17 @@ const UserModel: any = ModelCreator('User', schema, function(schema) {
 
   // add custom validator to make sure user has either oauth type or username/password
   schema.pre('validate', function() {
+    const doc = <UserDocument>this
     // make sure it has a password or an oauth type
-    let hasPassword = !!this.password
-    let hasEmail = !!this.email
-    let hasOauth = !!(this.oauth && this.oauth.length > 0)
+    let hasPassword = !!doc.password
+    let hasEmail = !!doc.email
+    let hasOauth = !!(doc.oauth && doc.oauth.length > 0)
     let isValid = (hasPassword && hasEmail) || hasOauth
 
     // ensure that institution_ids are unique
-    if (this.institution_ids && this.institution_ids.length) {
+    if (doc.institution_ids && doc.institution_ids.length) {
       let recordedIds: string[] = []
-      this.institution_ids = this.institution_ids.filter(id => {
+      doc.institution_ids = doc.institution_ids.filter(id => {
         if (recordedIds.includes(id.toString())) return
         recordedIds.push(id.toString())
         return id
@@ -272,7 +273,7 @@ const UserModel: any = ModelCreator('User', schema, function(schema) {
 
     if (!isValid) {
       // this is a mongoose method which provides the error to the mongoose error aggrigator
-      this.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
+      doc.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
     }
   })
 
@@ -280,19 +281,21 @@ const UserModel: any = ModelCreator('User', schema, function(schema) {
    * clean emails before validating
    */
   schema.pre('validate', function() {
-    if (!this.email) {
+    const doc = <UserDocument>this
+    if (!doc.email) {
       /**
        * clever requires us to be more flexible than other systems so we do by allowing users without emails to still sign up
        * this will be the case with students signing in through Clever Library
        */
-      const cleverObj = this.oauth && this.oauth.length > 0 && this.oauth.find(obj => obj.type === 'clever')
+      const cleverObj = doc.oauth && doc.oauth.length > 0 && doc.oauth.find(obj => obj.type === 'clever')
       if (cleverObj) {
-        if (cleverObj.email) this.email = cleverObj.email
+        if (cleverObj.email) doc.email = cleverObj.email
       } else {
-        return this.invalidate('email', 'Invalid email', this.email, 'required')
+        doc.invalidate('email', 'Invalid email', doc.email, 'required')
+        return
       }
     }
-    if (this.email) this.email = this.email.replace(/ /g, '')
+    if (doc.email) doc.email = doc.email.replace(/ /g, '')
   })
 
   /**
@@ -388,7 +391,13 @@ export interface iUser {
   type?: string
 }
 
-export interface UserDocument extends EdjiDocument, iUser {}
+export interface UserDocument extends EdjiDocument, iUser {
+  toPublic: () => Partial<iUser>
+  refresh: () => Promise<UserDocument>
+  setOneTimeToken: (property: string, expiration: number) => Promise<string>
+  validateOneTimeToken: (property: string, token: string) => void
+  preEdjiSave: () => Promise<void>
+}
 
 interface UserModel extends Model<UserDocument> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
@@ -407,9 +416,4 @@ export type OAuthType = 'google' | 'clever'
 
 interface OAuthProfile extends Partial<iUser> {
   id: string
-}
-
-// eventually to be moved to ModelCreator, when that is refactored to export syntax
-export interface EdjiDocument extends Document {
-  edjiSave: () => Promise<any>
 }
