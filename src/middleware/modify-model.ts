@@ -2,7 +2,6 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { update as updateIndex } from './../services/elasticsearch'
 import { EdjiModel } from '../models/ModelCreator'
 
 export const simpleUpdate = (model: EdjiModel, idParam: string, updateable?: string[]): RequestHandler => {
@@ -31,13 +30,7 @@ export const simpleUpdate = (model: EdjiModel, idParam: string, updateable?: str
         default:
           res.status(200)
       }
-      if (model.getIndexOptions) {
-        updateIndex({
-          ...model.getIndexOptions(),
-          id: _id,
-          body: { doc: update },
-        })
-      }
+      model.updateIndex(_id)
       next()
     } catch (err) {
       return next(err)

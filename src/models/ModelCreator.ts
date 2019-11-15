@@ -1,10 +1,18 @@
 // library imports
 import { Model } from 'mongoose'
 import { captureException } from '@sentry/node'
+import { ObjectId } from 'mongodb'
 
 // local imports
 import db from './../db'
 import { indexDocuments } from '../services/flak'
+
+const updateDocumentIndex = (collection, id: ObjectId | string) => {
+  if (id instanceof ObjectId) id = id.toHexString()
+  indexDocuments({ collection, documents: [id] }).catch(err => {
+    captureException(err)
+  })
+}
 
 //all models are created through this function
 module.exports = function(modelName, schemaJson, schemaDecorator) {
@@ -17,7 +25,7 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     toJSON: { virtuals: true }, // makes mongoose virtuals accessible to JSON responses
   })
 
-  Schema.methods.edjiSave = async function(options: EdjiSaveOptions = {}) {
+  Schema.methods.edjiSave = async function(options = {}) {
     this.preEdjiSave && (await this.preEdjiSave())
     this.updatedAt = Date.now()
     // mongoose does this stupid thing where it overwrites the last parameter as a callback
@@ -38,10 +46,8 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     const results = await this.save()
     if (this.getIndexOptions) {
       let { collection }: IndexOptions = this.getIndexOptions()
-      // this gets fired asynchronously, so that we don't wait for it, because we don't have good retry handling anyway
-      indexDocuments({ collection, documents: [this._id] }).catch(err => {
-        captureException(err)
-      })
+      // this gets fired asynchronously, so that we don't wait for it
+      updateDocumentIndex(collection, this._id)
     }
 
     return results
@@ -51,16 +57,21 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     schemaDecorator(Schema)
   }
 
+  Schema.statics.updateIndex = function(id: ObjectId) {
+    if (this.getIndexOptions) {
+      const { collection } = this.getIndexOptions()
+      updateDocumentIndex(collection, id)
+    }
+  }
+
   return db.model(modelName, Schema)
 }
 
-export interface EdjiSaveOptions {}
-
 export interface IndexOptions {
-  queueUrl: string
   collection: any // really a string with a type, but couldn't easily type this
 }
 
 export interface EdjiModel extends Model<any> {
-  getIndexOptions: () => { index: string; type: string }
+  getIndexOptions: () => IndexOptions
+  updateIndex?: (id: ObjectId | string) => void
 }
