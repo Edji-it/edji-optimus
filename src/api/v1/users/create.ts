@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 
 // project imports
 import User from '../../../models/User'
-import * as Referral from './../../../models/Referral'
+import Referral from './../../../models/Referral'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 import { cleanMongoValidationError } from './../../../error-handlers'
 

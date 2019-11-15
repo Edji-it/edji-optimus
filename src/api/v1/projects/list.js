@@ -1,7 +1,7 @@
 // library imports
 
 // project imports
-const Project = require('./../../../models/Project')
+const Project = require('./../../../models/Project').default
 const helpers = require('./_list')
 const _agg = require('./../../../aggregations')
 

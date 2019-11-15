@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
-import * as ReadingVersion from './../../../models/ReadingVersion'
-import * as Referral from './../../../models/Referral'
+import ReadingVersion from './../../../models/ReadingVersion'
+import Referral from './../../../models/Referral'
 
 // if the original owner is not the user, we need to create a new version_id to keep track of this user's version separately
 // this means that, if we don't receive an owner_id with the call, we will attribute this to a new version

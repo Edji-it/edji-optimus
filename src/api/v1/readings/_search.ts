@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb'
 import { search } from '../../../services/elasticsearch'
 
 // project imports
-import * as Reading from './../../../models/Reading'
+import Reading from './../../../models/Reading'
 
 export interface ReadingQuery {
   ids?: string[]

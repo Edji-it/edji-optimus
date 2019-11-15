@@ -5,8 +5,8 @@ import { stub, spy, SinonStub, assert } from 'sinon'
 import { ObjectId } from 'mongodb'
 
 import User from '../../../models/User'
-import * as ReadingVersion from './../../../models/ReadingVersion'
-import * as Referral from './../../../models/Referral'
+import ReadingVersion from './../../../models/ReadingVersion'
+import Referral from './../../../models/Referral'
 import { assignVersionId, recordUserReferral } from './_create'
 
 describe('readings _create', () => {

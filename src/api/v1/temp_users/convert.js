@@ -2,7 +2,7 @@
 const mongoose = require('mongoose')
 
 // project imports
-const Project = require('./../../../models/Project')
+const Project = require('./../../../models/Project').default
 
 // updates all of the temp user's information to be owned by the new user (the req.user), and removes the temp user
 module.exports = function(req, res, next) {

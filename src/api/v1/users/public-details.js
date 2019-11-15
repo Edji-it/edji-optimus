@@ -3,7 +3,7 @@ let mongoose = require('mongoose')
 
 // project imports
 const User = require('../../../models/User').default
-const TempUser = require('../../../models/TempUser')
+const TempUser = require('../../../models/TempUser').default
 const helpers = require('./_public-details')
 
 export default function(req, res, next) {

@@ -2,9 +2,9 @@
 import { Schema } from 'mongoose'
 
 // project imports
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 
-export const UserState = ModelCreator(
+export const UserState: any = ModelCreator(
   'UserState',
   {
     link: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
@@ -15,5 +15,3 @@ export const UserState = ModelCreator(
     schema.index({ link: 1, key: 1 }, { unique: true })
   },
 )
-
-export const setState = async () => {}

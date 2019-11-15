@@ -1,6 +1,6 @@
 // project imports
 const User = require('../../../models/User').default
-const Project = require('./../../../models/Project')
+const Project = require('./../../../models/Project').default
 const pipolog = require('./../../../pipolog').pipoLog
 
 const populationProperties = {

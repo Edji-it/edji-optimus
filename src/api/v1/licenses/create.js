@@ -1,8 +1,8 @@
 // library imports
 
 // project imports
-const License = require('./../../../models/License')
-const Instituion = require('./../../../models/Institution')
+const License = require('./../../../models/License').default
+const Instituion = require('./../../../models/Institution').default
 const User = require('../../../models/User').default
 
 module.exports = function(req, res, next) {
@@ -13,7 +13,7 @@ module.exports = function(req, res, next) {
   }
 
   // create the license from the properties and model and then validate it
-  let license = License(new_license)
+  let license = new License(new_license)
   let error = license.validateSync()
 
   // if any of the properties that come in are missing or invalid

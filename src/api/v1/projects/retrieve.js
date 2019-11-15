@@ -2,7 +2,7 @@
 const mongoose = require('mongoose')
 
 // project imports
-const Project = require('./../../../models/Project')
+const Project = require('./../../../models/Project').default
 const helpers = require('./_retrieve')
 const Sentry = require('@sentry/node')
 

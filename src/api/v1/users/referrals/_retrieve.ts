@@ -2,7 +2,7 @@
 import { generate } from 'randomstring'
 
 // project imports
-import * as Referral from './../../../../models/Referral'
+import Referral from './../../../../models/Referral'
 
 /**
  * Generates and saves a unique referral code, meant to be called recursively

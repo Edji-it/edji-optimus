@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
-let ModelCreator = require('./ModelCreator')
-let Question = require('./Question')
+const ModelCreator = require('./ModelCreator').default
+const Question = require('./Question').default
 
-module.exports = ModelCreator(
+const ReadingModel: any = ModelCreator(
   'Reading',
   {
     html: { type: String, required: true },
@@ -39,3 +39,5 @@ module.exports = ModelCreator(
     }
   },
 )
+
+export default ReadingModel

@@ -3,7 +3,7 @@ import { del } from 'request-promise-native'
 import { captureException } from '@sentry/node'
 
 // project imports
-import * as Project from '../../../models/Project'
+import Project from '../../../models/Project'
 import Comment from '../../../models/Comment'
 import Feedback from '../../../models/Feedback'
 

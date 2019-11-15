@@ -1,7 +1,7 @@
 // library imports
 
 // project imports
-const MessageList = require('./../../../../models/MessageList')
+const MessageList = require('./../../../../models/MessageList').default
 
 const createMessageList = async function(obj) {
   if (!obj) {

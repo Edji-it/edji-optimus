@@ -6,7 +6,8 @@ import { Model, Document } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 // project imports
-const ModelCreator = require('./ModelCreator')
+// const ModelCreator = require('./ModelCreator').default
+import ModelCreator from './ModelCreator'
 import { bad } from './badwords'
 
 import {
@@ -162,9 +163,9 @@ const schema = {
   institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
 }
 
-const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
+const UserModel: any = ModelCreator('User', schema, function(schema) {
   // function(schema: Schema<UserDocument>) {
-  schema.static('findAndGenerateOAuthLogin', function({ type, id, singleUseToken, singleUseTokenExpiration }) {
+  schema.statics.findAndGenerateOAuthLogin = function({ type, id, singleUseToken, singleUseTokenExpiration }) {
     return this.findOneAndUpdate(
       {
         'oauth.id': id,
@@ -182,9 +183,9 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
         upsert: false,
       },
     ).exec()
-  })
+  }
 
-  schema.static('setPendingOAuth', function({ email, oauthObj: pending_oauth }) {
+  schema.statics.setPendingOAuth = function({ email, oauthObj: pending_oauth }) {
     return this.updateOne(
       { email },
       {
@@ -193,7 +194,7 @@ const UserModel: UserModel = ModelCreator('User', schema, function(schema) {
         },
       },
     ).exec()
-  })
+  }
 
   // add custom method which returns only the properties which we want to be viewable by the client
   schema.methods.toPublic = function() {

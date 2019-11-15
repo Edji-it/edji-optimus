@@ -3,7 +3,7 @@ const Q = require('q')
 
 // project imports
 const helpers = require('./_list')
-const ReadingVersion = require('./../../../models/ReadingVersion')
+const ReadingVersion = require('./../../../models/ReadingVersion').default
 
 module.exports = function(req, res, next) {
   const user = req.user

@@ -15,7 +15,7 @@ const updateDocumentIndex = (collection, id: ObjectId | string) => {
 }
 
 //all models are created through this function
-module.exports = function(modelName, schemaJson, schemaDecorator) {
+const ModelCreator = function(modelName, schemaJson, schemaDecorator) {
   schemaJson.createdAt = { type: Date, default: Date.now }
   schemaJson.updatedAt = { type: Date, default: Date.now }
 
@@ -67,6 +67,8 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
   return db.model(modelName, Schema)
 }
 
+export default ModelCreator
+
 export interface IndexOptions {
   collection: any // really a string with a type, but couldn't easily type this
 }
@@ -75,3 +77,5 @@ export interface EdjiModel extends Model<any> {
   getIndexOptions: () => IndexOptions
   updateIndex?: (id: ObjectId | string) => void
 }
+
+// module.exports = ModelCreator

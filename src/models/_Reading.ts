@@ -3,9 +3,9 @@ import { RequestHandler } from 'express'
 import { pick } from 'underscore'
 
 // project imports
-import * as Reading from './Reading'
-import * as Project from './Project'
-import * as ReadingVersion from './ReadingVersion'
+import Reading from './Reading'
+import Project from './Project'
+import ReadingVersion from './ReadingVersion'
 import { deleteOne } from './../services/elasticsearch'
 
 export const deleteOwnerReading = (): RequestHandler => {

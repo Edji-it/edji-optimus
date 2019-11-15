@@ -5,9 +5,9 @@ import { RequestHandler, Request, Response, NextFunction } from 'express'
 
 // project imports
 import * as elastic from './../services/elasticsearch'
-import * as Reading from './Reading'
-import * as Project from './Project'
-import * as ReadingVersion from './ReadingVersion'
+import Reading from './Reading'
+import Project from './Project'
+import ReadingVersion from './ReadingVersion'
 import { deleteOwnerReading } from './_Reading'
 
 // const mockHandler = (): Array<> => {

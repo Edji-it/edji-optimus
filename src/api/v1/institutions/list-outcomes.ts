@@ -3,8 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 var mongoose = require('mongoose')
 
 // project imports
-import Standard, { iStandard } from '../../../models/Standard'
-import Institution = require('../../../models/Institution')
+import Institution from '../../../models/Institution'
 
 export async function GetOutcomes(req: Request, res: Response, next: NextFunction) {
   let institution_id = req.params.institution_id

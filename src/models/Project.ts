@@ -1,22 +1,22 @@
 /**
  * Project Model
  */
-var mongoose = require('mongoose')
-var Tags = require('./Tags')
+const mongoose = require('mongoose')
+const Tags = require('./Tags').default
 
 // project imports
-const SessionCode = require('./SessionCode')
-const Comment = require('./Comment').default
-const Feedback = require('./Feedback').default
-const ModelCreator = require('./ModelCreator')
+const SessionCode = require('./SessionCode').default
+import Comment from './Comment'
+import Feedback from './Feedback'
+const ModelCreator = require('./ModelCreator').default
 
 /** mongoose hook for validation against acceptable values for `types` */
-var typesEnum = {
+const typesEnum = {
   values: ['emoji', 'text', 'audio', 'reply'],
   message: 'enum validator failed for path `{PATH}` with value `{VALUE}`',
 }
 
-var Model = ModelCreator(
+const ProjectModel: any = ModelCreator(
   'Project',
   {
     teacher_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'User' },
@@ -76,4 +76,4 @@ var Model = ModelCreator(
   },
 )
 
-module.exports = Model
+export default ProjectModel
