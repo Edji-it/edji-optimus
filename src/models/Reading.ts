@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose'
+import { ObjectId } from 'mongodb'
 
 import { EdjiDocument, EdjiModel } from './ModelCreator'
 
@@ -26,7 +27,7 @@ const ReadingModel = <ReadingModel>ModelCreator(
     owner_bookmarked: { type: Boolean },
     default_instructions: String,
   },
-  function(schema) {
+  function(schema: Schema<ReadingDocument>) {
     schema.methods.getIndexOptions = function() {
       return {
         collection: 'readings',
@@ -40,7 +41,25 @@ const ReadingModel = <ReadingModel>ModelCreator(
   },
 )
 
-interface iReading {}
+interface iReading {
+  html: string
+  words: any[]
+  title: string
+  parent_id: ObjectId
+  owner_id: ObjectId
+  public: boolean
+  questions: any[]
+  promoter_ids: string[]
+  source: string
+  cover_img: string
+  tags: string[]
+  draft: boolean
+  grade_levels: number[]
+  subjects: string[]
+  version_id: ObjectId
+  owner_bookmarked: boolean
+  default_instructions: string
+}
 
 interface ReadingDocument extends EdjiDocument, iReading {}
 

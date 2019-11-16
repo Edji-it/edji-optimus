@@ -5,18 +5,18 @@ import { assignVersionId, recordUserReferral } from './_create'
 import { captureException } from '@sentry/node'
 
 const CreateReadingHandler: RequestHandler = async function(req, res, next) {
-  let user: any = req.user
-  let reading: any = req.body.reading
+  const user: any = req.user
+  const doc: any = req.body.reading
 
-  if (!reading) {
+  if (!doc) {
     return res.status(400).send({ validationErrors: { reading: 'required' } })
   }
 
   try {
-    reading = new Reading(reading) // reassign reading as the mongoose model
+    const reading = new Reading(doc) // reassign reading as the mongoose model
     await assignVersionId(reading, user._id)
     await reading.validate()
-    reading = await reading.edjiSave()
+    await reading.edjiSave()
     try {
       await recordUserReferral(user)
     } catch (err) {

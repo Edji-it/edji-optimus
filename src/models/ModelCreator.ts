@@ -96,4 +96,5 @@ export interface EdjiModel<T extends EdjiDocument> extends Model<T> {
 
 export interface EdjiDocument extends Document {
   edjiSave: () => Promise<any>
+  getIndexOptions: () => { collection: string }
 }
