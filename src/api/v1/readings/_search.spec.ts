@@ -12,10 +12,7 @@ import Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
   const queriableStringProperties = ['html', 'title', 'parent_id', 'owner_id', 'source', 'version_id', 'subjects']
-  const queriableBooleanProperties = [
-    'owner_bookmarked',
-    // 'public'
-  ]
+  const queriableBooleanProperties = ['owner_bookmarked']
   describe('validateSearchQuery', () => {
     it('should set proper defaults', () => {
       const { error, value: query } = validateSearchQuery({})
@@ -84,7 +81,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -125,7 +122,7 @@ describe('reading search helpers', () => {
               filter: [
                 {
                   match: {
-                    public: true,
+                    reading_type: 'public',
                   },
                 },
               ],
@@ -172,7 +169,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
               {
@@ -223,7 +220,7 @@ describe('reading search helpers', () => {
               filter: [
                 {
                   match: {
-                    public: true,
+                    reading_type: 'public',
                   },
                 },
                 {
@@ -267,7 +264,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -311,7 +308,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
               {
@@ -357,7 +354,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
               {
@@ -400,7 +397,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -443,7 +440,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -525,7 +522,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -565,7 +562,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -613,7 +610,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -667,7 +664,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],

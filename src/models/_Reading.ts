@@ -60,7 +60,7 @@ export const READING_CAN_UPDATE = [
   'html',
   'words',
   'title',
-  'public',
+  'reading_type',
   'source',
   'cover_img',
   'tags',

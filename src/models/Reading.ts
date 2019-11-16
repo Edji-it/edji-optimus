@@ -14,7 +14,12 @@ const ReadingModel = <ReadingModel>ModelCreator(
     title: { type: String, required: true },
     parent_id: { type: Schema.Types.ObjectId, ref: 'Reading' },
     owner_id: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
-    public: Boolean,
+    reading_type: {
+      type: String,
+      enum: { values: ['public', 'private', 'academy'], message: 'invalid reading_type' },
+      required: true,
+      default: 'private',
+    },
     questions: [Question.schema],
     promoter_ids: [String],
     source: String,
@@ -47,7 +52,7 @@ interface iReading {
   title: string
   parent_id: ObjectId
   owner_id: ObjectId
-  public: boolean
+  reading_type: 'public' | 'private' | 'academy'
   questions: any[]
   promoter_ids: string[]
   source: string

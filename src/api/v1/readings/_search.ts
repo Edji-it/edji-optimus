@@ -179,7 +179,7 @@ export async function searchByIds(
     $project: {
       title: true,
       owner_id: true,
-      public: true,
+      reading_type: true,
       'owner._id': true,
       'owner.fullname': true,
       'owner.username': true,
@@ -239,7 +239,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     case ScopeEnum.PUBLIC:
       body.query.bool.filter.push({
         match: {
-          public: true,
+          reading_type: 'public',
         },
       })
       body.query.bool.must_not.push({

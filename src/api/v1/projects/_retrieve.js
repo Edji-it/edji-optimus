@@ -20,7 +20,7 @@ const populationProperties = {
           words: { $arrayElemAt: ['$reading.words', 0] },
           title: { $arrayElemAt: ['$reading.title', 0] },
           owner_id: { $arrayElemAt: ['$reading.owner_id', 0] },
-          public: { $arrayElemAt: ['$reading.public', 0] },
+          reading_type: { $arrayElemAt: ['$reading.reading_type', 0] },
           promoter_ids: { $arrayElemAt: ['$reading.promoter_ids', 0] },
           source: { $arrayElemAt: ['$reading.source', 0] },
           cover_img: { $arrayElemAt: ['$reading.cover_img', 0] },

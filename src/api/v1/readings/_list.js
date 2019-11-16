@@ -90,7 +90,7 @@ const baseAggregation = function(userId) {
         _id: '$reading._id',
         title: '$reading.title',
         owner_id: '$reading.owner_id',
-        public: '$reading.public',
+        reading_type: '$reading.reading_type',
         source: '$reading.source',
         subjects: '$reading.subjects',
         grade_levels: '$reading.grade_levels',
