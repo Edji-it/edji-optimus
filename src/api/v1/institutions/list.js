@@ -2,7 +2,7 @@
 const Q = require('q')
 
 // project imports
-const Institution = require('./../../../models/Institution')
+const Institution = require('./../../../models/Institution').default
 
 module.exports = function(req, res, next) {
   Q(Institution.find().exec())

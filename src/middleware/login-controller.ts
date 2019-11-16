@@ -5,7 +5,7 @@ import { compare } from 'bcryptjs'
 import { captureException } from '@sentry/node'
 
 // project impors
-import * as TempUser from './../models/TempUser'
+import TempUser from './../models/TempUser'
 import User, { iUser } from '../models/User'
 import { addUserToSentry } from './sentry'
 

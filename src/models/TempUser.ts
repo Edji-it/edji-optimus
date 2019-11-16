@@ -1,48 +1,47 @@
 /**
  * Temporary User Model
  */
-var ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 
 //the same code exists in the User object
-var nameRe = /(?:([^a-zA-Z0-9\s]))/g
-var validateName = function(name) {
+const nameRe = /(?:([^a-zA-Z0-9\s]))/g
+const listOfWordsItCantContainAtAll = [
+  'fuck',
+  'cunt',
+  'nigger',
+  'bitch',
+  'bastard',
+  'bugger',
+  'bloody',
+  'penis',
+  'vagina',
+  'blowjob',
+  'pussy',
+  'titties',
+  'titty',
+  'asshole',
+  'nipple',
+  'damn',
+  'dammit',
+  'twot',
+  'faggot',
+  'kike',
+  'hymie',
+  'canabis',
+  'cocaine',
+  'heroin',
+  'marajuana',
+  'opium',
+  'xanax',
+]
+const validateName = function(name) {
   // needs to return true for good names
-  let listOfWordsItCantContainAtAll = [
-    'fuck',
-    'cunt',
-    'nigger',
-    'bitch',
-    'bastard',
-    'bugger',
-    'bloody',
-    'penis',
-    'vagina',
-    'blowjob',
-    'pussy',
-    'titties',
-    'titty',
-    'asshole',
-    'nipple',
-    'damn',
-    'dammit',
-    'twot',
-    'faggot',
-    'kike',
-    'hymie',
-    'canabis',
-    'cocaine',
-    'heroin',
-    'marajuana',
-    'opium',
-    'xanax',
-  ]
-
   return !listOfWordsItCantContainAtAll.find(word => {
     return name.indexOf(word) > -1
   })
 }
 
-var model = ModelCreator(
+const TempUserModel = ModelCreator(
   'TempUser',
   {
     fullname: { type: String, required: true, validate: [validateName, 'Invalid username'] },
@@ -65,4 +64,4 @@ var model = ModelCreator(
   },
 )
 
-module.exports = model
+export default TempUserModel

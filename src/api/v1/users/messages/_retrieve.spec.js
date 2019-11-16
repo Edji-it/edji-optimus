@@ -6,7 +6,7 @@ const mongoose = require('mongoose')
 
 // local imports
 const helpers = require('./_retrieve')
-const MessageList = require('./../../../../models/MessageList')
+const MessageList = require('./../../../../models/MessageList').default
 
 describe('_retrieve messages', () => {
   // it does not make sense to have this method attached directly to the _retrieve route, but I don't know how to test it otherwise

@@ -1,7 +1,7 @@
 /**
  * License Model
  */
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 const { ObjectId } = require('mongodb')
 const mongoose = require('mongoose')
 
@@ -40,7 +40,7 @@ const invitationSchema = new mongoose.Schema({
   role: { type: String, enum: licenseRoleEnum }, // the role for that particular license
 })
 
-const Model = ModelCreator('License', {
+const LicenseModel = ModelCreator('License', {
   license_type: { type: String, required: true, enum: licenseTypeEnum }, // enum of license types, indicates what this license gives access to
   owning_institution: { type: mongoose.Schema.ObjectId, required: true, ref: 'Institution' },
   max_users: { type: Number, required: true, default: 0 }, // number users are intended to have access through this license
@@ -54,4 +54,4 @@ const Model = ModelCreator('License', {
   ],
 })
 
-module.exports = Model
+export default LicenseModel

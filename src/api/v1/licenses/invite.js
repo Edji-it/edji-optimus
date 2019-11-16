@@ -1,8 +1,8 @@
 // library imports
 
 // project imports
-const License = require('./../../../models/License')
-const Institution = require('./../../../models/Institution')
+const License = require('./../../../models/License').default
+const Institution = require('./../../../models/Institution').default
 const emailService = require('./../../../services/email').EmailService
 
 // REQUIRED: email address and name of the person the user is sharing with for the email body

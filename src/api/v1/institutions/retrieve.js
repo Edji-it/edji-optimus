@@ -2,7 +2,7 @@
 var mongoose = require('mongoose')
 
 // project imports
-const Institution = require('./../../../models/Institution')
+const Institution = require('./../../../models/Institution').default
 
 module.exports = function(req, res, next) {
   // the institution_id is a param that will be used to find the institution

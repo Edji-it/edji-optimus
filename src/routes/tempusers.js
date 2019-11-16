@@ -2,7 +2,7 @@
 const express = require('express')
 
 // project imports
-const TempUser = require('./../models/TempUser')
+const TempUser = require('../models/TempUser').default
 const generateLoginObjectForUser = require('./../middleware/login-controller').generateLoginObjectForUser
 const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError
 

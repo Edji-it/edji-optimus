@@ -6,7 +6,7 @@ import { ObjectId } from 'mongodb'
 require('sinon-mongoose')
 
 // project imports
-import * as Referral from './../../../../models/Referral'
+import Referral from './../../../../models/Referral'
 // const helpers = require('./_retrieve')
 import { createUniqueReferral } from './_retrieve'
 

@@ -27,15 +27,6 @@ export const formatSearchResults = ({ hits, aggregations }: SearchResponse<any>)
   return { hits, buckets, total: hits.total }
 }
 
-export const update = async (params: UpdateDocumentParams) => {
-  try {
-    const results = await client.update(params)
-    return results
-  } catch (err) {
-    captureException(err)
-  }
-}
-
 interface EdjiSearchResponse {
   hits: any
   buckets: {

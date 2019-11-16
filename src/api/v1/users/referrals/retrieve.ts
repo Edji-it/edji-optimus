@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 
 // project imports
 import { createUniqueReferral } from './_retrieve'
-import * as Referral from './../../../../models/Referral'
+import Referral from './../../../../models/Referral'
 
 export async function RetrieveRequestHandler(req: Request, res: Response, next: NextFunction) {
   let user = req.user

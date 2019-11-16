@@ -8,7 +8,7 @@ require('sinon-mongoose')
 // project imports
 import { validateSearchQuery, constructSearch, searchByIds } from './_search'
 import * as elastic from '../../../services/elasticsearch'
-import * as Reading from './../../../models/Reading'
+import Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
   const queriableStringProperties = ['html', 'title', 'parent_id', 'owner_id', 'source', 'version_id', 'subjects']

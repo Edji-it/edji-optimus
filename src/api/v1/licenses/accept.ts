@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-const License = require('./../../../models/License')
+import License from './../../../models/License'
 
 const AcceptHandler: RequestHandler = async (req, res, next) => {
   try {

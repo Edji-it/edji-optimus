@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import { pick } from 'underscore'
 
 // project imports
-import * as Project from '../../../models/Project'
+import Project from '../../../models/Project'
 import { updatePropertyArray } from './_update'
 import { ObjectId } from 'bson'
 

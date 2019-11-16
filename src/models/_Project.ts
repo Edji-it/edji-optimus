@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import * as Project from './Project'
+import Project from './Project'
 
 export const deleteOwnerProject = (): RequestHandler => {
   return async (req, res, next) => {

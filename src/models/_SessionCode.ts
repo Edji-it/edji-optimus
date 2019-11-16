@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import * as SessionCode from './SessionCode'
+import SessionCode from './SessionCode'
 
 export const activateCustomCode = (): RequestHandler => {
   return async (req, res, next) => {

@@ -1,8 +1,7 @@
 import { RequestHandler } from 'express'
 
-import * as Reading from './../../../models/Reading'
+import Reading from './../../../models/Reading'
 import { assignVersionId, recordUserReferral } from './_create'
-import { cleanMongoValidationError } from './../../../error-handlers/mongo-validation'
 import { captureException } from '@sentry/node'
 
 const CreateReadingHandler: RequestHandler = async function(req, res, next) {

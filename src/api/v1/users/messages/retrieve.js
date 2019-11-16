@@ -1,5 +1,5 @@
 // project imports
-const MessageList = require('./../../../../models/MessageList')
+const MessageList = require('./../../../../models/MessageList').default
 const helpers = require('./_retrieve')
 const User = require('./../../../../models/User').default
 

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
-let ModelCreator = require('./ModelCreator')
-let Question = require('./Question')
+const ModelCreator = require('./ModelCreator').default
+const Question = require('./Question').default
 
-module.exports = ModelCreator(
+const ReadingModel: any = ModelCreator(
   'Reading',
   {
     html: { type: String, required: true },
@@ -26,16 +26,15 @@ module.exports = ModelCreator(
   function(schema) {
     schema.methods.getIndexOptions = function() {
       return {
-        queueUrl: process.env.INDEX_READING_QUEUE_URL,
         collection: 'readings',
       }
     }
-
     schema.statics.getIndexOptions = function() {
       return {
-        index: 'readings',
-        type: 'default',
+        collection: 'readings',
       }
     }
   },
 )
+
+export default ReadingModel

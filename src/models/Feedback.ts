@@ -4,9 +4,9 @@
  */
 import { Document, Model, Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 
-const Feedback: Model<iFeedback> = ModelCreator('Feedback', {
+const Feedback: any = ModelCreator('Feedback', {
   owner_id: { type: Schema.Types.ObjectId },
   outcome_id: { type: Schema.Types.ObjectId },
   feedback_to: { type: Schema.Types.ObjectId, ref: 'Comment' },

@@ -1,10 +1,10 @@
 /**
  * Institution Model
  */
-var ModelCreator = require('./ModelCreator')
-var mongoose = require('mongoose')
+const ModelCreator = require('./ModelCreator').default
+const mongoose = require('mongoose')
 
-var Model = ModelCreator('Institution', {
+const InstitutionModel = ModelCreator('Institution', {
   name: { type: String, required: true }, // indicating the institution's full name
   abbreviation: { type: String }, // indicating the institution's preferred abbreviation
   // logo: { type: String }, // perhaps we could have a logo url to display at some point - not now
@@ -25,4 +25,4 @@ var Model = ModelCreator('Institution', {
   ],
 })
 
-module.exports = Model
+export default InstitutionModel

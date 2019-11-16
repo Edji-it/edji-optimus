@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose'
 import { Schema } from 'mongoose'
 
 // Project Imports
-const ModelCreator = require('./ModelCreator')
+const ModelCreator = require('./ModelCreator').default
 
 // The Main Schema
 const Standard = ModelCreator('Standard', {

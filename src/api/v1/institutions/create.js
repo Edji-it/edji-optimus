@@ -1,5 +1,5 @@
 // project imports
-const Instituion = require('./../../../models/Institution')
+const Instituion = require('./../../../models/Institution').default
 
 module.exports = async function(req, res, next) {
   const new_institution = req.body.institution

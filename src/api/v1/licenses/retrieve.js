@@ -1,7 +1,7 @@
 // library imports
 
 // project imports
-const License = require('./../../../models/License')
+const License = require('./../../../models/License').default
 
 module.exports = function(req, res, next) {
   let user = req.user

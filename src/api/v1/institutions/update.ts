@@ -4,7 +4,7 @@ let mongoose = require('mongoose')
 import { pick } from 'underscore'
 
 // project imports
-import Institution = require('../../../models/Institution')
+import Institution from '../../../models/Institution'
 import { cleanMongoValidationError } from '../../../error-handlers/mongo-validation'
 
 export async function UpdateInstitution(req: Request, res: Response, next: NextFunction) {

@@ -5,15 +5,14 @@ const express = require('express')
 const mongoose = require('mongoose')
 const Q = require('q')
 const Sentry = require('@sentry/node')
-const joi = require('joi')
 
-let Reading = require('./../models/Reading')
-let Project = require('./../models/Project')
-let User = require('../models/User').default
-let ReadingVersion = require('./../models/ReadingVersion')
-let MountModelToRouter = require('./MountModelToRouter')
+const Reading = require('./../models/Reading').default
+const Project = require('./../models/Project').default
+const User = require('../models/User').default
+const ReadingVersion = require('./../models/ReadingVersion').default
+const MountModelToRouter = require('./MountModelToRouter')
 const authRequired = require('./../middleware/auth-required')
-const Referral = require('./../models/Referral')
+const Referral = require('./../models/Referral').default
 
 let router = express.Router()
 

@@ -1,5 +1,5 @@
 // library imports
-import { Model } from 'mongoose'
+import { Model, Document, Schema, SchemaDefinition } from 'mongoose'
 import { captureException } from '@sentry/node'
 import { ObjectId } from 'mongodb'
 
@@ -9,13 +9,19 @@ import { indexDocuments } from '../services/flak'
 
 const updateDocumentIndex = (collection, id: ObjectId | string) => {
   if (id instanceof ObjectId) id = id.toHexString()
-  indexDocuments({ collection, documents: [id] }).catch(err => {
+  return indexDocuments({ collection, documents: [id] }).catch(err => {
+    console.error(err)
     captureException(err)
+    return Promise.resolve()
   })
 }
 
 //all models are created through this function
-module.exports = function(modelName, schemaJson, schemaDecorator) {
+const ModelCreator = function(
+  modelName: string,
+  schemaJson: SchemaDefinition,
+  schemaDecorator: (schema: Schema) => void,
+) {
   schemaJson.createdAt = { type: Date, default: Date.now }
   schemaJson.updatedAt = { type: Date, default: Date.now }
 
@@ -43,12 +49,14 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
     let error = this.validateSync()
     if (error) throw error
 
-    const results = await this.save()
+    const promises = [this.save()]
     if (this.getIndexOptions) {
       let { collection }: IndexOptions = this.getIndexOptions()
       // this gets fired asynchronously, so that we don't wait for it
-      updateDocumentIndex(collection, this._id)
+      promises.push(updateDocumentIndex(collection, this._id))
     }
+
+    const [results] = await Promise.all(promises)
 
     return results
   }
@@ -60,12 +68,14 @@ module.exports = function(modelName, schemaJson, schemaDecorator) {
   Schema.statics.updateIndex = function(id: ObjectId) {
     if (this.getIndexOptions) {
       const { collection } = this.getIndexOptions()
-      updateDocumentIndex(collection, id)
+      return updateDocumentIndex(collection, id)
     }
   }
 
   return db.model(modelName, Schema)
 }
+
+export default ModelCreator
 
 export interface IndexOptions {
   collection: any // really a string with a type, but couldn't easily type this
@@ -73,5 +83,9 @@ export interface IndexOptions {
 
 export interface EdjiModel extends Model<any> {
   getIndexOptions: () => IndexOptions
-  updateIndex?: (id: ObjectId | string) => void
+  updateIndex?: (id: ObjectId | string) => Promise<void>
+}
+
+export interface EdjiDocument extends Document {
+  edjiSave: () => Promise<any>
 }
