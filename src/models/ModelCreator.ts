@@ -16,6 +16,14 @@ const updateDocumentIndex = (collection, id: ObjectId | string) => {
   })
 }
 
+export interface ModelCreator {
+  <T extends EdjiDocument>(
+    modelName: string,
+    schemaJson: SchemaDefinition,
+    schemaDecorator?: (schema: Schema) => void,
+  ): EdjiModel<T>
+}
+
 //all models are created through this function
 const ModelCreator = function(
   modelName: string,
@@ -81,7 +89,7 @@ export interface IndexOptions {
   collection: any // really a string with a type, but couldn't easily type this
 }
 
-export interface EdjiModel extends Model<any> {
+export interface EdjiModel<T extends EdjiDocument> extends Model<T> {
   getIndexOptions: () => IndexOptions
   updateIndex?: (id: ObjectId | string) => Promise<void>
 }
