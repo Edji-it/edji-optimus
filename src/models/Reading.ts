@@ -43,6 +43,10 @@ const ReadingModel = <ReadingModel>ModelCreator(
         collection: 'readings',
       }
     }
+    /** @deprecated 11/16/2019 in favor of reading_type */
+    schema.virtual('public').get(function() {
+      return this.reading_type === 'public'
+    })
   },
 )
 
