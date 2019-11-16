@@ -24,6 +24,11 @@ const ReadingModel: any = ModelCreator(
     default_instructions: String,
   },
   function(schema) {
+    schema.methods.getIndexOptions = function() {
+      return {
+        collection: 'readings',
+      }
+    }
     schema.statics.getIndexOptions = function() {
       return {
         collection: 'readings',

@@ -2,7 +2,6 @@ import { RequestHandler } from 'express'
 
 import Reading from './../../../models/Reading'
 import { assignVersionId, recordUserReferral } from './_create'
-import { cleanMongoValidationError } from './../../../error-handlers/mongo-validation'
 import { captureException } from '@sentry/node'
 
 const CreateReadingHandler: RequestHandler = async function(req, res, next) {
@@ -16,7 +15,6 @@ const CreateReadingHandler: RequestHandler = async function(req, res, next) {
   try {
     reading = new Reading(reading) // reassign reading as the mongoose model
     await assignVersionId(reading, user._id)
-    console.log('saving reading')
     await reading.validate()
     reading = await reading.edjiSave()
     try {

@@ -9,8 +9,10 @@ import { indexDocuments } from '../services/flak'
 
 const updateDocumentIndex = (collection, id: ObjectId | string) => {
   if (id instanceof ObjectId) id = id.toHexString()
-  indexDocuments({ collection, documents: [id] }).catch(err => {
+  return indexDocuments({ collection, documents: [id] }).catch(err => {
+    console.error(err)
     captureException(err)
+    return Promise.resolve()
   })
 }
 
@@ -47,12 +49,14 @@ const ModelCreator = function(
     let error = this.validateSync()
     if (error) throw error
 
-    const results = await this.save()
+    const promises = [this.save()]
     if (this.getIndexOptions) {
       let { collection }: IndexOptions = this.getIndexOptions()
       // this gets fired asynchronously, so that we don't wait for it
-      updateDocumentIndex(collection, this._id)
+      promises.push(updateDocumentIndex(collection, this._id))
     }
+
+    const [results] = await Promise.all(promises)
 
     return results
   }
@@ -64,7 +68,7 @@ const ModelCreator = function(
   Schema.statics.updateIndex = function(id: ObjectId) {
     if (this.getIndexOptions) {
       const { collection } = this.getIndexOptions()
-      updateDocumentIndex(collection, id)
+      return updateDocumentIndex(collection, id)
     }
   }
 
@@ -79,7 +83,7 @@ export interface IndexOptions {
 
 export interface EdjiModel extends Model<any> {
   getIndexOptions: () => IndexOptions
-  updateIndex?: (id: ObjectId | string) => void
+  updateIndex?: (id: ObjectId | string) => Promise<void>
 }
 
 export interface EdjiDocument extends Document {
