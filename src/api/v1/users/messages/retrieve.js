@@ -22,11 +22,11 @@ module.exports = function(req, res, next) {
         return res.status(200).send({ messages: [] })
       })
       .catch(err => {
-        next(err)
+        return next(err)
       })
   } else {
     MessageList.findById(user.message_list_id)
-      .exec() // call for just the json object - not the mongoose wrapped object
+      .exec()
       .then(messageList => {
         // this would be bad - nothing should make this happen... if it is happening, there's a flaw in the system that needs fixed
         if (!messageList) {
@@ -37,14 +37,10 @@ module.exports = function(req, res, next) {
           messageList.messages.push({ key: 'user_refresh_required', added_at_time: Date.now() })
         }
 
-        return User.updateOne({ _id: user._id }, { $set: { last_refresh_time: Date.now() } })
-          .exec()
-          .then(update => {
-            return res.status(200).send({ messages: messageList.messages })
-          })
+        return res.status(200).send({ messages: messageList.messages })
       })
       .catch(err => {
-        next(err)
+        return next(err)
       })
   }
 }

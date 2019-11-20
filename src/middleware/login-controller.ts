@@ -7,7 +7,7 @@ import { captureException } from '@sentry/node'
 // project impors
 import TempUser from './../models/TempUser'
 import User, { iUser } from '../models/User'
-import { addUserToSentry } from './sentry'
+import { addUserToScope } from './sentry'
 
 const passwordSecret = process.env.OPTIMUS_PW_SECRET
 
@@ -76,7 +76,7 @@ export const middleware: RequestHandler = async (req, res, next) => {
   try {
     const user = await decodeTokenToUser(req.headers.authorization)
     req.user = req.context.user = user
-    await addUserToSentry(user)
+    await addUserToScope(user)
     next()
   } catch (err) {
     return next(err)
@@ -94,7 +94,7 @@ export const addUserToRequest: (projection?: UserProjection) => RequestHandler =
     try {
       const user = await decodeTokenToUser(req.headers.authorization, projection)
       req.user = req.context.user = user
-      await addUserToSentry(user)
+      await addUserToScope(user)
       next()
     } catch (err) {
       return next(err)

@@ -13,6 +13,7 @@ require('./services/aws')
 require('./../config')
 
 // setup error logging
+global.__rootdir__ = __dirname || process.cwd() // needed for sourcemaps
 const { initSentry, sentryRequestHandler } = require('./middleware/sentry')
 initSentry()
 
