@@ -10,7 +10,7 @@ export const initSentry = () => {
   if (release) {
     Object.assign(sentryParams, {
       release,
-      integrations: [new RewriteFrames()],
+      integrations: [new RewriteFrames({ root: global['__rootdir__'] })],
     })
   }
   Sentry.init(sentryParams)
@@ -18,12 +18,24 @@ export const initSentry = () => {
 
 export const sentryRequestHandler = Sentry.Handlers.requestHandler
 
-export const addUserToSentry: (user: any) => Promise<void> = user => {
+export const addUserToScope: (user: any) => Promise<void> = user => {
   return new Promise(resolve => {
     if (!user) return resolve()
     const { _id, type } = user
     Sentry.configureScope(scope => {
       scope.setUser({ _id, type })
+      return resolve()
+    })
+  })
+}
+
+export const addPropertiesToScope: (data: { [key: string]: string }) => Promise<void> = data => {
+  return new Promise(resolve => {
+    if (!data) return resolve()
+    Sentry.configureScope(scope => {
+      for (const key in data) {
+        scope.setTag(key, data[key])
+      }
       return resolve()
     })
   })

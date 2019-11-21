@@ -8,6 +8,7 @@ import { RequestHandler } from 'express'
 import User, { fromOAuthUser, OAuthType } from './../../../models/User'
 import { getGoogleInfo } from './../../../services/google'
 import Clever from '../../../services/clever'
+import { addUserToScope, addPropertiesToScope } from '../../../middleware'
 
 const creds: { [key in OAuthType]: ModuleOptions } = {
   google: {
@@ -82,6 +83,7 @@ export const getUser = async (type: OAuthType, code: string) => {
       return fromOAuthUser(profile, 'google')
     case 'clever':
       const cleverClient = createOAuthClient('clever')
+      addPropertiesToScope({ 'oauth-stage': 'created-client' })
       const tokenConfig: Partial<AuthorizationTokenConfig> = {
         code: code,
         redirect_uri: CLEVER_REDIRECT_URI,
@@ -89,8 +91,10 @@ export const getUser = async (type: OAuthType, code: string) => {
       const { access_token: cleverToken } = await cleverClient.authorizationCode.getToken(
         <AuthorizationTokenConfig>tokenConfig,
       )
+      addPropertiesToScope({ 'oauth-stage': 'acquired-token' })
       const client = new Clever(cleverToken)
       await client.init()
+      addPropertiesToScope({ 'oauth-stage': 'acquired-user-details' })
       const cleverProfile = await client.getCleverInfo()
       return fromOAuthUser(cleverProfile, 'clever')
   }
@@ -98,15 +102,21 @@ export const getUser = async (type: OAuthType, code: string) => {
 
 export const getTokenRedirectDestination = async (type: OAuthType, code: string): Promise<string> => {
   try {
+    addPropertiesToScope({ 'oauth-stage': 'started' })
     const { user, oauthObj } = await getUser(type, code)
+    addPropertiesToScope({ 'oauth-stage': 'generated-user-object' })
+    await addUserToScope(user)
     const { singleUseToken } = oauthObj
+    addPropertiesToScope({ 'oauth-stage': 'attempted-login' })
     const existingUser = await User.findAndGenerateOAuthLogin(oauthObj)
     if (existingUser) return getRedirectURI({ type, singleUseToken })
     try {
+      addPropertiesToScope({ 'oauth-stage': 'attempted-create-user' })
       await user.edjiSave()
       return getRedirectURI({ type, singleUseToken })
     } catch (err) {
       if (err.code && err.code === 11000) {
+        addPropertiesToScope({ 'oauth-stage': 'duplicate-user-request' })
         // there's an account causing a duplicate error because the email is not unique (existing account)
         // the user initiating this workflow has an email in their oauth provider which is causing a duplicate email error
         // the only path we allow from here is for the initiating user to go back and log into their other account in order to link their new oauth provider
