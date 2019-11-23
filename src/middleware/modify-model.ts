@@ -31,7 +31,7 @@ export const simpleUpdate = (model: EdjiModel, idParam: string, updateable?: str
           res.status(200)
           model.updateIndex(_id)
       }
-      next()
+      return next()
     } catch (err) {
       return next(err)
     }
