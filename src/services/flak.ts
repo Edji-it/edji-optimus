@@ -12,6 +12,6 @@ export const indexDocuments = (body: iIndexMessage) => {
     method: 'POST',
     body,
     qs: { auth_token: FLAK_TOKEN },
-    json: true,
+    retries: 3,
   })
 }
