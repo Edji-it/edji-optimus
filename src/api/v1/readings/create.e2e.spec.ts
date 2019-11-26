@@ -82,6 +82,7 @@ describe('POST /api/v1/readings', () => {
     res.body.reading.should.have.property('draft')
     res.body.reading.draft.should.be.true
   })
+  /** note that we don't have any mechanisms for verifying a user's permission to add to the library */
   it('should create an academy reading', async () => {
     const createReading = {
       ...data.READINGS.NEW_READING,

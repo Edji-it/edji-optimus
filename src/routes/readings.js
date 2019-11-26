@@ -68,6 +68,7 @@ router.get('/versions/:version_id', authRequired, (req, res, next) => {
           title: '$reading.title',
           owner_id: '$reading.owner_id',
           reading_type: '$reading.reading_type',
+          institution_id: '$reading.institution_id',
           source: '$reading.source',
           cover_img: '$reading.cover_img',
           draft: '$reading.draft',

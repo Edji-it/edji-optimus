@@ -61,6 +61,7 @@ export const READING_CAN_UPDATE = [
   'words',
   'title',
   'reading_type',
+  'institution_id',
   'source',
   'cover_img',
   'tags',
