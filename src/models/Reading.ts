@@ -20,6 +20,7 @@ const ReadingModel = <ReadingModel>ModelCreator(
       required: true,
       default: 'private',
     },
+    institution_id: { type: Schema.Types.ObjectId, ref: 'Institution' }, // academy that the reading belongs to
     questions: [Question.schema],
     promoter_ids: [String],
     source: String,
