@@ -1,4 +1,4 @@
-import { get, OptionsWithUrl } from 'request-promise-native'
+import request, { EdjiRequestOptions } from '../utils/request'
 
 const cleverUrl = 'https://api.clever.com/v2.0'
 
@@ -8,9 +8,9 @@ export default class Clever {
   private _type: CleverType
   // private _district: CleverDistrictInfo
   private _sections: CleverSections
-  private _rpOptions: OptionsWithUrl
+  private _requestOptions: Partial<EdjiRequestOptions>
   constructor(_token: string) {
-    this._rpOptions = {
+    this._requestOptions = {
       url: cleverUrl,
       auth: {
         bearer: _token,
@@ -26,8 +26,9 @@ export default class Clever {
   }
 
   async init(): Promise<void> {
-    const { data: meData } = await get({
-      ...this._rpOptions,
+    const { data: meData } = await request({
+      ...this._requestOptions,
+      method: 'GET',
       url: [cleverUrl, 'me'].join('/'),
     })
     this._type = meData.type
@@ -35,8 +36,9 @@ export default class Clever {
   }
 
   async getUser(): Promise<CleverTeacher> {
-    const { data } = await get({
-      ...this._rpOptions,
+    const { data } = await request({
+      ...this._requestOptions,
+      method: 'GET',
       url: [cleverUrl, `${this._type}s`, this._userId].join('/'),
     })
     this._user = data
@@ -44,8 +46,9 @@ export default class Clever {
   }
 
   // async getDistrict(): Promise<CleverDistrictInfo> {
-  //   const { data } = await get({
-  //     ...this._rpOptions,
+  //   const { data } = await request({
+  //     ...this._requestOptions,
+  //     method: 'GET',
   //     url: [cleverUrl, `${this._type}s`, this._userId, 'district'].join('/'),
   //   })
   //   this._district = data
@@ -53,8 +56,9 @@ export default class Clever {
   // }
 
   async getSections(): Promise<CleverSections> {
-    const { data } = await get({
-      ...this._rpOptions,
+    const { data } = await request({
+      ...this._requestOptions,
+      method: 'GET',
       url: [cleverUrl, `${this._type}s`, this._userId, 'sections'].join('/'),
     })
     this._sections = data
