@@ -2,7 +2,7 @@
  * Comment Model
  * - Attached to Project objects
  */
-import { Document, Model, Schema } from 'mongoose'
+import { Document, Schema } from 'mongoose'
 import { ObjectID } from 'mongodb'
 const ModelCreator = require('./ModelCreator').default
 

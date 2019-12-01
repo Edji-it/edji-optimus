@@ -101,7 +101,7 @@ const UPDATE_CONTROLLERS: {
 
 const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
 
-const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
+const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'label', 'co_owner_ids']
 
 export interface lightUser {
   _id: ObjectId
