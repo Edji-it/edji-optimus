@@ -45,7 +45,7 @@ describe('PUT /api/v1/readings/:reading_id', () => {
       words: [{ prop: true }],
       title: 'updated title',
       reading_type: createdReading.reading_type === 'public' ? 'private' : 'public',
-      institution_id: new ObjectId(),
+      institution_id: new ObjectId().toHexString(),
       source: 'reading update test',
       cover_img: 'cover image url',
       tags: ['tag1_update'],
