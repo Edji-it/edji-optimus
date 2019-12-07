@@ -2,9 +2,13 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { EdjiModel } from '../models/ModelCreator'
+import { EdjiModel, EdjiDocument } from '../models/ModelCreator'
 
-export const simpleUpdate = (model: EdjiModel, idParam: string, updateable?: string[]): RequestHandler => {
+export const simpleUpdate = (
+  model: EdjiModel<EdjiDocument>,
+  idParam: string,
+  updateable?: string[],
+): RequestHandler => {
   return async (req, res, next) => {
     try {
       const update = req.body

@@ -90,6 +90,12 @@ const querySchema = joi.object().keys({
 
 const queriableStringFields = ['html', 'title', 'parent_id', 'owner_id', 'source', 'subjects', 'version_id']
 
+const filterStringFields = [
+  { queryName: 'institution_id', fieldName: 'institution_id' },
+  { queryName: 'district_id', fieldName: 'owner.school.district_id' },
+  { queryName: 'school_id', fieldName: 'owner.school.school_id' },
+]
+
 const queriableBooleanFields = ['owner_bookmarked']
 
 const arrayFieldsToConverToStrings = ['owner_id', 'subjects']
@@ -179,7 +185,7 @@ export async function searchByIds(
     $project: {
       title: true,
       owner_id: true,
-      public: true,
+      reading_type: true,
       'owner._id': true,
       'owner.fullname': true,
       'owner.username': true,
@@ -239,7 +245,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     case ScopeEnum.PUBLIC:
       body.query.bool.filter.push({
         match: {
-          public: true,
+          reading_type: 'public',
         },
       })
       body.query.bool.must_not.push({
@@ -261,7 +267,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
 
   if (query.hasOwnProperty('buckets')) {
     body.aggs = {}
-    for (let bucket of query.buckets) {
+    for (const bucket of query.buckets) {
       body.aggs[bucket] = {
         terms: {
           field: `${bucket}.keyword`,
@@ -287,7 +293,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
   }
 
   // add conditions for all fields where we can directly set the value
-  for (let field of queriableStringFields) {
+  for (const field of queriableStringFields) {
     if (query.hasOwnProperty(field)) {
       const val = query[field]
       body.query.bool.must.push({
@@ -298,7 +304,7 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     }
   }
 
-  for (let field of queriableBooleanFields) {
+  for (const field of queriableBooleanFields) {
     if (query.hasOwnProperty(field)) {
       const val = query[field]
       body.query.bool.filter.push({
@@ -309,21 +315,31 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     }
   }
 
-  if (query.district_id) {
-    body.query.bool.filter.push({
-      term: {
-        'owner.school.district_id': query.district_id,
-      },
-    })
+  for (const item of filterStringFields) {
+    if (query.hasOwnProperty(item.queryName)) {
+      body.query.bool.filter.push({
+        term: {
+          [item.fieldName]: query[item.queryName],
+        },
+      })
+    }
   }
 
-  if (query.school_id) {
-    body.query.bool.filter.push({
-      term: {
-        'owner.school.school_id': query.school_id,
-      },
-    })
-  }
+  // if (query.district_id) {
+  //   body.query.bool.filter.push({
+  //     term: {
+  //       'owner.school.district_id': query.district_id,
+  //     },
+  //   })
+  // }
+
+  // if (query.school_id) {
+  //   body.query.bool.filter.push({
+  //     term: {
+  //       'owner.school.school_id': query.school_id,
+  //     },
+  //   })
+  // }
 
   // handle pulling apart grade_levels here so that the search query url matches the front end
   if (query.hasOwnProperty('grade_levels_lte') || query.hasOwnProperty('grade_levels_gte')) {

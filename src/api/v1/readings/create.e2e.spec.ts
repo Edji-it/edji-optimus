@@ -1,4 +1,5 @@
 import * as chai from 'chai'
+const { expect } = chai
 import chaiHttp = require('chai-http')
 import { ObjectId } from 'mongodb'
 
@@ -80,6 +81,16 @@ describe('POST /api/v1/readings', () => {
     res.body.should.have.property('reading')
     res.body.reading.should.have.property('draft')
     res.body.reading.draft.should.be.true
+  })
+  /** note that we don't have any mechanisms for verifying a user's permission to add to the library */
+  it('should create an academy reading', async () => {
+    const createReading = {
+      ...data.READINGS.NEW_READING,
+      institution_id: new ObjectId(),
+      reading_type: 'academy',
+    }
+    const res = await request(createReading, authToken)
+    expect(res).to.have.status(201)
   })
   it('should reject a reading without required fields', async () => {
     let createReading = {}

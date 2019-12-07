@@ -12,9 +12,11 @@ import Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
   const queriableStringProperties = ['html', 'title', 'parent_id', 'owner_id', 'source', 'version_id', 'subjects']
-  const queriableBooleanProperties = [
-    'owner_bookmarked',
-    // 'public'
+  const queriableBooleanProperties = ['owner_bookmarked']
+  const filterStringProperties = [
+    { queryName: 'institution_id', fieldName: 'institution_id' },
+    { queryName: 'district_id', fieldName: 'owner.school.district_id' },
+    { queryName: 'school_id', fieldName: 'owner.school.school_id' },
   ]
   describe('validateSearchQuery', () => {
     it('should set proper defaults', () => {
@@ -84,7 +86,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -125,7 +127,7 @@ describe('reading search helpers', () => {
               filter: [
                 {
                   match: {
-                    public: true,
+                    reading_type: 'public',
                   },
                 },
               ],
@@ -160,57 +162,103 @@ describe('reading search helpers', () => {
         })
       })
     }
-    it('should query for school and district id', async () => {
-      await constructSearch({ district_id: '2622050', school_id: '262205005926' })
-      assert.calledOnce(elasticStub)
-      let { index, type, body } = elasticStub.firstCall.args[0]
-      expect(index).to.be.equal('readings')
-      expect(type).to.be.equal('default')
-      expect(body).to.eql({
-        query: {
-          bool: {
-            filter: [
-              {
-                match: {
-                  public: true,
+    for (const item of filterStringProperties) {
+      it(`should filter for ${item.queryName}`, async () => {
+        const testValue = 'edji is the future'
+        await constructSearch({ [item.queryName]: testValue })
+        assert.calledOnce(elasticStub)
+        expect(elasticStub.firstCall.args[0].body).to.eql({
+          query: {
+            bool: {
+              filter: [
+                {
+                  match: {
+                    reading_type: 'public',
+                  },
                 },
-              },
-              {
-                term: {
-                  'owner.school.district_id': '2622050',
+                {
+                  term: {
+                    [item.fieldName]: testValue,
+                  },
                 },
-              },
-              {
-                term: {
-                  'owner.school.school_id': '262205005926',
+              ],
+              must_not: [
+                {
+                  match: {
+                    draft: true,
+                  },
                 },
-              },
-            ],
-            must_not: [
-              {
-                match: {
-                  draft: true,
+                {
+                  exists: {
+                    field: 'parent_id',
+                  },
                 },
-              },
-              {
-                exists: {
-                  field: 'parent_id',
+              ],
+              must: [
+                {
+                  bool: {
+                    must: [],
+                    should: [],
+                  },
                 },
-              },
-            ],
-            must: [
-              {
-                bool: {
-                  must: [],
-                  should: [],
-                },
-              },
-            ],
+              ],
+            },
           },
-        },
-        _source: '',
+          _source: '',
+        })
       })
-    })
+    }
+    // it('should filter for string properties', async () => {
+    //   await constructSearch({ district_id: '2622050', school_id: '262205005926' })
+    //   assert.calledOnce(elasticStub)
+    //   let { index, type, body } = elasticStub.firstCall.args[0]
+    //   expect(index).to.be.equal('readings')
+    //   expect(type).to.be.equal('default')
+    //   expect(body).to.eql({
+    //     query: {
+    //       bool: {
+    //         filter: [
+    //           {
+    //             match: {
+    //               reading_type: 'public',
+    //             },
+    //           },
+    //           {
+    //             term: {
+    //               'owner.school.district_id': '2622050',
+    //             },
+    //           },
+    //           {
+    //             term: {
+    //               'owner.school.school_id': '262205005926',
+    //             },
+    //           },
+    //         ],
+    //         must_not: [
+    //           {
+    //             match: {
+    //               draft: true,
+    //             },
+    //           },
+    //           {
+    //             exists: {
+    //               field: 'parent_id',
+    //             },
+    //           },
+    //         ],
+    //         must: [
+    //           {
+    //             bool: {
+    //               must: [],
+    //               should: [],
+    //             },
+    //           },
+    //         ],
+    //       },
+    //     },
+    //     _source: '',
+    //   })
+    // })
     for (let i = 0; i < queriableBooleanProperties.length; i++) {
       let field = queriableBooleanProperties[i]
       it(`should construct a query for ${field}`, async () => {
@@ -223,7 +271,7 @@ describe('reading search helpers', () => {
               filter: [
                 {
                   match: {
-                    public: true,
+                    reading_type: 'public',
                   },
                 },
                 {
@@ -267,7 +315,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -311,7 +359,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
               {
@@ -357,7 +405,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
               {
@@ -400,7 +448,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -443,7 +491,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -525,7 +573,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -565,7 +613,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -613,7 +661,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],
@@ -667,7 +715,7 @@ describe('reading search helpers', () => {
             filter: [
               {
                 match: {
-                  public: true,
+                  reading_type: 'public',
                 },
               },
             ],

@@ -2,12 +2,12 @@
 const mongoose = require('mongoose')
 import { hashSync } from 'bcryptjs'
 import { pick } from 'underscore'
-import { Model, Document, Schema } from 'mongoose'
+import { Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 // project imports
 // const ModelCreator = require('./ModelCreator').default
-import ModelCreator, { EdjiDocument } from './ModelCreator'
+import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
 import { bad } from './badwords'
 
 import {
@@ -163,7 +163,10 @@ const schema = {
   institution_ids: [{ type: mongoose.Schema.ObjectId, ref: 'Institution' }], // array of institution ids which the user is associated with; assumes they are already a teacher if they're being added to an institution
 }
 
-const UserModel: any = ModelCreator('User', schema, function(schema: Schema<UserDocument>) {
+/**
+ * should figure out how to not override this type and instead pass some model-extending parameter into the ModelCreator
+ */
+const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schema<UserDocument>) {
   // function(schema: Schema<UserDocument>) {
   schema.statics.findAndGenerateOAuthLogin = function({ type, id, singleUseToken, singleUseTokenExpiration }) {
     return this.findOneAndUpdate(
@@ -358,6 +361,7 @@ const UserModel: any = ModelCreator('User', schema, function(schema: Schema<User
     }
   })
 })
+
 export default UserModel
 
 export function fromOAuthUser(
@@ -399,7 +403,7 @@ export interface UserDocument extends EdjiDocument, iUser {
   preEdjiSave: () => Promise<void>
 }
 
-interface UserModel extends Model<UserDocument> {
+interface UserModel extends EdjiModel<UserDocument> {
   findAndGenerateOAuthLogin: (obj: OAuthObject) => Promise<UserDocument>
   setPendingOAuth: ({ email: string, oauthObj: OAuthObject }) => Promise<any>
 }

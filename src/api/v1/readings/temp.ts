@@ -4,7 +4,8 @@ import Reading from '../../../models/Reading'
 const responseShape = {
   title: 1,
   owner_id: 1,
-  public: 1,
+  reading_type: 1,
+  institution_id: 1,
   source: 1,
   subjects: 1,
   grade_levels: 1,

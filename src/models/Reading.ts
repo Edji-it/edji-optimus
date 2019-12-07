@@ -1,16 +1,26 @@
-const mongoose = require('mongoose')
+import { Schema } from 'mongoose'
+import { ObjectId } from 'mongodb'
+
+import { EdjiDocument, EdjiModel } from './ModelCreator'
+
 const ModelCreator = require('./ModelCreator').default
 const Question = require('./Question').default
 
-const ReadingModel: any = ModelCreator(
+const ReadingModel = <ReadingModel>ModelCreator(
   'Reading',
   {
     html: { type: String, required: true },
     words: { type: [], required: true },
     title: { type: String, required: true },
-    parent_id: { type: mongoose.Schema.ObjectId, ref: 'Reading' },
-    owner_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'User' },
-    public: Boolean,
+    parent_id: { type: Schema.Types.ObjectId, ref: 'Reading' },
+    owner_id: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+    reading_type: {
+      type: String,
+      enum: { values: ['public', 'private', 'academy'], message: 'invalid reading_type' },
+      required: true,
+      default: 'private',
+    },
+    institution_id: { type: Schema.Types.ObjectId, ref: 'Institution' }, // academy that the reading belongs to
     questions: [Question.schema],
     promoter_ids: [String],
     source: String,
@@ -19,11 +29,11 @@ const ReadingModel: any = ModelCreator(
     draft: { type: Boolean },
     grade_levels: [Number],
     subjects: [String],
-    version_id: { type: mongoose.Schema.ObjectId, ref: 'ReadingVersion', required: true },
+    version_id: { type: Schema.Types.ObjectId, ref: 'ReadingVersion', required: true },
     owner_bookmarked: { type: Boolean },
     default_instructions: String,
   },
-  function(schema) {
+  function(schema: Schema<ReadingDocument>) {
     schema.methods.getIndexOptions = function() {
       return {
         collection: 'readings',
@@ -36,5 +46,29 @@ const ReadingModel: any = ModelCreator(
     }
   },
 )
+
+interface iReading {
+  html: string
+  words: any[]
+  title: string
+  parent_id: ObjectId
+  owner_id: ObjectId
+  reading_type: 'public' | 'private' | 'academy'
+  questions: any[]
+  promoter_ids: string[]
+  source: string
+  cover_img: string
+  tags: string[]
+  draft: boolean
+  grade_levels: number[]
+  subjects: string[]
+  version_id: ObjectId
+  owner_bookmarked: boolean
+  default_instructions: string
+}
+
+interface ReadingDocument extends EdjiDocument, iReading {}
+
+interface ReadingModel extends EdjiModel<ReadingDocument> {}
 
 export default ReadingModel
