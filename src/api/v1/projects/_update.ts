@@ -64,23 +64,15 @@ export async function updatePropertyArray({ project_id, user, update: propData }
   } else {
     const model = propArrayName === 'feedback' ? Feedback : Comment
     // if a comment or an answer, we need to build a new Comment from the schema
-    console.log('propData', propData)
     propObj = new model(propData)
     propObj.author = user.fullname
     propObj.user_id = user._id
     propObj.createdAt = Date.now()
     updateArray.push(propObj)
-    console.log(propObj)
   }
   propObj.updatedAt = Date.now() // also manually update updatedAt
   const error = propObj.validateSync() // manually validate here, don't validate project so that if anything goes wrong on project we can still save comments
-  console.log('error', error)
   if (error) throw error
-  const update = await Project.updateOne(
-    { _id: project._id },
-    { $set: { [propArrayName]: updateArray } },
-    { runValidators: false },
-  )
-  console.log(update)
+  await Project.updateOne({ _id: project._id }, { $set: { [propArrayName]: updateArray } }, { runValidators: false })
   return propObj
 }

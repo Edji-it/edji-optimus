@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb'
 const ModelCreator = require('./ModelCreator').default
 
 const Feedback: any = ModelCreator('Feedback', {
-  user_id: { type: Schema.Types.ObjectId },
+  owner_id: { type: Schema.Types.ObjectId },
   outcome_id: { type: Schema.Types.ObjectId },
   feedback_to: { type: Schema.Types.ObjectId, ref: 'Comment' },
   evaluation: { type: String, required: true },
@@ -16,7 +16,7 @@ const Feedback: any = ModelCreator('Feedback', {
 export default Feedback
 
 export interface iFeedback extends Document {
-  user_id: ObjectId
+  owner_id: ObjectId
   outcome_id: ObjectId
   feedback_to: ObjectId
   evaluation: string

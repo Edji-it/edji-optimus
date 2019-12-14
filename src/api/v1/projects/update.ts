@@ -75,6 +75,9 @@ const UPDATE_CONTROLLERS: {
   answers: function(props) {
     return updatePropertyArray(props, 'answers')
   },
+  feedback: function(props) {
+    return updatePropertyArray(props, 'feedback')
+  },
   report_evals: function(props) {
     return updatePropertyArray(props, 'report_evals')
   },
