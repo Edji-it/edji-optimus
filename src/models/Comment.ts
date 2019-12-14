@@ -8,12 +8,13 @@ const ModelCreator = require('./ModelCreator').default
 
 const Comment: any = ModelCreator('Comment', {
   user_id: { type: String, required: true }, // could be any type of user, maybe we want to add a user_type field?
+  author: String, // user's name, stored for easy access
+  recipient_id: String, // for mentions and feedback
   start: { type: Number, required: true, default: -1 },
   end: { type: Number, required: true, default: -1 },
   data: String,
   dataArray: Array,
   url: { type: String },
-  author: String, // user's name, stored for easy access
   text: String, // the text which the comment is on!
   type: String, // type of comment (should be required)
   loc: {
@@ -37,12 +38,13 @@ interface iCommentModel extends iComment, Document {}
 
 export interface iComment {
   user_id: string
+  author?: string
+  teacher_id?: string
   start: number
   end: number
   data?: string
   dataArray?: any[]
   url?: string
-  author?: string
   text?: string
   type?: string
   loc?: {
