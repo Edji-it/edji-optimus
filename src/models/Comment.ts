@@ -39,7 +39,7 @@ interface iCommentModel extends iComment, Document {}
 export interface iComment {
   user_id: string
   author?: string
-  teacher_id?: string
+  recipient_id?: string
   start: number
   end: number
   data?: string
