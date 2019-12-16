@@ -67,7 +67,7 @@ describe('PUT /api/v1/projects/:project_id handlers', () => {
       expect(res.body.heat_vision).not.to.be.equal(initialValue)
     })
     it('should return the state of all updatable properties', async () => {
-      const expectedUpdatable = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
+      const expectedUpdatable = ['heat_vision', 'tags', 'label', 'co_owner_ids']
       const res = await request(projectState._id, projectState, authToken)
       expect(res).to.have.status(200)
       const returnedUpdated = Object.keys(res.body)

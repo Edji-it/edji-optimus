@@ -2,7 +2,7 @@
  * Feedback Model
  * - Attached to Project objects
  */
-import { Document, Model, Schema } from 'mongoose'
+import { Document, Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
 const ModelCreator = require('./ModelCreator').default
 

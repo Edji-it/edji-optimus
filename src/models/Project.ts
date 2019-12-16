@@ -24,6 +24,7 @@ const ProjectModel: any = ModelCreator(
     reading_id: { type: mongoose.Schema.ObjectId, required: true, ref: 'Reading' },
     comments: [Comment.schema],
     answers: [Comment.schema],
+    report_evals: [Comment.schema],
     feedback: [Feedback.schema],
     students_ids: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     temp_ids: [{ type: mongoose.Schema.ObjectId, ref: 'TempUser' }],
@@ -32,13 +33,6 @@ const ProjectModel: any = ModelCreator(
     types: [{ type: String, enum: typesEnum, default: 'emoji' }],
     tags: [Tags.schema],
     heat_vision: { type: Boolean, default: false },
-    report_evals: [
-      {
-        user_id: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
-        evaluation: { type: String, required: true },
-        createdAt: { type: Date, required: true, default: Date.now() },
-      },
-    ],
     group_instructions: String,
     outcomes: [
       {

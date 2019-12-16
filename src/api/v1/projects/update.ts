@@ -78,6 +78,9 @@ const UPDATE_CONTROLLERS: {
   feedback: function(props) {
     return updatePropertyArray(props, 'feedback')
   },
+  report_evals: function(props) {
+    return updatePropertyArray(props, 'report_evals')
+  },
   students: async function({ project_id, user, update }) {
     const studentsArray: string = user.type && user.type === 'temp' ? 'temp_ids' : 'students_ids'
     const res = await Project.updateOne(
@@ -99,9 +102,9 @@ const UPDATE_CONTROLLERS: {
   },
 }
 
-const CUSTOM_UPDATABLE_PROPERTIES: string[] = Object.keys(UPDATE_CONTROLLERS)
+const CUSTOM_UPDATABLE_PROPERTIES = Object.keys(UPDATE_CONTROLLERS)
 
-const SIMPLY_UPDATABLE_PROPERTIES: string[] = ['heat_vision', 'tags', 'report_evals', 'label', 'co_owner_ids']
+const SIMPLY_UPDATABLE_PROPERTIES = ['heat_vision', 'tags', 'label', 'co_owner_ids']
 
 export interface lightUser {
   _id: ObjectId

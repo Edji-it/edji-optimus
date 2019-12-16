@@ -71,7 +71,8 @@ export async function updatePropertyArray({ project_id, user, update: propData }
     updateArray.push(propObj)
   }
   propObj.updatedAt = Date.now() // also manually update updatedAt
-  await propObj.validate() // manually validate here, don't validate project so that if anything goes wrong on project we can still save comments
+  const error = propObj.validateSync() // manually validate here, don't validate project so that if anything goes wrong on project we can still save comments
+  if (error) throw error
   await Project.updateOne({ _id: project._id }, { $set: { [propArrayName]: updateArray } }, { runValidators: false })
   return propObj
 }
