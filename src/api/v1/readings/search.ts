@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 
 // project imports
 import { validateSearchQuery, constructSearch, searchByIds } from './_search'
+import { search } from '../../../services/elasticsearch'
 
 export default async function SearchController(req: Request, res: Response, next: NextFunction) {
   const userId = req.context.user && req.context.user._id
@@ -16,7 +17,7 @@ export default async function SearchController(req: Request, res: Response, next
   }
 
   try {
-    const { hits, buckets, total } = await constructSearch(query, userId)
+    const { hits, buckets, total } = await search(constructSearch(query, userId))
     const results = await searchByIds(
       hits.hits.map(hit => hit._id),
       query.pop,

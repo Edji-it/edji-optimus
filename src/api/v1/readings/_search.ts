@@ -2,7 +2,6 @@
 import * as joi from 'joi'
 import { ValidationResult } from 'joi'
 import { ObjectId } from 'mongodb'
-import { search } from '../../../services/elasticsearch'
 
 // project imports
 import Reading from './../../../models/Reading'
@@ -327,22 +326,6 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     }
   }
 
-  // if (query.district_id) {
-  //   body.query.bool.filter.push({
-  //     term: {
-  //       'owner.school.district_id': query.district_id,
-  //     },
-  //   })
-  // }
-
-  // if (query.school_id) {
-  //   body.query.bool.filter.push({
-  //     term: {
-  //       'owner.school.school_id': query.school_id,
-  //     },
-  //   })
-  // }
-
   // handle pulling apart grade_levels here so that the search query url matches the front end
   if (query.hasOwnProperty('grade_levels_lte') || query.hasOwnProperty('grade_levels_gte')) {
     const { grade_levels_lte: lte, grade_levels_gte: gte } = query
@@ -369,12 +352,12 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     ]
   }
 
-  return search({
+  return {
     index: 'readings',
     type: 'default',
     _source: false,
     body,
     from: query.from,
     size: query.size,
-  })
+  }
 }
