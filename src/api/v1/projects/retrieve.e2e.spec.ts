@@ -122,8 +122,9 @@ describe('GET /api/v1/projects/:project_id', () => {
         {
           _id: '5cedc73fc5581b0021d880aa',
           createdAt: '2019-05-28T23:41:51.553Z',
-          evaluation: 'This is not the type of comment I was looking for when I designed this assignment...',
-          user_id: '59bd8ff45239f3001105dba8',
+          data: 'This is not the type of comment I was looking for when I designed this assignment...',
+          recipient_id: '59bd8ff45239f3001105dba8',
+          user_id: '59bd93955239f3001105dbb0',
         },
       ],
       students_ids: ['59bd8ff45239f3001105dba8'],
