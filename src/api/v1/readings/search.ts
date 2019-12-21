@@ -17,16 +17,20 @@ export default async function SearchController(req: Request, res: Response, next
   }
 
   try {
-    const { hits, buckets, total } = await search(constructSearch(query, userId))
+    const searchParams = constructSearch(query, userId)
+    const { hits, buckets, total } = await search(searchParams)
     const results = await searchByIds(
       hits.hits.map(hit => hit._id),
       query.pop,
     )
-    let body = {
+    const body: any = {
       total,
       returned: results.length,
       buckets,
       results,
+    }
+    if (query.debug) {
+      body.debug = searchParams.body
     }
     return res.status(200).send(body)
   } catch (err) {

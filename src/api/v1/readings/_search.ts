@@ -30,7 +30,7 @@ export interface ReadingQuery {
   pop?: PopulationsEnum[]
   buckets?: string[]
   bucket_max?: number
-  body?: boolean // debugging tool to return the query body
+  debug?: boolean // debugging tool to return the query body
 }
 
 enum ScopeEnum {
@@ -86,7 +86,7 @@ const querySchema = joi.object().keys({
     .min(0)
     .max(30)
     .default(20),
-  body: joi.boolean(),
+  debug: joi.boolean(),
 })
 
 const queriableStringFields = ['html', 'title', 'parent_id', 'owner_id', 'source', 'subjects', 'version_id']
