@@ -7,7 +7,6 @@ require('sinon-mongoose')
 
 // project imports
 import { validateSearchQuery, constructSearch, searchByIds } from './_search'
-import * as elastic from '../../../services/elasticsearch'
 import Reading from './../../../models/Reading'
 
 describe('reading search helpers', () => {
@@ -67,17 +66,8 @@ describe('reading search helpers', () => {
     })
   })
   describe('constructSearch', () => {
-    let elasticStub: SinonStub
-    beforeEach(() => {
-      elasticStub = stub(elastic, 'search')
-    })
-    afterEach(() => {
-      elasticStub.restore()
-    })
-    it('should call search with correct default parameters', async () => {
-      await constructSearch({})
-      assert.calledOnce(elasticStub)
-      let { index, type, body } = elasticStub.firstCall.args[0]
+    it('should call search with correct default parameters', () => {
+      let { index, type, body } = constructSearch({})
       expect(index).to.be.equal('readings')
       expect(type).to.be.equal('default')
       expect(body).to.eql({
@@ -117,11 +107,10 @@ describe('reading search helpers', () => {
     })
     for (let i = 0; i < queriableStringProperties.length; i++) {
       let field = queriableStringProperties[i]
-      it(`should construct a query for ${field}`, async () => {
+      it(`should construct a query for ${field}`, () => {
         const testValue = 'edji is the greatest tool'
-        await constructSearch({ [field]: testValue })
-        assert.calledOnce(elasticStub)
-        expect(elasticStub.firstCall.args[0].body).to.eql({
+        const { body } = constructSearch({ [field]: testValue })
+        expect(body).to.eql({
           query: {
             bool: {
               filter: [
@@ -163,11 +152,10 @@ describe('reading search helpers', () => {
       })
     }
     for (const item of filterStringProperties) {
-      it(`should filter for ${item.queryName}`, async () => {
+      it(`should filter for ${item.queryName}`, () => {
         const testValue = 'edji is the future'
-        await constructSearch({ [item.queryName]: testValue })
-        assert.calledOnce(elasticStub)
-        expect(elasticStub.firstCall.args[0].body).to.eql({
+        const { body } = constructSearch({ [item.queryName]: testValue })
+        expect(body).to.eql({
           query: {
             bool: {
               filter: [
@@ -208,8 +196,8 @@ describe('reading search helpers', () => {
         })
       })
     }
-    // it('should filter for string properties', async () => {
-    //   await constructSearch({ district_id: '2622050', school_id: '262205005926' })
+    // it('should filter for string properties',  () => {
+    //    constructSearch({ district_id: '2622050', school_id: '262205005926' })
     //   assert.calledOnce(elasticStub)
     //   let { index, type, body } = elasticStub.firstCall.args[0]
     //   expect(index).to.be.equal('readings')
@@ -261,11 +249,10 @@ describe('reading search helpers', () => {
     // })
     for (let i = 0; i < queriableBooleanProperties.length; i++) {
       let field = queriableBooleanProperties[i]
-      it(`should construct a query for ${field}`, async () => {
+      it(`should construct a query for ${field}`, () => {
         const testValue = false
-        await constructSearch({ [field]: testValue })
-        assert.calledOnce(elasticStub)
-        expect(elasticStub.firstCall.args[0].body).to.eql({
+        const { body } = constructSearch({ [field]: testValue })
+        expect(body).to.eql({
           query: {
             bool: {
               filter: [
@@ -306,10 +293,10 @@ describe('reading search helpers', () => {
         })
       })
     }
-    it('should construct a query for multiple subjects', async () => {
+    it('should construct a query for multiple subjects', () => {
       const query = { subjects: 'reading math science' }
-      await constructSearch(query)
-      expect(elasticStub.firstCall.args[0].body).to.eql({
+      const { body } = constructSearch(query)
+      expect(body).to.eql({
         query: {
           bool: {
             filter: [
@@ -349,11 +336,11 @@ describe('reading search helpers', () => {
         _source: '',
       })
     })
-    it('should construct a query for grade_levels', async () => {
+    it('should construct a query for grade_levels', () => {
       // 0 as a grade level here is also meant as a test against truthy comparison
       const query = { grade_levels_gte: 0, grade_levels_lte: 8 }
-      await constructSearch(query)
-      expect(elasticStub.firstCall.args[0].body).to.eql({
+      const { body } = constructSearch(query)
+      expect(body).to.eql({
         query: {
           bool: {
             filter: [
@@ -396,10 +383,10 @@ describe('reading search helpers', () => {
         _source: '',
       })
     })
-    it('should filter if the grade levels lte and gte are equal', async () => {
+    it('should filter if the grade levels lte and gte are equal', () => {
       const query = { grade_levels_gte: 0, grade_levels_lte: 0 }
-      await constructSearch(query)
-      expect(elasticStub.firstCall.args[0].body).to.eql({
+      const { body } = constructSearch(query)
+      expect(body).to.eql({
         query: {
           bool: {
             filter: [
@@ -439,10 +426,10 @@ describe('reading search helpers', () => {
         _source: '',
       })
     })
-    it('should sort by a field', async () => {
+    it('should sort by a field', () => {
       const query = { sort: 'createdAt' }
-      await constructSearch(query)
-      expect(elasticStub.firstCall.args[0].body).to.eql({
+      const { body } = constructSearch(query)
+      expect(body).to.eql({
         query: {
           bool: {
             filter: [
@@ -482,10 +469,10 @@ describe('reading search helpers', () => {
         ],
       })
     })
-    it('should change the sort order', async () => {
+    it('should change the sort order', () => {
       const query = { sort: 'createdAt', sort_order: 'desc' }
-      await constructSearch(query)
-      expect(elasticStub.firstCall.args[0].body).to.eql({
+      const { body } = constructSearch(query)
+      expect(body).to.eql({
         query: {
           bool: {
             filter: [
@@ -525,12 +512,10 @@ describe('reading search helpers', () => {
         ],
       })
     })
-    it('should construct the correct query for retrieving the users readings', async () => {
+    it('should construct the correct query for retrieving the users readings', () => {
       const ownerId: string = new ObjectId().toHexString()
       const query = <any>{ scope: 'owner' }
-      await constructSearch(query, ownerId)
-      assert.calledOnce(elasticStub)
-      let { body } = elasticStub.firstCall.args[0]
+      const { body } = constructSearch(query, ownerId)
       expect(body).to.eql({
         query: {
           bool: {
@@ -561,12 +546,10 @@ describe('reading search helpers', () => {
         _source: '',
       })
     })
-    it('should construct the correct query for retrieving the public readings by scope', async () => {
+    it('should construct the correct query for retrieving the public readings by scope', () => {
       const ownerId: string = new ObjectId().toHexString()
       const query = <any>{ scope: 'public' }
-      await constructSearch(query, ownerId)
-      assert.calledOnce(elasticStub)
-      let { body } = elasticStub.firstCall.args[0]
+      const { body } = constructSearch(query, ownerId)
       expect(body).to.eql({
         query: {
           bool: {
@@ -602,11 +585,9 @@ describe('reading search helpers', () => {
         _source: '',
       })
     })
-    it('should construct a query which include a single bucket', async () => {
+    it('should construct a query which include a single bucket', () => {
       const query = <any>{ buckets: ['subject'], bucket_max: 10 }
-      await constructSearch(query)
-      assert.calledOnce(elasticStub)
-      let { body } = elasticStub.firstCall.args[0]
+      const { body } = constructSearch(query)
       expect(body).to.eql({
         query: {
           bool: {
@@ -650,11 +631,9 @@ describe('reading search helpers', () => {
         },
       })
     })
-    it('should construct a query with multiple buckets', async () => {
+    it('should construct a query with multiple buckets', () => {
       const query = <any>{ buckets: ['subject', 'tags'], bucket_max: 10 }
-      await constructSearch(query)
-      assert.calledOnce(elasticStub)
-      let { body } = elasticStub.firstCall.args[0]
+      const { body } = constructSearch(query)
       expect(body).to.eql({
         query: {
           bool: {
@@ -704,11 +683,9 @@ describe('reading search helpers', () => {
         },
       })
     })
-    it('should allow specification of maximum returned bucket values', async () => {
+    it('should allow specification of maximum returned bucket values', () => {
       const query = <any>{ buckets: ['tags'], bucket_max: 20 }
-      await constructSearch(query)
-      assert.calledOnce(elasticStub)
-      let { body } = elasticStub.firstCall.args[0]
+      const { body } = constructSearch(query)
       expect(body).to.eql({
         query: {
           bool: {
