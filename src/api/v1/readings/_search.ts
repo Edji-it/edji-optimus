@@ -133,9 +133,12 @@ export async function searchByIds(
     {
       $lookup: {
         from: 'users',
-        localField: 'owner_id',
-        foreignField: '_id',
         as: 'owner',
+        let: { owner_id: '$owner_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$$owner_id', '$id'] } } },
+          { $project: { fullname: 1, username: 1, avatar: 1, identities: 1, initials: 1, hero_status: 1 } },
+        ],
       },
     },
     {
@@ -146,52 +149,36 @@ export async function searchByIds(
     }, // owner comes back as an array, but there will only ever be one
   ]
   if (populations.includes(PopulationsEnum.PROJECTS)) {
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'projects',
-          localField: '_id',
-          foreignField: 'reading_id',
-          as: 'projects',
-        },
-      },
-      {
-        $addFields: {
-          projects: {
-            $map: {
-              input: '$projects',
-              in: {
-                _id: '$$this._id',
-                reading_id: '$$this.reading_id',
-                teacher_id: '$$this.teacher_id',
-                label: '$$this.label',
-                code: '$$this.code',
-                types: '$$this.types',
-                createdAt: '$$this.createdAt',
-                updatedAt: '$$this.updatedAt',
-                comment_count: {
-                  $size: '$$this.comments',
-                },
-                student_count: {
-                  $sum: [{ $size: '$$this.students_ids' }, { $size: '$$this.temp_ids' }],
-                },
-              },
+    pipeline.push({
+      $lookup: {
+        from: 'projects',
+        as: 'projects',
+        let: { reading_id: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$$reading_id', '$_id'] } } },
+          {
+            $project: {
+              reading_id: 1,
+              teacher_id: 1,
+              label: 1,
+              code: 1,
+              types: 1,
+              createdAt: 1,
+              updatedAt: 1,
+              comment_count: { $size: '$comments' },
+              student_count: { $sum: [{ $size: '$students_ids' }, { $size: '$temp_ids' }] },
             },
           },
-        },
+        ],
       },
-    )
+    })
   }
   pipeline.push({
     $project: {
       title: true,
       owner_id: true,
       reading_type: true,
-      'owner._id': true,
-      'owner.fullname': true,
-      'owner.username': true,
-      'owner.avatar': true,
-      'owner.identities': true,
+      owner: true,
       promoter_ids: true,
       source: true,
       parent_id: true,
