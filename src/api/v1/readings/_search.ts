@@ -14,6 +14,7 @@ export interface ReadingQuery {
   title?: string
   parent_id?: string
   owner_id?: string
+  institution_id?: string
   scope?: ScopeEnum
   source?: string
   grade_levels_lte?: number
@@ -54,6 +55,7 @@ const querySchema = joi.object().keys({
   q: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
+  institution_id: joi.string(),
   scope: joi.string().allow(scopeValues),
   source: joi.string(),
   grade_levels_lte: joi.number(),
