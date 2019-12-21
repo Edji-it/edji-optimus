@@ -124,6 +124,11 @@ describe('GET /api/v1/readings/_search', () => {
       expect(subject).to.haveOwnProperty('doc_count')
     }
   })
+  it('should return the query for debugging', async () => {
+    const res = await searchRequest(['debug=true'], token)
+    expect(res).to.have.status(200)
+    expect(res.body).to.have.property('debug')
+  })
   it('should not populate projects on public scope', async () => {
     const res = await searchRequest(['pop=projects'], token)
     expect(res).to.have.status(400)
