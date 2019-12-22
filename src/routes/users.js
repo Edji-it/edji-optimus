@@ -151,33 +151,6 @@ router.get('/', (req, res, next) => {
     })
 })
 
-/**
- * @deprecated 1/24/2019
- */
-router.put('/convert/:temp_id', authRequired, require('./../api/v1/temp_users/convert'))
-
-/**
- * @deprecated 3/13/19
- */
-router.post('/login', require('./../api/v1/users/login').default)
-
-/**
- * @deprecated 3/27/19
- */
-router.post(
-  '/reset_password',
-  (req, res, next) => {
-    const { oldPassword, newPassword } = req.body && req.body.resetObject && req.body.resetObject
-
-    req.body = {
-      old_password: oldPassword,
-      new_password: newPassword,
-    }
-    next()
-  },
-  require('./../api/v1/users/change-pass').default,
-)
-
 // finds the asset of the specified type on the user object
 //  if it doesn't find anything, it will return undefined
 let getAssetOnUser = function(user, type, id) {

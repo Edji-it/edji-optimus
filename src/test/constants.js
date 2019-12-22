@@ -32,6 +32,14 @@ module.exports = {
       username: 'apitesthero2',
       password: 'apitesthero2',
     },
+    ACADEMY_HERO: {
+      username: 'academy+api_hero@edji.it',
+      password: 'academyhero',
+    },
+    ACADEMY_ADMIN: {
+      username: 'academy+api_admin@edji.it',
+      password: 'academyadmin',
+    },
     API_EMAIL_SUCCESS: {
       username: 'api_email_success',
       password: 'tester',
