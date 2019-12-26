@@ -15,7 +15,7 @@ export class UserAPI {
   ): Promise<LoginObject> {
     let res: ChaiHttp.Response = await chai
       .request(data.SERVER)
-      .post('/users/login')
+      .post('/api/v1/users/login')
       .send({
         user: {
           username,

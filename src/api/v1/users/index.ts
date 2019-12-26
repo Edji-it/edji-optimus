@@ -13,8 +13,9 @@ import LoginHandler from './login'
 import PublicDetailsHandler from './public-details'
 import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
+import { GetAcademiesHandler } from './academies'
 import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
-import { LegacyAuth } from '../../../middleware'
+import { LegacyAuth, addUserToRequest } from '../../../middleware'
 
 const router = Router()
 router.post('/', addRouteName('/'), LegacyAuth, CreateHandler)
@@ -36,5 +37,12 @@ router.post('/@me/change_password', LegacyAuth, authRequired, require('./change-
 router.get('/@me/state', addRouteName('/@me/state'), LegacyAuth, authRequired, GetStatesHandler)
 router.get('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, GetStateHandler)
 router.post('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, PostStateHandler)
+router.get(
+  '/@me/academies',
+  addRouteName('/@me/academies'),
+  addUserToRequest({ institution_ids: true }),
+  authRequired,
+  GetAcademiesHandler,
+)
 
 export default router
