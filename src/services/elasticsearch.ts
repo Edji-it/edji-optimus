@@ -1,5 +1,4 @@
-import { Client, DeleteDocumentResponse, SearchParams, SearchResponse, UpdateDocumentParams } from 'elasticsearch'
-import { captureException } from '@sentry/core'
+import { Client, DeleteDocumentResponse, SearchParams, SearchResponse } from 'elasticsearch'
 
 let client = new Client({
   host: process.env.EDJI_QUICKSHADOW_DOMAIN,

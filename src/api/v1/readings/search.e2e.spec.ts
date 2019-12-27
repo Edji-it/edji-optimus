@@ -21,7 +21,6 @@ let token: string
 let user: any
 
 describe('GET /api/v1/readings/_search', () => {
-  let savedReadings
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_HERO
     let userRes = await UserAPI.login(username, password)
@@ -45,10 +44,8 @@ describe('GET /api/v1/readings/_search', () => {
     expect(reading).to.have.property('owner')
     expect(reading.owner).to.have.property('fullname')
     expect(reading.owner).to.have.property('username')
-    expect(reading.owner).to.have.property('avatar')
     expect(reading.owner).to.have.property('identities')
     expect(reading.owner).to.have.property('initials')
-    expect(reading.owner).to.have.property('hero_status')
     expect(reading).to.have.property('promoter_ids')
     expect(reading).to.have.property('source')
     expect(reading).to.have.property('parent_id')
@@ -68,7 +65,6 @@ describe('GET /api/v1/readings/_search', () => {
       .greaterThan(0)
     expect(res.body.results).to.be.lengthOf(15)
     expect(res.body.returned).to.be.equal(15)
-    savedReadings = res.body.results
   })
   it('should change the size of the request based on the query', async () => {
     const res = await searchRequest(['size=10'], token)
@@ -152,6 +148,9 @@ describe('GET /api/v1/readings/_search', () => {
       expect(subject).to.haveOwnProperty('key')
       expect(subject).to.haveOwnProperty('doc_count')
     }
+  })
+  it('should get readings by institution', async () => {
+    const res = await searchRequest(['institution_id=subjects', 'buckets=tags'], token)
   })
   it('should return the query for debugging', async () => {
     const res = await searchRequest(['debug=true'], token)

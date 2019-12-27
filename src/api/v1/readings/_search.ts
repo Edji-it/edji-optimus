@@ -36,8 +36,9 @@ export interface ReadingQuery {
 enum ScopeEnum {
   PUBLIC = 'public',
   OWNER = 'owner',
+  ACADEMY = 'academy',
 }
-const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.OWNER]
+const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.OWNER, ScopeEnum.ACADEMY]
 enum PopulationsEnum {
   PROJECTS = 'projects',
 }
@@ -136,7 +137,7 @@ export async function searchByIds(
         as: 'owner',
         let: { owner_id: '$owner_id' },
         pipeline: [
-          { $match: { $expr: { $eq: ['$$owner_id', '$id'] } } },
+          { $match: { $expr: { $eq: ['$$owner_id', '$_id'] } } },
           { $project: { fullname: 1, username: 1, avatar: 1, identities: 1, initials: 1, hero_status: 1 } },
         ],
       },
@@ -155,7 +156,7 @@ export async function searchByIds(
         as: 'projects',
         let: { reading_id: '$_id' },
         pipeline: [
-          { $match: { $expr: { $eq: ['$$reading_id', '$_id'] } } },
+          { $match: { $expr: { $eq: ['$$reading_id', '$reading_id'] } } },
           {
             $project: {
               reading_id: 1,
