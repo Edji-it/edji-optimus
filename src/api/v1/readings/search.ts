@@ -7,13 +7,9 @@ import { search } from '../../../services/elasticsearch'
 
 export default async function SearchController(req: Request, res: Response, next: NextFunction) {
   const userId = req.context.user && req.context.user._id
-  const { error, value: query } = validateSearchQuery(req.query)
+  const { error, value: query, status } = validateSearchQuery(req.query, req.context.user)
   if (error) {
-    return res.status(400).send({ error })
-  }
-  // only allow unauthed users to query for public
-  if (!userId && query.scope !== 'public') {
-    return res.status(401).send()
+    return res.status(status || 400).send({ error })
   }
 
   try {

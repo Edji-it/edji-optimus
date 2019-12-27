@@ -48,21 +48,17 @@ describe('GET /api/v1/readings/_search', () => {
     expect(reading.owner).to.have.property('initials')
     expect(reading).to.have.property('promoter_ids')
     expect(reading).to.have.property('source')
-    expect(reading).to.have.property('parent_id')
-    expect(reading).to.have.property('owner_bookmarked')
+    expect(reading).not.to.have.property('parent_id')
     expect(reading).to.have.property('subjects')
     expect(reading).to.have.property('grade_levels')
-    expect(reading).to.have.property('cover_img')
-    expect(reading).to.have.property('tags')
-    expect(reading).to.have.property('draft')
     expect(reading).to.have.property('version_id')
-    expect(reading).to.have.property('default_instructions')
     expect(reading).to.have.property('createdAt')
     expect(reading).to.have.property('updatedAt')
     expect(reading)
       .to.have.property('words_preview')
       .instanceOf(Array)
-      .greaterThan(0)
+      .length.greaterThan(0)
+      .lessThan(201)
     expect(res.body.results).to.be.lengthOf(15)
     expect(res.body.returned).to.be.equal(15)
   })
@@ -149,8 +145,30 @@ describe('GET /api/v1/readings/_search', () => {
       expect(subject).to.haveOwnProperty('doc_count')
     }
   })
+  it('should not get readings if the owner is not in an institution', async () => {
+    const { username, password } = data.LOGIN_INFO.API_TEACHER
+    const userRes = await UserAPI.login(username, password)
+    const res = await searchRequest([`institution_id=5b006d759dbfbf137ec0df23`], userRes.token)
+    expect(res).to.have.status(401)
+  })
   it('should get readings by institution', async () => {
-    const res = await searchRequest(['institution_id=subjects', 'buckets=tags'], token)
+    const { username, password } = data.LOGIN_INFO.ACADEMY_HERO
+    const userRes = await UserAPI.login(username, password)
+    if (!userRes.user.institution_ids || userRes.user.institution_ids.length < 1) {
+      throw new Error('expected user to have institution_ids')
+    }
+    const res = await searchRequest(
+      [`institution_id=${userRes.user.institution_ids[0]}`, 'scope=academy'],
+      userRes.token,
+    )
+    expect(res).to.have.status(200)
+    expect(res.body)
+      .to.have.property('results')
+      .length.greaterThan(0)
+
+    res.body.results.forEach(reading => {
+      expect(reading).to.have.property('institution_id')
+    })
   })
   it('should return the query for debugging', async () => {
     const res = await searchRequest(['debug=true'], token)
@@ -164,6 +182,10 @@ describe('GET /api/v1/readings/_search', () => {
   it('should allow a request without authentication for public scope', async () => {
     const res = await searchRequest(['scope=public'])
     expect(res).to.have.status(200)
+  })
+  it('should not accept an unknown scope', async () => {
+    const res = await searchRequest(['scope=nothing'], token)
+    expect(res).to.have.status(400)
   })
   it('should reject a request for scope owner without authentication', async () => {
     const res = await searchRequest(['scope=owner'])

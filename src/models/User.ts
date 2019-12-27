@@ -370,12 +370,13 @@ export function fromOAuthUser(
 ): { user: UserDocument; oauthObj: OAuthObject } {
   if (!identities) identities = []
   const oauthObj = generateOAuthObject(id, type)
-  const props: iUser = { fullname, avatar, oauth: [oauthObj], identities }
+  const props: any = { fullname, avatar, oauth: [oauthObj], identities }
   if (email) props.email = email
   return { user: new UserModel(props), oauthObj }
 }
 
 export interface iUser {
+  _id: any // has to be any so there is no conflict with mongoose types
   fullname: string
   email?: string
   password?: string
@@ -385,7 +386,7 @@ export interface iUser {
   pending_oauth?: OAuthObject
   message_list_id?: ObjectId
   referred_by?: string
-  institution_ids?: ObjectId[]
+  institution_ids?: string[]
   school?: {
     school_name?: string
     school_id?: string

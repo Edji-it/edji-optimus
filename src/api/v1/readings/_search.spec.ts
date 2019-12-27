@@ -13,13 +13,13 @@ describe('reading search helpers', () => {
   const queriableStringProperties = ['html', 'title', 'parent_id', 'owner_id', 'source', 'version_id', 'subjects']
   const queriableBooleanProperties = ['owner_bookmarked']
   const filterStringProperties = [
-    { queryName: 'institution_id', fieldName: 'institution_id' },
     { queryName: 'district_id', fieldName: 'owner.school.district_id' },
     { queryName: 'school_id', fieldName: 'owner.school.school_id' },
   ]
   describe('validateSearchQuery', () => {
+    const noUser = undefined
     it('should set proper defaults', () => {
-      const { error, value: query } = validateSearchQuery({})
+      const { error, value: query, status } = validateSearchQuery({}, noUser)
       expect(error).to.not.exist
       expect(query).to.have.property('from')
       expect(query.from).to.be.equal(0)
@@ -29,7 +29,7 @@ describe('reading search helpers', () => {
     queriableStringProperties.forEach(prop => {
       it(`should allow a query for ${prop}`, () => {
         const requestQuery = { [prop]: 'someString' }
-        const { error, value: query } = validateSearchQuery(requestQuery)
+        const { error, value: query } = validateSearchQuery(requestQuery, noUser)
         expect(error).to.not.exist
         expect(query).to.have.property(prop)
         expect(query[prop]).to.be.equal(requestQuery[prop])
@@ -39,7 +39,7 @@ describe('reading search helpers', () => {
       it(`should allow a query for ${prop}`, () => {
         // assign it as a string here and test it against a boolean later to ensure it converts properly
         const requestQuery = { [prop]: 'false' }
-        const { error, value: query } = validateSearchQuery(requestQuery)
+        const { error, value: query } = validateSearchQuery(requestQuery, noUser)
         expect(error).to.not.exist
         expect(query).to.have.property(prop)
         expect(query[prop]).to.be.equal(false)
@@ -47,7 +47,7 @@ describe('reading search helpers', () => {
     })
     it('should accept lte and gte values for grade_levels', () => {
       const requestQuery = { grade_levels_gte: 5, grade_levels_lte: 8 }
-      const { error, value: query } = validateSearchQuery(requestQuery)
+      const { error, value: query } = validateSearchQuery(requestQuery, noUser)
       expect(error).to.not.exist
       expect(query).to.have.property('grade_levels_gte')
       expect(query).to.have.property('grade_levels_lte')
@@ -56,13 +56,26 @@ describe('reading search helpers', () => {
     })
     it('should accept a single subject', () => {
       const requestQuery: any = { subjects: 'math' } // type as any because typescript won't let us do it otherwise
-      const { error, value: query } = validateSearchQuery(requestQuery)
+      const { error, value: query } = validateSearchQuery(requestQuery, noUser)
       expect(error).to.not.exist
     })
-    it('should throw an error for unexpected query properties', () => {
+    it('should return an error for unexpected query properties', () => {
       const requestQuery: any = { notvalid: 'somestring' } // type as any because typescript won't let us do it otherwise
-      const { error, value: query } = validateSearchQuery(requestQuery)
+      const { error, value: query } = validateSearchQuery(requestQuery, noUser)
       expect(error).to.exist
+    })
+    it('should return an error if the user does not belong to a queried institution', () => {
+      const requestQuery: any = { institution_id: '5b8c2249120385ed34084b99' }
+      const user: any = { institution_ids: ['5b8c2249120385ed34084aaa'] }
+      const { error, status } = validateSearchQuery(requestQuery, user)
+      expect(error).to.exist
+      expect(status).to.equal(401)
+    })
+    it('should return an error if an unauthenticated user requests non-public scope', () => {
+      const requestQuery: any = { scope: 'academy' }
+      const { error, status } = validateSearchQuery(requestQuery, noUser)
+      expect(error).to.exist
+      expect(status).to.equal(401)
     })
   })
   describe('constructSearch', () => {
@@ -523,6 +536,45 @@ describe('reading search helpers', () => {
               {
                 match: {
                   owner_id: ownerId,
+                },
+              },
+            ],
+            must_not: [
+              {
+                match: {
+                  draft: true,
+                },
+              },
+            ],
+            must: [
+              {
+                bool: {
+                  must: [],
+                  should: [],
+                },
+              },
+            ],
+          },
+        },
+        _source: '',
+      })
+    })
+    it('should construct the correct query for retrieving an academys readings', () => {
+      const ownerId: string = new ObjectId().toHexString()
+      const query = <any>{ scope: 'academy', institution_id: new ObjectId().toHexString() }
+      const { body } = constructSearch(query, ownerId)
+      expect(body).to.eql({
+        query: {
+          bool: {
+            filter: [
+              {
+                match: {
+                  reading_type: 'academy',
+                },
+              },
+              {
+                match: {
+                  institution_id: query.institution_id,
                 },
               },
             ],

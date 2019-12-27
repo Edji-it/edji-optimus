@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb'
 
 // project imports
 import Reading from './../../../models/Reading'
+import { iUser } from '../../../models/User'
 
 export interface ReadingQuery {
   ids?: string[]
@@ -55,8 +56,8 @@ const querySchema = joi.object().keys({
   q: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
-  institution_id: joi.string(),
-  scope: joi.string().allow(scopeValues),
+  institution_id: joi.alternatives().when('scope', { is: ScopeEnum.ACADEMY, then: joi.string() }),
+  scope: joi.string().valid(scopeValues),
   source: joi.string(),
   grade_levels_lte: joi.number(),
   grade_levels_gte: joi.number(),
@@ -93,7 +94,6 @@ const querySchema = joi.object().keys({
 const queriableStringFields = ['html', 'title', 'parent_id', 'owner_id', 'source', 'subjects', 'version_id']
 
 const filterStringFields = [
-  { queryName: 'institution_id', fieldName: 'institution_id' },
   { queryName: 'district_id', fieldName: 'owner.school.district_id' },
   { queryName: 'school_id', fieldName: 'owner.school.school_id' },
 ]
@@ -102,17 +102,44 @@ const queriableBooleanFields = ['owner_bookmarked']
 
 const arrayFieldsToConverToStrings = ['owner_id', 'subjects']
 
+const createValidationError = (message: string, query: any) => {
+  return { name: 'ValidationError', details: [{ message }], _object: query }
+}
+
 /**
  * ensures that the search endpoint can handle any parameters it is passed
  * @param query query object expected to match the search endpoint's interface
  */
-export function validateSearchQuery(query: ReadingQuery): ValidationResult<ReadingQuery> {
+export function validateSearchQuery(query: ReadingQuery, user: iUser): { error: any; status: number; value?: any } {
   arrayFieldsToConverToStrings.forEach(field => {
     if (query[field] && query[field] instanceof Array) {
       query[field] = query[field].join(' ')
     }
   })
-  return joi.validate(query, querySchema)
+  // restrict unauth'd users to public scoped queries
+  if (query.scope && query.scope !== 'public' && !user) {
+    return {
+      status: 401,
+      error: createValidationError(
+        `user is not authenticated and can not make queries for scope ${query.scope}`,
+        query,
+      ),
+    }
+  }
+  if (
+    query.institution_id &&
+    (!user || !user.institution_ids || !user.institution_ids.includes(query.institution_id))
+  ) {
+    return {
+      status: 401,
+      error: createValidationError(
+        `user is not authorized to query academy readings for ${query.institution_id}`,
+        query,
+      ),
+    }
+  }
+
+  return { ...joi.validate(query, querySchema), status: 400 }
 }
 
 /**
@@ -190,6 +217,7 @@ export async function searchByIds(
       tags: true,
       draft: true,
       version_id: true,
+      institution_id: true,
       default_instructions: true,
       createdAt: true,
       updatedAt: true,
@@ -251,6 +279,20 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
           },
         })
       }
+      break
+    case ScopeEnum.ACADEMY:
+      body.query.bool.filter.push(
+        {
+          match: {
+            reading_type: 'academy',
+          },
+        },
+        {
+          match: {
+            institution_id: query.institution_id,
+          },
+        },
+      )
       break
   }
 
