@@ -21,7 +21,6 @@ let token: string
 let user: any
 
 describe('GET /api/v1/readings/_search', () => {
-  let savedReadings
   before(async () => {
     const { username, password } = data.LOGIN_INFO.API_HERO
     let userRes = await UserAPI.login(username, password)
@@ -35,11 +34,33 @@ describe('GET /api/v1/readings/_search', () => {
     expect(res).to.have.status(200)
     expect(res.body).to.have.property('total')
     expect(res.body.total).to.be.above(100) // just want to check that it's plenty
-    expect(res.body).to.have.property('results')
-    expect(res.body.results).to.be.instanceOf(Array)
+    expect(res.body)
+      .to.have.property('results')
+      .instanceOf(Array)
+    const reading = res.body.results[0]
+    expect(reading).to.have.property('title')
+    expect(reading).to.have.property('owner_id')
+    expect(reading).to.have.property('reading_type')
+    expect(reading).to.have.property('owner')
+    expect(reading.owner).to.have.property('fullname')
+    expect(reading.owner).to.have.property('username')
+    expect(reading.owner).to.have.property('identities')
+    expect(reading.owner).to.have.property('initials')
+    expect(reading).to.have.property('promoter_ids')
+    expect(reading).to.have.property('source')
+    expect(reading).not.to.have.property('parent_id')
+    expect(reading).to.have.property('subjects')
+    expect(reading).to.have.property('grade_levels')
+    expect(reading).to.have.property('version_id')
+    expect(reading).to.have.property('createdAt')
+    expect(reading).to.have.property('updatedAt')
+    expect(reading)
+      .to.have.property('words_preview')
+      .instanceOf(Array)
+      .length.greaterThan(0)
+      .lessThan(201)
     expect(res.body.results).to.be.lengthOf(15)
     expect(res.body.returned).to.be.equal(15)
-    savedReadings = res.body.results
   })
   it('should change the size of the request based on the query', async () => {
     const res = await searchRequest(['size=10'], token)
@@ -109,7 +130,7 @@ describe('GET /api/v1/readings/_search', () => {
         numberProjectsValidated++
       })
     }
-    expect(numberProjectsValidated).to.be.above(0)
+    expect(numberProjectsValidated).to.be.above(0, 'did not validate any projects')
   })
   it('should return buckets', async () => {
     const res = await searchRequest(['buckets=subjects', 'buckets=tags'], token)
@@ -124,6 +145,36 @@ describe('GET /api/v1/readings/_search', () => {
       expect(subject).to.haveOwnProperty('doc_count')
     }
   })
+  it('should not get readings if the owner is not in an institution', async () => {
+    const { username, password } = data.LOGIN_INFO.API_TEACHER
+    const userRes = await UserAPI.login(username, password)
+    const res = await searchRequest([`institution_id=5b006d759dbfbf137ec0df23`], userRes.token)
+    expect(res).to.have.status(401)
+  })
+  it('should get readings by institution', async () => {
+    const { username, password } = data.LOGIN_INFO.ACADEMY_HERO
+    const userRes = await UserAPI.login(username, password)
+    if (!userRes.user.institution_ids || userRes.user.institution_ids.length < 1) {
+      throw new Error('expected user to have institution_ids')
+    }
+    const res = await searchRequest(
+      [`institution_id=${userRes.user.institution_ids[0]}`, 'scope=academy'],
+      userRes.token,
+    )
+    expect(res).to.have.status(200)
+    expect(res.body)
+      .to.have.property('results')
+      .length.greaterThan(0)
+
+    res.body.results.forEach(reading => {
+      expect(reading).to.have.property('institution_id')
+    })
+  })
+  it('should return the query for debugging', async () => {
+    const res = await searchRequest(['debug=true'], token)
+    expect(res).to.have.status(200)
+    expect(res.body).to.have.property('debug')
+  })
   it('should not populate projects on public scope', async () => {
     const res = await searchRequest(['pop=projects'], token)
     expect(res).to.have.status(400)
@@ -131,6 +182,10 @@ describe('GET /api/v1/readings/_search', () => {
   it('should allow a request without authentication for public scope', async () => {
     const res = await searchRequest(['scope=public'])
     expect(res).to.have.status(200)
+  })
+  it('should not accept an unknown scope', async () => {
+    const res = await searchRequest(['scope=nothing'], token)
+    expect(res).to.have.status(400)
   })
   it('should reject a request for scope owner without authentication', async () => {
     const res = await searchRequest(['scope=owner'])

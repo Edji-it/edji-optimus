@@ -2,10 +2,10 @@
 import * as joi from 'joi'
 import { ValidationResult } from 'joi'
 import { ObjectId } from 'mongodb'
-import { search } from '../../../services/elasticsearch'
 
 // project imports
 import Reading from './../../../models/Reading'
+import { iUser } from '../../../models/User'
 
 export interface ReadingQuery {
   ids?: string[]
@@ -31,14 +31,15 @@ export interface ReadingQuery {
   pop?: PopulationsEnum[]
   buckets?: string[]
   bucket_max?: number
-  body?: boolean // debugging tool to return the query body
+  debug?: boolean // debugging tool to return the query body
 }
 
 enum ScopeEnum {
   PUBLIC = 'public',
   OWNER = 'owner',
+  ACADEMY = 'academy',
 }
-const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.OWNER]
+const scopeValues = [ScopeEnum.PUBLIC, ScopeEnum.OWNER, ScopeEnum.ACADEMY]
 enum PopulationsEnum {
   PROJECTS = 'projects',
 }
@@ -55,8 +56,8 @@ const querySchema = joi.object().keys({
   q: joi.string(),
   parent_id: joi.string(),
   owner_id: joi.string(),
-  institution_id: joi.string(),
-  scope: joi.string().allow(scopeValues),
+  institution_id: joi.alternatives().when('scope', { is: ScopeEnum.ACADEMY, then: joi.string() }),
+  scope: joi.string().valid(scopeValues),
   source: joi.string(),
   grade_levels_lte: joi.number(),
   grade_levels_gte: joi.number(),
@@ -87,13 +88,12 @@ const querySchema = joi.object().keys({
     .min(0)
     .max(30)
     .default(20),
-  body: joi.boolean(),
+  debug: joi.boolean(),
 })
 
 const queriableStringFields = ['html', 'title', 'parent_id', 'owner_id', 'source', 'subjects', 'version_id']
 
 const filterStringFields = [
-  { queryName: 'institution_id', fieldName: 'institution_id' },
   { queryName: 'district_id', fieldName: 'owner.school.district_id' },
   { queryName: 'school_id', fieldName: 'owner.school.school_id' },
 ]
@@ -102,17 +102,44 @@ const queriableBooleanFields = ['owner_bookmarked']
 
 const arrayFieldsToConverToStrings = ['owner_id', 'subjects']
 
+const createValidationError = (message: string, query: any) => {
+  return { name: 'ValidationError', details: [{ message }], _object: query }
+}
+
 /**
  * ensures that the search endpoint can handle any parameters it is passed
  * @param query query object expected to match the search endpoint's interface
  */
-export function validateSearchQuery(query: ReadingQuery): ValidationResult<ReadingQuery> {
+export function validateSearchQuery(query: ReadingQuery, user: iUser): { error: any; status: number; value?: any } {
   arrayFieldsToConverToStrings.forEach(field => {
     if (query[field] && query[field] instanceof Array) {
       query[field] = query[field].join(' ')
     }
   })
-  return joi.validate(query, querySchema)
+  // restrict unauth'd users to public scoped queries
+  if (query.scope && query.scope !== 'public' && !user) {
+    return {
+      status: 401,
+      error: createValidationError(
+        `user is not authenticated and can not make queries for scope ${query.scope}`,
+        query,
+      ),
+    }
+  }
+  if (
+    query.institution_id &&
+    (!user || !user.institution_ids || !user.institution_ids.includes(query.institution_id))
+  ) {
+    return {
+      status: 401,
+      error: createValidationError(
+        `user is not authorized to query academy readings for ${query.institution_id}`,
+        query,
+      ),
+    }
+  }
+
+  return { ...joi.validate(query, querySchema), status: 400 }
 }
 
 /**
@@ -134,9 +161,12 @@ export async function searchByIds(
     {
       $lookup: {
         from: 'users',
-        localField: 'owner_id',
-        foreignField: '_id',
         as: 'owner',
+        let: { owner_id: '$owner_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$$owner_id', '$_id'] } } },
+          { $project: { fullname: 1, username: 1, avatar: 1, identities: 1, initials: 1, hero_status: 1 } },
+        ],
       },
     },
     {
@@ -147,52 +177,36 @@ export async function searchByIds(
     }, // owner comes back as an array, but there will only ever be one
   ]
   if (populations.includes(PopulationsEnum.PROJECTS)) {
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'projects',
-          localField: '_id',
-          foreignField: 'reading_id',
-          as: 'projects',
-        },
-      },
-      {
-        $addFields: {
-          projects: {
-            $map: {
-              input: '$projects',
-              in: {
-                _id: '$$this._id',
-                reading_id: '$$this.reading_id',
-                teacher_id: '$$this.teacher_id',
-                label: '$$this.label',
-                code: '$$this.code',
-                types: '$$this.types',
-                createdAt: '$$this.createdAt',
-                updatedAt: '$$this.updatedAt',
-                comment_count: {
-                  $size: '$$this.comments',
-                },
-                student_count: {
-                  $sum: [{ $size: '$$this.students_ids' }, { $size: '$$this.temp_ids' }],
-                },
-              },
+    pipeline.push({
+      $lookup: {
+        from: 'projects',
+        as: 'projects',
+        let: { reading_id: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$$reading_id', '$reading_id'] } } },
+          {
+            $project: {
+              reading_id: 1,
+              teacher_id: 1,
+              label: 1,
+              code: 1,
+              types: 1,
+              createdAt: 1,
+              updatedAt: 1,
+              comment_count: { $size: '$comments' },
+              student_count: { $sum: [{ $size: '$students_ids' }, { $size: '$temp_ids' }] },
             },
           },
-        },
+        ],
       },
-    )
+    })
   }
   pipeline.push({
     $project: {
       title: true,
       owner_id: true,
       reading_type: true,
-      'owner._id': true,
-      'owner.fullname': true,
-      'owner.username': true,
-      'owner.avatar': true,
-      'owner.identities': true,
+      owner: true,
       promoter_ids: true,
       source: true,
       parent_id: true,
@@ -203,6 +217,7 @@ export async function searchByIds(
       tags: true,
       draft: true,
       version_id: true,
+      institution_id: true,
       default_instructions: true,
       createdAt: true,
       updatedAt: true,
@@ -264,6 +279,20 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
           },
         })
       }
+      break
+    case ScopeEnum.ACADEMY:
+      body.query.bool.filter.push(
+        {
+          match: {
+            reading_type: 'academy',
+          },
+        },
+        {
+          match: {
+            institution_id: query.institution_id,
+          },
+        },
+      )
       break
   }
 
@@ -327,22 +356,6 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     }
   }
 
-  // if (query.district_id) {
-  //   body.query.bool.filter.push({
-  //     term: {
-  //       'owner.school.district_id': query.district_id,
-  //     },
-  //   })
-  // }
-
-  // if (query.school_id) {
-  //   body.query.bool.filter.push({
-  //     term: {
-  //       'owner.school.school_id': query.school_id,
-  //     },
-  //   })
-  // }
-
   // handle pulling apart grade_levels here so that the search query url matches the front end
   if (query.hasOwnProperty('grade_levels_lte') || query.hasOwnProperty('grade_levels_gte')) {
     const { grade_levels_lte: lte, grade_levels_gte: gte } = query
@@ -369,12 +382,12 @@ export function constructSearch(query: ReadingQuery, userId?: string) {
     ]
   }
 
-  return search({
+  return {
     index: 'readings',
     type: 'default',
     _source: false,
     body,
     from: query.from,
     size: query.size,
-  })
+  }
 }
