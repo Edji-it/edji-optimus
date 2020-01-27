@@ -34,6 +34,7 @@ const ProjectModel: any = ModelCreator(
     tags: [Tags.schema],
     heat_vision: { type: Boolean, default: false },
     group_instructions: String,
+    quick_labels: [String],
     outcomes: [
       {
         outcome_id: { type: mongoose.Schema.ObjectId, required: true },

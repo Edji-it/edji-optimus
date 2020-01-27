@@ -54,6 +54,7 @@ describe('GET /api/v1/projects/:project_id', () => {
       'heat_vision',
       'report_evals',
       'group_instructions',
+      'quick_labels',
       'outcomes',
       'createdAt',
     ]
@@ -114,6 +115,7 @@ describe('GET /api/v1/projects/:project_id', () => {
       ],
       feedback: [],
       group_instructions: "Do the thing, don't be a bot",
+      quick_labels: ['Main Idea', 'Synonym'],
       heat_vision: false,
       label: 'Project for retrieve projects api test',
       outcomes: [],
