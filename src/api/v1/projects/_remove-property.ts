@@ -38,7 +38,7 @@ export async function removeCommentFromArray({ project_id, user, comment_id, idA
 
   // if we have an asset from the S3 bucket on the comment or answer we just deleted, we need to remove it from S3
   const comment = res && res[commentType] && res[commentType].id(comment_id)
-  if (comment.url) {
+  if (comment && comment.url) {
     deleteFromS3(comment.url)
   }
 }
