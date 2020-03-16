@@ -13,7 +13,7 @@ const plan = 'yearly'
  * @param {Object} user the user attached to the request body by auth middleware
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
-export const retrieveOrCreateCustomer = async (user: any, paymentToken: string) => {
+export const retrieveOrCreateCustomer = async (user: any, paymentToken?: string) => {
   if (user && user.stripe_customer_id) {
     return await stripe.customers.retrieve(user.stripe_customer_id)
   } else if (user && user.email) {

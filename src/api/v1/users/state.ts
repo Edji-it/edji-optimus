@@ -1,6 +1,5 @@
 // library imports
 import { RequestHandler } from 'express'
-import * as joi from 'joi'
 
 // project imports
 import { UserState } from './../../../models/State'

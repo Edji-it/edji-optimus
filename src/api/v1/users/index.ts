@@ -11,11 +11,13 @@ import LinkController from './link'
 import CreateHandler from './create'
 import LoginHandler from './login'
 import PublicDetailsHandler from './public-details'
+import ChangePasswordHandler from './change-pass'
 import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
 import { GetAcademiesHandler } from './academies'
 import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
 import { LegacyAuth, addUserToRequest } from '../../../middleware'
+import RefreshHandler from './refresh'
 
 const router = Router()
 router.post('/', addRouteName('/'), LegacyAuth, CreateHandler)
@@ -32,8 +34,9 @@ router.get(
   require('./check-user-id'),
   require('./retrieve'),
 )
+router.get('/:user_id/_refresh', RefreshHandler)
 router.put('/@me/link', addRouteName('/@me/link'), LegacyAuth, authRequired, LinkController)
-router.post('/@me/change_password', LegacyAuth, authRequired, require('./change-pass').default)
+router.post('/@me/change_password', LegacyAuth, authRequired, ChangePasswordHandler)
 router.get('/@me/state', addRouteName('/@me/state'), LegacyAuth, authRequired, GetStatesHandler)
 router.get('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, GetStateHandler)
 router.post('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, PostStateHandler)
