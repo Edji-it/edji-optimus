@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-import { updateCustomerCard } from './../_stripe'
+import { updateCustomerCard } from '../../../../services/stripe'
 
 // project imports
 import { validateBody } from './_update'

@@ -8,7 +8,7 @@ import { ObjectId } from 'mongodb'
 // project imports
 import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
 import { bad } from './badwords'
-import { retrieveOrCreateCustomer } from '../api/v1/stripe/_stripe'
+import { retrieveOrCreateCustomer } from '../services/stripe'
 
 import {
   getUserHeroStatus,

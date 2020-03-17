@@ -7,7 +7,7 @@ import { Request } from 'superagent'
 // project imports
 const TEST = require('../../../../test/constants')
 import { UserAPI } from '../../../../test/methods'
-import { retrieveOrCreateCustomer, createStripeSubscription } from '../_stripe'
+import { retrieveOrCreateCustomer, createStripeSubscription } from '../../../../services/stripe'
 
 // local variables
 const ENDPOINT_URL = '/api/v1/stripe/subscriptions/'
@@ -119,6 +119,7 @@ describe('create a user and create, delete, and rejoin subscription', () => {
     // Set these for reference later in testing
     customerId = user.stripe_customer_id
     subscriptionId = res.body.subscription.id
+    console.log('subscription', subscriptionId)
   })
 
   it('should update a customers credit card', async () => {
@@ -141,7 +142,7 @@ describe('create a user and create, delete, and rejoin subscription', () => {
       .del(`${ENDPOINT_URL}`)
       .set('Authorization', createdUserToken)
       .end((err, res) => {
-        expect(err).to.not.exist
+        // console.log(res.error)
         expect(res).to.have.status(200)
         expect(res.body).to.have.property('canceled')
         expect(res.body.canceled).to.be.true // or false

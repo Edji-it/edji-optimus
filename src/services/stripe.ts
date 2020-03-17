@@ -62,13 +62,9 @@ export const getHeroSubscriptions = async (customerId: string, status: string) =
  * @param customer_id the Stripe customer id that we attach to the user
  */
 export const retrieveCustomerCard = async (customer_id: string) => {
-  try {
-    const customer = await stripe.customers.retrieve(customer_id)
-    const card = await stripe.customers.retrieveSource(customer_id, customer.default_source)
-    return card
-  } catch (err) {
-    return err
-  }
+  const customer = await stripe.customers.retrieve(customer_id)
+  const card = await stripe.customers.retrieveSource(customer_id, customer.default_source)
+  return card
 }
 
 /**
@@ -77,13 +73,9 @@ export const retrieveCustomerCard = async (customer_id: string) => {
  * @param customer_id the Stripe customer id that we attach to the user
  */
 export const retrieveCustomer = async (customer_id: string) => {
-  try {
-    const customer = await stripe.customers.retrieve(customer_id)
-    delete customer.sources
-    return customer
-  } catch (err) {
-    return err
-  }
+  const customer = await stripe.customers.retrieve(customer_id)
+  delete customer.sources
+  return customer
 }
 
 /**
@@ -92,14 +84,10 @@ export const retrieveCustomer = async (customer_id: string) => {
  * @param token is the new payment source token
  */
 export const updateCustomerCard = async (customer_id: string, token: string) => {
-  try {
-    const updatedCard = await stripe.customers.update(customer_id, {
-      source: token,
-    })
-    return updatedCard
-  } catch (err) {
-    return err
-  }
+  const updatedCard = await stripe.customers.update(customer_id, {
+    source: token,
+  })
+  return updatedCard
 }
 
 /**
@@ -108,16 +96,12 @@ export const updateCustomerCard = async (customer_id: string, token: string) => 
  * @param couponCode optional parameter that we would pass through if there is a coupon for the purchase
  */
 export const createStripeSubscription = async (customer_id: string, couponCode?: string) => {
-  try {
-    const subscription = await stripe.subscriptions.create({
-      customer: customer_id,
-      coupon: couponCode,
-      plan: plan,
-    })
-    return subscription
-  } catch (err) {
-    return err
-  }
+  const subscription = await stripe.subscriptions.create({
+    customer: customer_id,
+    coupon: couponCode,
+    plan: plan,
+  })
+  return subscription
 }
 
 /**
@@ -125,14 +109,10 @@ export const createStripeSubscription = async (customer_id: string, couponCode?:
  * @param subscriptions are the subscriptions from Stripe that a customer will have
  */
 export const cancelSubscriptions = async (subscriptions: any) => {
-  try {
-    const promises = subscriptions.map(sub => {
-      stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
-    })
-    await Promise.all(promises)
-  } catch (err) {
-    return err
-  }
+  const promises = subscriptions.map(sub => {
+    stripe.subscriptions.update(sub.id, { cancel_at_period_end: true })
+  })
+  await Promise.all(promises)
 }
 
 /**
@@ -140,12 +120,8 @@ export const cancelSubscriptions = async (subscriptions: any) => {
  * @param subscription_id is the subscription id for the paid subscription the user will be reactivating
  */
 export const rejoinSubscription = async (subscription_id: string) => {
-  try {
-    const subscription = await stripe.subscriptions.update(subscription_id, { cancel_at_period_end: false })
-    return subscription
-  } catch (err) {
-    return err
-  }
+  const subscription = await stripe.subscriptions.update(subscription_id, { cancel_at_period_end: false })
+  return subscription
 }
 
 /**

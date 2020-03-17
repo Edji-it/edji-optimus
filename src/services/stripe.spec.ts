@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { stub, assert } from 'sinon'
 
 // project imports
-import { api, retrieveOrCreateCustomer } from './_stripe'
+import { api, retrieveOrCreateCustomer } from './stripe'
 
 describe('_stripe', () => {
   describe('retrieveOrCreateCustomer', () => {

@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { rejoinSubscription } from './../_stripe'
+import { rejoinSubscription } from '../../../../services/stripe'
 
 const UpdateSubscription: RequestHandler = async (req, res, next) => {
   let user = req.user

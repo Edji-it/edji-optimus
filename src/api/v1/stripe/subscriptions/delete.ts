@@ -2,16 +2,16 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { cancelSubscriptions, getHeroSubscriptions } from './../_stripe'
+import { cancelSubscriptions, getHeroSubscriptions } from '../../../../services/stripe'
 
 // module.exports = function(req, res, next) {
 const DeleteSubscription: RequestHandler = async (req, res, next) => {
   const user = req.user
+  const customer_id = user.stripe_customer_id
 
-  if (!user.stripe_customer_id) {
+  if (!customer_id) {
     return res.status(400).send({ error: 'user is not a stripe customer' })
   }
-  const customer_id = user.stripe_customer_id
 
   /**
    * Using the Stripe API, delete the current billing for the customer ID from Stripe to cancel any future billing
@@ -24,7 +24,7 @@ const DeleteSubscription: RequestHandler = async (req, res, next) => {
     const subscriptions = await getHeroSubscriptions(customer_id, 'active')
     // if there are no subscriptions for that customer, then we don't need to do anything (it is very suspicious if this call is made though)
     if (subscriptions.length < 1) {
-      return res.status(400).send()
+      return res.status(400).send({ error: 'user is not a registered subscriber' })
     }
     await cancelSubscriptions(subscriptions)
     return res.status(200).send({ canceled: true })
