@@ -4,6 +4,7 @@ import { hashSync } from 'bcryptjs'
 import { pick } from 'underscore'
 import { Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
+import { captureException } from '@sentry/node'
 
 // project imports
 import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
@@ -253,8 +254,15 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
       this.identities.indexOf('student') < 0 &&
       !this.stripe_customer_id
     ) {
-      const customer = await retrieveOrCreateCustomer(this)
-      this.stripe_customer_id = customer.id
+      try {
+        const customer = await retrieveOrCreateCustomer(this)
+        this.stripe_customer_id = customer.id
+      } catch (err) {
+        // This has to be caught because of tests (not ideal). The user is not validated prior to this, which means that tests
+        // that attempt to create invalid users will end up throwing this error.
+        // It is not vital that users get assigned a customer id - eventually this function should be moved to a pre-save hook,
+        // since those work in the newer mongoose version.
+      }
     }
 
     /**

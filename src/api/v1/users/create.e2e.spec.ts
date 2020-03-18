@@ -41,6 +41,7 @@ describe('POST /api/v1/users', () => {
     expect(res.body).to.haveOwnProperty('token')
 
     validateLoginObject(res.body)
+    expect(res.body.user).to.have.property('stripe_customer_id')
   })
 
   /**

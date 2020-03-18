@@ -3,23 +3,24 @@ import { expect } from 'chai'
 import { stub, assert } from 'sinon'
 
 // project imports
-import { api, retrieveOrCreateCustomer } from './stripe'
+import { api, retrieveOrCreateCustomer, updateCustomerCard } from './stripe'
 
 describe('_stripe', () => {
   describe('retrieveOrCreateCustomer', () => {
-    let retrieveCustomer
-    let createCustomer
+    let retrieveCustomer, createCustomer, updateCard
 
     beforeEach(() => {
       // stub these functions
       retrieveCustomer = stub(api.customers, 'retrieve').resolves()
       createCustomer = stub(api.customers, 'create').resolves()
+      updateCard = stub(api.customers, 'update').resolves()
     })
 
     afterEach(() => {
       // restore stubs
       retrieveCustomer.restore()
       createCustomer.restore()
+      updateCard.restore()
     })
 
     let fakeUser = {

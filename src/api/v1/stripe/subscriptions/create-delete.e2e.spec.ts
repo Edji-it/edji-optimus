@@ -139,7 +139,6 @@ describe('stripe services', () => {
         .del(`${ENDPOINT_URL}`)
         .set('Authorization', createdUserToken)
         .end((err, res) => {
-          // console.log(res.error)
           expect(res).to.have.status(200)
           expect(res.body).to.have.property('canceled')
           expect(res.body.canceled).to.be.true // or false
