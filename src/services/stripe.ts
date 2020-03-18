@@ -14,17 +14,22 @@ const plan = 'yearly'
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
 export const retrieveOrCreateCustomer = async (user: any, paymentToken?: string) => {
-  if (user && user.stripe_customer_id) {
-    return await stripe.customers.retrieve(user.stripe_customer_id)
-  } else if (user && user.email) {
-    let customer = {
+  if (!user || (!user.stripe_customer_id && !user.email))
+    throw new Error('user object missing required properties for customer creation')
+
+  const customerId = user.stripe_customer_id
+
+  if (customerId) {
+    const customer = await stripe.customers.retrieve(customerId)
+    if (paymentToken) {
+      await updateCustomerCard(customerId, paymentToken)
+    }
+    return customer
+  } else {
+    return stripe.customers.create({
       email: user.email,
       source: paymentToken,
-    }
-
-    return await stripe.customers.create(customer)
-  } else {
-    return Promise.reject({ error: 'user object missing required properties for customer creation' })
+    })
   }
 }
 

@@ -6,7 +6,7 @@ import * as joi from 'joi'
  * @param {Object} reqBody The req.query passed to the route handler by express
  */
 export const validateBody = reqBody => {
-  if (reqBody.token == '') {
+  if (reqBody.token === '') {
     delete reqBody.token
   }
   const bodySchema = joi
