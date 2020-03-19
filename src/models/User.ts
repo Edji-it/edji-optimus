@@ -4,7 +4,6 @@ import { hashSync } from 'bcryptjs'
 import { pick } from 'underscore'
 import { Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
-import { captureException } from '@sentry/node'
 
 // project imports
 import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
