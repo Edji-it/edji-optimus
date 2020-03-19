@@ -4,7 +4,7 @@ import { generate } from 'randomstring'
 import ms = require('ms')
 
 // project imports
-import * as _stripe from './../api/v1/stripe/_stripe'
+import * as _stripe from '../services/stripe'
 import { OAuthType, OAuthObject } from './User'
 
 // constants

@@ -5,7 +5,7 @@ import randomstring = require('randomstring')
 import bcrypt = require('bcryptjs')
 
 // project imports
-import * as stripe from './../api/v1/stripe/_stripe'
+import * as stripe from '../services/stripe'
 import { getUserHeroStatus, validateToken, createOneTimeTokenObject, generateOAuthObject } from './_User'
 
 describe('_User', () => {

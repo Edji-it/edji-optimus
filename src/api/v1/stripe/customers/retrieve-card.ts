@@ -1,6 +1,6 @@
 // library imports
 import { RequestHandler } from 'express'
-import { retrieveCustomerCard } from './../_stripe'
+import { retrieveCustomerCard } from '../../../../services/stripe'
 
 const RetrieveCardHandler: RequestHandler = async (req, res, next) => {
   const customer_id = req.params.stripe_id

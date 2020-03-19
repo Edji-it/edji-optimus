@@ -2,7 +2,7 @@
 import { RequestHandler } from 'express'
 
 // project imports
-import { getHeroSubscriptions } from './../_stripe'
+import { getHeroSubscriptions } from '../../../../services/stripe'
 
 const ListSubscriptions: RequestHandler = async (req, res, next) => {
   const user = req.user

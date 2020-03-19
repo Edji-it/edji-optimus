@@ -6,9 +6,9 @@ import { Schema } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 // project imports
-// const ModelCreator = require('./ModelCreator').default
 import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
 import { bad } from './badwords'
+import { retrieveOrCreateCustomer } from '../services/stripe'
 
 import {
   getUserHeroStatus,
@@ -245,6 +245,25 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
     if (this.password && this.isModified('password')) {
       this.password = hashSync(this.password, 10) // set the new password to a hash of itself
     }
+
+    // assign teachers a stripe id if they do not have one
+    if (
+      this.identities &&
+      this.identities.length > 0 &&
+      this.identities.indexOf('student') < 0 &&
+      !this.stripe_customer_id
+    ) {
+      try {
+        const customer = await retrieveOrCreateCustomer(this)
+        this.stripe_customer_id = customer.id
+      } catch (err) {
+        // This has to be caught because of tests (not ideal). The user is not validated prior to this, which means that tests
+        // that attempt to create invalid users will end up throwing this error.
+        // It is not vital that users get assigned a customer id - eventually this function should be moved to a pre-save hook,
+        // since those work in the newer mongoose version.
+      }
+    }
+
     /**
      * since school_name is @deprecated 4/4/2019
      * set the school child property district_name to the value being passed in so we return the correct data to the front end
