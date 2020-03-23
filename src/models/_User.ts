@@ -17,6 +17,7 @@ const ONE_TIME_TOKEN_SALT = 5
  * @param {User} user the user for which we should calculate the hero status
  */
 export const getUserHeroStatus = async function(user) {
+  console.log('checking Hero status')
   // if a user has a license_id, we'll assume that they're all set
   if (user.license_ids && user.license_ids.length > 0) {
     return true
@@ -24,7 +25,7 @@ export const getUserHeroStatus = async function(user) {
     return false
   }
 
-  const subscriptions = await _stripe.getHeroSubscriptions(user.stripe_customer_id, 'active')
+  const subscriptions = await _stripe.getHeroSubscriptions(user.stripe_customer_id)
   // data is where the list of subscriptions comes back - our query should leave us with only active yearly Hero subs
   //  so if the length is greater than 1, we should be all good for whether the user is a Hero or not
   if (subscriptions && subscriptions.length > 0) {
