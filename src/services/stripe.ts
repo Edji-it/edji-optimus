@@ -36,36 +36,28 @@ export const retrieveOrCreateCustomer = async (user: any, paymentToken?: string)
 /**
  * Gets a listing of all Stripe subscriptions based on the status that we are looking for
  * @param customerId the Stripe customer id that we attach to the user
- * @param status the status we are looking for on subscriptions in Stripe
+ * @param status array of statuses you want results are - can also be ['all']
  */
-export const getHeroSubscriptions = async (customerId: string, status?: Array<string>) => {
-  if (!status) {
-    status = ['active', 'trialing']
-  }
+export const getHeroSubscriptions = async (customerId: string, status: Array<string>) => {
+  const promises = status.map(s =>
+    stripe.subscriptions.list({
+      customer: customerId,
+      plan: plan,
+      status: s,
+    }),
+  )
 
-  try {
-    const promises = status.map(s =>
-      stripe.subscriptions.list({
-        customer: customerId,
-        plan: plan,
-        status: s,
-      }),
-    )
+  const subscriptions = (await Promise.all(promises)).reduce((memo, response) => {
+    return memo.concat(response.data)
+  }, [])
 
-    const subscriptions = (await Promise.all(promises)).reduce((memo, response) => {
-      return memo.concat(response.data)
-    }, [])
-
-    if (subscriptions && subscriptions.length === 1) {
-      return subscriptions
-    } else if (subscriptions && subscriptions.length > 1) {
-      sentry.captureException(new Error('more than one Hero subscription in stripe'))
-      return subscriptions
-    } else {
-      return []
-    }
-  } catch (err) {
-    throw new Error(err)
+  if (subscriptions && subscriptions.length === 1) {
+    return subscriptions
+  } else if (subscriptions && subscriptions.length > 1) {
+    sentry.captureException(new Error('more than one Hero subscription in stripe'))
+    return subscriptions
+  } else {
+    return []
   }
 }
 
