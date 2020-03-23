@@ -27,7 +27,8 @@ const requestProject = function(projectId: string, authToken: string) {
 
 describe('create and list projects workflow', () => {
   let heroToken, studentToken, heroUser, createdReading, createdProject
-  before(async () => {
+  before(async function() {
+    this.timeout(6000)
     // log in teacher and create new reading with a project
     let { username, password } = data.LOGIN_INFO.API_HERO
     let { token, user } = await UserAPI.login(username, password)
@@ -50,7 +51,6 @@ describe('create and list projects workflow', () => {
   })
 
   it('should list a project in a users dashboard after the user joins the project', async function() {
-    this.timeout(6000)
     // make sure the new reading does not already exist on the dashboard
     let res1 = await requestProjects(studentToken)
     res1.body.projects.length.should.be.above(1)
