@@ -38,7 +38,7 @@ describe('_User', () => {
       assert.calledOnce(heroSubStub)
       const [customerId, status] = heroSubStub.firstCall.args
       expect(customerId).to.be.equal(fakeUser.stripe_customer_id)
-      expect(status).to.be.equal('active')
+      expect(status).to.deep.equal(['active', 'trialing'])
     })
 
     it('should return false if stripe returns no subscriptions', async () => {

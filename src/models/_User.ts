@@ -24,7 +24,7 @@ export const getUserHeroStatus = async function(user) {
     return false
   }
 
-  const subscriptions = await _stripe.getHeroSubscriptions(user.stripe_customer_id, 'active')
+  const subscriptions = await _stripe.getHeroSubscriptions(user.stripe_customer_id, ['active', 'trialing'])
   // data is where the list of subscriptions comes back - our query should leave us with only active yearly Hero subs
   //  so if the length is greater than 1, we should be all good for whether the user is a Hero or not
   if (subscriptions && subscriptions.length > 0) {

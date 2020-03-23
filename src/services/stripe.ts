@@ -36,29 +36,28 @@ export const retrieveOrCreateCustomer = async (user: any, paymentToken?: string)
 /**
  * Gets a listing of all Stripe subscriptions based on the status that we are looking for
  * @param customerId the Stripe customer id that we attach to the user
- * @param status the status we are looking for on subscriptions in Stripe
+ * @param status array of statuses you want results are - can also be ['all']
  */
-export const getHeroSubscriptions = async (customerId: string, status: string) => {
-  if (!status) {
-    status = 'active'
-  }
-  try {
-    let subscriptions = await stripe.subscriptions.list({
+export const getHeroSubscriptions = async (customerId: string, status: Array<string>) => {
+  const promises = status.map(s =>
+    stripe.subscriptions.list({
       customer: customerId,
       plan: plan,
-      status: status,
-    })
+      status: s,
+    }),
+  )
 
-    if (subscriptions.data && subscriptions.data.length === 1) {
-      return subscriptions.data
-    } else if (subscriptions.data && subscriptions.data.length > 1) {
-      sentry.captureException(new Error('more than one Hero subscription in stripe'))
-      return subscriptions.data
-    } else {
-      return []
-    }
-  } catch (err) {
-    throw new Error(err)
+  const subscriptions = (await Promise.all(promises)).reduce((memo, response) => {
+    return memo.concat(response.data)
+  }, [])
+
+  if (subscriptions && subscriptions.length === 1) {
+    return subscriptions
+  } else if (subscriptions && subscriptions.length > 1) {
+    sentry.captureException(new Error('more than one Hero subscription in stripe'))
+    return subscriptions
+  } else {
+    return []
   }
 }
 

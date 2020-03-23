@@ -7,7 +7,6 @@ import { Request } from 'superagent'
 // project imports
 const TEST = require('../../../../test/constants')
 import { UserAPI } from '../../../../test/methods'
-import { retrieveOrCreateCustomer, createStripeSubscription } from '../../../../services/stripe'
 
 // local variables
 const ENDPOINT_URL = '/api/v1/stripe/subscriptions/'

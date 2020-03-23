@@ -11,7 +11,7 @@ import { addUserToRequest } from '../../../../middleware/login-controller'
 router.get(
   '/:user_id/messages',
   addRouteName('/:user_id/messages'),
-  addUserToRequest({ message_list_id: true }),
+  addUserToRequest({ message_list_id: true, last_refresh_time: true, message_check_required: true }),
   authRequired,
   checkId,
   require('./retrieve'),

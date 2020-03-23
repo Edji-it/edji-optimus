@@ -263,15 +263,6 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
         // since those work in the newer mongoose version.
       }
     }
-
-    /**
-     * since school_name is @deprecated 4/4/2019
-     * set the school child property district_name to the value being passed in so we return the correct data to the front end
-     */
-    if (this.school_name) {
-      this.school.district_name = this.school_name
-      delete this.school_name
-    }
   }
 
   // add custom validator to make sure user has either oauth type or username/password
@@ -404,6 +395,8 @@ export interface iUser {
   oauth?: OAuthObject[]
   pending_oauth?: OAuthObject
   message_list_id?: ObjectId
+  message_check_required?: boolean
+  last_refresh_time: boolean
   referred_by?: string
   institution_ids?: string[]
   school?: {

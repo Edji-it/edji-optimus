@@ -112,6 +112,9 @@ router.get('/following', authRequired, (req, res, next) => {
     })
 })
 
+/**
+ * @deprecated 3/22/2020
+ */
 router.get('/:id', authRequired, function(req, res) {
   let user = req.user
   let _id = req.params.id

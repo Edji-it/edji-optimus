@@ -1,14 +1,23 @@
 // project imports
 const MessageList = require('./../../../../models/MessageList').default
 const helpers = require('./_retrieve')
-const User = require('./../../../../models/User').default
 
 module.exports = function(req, res, next) {
   let user = req.user
+  const messages = []
+  const refreshRequiredMessage = { key: 'user_refresh_required', added_at_time: Date.now() }
 
   // throttle the database calls if the user has gotten messages recently
-  if (!user.message_check_required || user.type === 'temp') {
-    return res.status(200).send({ messages: [] })
+  if (user.type === 'temp') {
+    return res.status(200).send({ messages })
+  }
+
+  if (user.refresh_required) {
+    messages.push(refreshRequiredMessage)
+  }
+
+  if (!user.message_check_required) {
+    return res.status(200).send({ messages })
   }
 
   // if the user doesn't have a MessageList, we need to make them one and update their user object
@@ -34,7 +43,7 @@ module.exports = function(req, res, next) {
         }
 
         if (user.refresh_required) {
-          messageList.messages.push({ key: 'user_refresh_required', added_at_time: Date.now() })
+          messageList.messages.push(refreshRequiredMessage)
         }
 
         return res.status(200).send({ messages: messageList.messages })

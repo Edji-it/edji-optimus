@@ -18,6 +18,7 @@ import { GetAcademiesHandler } from './academies'
 import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
 import { LegacyAuth, addUserToRequest } from '../../../middleware'
 import RefreshHandler from './refresh'
+import RetrieveHandler from './retrieve'
 
 const router = Router()
 router.post('/', addRouteName('/'), LegacyAuth, CreateHandler)
@@ -32,7 +33,7 @@ router.get(
   LegacyAuth,
   authRequired,
   require('./check-user-id'),
-  require('./retrieve'),
+  RetrieveHandler,
 )
 router.get('/:user_id/_refresh', RefreshHandler)
 router.put('/@me/link', addRouteName('/@me/link'), LegacyAuth, authRequired, LinkController)
