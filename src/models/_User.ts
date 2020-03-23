@@ -17,7 +17,6 @@ const ONE_TIME_TOKEN_SALT = 5
  * @param {User} user the user for which we should calculate the hero status
  */
 export const getUserHeroStatus = async function(user) {
-  console.log('checking Hero status')
   // if a user has a license_id, we'll assume that they're all set
   if (user.license_ids && user.license_ids.length > 0) {
     return true

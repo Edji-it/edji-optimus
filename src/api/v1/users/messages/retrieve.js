@@ -7,18 +7,12 @@ module.exports = function(req, res, next) {
   const messages = []
   const refreshRequiredMessage = { key: 'user_refresh_required', added_at_time: Date.now() }
 
-  console.log('in message check')
-
   // throttle the database calls if the user has gotten messages recently
   if (user.type === 'temp') {
     return res.status(200).send({ messages })
   }
-  console.log('not a temp user')
-
-  console.log('last_refresh_time', user.last_refresh_time)
 
   if (user.refresh_required) {
-    console.log('refresh required!')
     messages.push(refreshRequiredMessage)
   }
 

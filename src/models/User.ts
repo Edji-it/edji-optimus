@@ -315,7 +315,6 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
    * 100% sure that wrapping promises in promises is weird, but I haven't found out how to get the Model#edjiSave() function to return a promise, so this is what I'm doing for now...
    */
   schema.methods.refresh = async function() {
-    console.log('refreshing!')
     let validHero = await getUserHeroStatus(this)
     this.hero_status = validHero
     this.last_refresh_time = Date.now()
