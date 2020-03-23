@@ -9,7 +9,7 @@ executors:
     docker:
       - image: circleci/node:12.13
 jobs:
-  build:
+  test-api:
     executor: node
     working_directory: ~/repo
     steps:
@@ -69,15 +69,15 @@ jobs:
       - run: curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8 -d build_parameters[CIRCLE_JOB]=e2e https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
 workflows:
   version: 2
-  test:
+  test-api:
     jobs:
-      - build
+      - test-api
       - test-prod-build:
           requires:
-            - build
+            - test-api
       - version:
           requires:
-            - build
+            - test-api
             - test-prod-build
           filters:
             branches:
@@ -85,7 +85,7 @@ workflows:
                 - dev
       - hot_rod_trigger:
           requires:
-            - build
+            - test-api
             - test-prod-build
           filters:
             branches:
