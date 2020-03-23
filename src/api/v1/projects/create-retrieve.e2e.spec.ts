@@ -36,7 +36,8 @@ describe('create and list projects workflow', () => {
     heroUser = user
   })
 
-  it('should list a project in a users dashboard after the user joins the project', async () => {
+  it('should list a project in a users dashboard after the user joins the project', async function() {
+    this.timeout(6000)
     let { reading: createdReading } = await ReadingAPI.create(heroToken)
     let createdProject = await ProjectAPI.create(
       {
