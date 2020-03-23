@@ -4,7 +4,7 @@ import { expect } from 'chai'
 chai.use(require('chai-http'))
 
 // project imports
-const TEST = require('../../../../test/constants')
+import * as TEST from '../../../../test/constants'
 
 // local variables
 const ENDPOINT_URL = '/api/v1/stripe/customers/'
@@ -38,7 +38,6 @@ describe('GET /stripe/customers/:stripe_id/card', () => {
       .request(TEST.SERVER)
       .get(`${ENDPOINT_URL}/${HERO_CUSTOMER_ID}/card`)
       .end((err, res) => {
-        expect(res).to.not.have.status(200)
         expect(res).to.have.status(401)
         done()
       })
@@ -50,7 +49,6 @@ describe('GET /stripe/customers/:stripe_id/card', () => {
       .get(`${ENDPOINT_URL}/${HERO_CUSTOMER_ID}/card`)
       .set('Authorization', TEST.LOGIN_TOKENS.API_STUDENT)
       .end((err, res) => {
-        expect(res).to.not.have.status(200)
         expect(res).to.have.status(400)
         done()
       })
@@ -62,7 +60,6 @@ describe('GET /stripe/customers/:stripe_id/card', () => {
       .get(`${ENDPOINT_URL}/${HERO_CUSTOMER_ID2}/card`)
       .set('Authorization', TEST.LOGIN_TOKENS.API_HERO2)
       .end((err, res) => {
-        expect(res).to.not.have.status(200)
         expect(res).to.have.status(401)
         done()
       })

@@ -1,7 +1,6 @@
 // library imports
 const express = require('express')
 const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
 
 // project imports
 const User = require('../models/User').default
@@ -115,20 +114,7 @@ router.get('/following', authRequired, (req, res, next) => {
 /**
  * @deprecated 3/22/2020
  */
-router.get('/:id', authRequired, function(req, res) {
-  let user = req.user
-  let _id = req.params.id
-
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res.status(400).send()
-  }
-
-  if (!user._id.equals(_id)) {
-    return res.status(401).send()
-  }
-
-  return res.status(200).send({ user: user.toPublic() })
-})
+router.get('/:user_id', authRequired, require('../api/v1/users/retrieve').default)
 
 // this route doesn't currently have tests, which is bad... but I don't know how to test oauth
 router.get('/', (req, res, next) => {

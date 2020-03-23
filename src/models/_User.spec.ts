@@ -19,19 +19,19 @@ describe('_User', () => {
     })
 
     it('should return return true if the customer has a license id', async () => {
-      const heroStatus = await getUserHeroStatus({ license_ids: ['1234'] })
+      const heroStatus = await getUserHeroStatus(<any>{ license_ids: ['1234'] })
       expect(heroStatus).to.be.true
       assert.notCalled(heroSubStub)
     })
 
     it('should return false if the user does not have license_ids or a stripe_customer_id', async () => {
-      const heroStatus = await getUserHeroStatus({ license_ids: [] })
+      const heroStatus = await getUserHeroStatus(<any>{ license_ids: [] })
       expect(heroStatus).to.be.false
       assert.notCalled(heroSubStub)
     })
 
     it('should return true if the user has an active subscription from stripe', async () => {
-      let fakeUser = { stripe_customer_id: 'cus_123abc' }
+      const fakeUser: any = { stripe_customer_id: 'cus_123abc' }
 
       const heroStatus = await getUserHeroStatus(fakeUser)
       expect(heroStatus).to.be.true
@@ -45,7 +45,7 @@ describe('_User', () => {
       heroSubStub.resetBehavior()
       heroSubStub.resolves({ data: [] })
 
-      const fakeUser = { stripe_customer_id: 'cus_123abc' }
+      const fakeUser: any = { stripe_customer_id: 'cus_123abc' }
       const heroStatus = await getUserHeroStatus(fakeUser)
       heroStatus.should.be.false
       assert.calledOnce(heroSubStub)
@@ -53,8 +53,8 @@ describe('_User', () => {
   })
 
   describe('createOneTimeTokenObject', () => {
-    let randomToken = '12j4kl1j35kl4;2j5kl42' // the token which will be returned by the random string generator
-    let mockHash = 'this is a fake return value'
+    const randomToken = '12j4kl1j35kl4;2j5kl42' // the token which will be returned by the random string generator
+    const mockHash = 'this is a fake return value'
     let generateStringStub: SinonStub
     let hashStub: SinonStub
 
@@ -68,57 +68,57 @@ describe('_User', () => {
     })
 
     it('should make one call to generate a random string, and one call to hashSync', () => {
-      let token = createOneTimeTokenObject(false)
+      createOneTimeTokenObject(false)
       assert.calledOnce(generateStringStub)
       assert.calledOnce(hashStub)
     })
 
     it('should return the result of hashSync', () => {
-      let { tokenObj } = createOneTimeTokenObject(false)
+      const { tokenObj } = createOneTimeTokenObject(false)
       tokenObj.token.should.be.equal(mockHash)
     })
 
     it('should return the unhashed token', () => {
-      let { unhashedToken } = createOneTimeTokenObject(false)
+      const { unhashedToken } = createOneTimeTokenObject(false)
       unhashedToken.should.be.equal(randomToken)
     })
 
     it('should create tokens made up of hex characters', () => {
-      let token = createOneTimeTokenObject(false)
-      let strOptions = generateStringStub.getCall(0).args[0]
+      createOneTimeTokenObject(false)
+      const strOptions = generateStringStub.getCall(0).args[0]
       strOptions.charset.should.be.equal('hex')
     })
 
     it('should call hashSync with the random hex token as the first property', () => {
-      let token = createOneTimeTokenObject(false)
+      createOneTimeTokenObject(false)
       hashStub.getCall(0).args[0].should.be.equal(randomToken)
     })
 
     it('should generate a tokenObj with an expiration 24 hrs from now', () => {
-      let estimatedExpiration = Date.now() + 1000 * 3600 * 24
-      let expirationMax = estimatedExpiration + 1000
-      let expirationMin = estimatedExpiration - 1000
-      let { tokenObj } = createOneTimeTokenObject(false)
-      let expiration = tokenObj.expiration
-      let isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
+      const estimatedExpiration = Date.now() + 1000 * 3600 * 24
+      const expirationMax = estimatedExpiration + 1000
+      const expirationMin = estimatedExpiration - 1000
+      const { tokenObj } = createOneTimeTokenObject(false)
+      const expiration = tokenObj.expiration
+      const isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
       isValidExpiration.should.be.true
     })
 
     it('should generate a jwt with a custom expiration', () => {
-      let testedExpireTime = 48
-      let estimatedExpiration = Date.now() + 1000 * 3600 * testedExpireTime
-      let expirationMax = estimatedExpiration + 1000
-      let expirationMin = estimatedExpiration - 1000
-      let { tokenObj } = createOneTimeTokenObject(testedExpireTime)
-      let expiration = tokenObj.expiration
-      let isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
+      const testedExpireTime = 48
+      const estimatedExpiration = Date.now() + 1000 * 3600 * testedExpireTime
+      const expirationMax = estimatedExpiration + 1000
+      const expirationMin = estimatedExpiration - 1000
+      const { tokenObj } = createOneTimeTokenObject(testedExpireTime)
+      const expiration = tokenObj.expiration
+      const isValidExpiration = expiration && expiration < expirationMax && expiration > expirationMin
       isValidExpiration.should.be.true
     })
   })
 
   describe('validateToken', () => {
-    let fakeTokenToVerify = 'jrieoqnfdjgauifnjecidanjf;da'
-    let fakeTokenObj = {
+    const fakeTokenToVerify = 'jrieoqnfdjgauifnjecidanjf;da'
+    const fakeTokenObj = {
       token: 'this is whatever',
       expiration: Date.now() + 1000 * 3600, // make the expiration later
     }
@@ -134,9 +134,9 @@ describe('_User', () => {
 
     it('should call compare once', () => {
       bcryptCompareStub.returns(true)
-      let fakeUnhashedToken = 'this is a fake hash'
+      const fakeUnhashedToken = 'this is a fake hash'
 
-      let valid = validateToken(fakeUnhashedToken, fakeTokenObj)
+      const valid = validateToken(fakeUnhashedToken, fakeTokenObj)
 
       valid.should.be.true
       assert.calledOnce(bcryptCompareStub)
@@ -147,17 +147,17 @@ describe('_User', () => {
     it('should return false if the jwt is not valid', () => {
       bcryptCompareStub.returns(false)
 
-      let valid = validateToken('this is a fake hash', fakeTokenObj)
+      const valid = validateToken('this is a fake hash', fakeTokenObj)
 
       valid.should.be.false
     })
 
     it('should return false for an expired token', () => {
-      let mockTokenObj = {
+      const mockTokenObj = {
         token: 'somestr',
         expiration: Date.now() - 1000 * 3600, // an expired date
       }
-      let valid = validateToken("this doesn't even matter!", mockTokenObj)
+      const valid = validateToken("this doesn't even matter!", mockTokenObj)
 
       valid.should.be.false
     })
@@ -174,14 +174,14 @@ describe('_User', () => {
     })
 
     it('should create and validate a one time use token with default expiration', () => {
-      let { unhashedToken, tokenObj } = createOneTimeTokenObject(false)
-      let valid = validateToken(unhashedToken, tokenObj)
+      const { unhashedToken, tokenObj } = createOneTimeTokenObject(false)
+      const valid = validateToken(unhashedToken, tokenObj)
       valid.should.be.true
     })
 
     it('should create and validate a one time use token with custom expiration', () => {
-      let { unhashedToken, tokenObj } = createOneTimeTokenObject(1)
-      let valid = validateToken(unhashedToken, tokenObj)
+      const { unhashedToken, tokenObj } = createOneTimeTokenObject(1)
+      const valid = validateToken(unhashedToken, tokenObj)
       valid.should.be.true
     })
   })
