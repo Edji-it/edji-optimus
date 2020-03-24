@@ -34,6 +34,9 @@ describe('create and list projects workflow', () => {
     expect(token, 'did not successfully log in teacher').not.to.be.undefined
     heroToken = token
     heroUser = user
+  })
+
+  before(async () => {
     let { reading } = await ReadingAPI.create(heroToken)
     createdReading = reading
     createdProject = await ProjectAPI.create(
@@ -44,13 +47,15 @@ describe('create and list projects workflow', () => {
       },
       heroToken,
     )
+  })
+
+  before(async () => {
     let { username: studentUsn, password: studentPw } = data.LOGIN_INFO.API_STUDENT
-    let res = await UserAPI.login(studentUsn, studentPw)
-    studentToken = res.token
+    let { token } = await UserAPI.login(studentUsn, studentPw)
+    studentToken = token
   })
 
   it('should list a project in a users dashboard after the user joins the project', async function() {
-    this.timeout(6000)
     // make sure the new reading does not already exist on the dashboard
     let res1 = await requestProjects(studentToken)
     res1.body.projects.length.should.be.above(1)

@@ -148,7 +148,7 @@ describe('GET /api/v1/projects/:project_id', () => {
     expect(project.teacher).to.deep.equal({
       _id: '59bd93955239f3001105dbb0',
       fullname: 'Api',
-      hero_status: true,
+      hero_status: false,
       username: 'apiteacher',
     })
     expect(project).to.haveOwnProperty('co_owners')

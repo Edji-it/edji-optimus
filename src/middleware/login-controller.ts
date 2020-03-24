@@ -23,14 +23,7 @@ export const login = async function({ username, password }) {
   if (!dbUser || !dbUser.password) throw { status: 401 }
   const match = await comparePasswords(password, dbUser.password)
   if (match) {
-    const { user, token } = generateLoginObjectForUser(dbUser)
-    if (!user || !token) {
-      throw { status: 401 }
-    } else if (user && !token) {
-      captureException(`got user object but not token for id: ${user._id}`)
-      throw { status: 500 }
-    }
-    return { user, token }
+    return dbUser
   } else {
     throw { status: 401 }
   }

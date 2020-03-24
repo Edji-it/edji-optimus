@@ -5,7 +5,7 @@ import ms = require('ms')
 
 // project imports
 import * as _stripe from '../services/stripe'
-import { OAuthType, OAuthObject } from './User'
+import { OAuthType, OAuthObject, UserDocument } from './User'
 
 // constants
 const MESSAGE_CHECK_INTERVAL = 1000 * 60 * 1 // 1 minute
@@ -16,7 +16,7 @@ const ONE_TIME_TOKEN_SALT = 5
  * Returns a promise resolved with a boolean indicating whether or not
  * @param {User} user the user for which we should calculate the hero status
  */
-export const getUserHeroStatus = async function(user) {
+export const getUserHeroStatus = async (user: UserDocument) => {
   // if a user has a license_id, we'll assume that they're all set
   if (user.license_ids && user.license_ids.length > 0) {
     return true
