@@ -2,7 +2,9 @@ import { RequestHandler } from 'express'
 
 // this route is likely being called because GET /api/v1/users/:user_id/messages told the front-end to refresh the user
 const handler: RequestHandler = (req, res, next) => {
-  let user = req.user
+  const user = req.user
+
+  if (user.type === 'temp') return res.status(200).send({ user: user.toPublic() })
 
   user
     .refresh()
