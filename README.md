@@ -1,6 +1,6 @@
 # Optimus Prime (Edji Node Server)
 
-[![CircleCI](https://circleci.com/gh/codiak/edji-optimus/tree/dev.svg?style=svg&circle-token=135514116131ec0f0c5daa9574db9fcf4a3b3b55)](https://circleci.com/gh/codiak/edji-optimus/tree/dev)
+[![CircleCI](https://circleci.com/gh/Edji-it/edji-optimus.svg?style=svg&circle-token=135514116131ec0f0c5daa9574db9fcf4a3b3b55)](https://circleci.com/gh/Edji-it/edji-optimus)
 
 ## Quick Start
 
