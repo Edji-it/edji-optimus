@@ -57,14 +57,11 @@ const ModelCreator = function(
     let error = this.validateSync()
     if (error) throw error
 
-    const promises = [this.save()]
+    const results = await this.save()
     if (this.getIndexOptions) {
       let { collection }: IndexOptions = this.getIndexOptions()
-      // this gets fired asynchronously, so that we don't wait for it
-      promises.push(updateDocumentIndex(collection, this._id))
+      await updateDocumentIndex(collection, this._id)
     }
-
-    const [results] = await Promise.all(promises)
 
     return results
   }
