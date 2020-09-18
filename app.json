@@ -39,12 +39,6 @@
     "MONGO_HOST": {
       "required": true
     },
-    "MONGO_PWD": {
-      "required": true
-    },
-    "MONGO_USER": {
-      "required": true
-    },
     "NODE_ENV": {
       "required": true
     },
