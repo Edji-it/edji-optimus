@@ -11,8 +11,7 @@ mongoose.connect(connStr, <any>{
   socketTimeoutMS: 120000,
   useNewUrlParser: true,
   retryWrites: false,
-  /** @todo transition to useUnifiedTopology after Atlas transition */
-  // useUnifiedTopology: true,
+  useUnifiedTopology: true,
 })
 
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'))
