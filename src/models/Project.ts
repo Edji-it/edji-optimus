@@ -12,7 +12,7 @@ const ModelCreator = require('./ModelCreator').default
 
 /** mongoose hook for validation against acceptable values for `types` */
 const typesEnum = {
-  values: ['emoji', 'text', 'audio', 'reply'],
+  values: ['emoji', 'text', 'audio', 'reply', 'immersive'],
   message: 'enum validator failed for path `{PATH}` with value `{VALUE}`',
 }
 
