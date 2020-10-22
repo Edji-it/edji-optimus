@@ -66,7 +66,7 @@ jobs:
   hot_rod_trigger:
     executor: node
     steps:
-      - run: curl -u e99e65893fe7332bfff1da8abfd39aadac7d7e35 -d build_parameters[CIRCLE_JOB]=e2e https://circleci.com/api/v1.1/project/github/Edji-it/edji-hotrod/tree/dev
+      - run: curl -u ${CIRCLE_API_USER_TOKEN} -d build_parameters[CIRCLE_JOB]=e2e https://circleci.com/api/v1.1/project/github/Edji-it/edji-hotrod/tree/dev
 workflows:
   version: 2
   test-api:
