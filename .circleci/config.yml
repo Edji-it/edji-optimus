@@ -61,12 +61,12 @@ jobs:
       # add write permissions to circleci ssh
       - add_ssh_keys:
           fingerprints:
-            - "17:5b:f9:81:92:12:12:30:60:e4:cc:a7:a7:ac:84:94"
+            - "34:47:b3:8e:99:c6:02:dc:73:aa:6f:c5:f6:1b:49:3d"
       - run: ./scripts/release.sh
   hot_rod_trigger:
     executor: node
     steps:
-      - run: curl -u 0a71eebb7f0d5de3c260dae4c44b8ad8f7064df8 -d build_parameters[CIRCLE_JOB]=e2e https://circleci.com/api/v1.1/project/github/codiak/edji-hotrod/tree/dev
+      - run: curl -u e99e65893fe7332bfff1da8abfd39aadac7d7e35 -d build_parameters[CIRCLE_JOB]=e2e https://circleci.com/api/v1.1/project/github/Edji-it/edji-hotrod/tree/dev
 workflows:
   version: 2
   test-api:
