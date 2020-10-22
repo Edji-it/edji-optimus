@@ -6,6 +6,7 @@ const mongoose = require('mongoose')
 const User = require('../models/User').default
 const { generateLoginObjectForUser } = require('./../middleware/login-controller')
 const authRequired = require('./../middleware/auth-required')
+const { retrieveOrCreateCustomer } = require('../services/stripe')
 const cleanMongoValidationError = require('./../error-handlers/mongo-validation').cleanMongoValidationError
 
 const router = express.Router()
@@ -51,6 +52,11 @@ router.put('/', authRequired, async function(req, res, next) {
       user[property] = userData[property]
     }
   })
+
+  if (user.identities && !user.identities.includes('student')) {
+    const customer = await retrieveOrCreateCustomer(user)
+    user.stripe_customer_id = customer.id
+  }
 
   /**
    * @deprecated 4/4/19
