@@ -34,7 +34,7 @@ const createUserInfo = function(identities?: string[]) {
 const testUser = createUserInfo()
 
 describe('POST /api/v1/users', () => {
-  it('should register a user', async () => {
+  it('should register a teacher user', async () => {
     const res = await request(testUser)
 
     expect(res).to.have.status(201)
@@ -42,6 +42,16 @@ describe('POST /api/v1/users', () => {
 
     validateLoginObject(res.body)
     expect(res.body.user).to.have.property('stripe_customer_id')
+  })
+
+  it('should register a student user', async () => {
+    const res = await request(createUserInfo(['student']))
+
+    expect(res).to.have.status(201)
+    expect(res.body).to.haveOwnProperty('token')
+
+    validateLoginObject(res.body)
+    expect(res.body.user).not.to.have.property('stripe_customer_id')
   })
 
   /**

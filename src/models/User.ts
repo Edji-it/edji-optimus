@@ -8,7 +8,6 @@ import { ObjectId } from 'mongodb'
 // project imports
 import ModelCreator, { EdjiDocument, EdjiModel } from './ModelCreator'
 import { bad } from './badwords'
-import { retrieveOrCreateCustomer } from '../services/stripe'
 
 import {
   getUserHeroStatus,
@@ -245,24 +244,6 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
     if (this.password && this.isModified('password')) {
       this.password = hashSync(this.password, 10) // set the new password to a hash of itself
     }
-
-    // assign teachers a stripe id if they do not have one
-    if (
-      this.identities &&
-      this.identities.length > 0 &&
-      this.identities.indexOf('student') < 0 &&
-      !this.stripe_customer_id
-    ) {
-      try {
-        const customer = await retrieveOrCreateCustomer(this)
-        this.stripe_customer_id = customer.id
-      } catch (err) {
-        // This has to be caught because of tests (not ideal). The user is not validated prior to this, which means that tests
-        // that attempt to create invalid users will end up throwing this error.
-        // It is not vital that users get assigned a customer id - eventually this function should be moved to a pre-save hook,
-        // since those work in the newer mongoose version.
-      }
-    }
   }
 
   // add custom validator to make sure user has either oauth type or username/password
@@ -286,7 +267,7 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
 
     if (!isValid) {
       // this is a mongoose method which provides the error to the mongoose error aggrigator
-      doc.invalidate('auth', 'User must be initalized with credentials (oauth or username/password)', null, 'auth')
+      doc.invalidate('auth', 'User must be initalized with credentials (oauth or email/password)', null, 'auth')
     }
   })
 
@@ -300,7 +281,7 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
        * clever requires us to be more flexible than other systems so we do by allowing users without emails to still sign up
        * this will be the case with students signing in through Clever Library
        */
-      const cleverObj = doc.oauth && doc.oauth.length > 0 && doc.oauth.find(obj => obj.type === 'clever')
+      const cleverObj = doc.oauth && doc.oauth.find(obj => obj.type === 'clever')
       if (cleverObj) {
         if (cleverObj.email) doc.email = cleverObj.email
       } else {

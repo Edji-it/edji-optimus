@@ -6,11 +6,17 @@ import User from '../../../models/User'
 import Referral from './../../../models/Referral'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 import { cleanMongoValidationError } from './../../../error-handlers'
+import { retrieveOrCreateCustomer } from '../../../services/stripe'
 
 const createController: RequestHandler = async function(req, res, next) {
   let userData: any = req.body.user
   try {
     const user = new User(userData)
+    await user.validate()
+    if (!user.identities.includes('student')) {
+      const customer = await retrieveOrCreateCustomer(user)
+      user.stripe_customer_id = customer.id
+    }
     await user.edjiSave()
     // update the referring user's Referral object to reflect their referral
     if (user.referred_by) {

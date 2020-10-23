@@ -14,8 +14,10 @@ const plan = 'yearly'
  * @param {string} paymentToken [optional] the payment token which may or may not be submitted with Stripe
  */
 export const retrieveOrCreateCustomer = async (user: any, paymentToken?: string) => {
-  if (!user || (!user.stripe_customer_id && !user.email))
+  if (!user || (!user.stripe_customer_id && !user.email)) {
+    console.log('user', user)
     throw new Error('user object missing required properties for customer creation')
+  }
 
   const customerId = user.stripe_customer_id
 
