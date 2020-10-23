@@ -13,7 +13,7 @@ const createController: RequestHandler = async function(req, res, next) {
   try {
     const user = new User(userData)
     await user.validate()
-    if (!user.identities.includes('student')) {
+    if (user.identities && user.identities.length > 0 && !user.identities.includes('student')) {
       const customer = await retrieveOrCreateCustomer(user)
       user.stripe_customer_id = customer.id
     }

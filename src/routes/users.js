@@ -53,7 +53,12 @@ router.put('/', authRequired, async function(req, res, next) {
     }
   })
 
-  if (user.identities && !user.identities.includes('student')) {
+  if (
+    !user.stripe_customer_id &&
+    user.identities &&
+    user.identities.length > 0 &&
+    !user.identities.includes('student')
+  ) {
     const customer = await retrieveOrCreateCustomer(user)
     user.stripe_customer_id = customer.id
   }
