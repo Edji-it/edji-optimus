@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express'
 
 // project imports
-import User from '../../../models/User'
+import User, { UserDocument } from '../../../models/User'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 
 export default async function LinkAccounts(req: Request, res: Response, next: NextFunction) {
@@ -13,11 +13,11 @@ export default async function LinkAccounts(req: Request, res: Response, next: Ne
   }
 
   try {
-    const oauthUser = await User.findOne({
+    const oauthUser: UserDocument = await User.findOne({
       'pending_oauth.singleUseToken': oauth_token,
       'pending_oauth.singleUseTokenExpiration': { $gte: Date.now() },
       'pending_oauth.type': oauth_type,
-    })
+    }).lean()
     if (!oauthUser || !user._id.equals(oauthUser._id)) {
       return res.status(403).send()
     }
