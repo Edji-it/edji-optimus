@@ -4,7 +4,7 @@
   "description": "Node backend for Edji.",
   "scripts": {
     "build": "webpack",
-    "start:prod": "pm2-runtime start ecosystem.config.js",
+    "start:prod": "pm2-runtime start ecosystem.config.js --env production",
     "start": "nodemon -L --exec node --inspect=9229 -r ts-node/register src",
     "start:local": "yarn mongo && MONGO_HOST='mongodb://localhost:27017/edji' yarn start",
     "test": "mocha -r ts-node/register -r dotenv/config 'src/**/*.spec.*' --timeout 4000 --exit",
