@@ -14,7 +14,7 @@ module.exports = {
       },
       env_production: {
         NODE_ENV: 'production',
-        instances: 'max',
+        instances: 0, // uses max cpu's
       },
     },
   ],
