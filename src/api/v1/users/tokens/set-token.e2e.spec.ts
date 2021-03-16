@@ -39,14 +39,9 @@ describe('GET api/v1/users/:user_id/tokens/:token_name', () => {
       let res = await request('password', { query: { email: 'success@simulator.amazonses.com' } })
       expect(res).to.have.status(200)
     })
-    it('should receive a 400 for an oauth-only account', async () => {
+    it('should receive a 200 for an oauth account', async () => {
       const res = await request('password', { query: { email: 'google@edji.it' } })
-      expect(res).to.have.status(400)
-      expect(res.body).to.deep.equal({
-        error: 'NO_LOGIN_CREDENTIALS',
-        message: 'user has no username/password, but has at least one oauth account that could be used to log in',
-        oauth_types: ['google'],
-      })
+      expect(res).to.have.status(200)
     })
     it('should receive a 400 if neither username nor email are provided', async () => {
       const res = await request('password')
