@@ -12,7 +12,6 @@ import CreateHandler from './create'
 import LoginHandler from './login'
 import PublicDetailsHandler from './public-details'
 import ChangePasswordHandler from './change-pass'
-import SetPasswordHandler from './set-pass'
 import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
 import { GetAcademiesHandler } from './academies'
@@ -39,7 +38,6 @@ router.get(
 router.get('/:user_id/_refresh', RefreshHandler)
 router.put('/@me/link', addRouteName('/@me/link'), LegacyAuth, authRequired, LinkController)
 router.post('/@me/change_password', LegacyAuth, authRequired, ChangePasswordHandler)
-router.post('/@me/set_password', LegacyAuth, authRequired, SetPasswordHandler)
 router.get('/@me/state', addRouteName('/@me/state'), LegacyAuth, authRequired, GetStatesHandler)
 router.get('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, GetStateHandler)
 router.post('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, PostStateHandler)

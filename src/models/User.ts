@@ -235,7 +235,7 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
     let userObj = pick(this, (value, key, object) => {
       return clientProperties.indexOf(key) > -1
     })
-    userObj.hasPassword = this.password !== undefined
+    userObj.has_password = this.password !== undefined
     return userObj
   }
 
