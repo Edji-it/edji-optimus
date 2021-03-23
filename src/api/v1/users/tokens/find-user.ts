@@ -33,21 +33,8 @@ export async function PasswordHandler(req: Request, res: Response, next: NextFun
 
     // error cases where the user doesnt have username/password
     if (!userCanResetPass(user)) {
-      if (user.oauth && user.oauth.length > 0) {
-        // pull oauth types out of array
-        let types = user.oauth.map(({ type }) => {
-          return type
-        })
-
-        return res.status(400).send({
-          error: 'NO_LOGIN_CREDENTIALS',
-          message: 'user has no username/password, but has at least one oauth account that could be used to log in',
-          oauth_types: types,
-        })
-      } else {
-        let ERROR = 'account has no credentials or oauth: ' + user._id
-        return next(ERROR)
-      }
+      let ERROR = 'account has no credentials or oauth: ' + user._id
+      return next(ERROR)
     }
     // attach the user to the request so we can use this in the next stage
     req.user = user

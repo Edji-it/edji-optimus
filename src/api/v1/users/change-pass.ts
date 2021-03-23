@@ -10,25 +10,32 @@ const resetSchema = joi.object().keys({
   new_password: joi.string().required(),
 })
 
+const setSchema = joi.object().keys({
+  old_password: joi.empty().required(),
+  new_password: joi.string().required(),
+})
+
 const changePasswordHandler: RequestHandler = async (req, res, next) => {
   const user = req.user
 
   // validation
-  if (!user.password) {
+  if (!user.password && user.type === "temp") {
     let error = new Error('no password for user')
     if (user.type === 'temp') error.message += '; user is a temp'
     error.name = 'err_no_password'
     return res.status(400).send(error)
   }
 
-  const { error, value } = joi.validate(req.body, resetSchema)
+  const { error, value } = !user.password ? joi.validate(req.body, setSchema) : joi.validate(req.body, resetSchema)
   if (error) return res.status(400).send(error)
 
   try {
-    // verify password
-    const match = await comparePasswords(value.old_password, user.password)
-    if (!match) {
-      return res.status(403).send()
+    if(user.password) {
+      // verify password
+      const match = await comparePasswords(value.old_password, user.password)
+      if (!match) {
+        return res.status(403).send()
+      }
     }
 
     // update user
