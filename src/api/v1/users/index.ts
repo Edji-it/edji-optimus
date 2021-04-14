@@ -8,6 +8,7 @@ import { addRouteName } from '../../../utils/edji-utils'
 
 import TokenController from './tokens'
 import LinkController from './link'
+import UnlinkController from './unlink'
 import CreateHandler from './create'
 import LoginHandler from './login'
 import PublicDetailsHandler from './public-details'
@@ -37,6 +38,7 @@ router.get(
 )
 router.get('/:user_id/_refresh', RefreshHandler)
 router.put('/@me/link', addRouteName('/@me/link'), LegacyAuth, authRequired, LinkController)
+router.put('/@me/unlink', addRouteName('/@me/unlink'), LegacyAuth, authRequired, UnlinkController)
 router.post('/@me/change_password', LegacyAuth, authRequired, ChangePasswordHandler)
 router.get('/@me/state', addRouteName('/@me/state'), LegacyAuth, authRequired, GetStatesHandler)
 router.get('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, GetStateHandler)
