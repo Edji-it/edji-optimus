@@ -1,0 +1,67 @@
+import { EmailService } from "../services/email"
+import User, { UserDocument } from "../models/User"
+import Project from "../models/Project"
+import * as helpers from '../api/v1/projects/_retrieve'
+
+export const EmailHandler = async function() {
+  console.log("pre-send")
+
+  const users: UserDocument[] = await User.find({
+    'prefs.activityRecap': true,
+    'email': 'bnylund19@gmail.com',
+  }).exec()
+
+  console.log("Sending email to " + users.length + " users")
+  
+  users.forEach(async user => {
+
+    let pipeline = [{ $match: { teacher_id: user._id} }]
+    pipeline = pipeline.concat(helpers.populateProperties(["reading_id"]))
+  
+    const projects = await Project.aggregate(pipeline)
+
+    // Collect recent activity from projects
+    let activity: { project_name: string, comments: { author: string, type: string, data: string, date: Date, replyTo?: string }[] }[] = []
+
+    projects.forEach(project => {
+      let comments = [] as { author: string, type: string, data: string, date: Date, replyTo?: string }[]
+
+      const coms = project.comments
+      coms.forEach((comment) => {
+        if(comment.data.length > 0 && Math.abs(Date.now() - new Date(comment.createdAt).getTime()) /* ms */ /1000 /* s */ /60 /* m */ /60 /* h */ <= 24) {
+          comments.push({
+            author: comment.author,
+            type: comment.reply_to ? 'reply' : 'comment',
+            data: comment.data,
+            date: comment.createdAt,
+            replyTo: comment.reply_to ? coms.find(x => String(x._id) === String(comment.reply_to)).author : undefined,
+          })
+        }
+      })
+
+      // Sort comments by date
+      comments.sort((a, b) => {
+        return a.date < b.date ? 1 : a.date > b.date ? -1 : 0
+      })
+
+      if(comments.length > 0) {
+        activity.push({
+          project_name: project.reading_id.title,
+          comments: comments,
+        })
+      }
+    })
+
+    if(activity.length > 0) {
+      EmailService.sendEmail({
+        email_template: "recent-activity",
+        name: user.fullname,
+        subject: "Recent Reading Activity",
+        email: user.email,
+        from: "Edji <support@edji.it>",
+        vars_object: { recent_activity: activity } as any,
+      })
+    }
+  })
+  console.log("Done!")
+}

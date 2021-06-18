@@ -2,11 +2,14 @@
 require('dotenv').config()
 
 // package imports
+const cron = require('node-cron')
 const express = require('express')
 const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const { EdjiUtils, addRouteName } = require('./utils/edji-utils')
 const { LegacyAuth } = require('./middleware')
+const { EmailHandler } = require('./tasks')
+
 
 // initializes aws config and env vars
 require('./services/aws')
@@ -46,6 +49,10 @@ const port = process.env.PORT || 3354
 
 server.listen(port, () => {
   console.log('Server connected at ' + port)
+
+  // Set up daily email summaries for 7PM (needs to come after mongo is connected)
+  cron.schedule("0 19 * * *", EmailHandler)
+  EmailHandler();
 })
 
 server.timeout = 10000
