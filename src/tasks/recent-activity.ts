@@ -8,7 +8,7 @@ export const EmailHandler = async function() {
 
   const users: UserDocument[] = await User.find({
     'prefs.activityRecap': true,
-    'email': 'bnylund19@gmail.com',
+    'email': 'bnylund19@gmail.com', // Remove this line when we're done with this ticket
   }).exec()
 
   console.log("Sending email to " + users.length + " users")
@@ -21,10 +21,10 @@ export const EmailHandler = async function() {
     const projects = await Project.aggregate(pipeline)
 
     // Collect recent activity from projects
-    let activity: { project_name: string, comments: { author: string, type: string, data: string, date: Date, replyTo?: string }[] }[] = []
+    let activity: { _id: string, name: string, date: Date, comments: { _id: string, author: string, type: string, data: string, date: Date, replyTo?: { _id: string, name: string } }[] }[] = []
 
     projects.forEach(project => {
-      let comments = [] as { author: string, type: string, data: string, date: Date, replyTo?: string }[]
+      let comments = [] as { _id: string, author: string, type: string, data: string, date: Date, replyTo?: { _id: string, name: string } }[]
 
       const coms = project.comments
       coms.forEach((comment) => {
@@ -34,7 +34,11 @@ export const EmailHandler = async function() {
             type: comment.reply_to ? 'reply' : 'comment',
             data: comment.data,
             date: comment.createdAt,
-            replyTo: comment.reply_to ? coms.find(x => String(x._id) === String(comment.reply_to)).author : undefined,
+            replyTo: comment.reply_to ? {
+              name: coms.find(x => String(x._id) === String(comment.reply_to)).author,
+              _id: comment.reply_to,
+            } : undefined,
+            _id: comment._id,
           })
         }
       })
@@ -46,11 +50,18 @@ export const EmailHandler = async function() {
 
       if(comments.length > 0) {
         activity.push({
-          project_name: project.reading_id.title,
+          _id: project._id,
+          name: project.reading_id.title,
           comments: comments,
+          date: project.createdAt,
         })
       }
     })
+
+    // Sort projects by date
+    activity.sort((a, b) => {
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0
+    });
 
     if(activity.length > 0) {
       EmailService.sendEmail({
