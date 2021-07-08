@@ -31,7 +31,7 @@ export async function GetActivityRecapHandler(req: Request, res: Response, next:
     const projects = await Project.aggregate(pipeline)
 
     // Collect recent activity from projects
-    let activity: { name: string, group: string, _id: string, date: Date, comments: { _id: string, author: any, type: string, data: string, date: Date, replyTo?: { _id: string, name: string } }[] }[] = []
+    let activity: { name: string, group: string, _id: string, date: Date, comments: { _id: string, author: any, type: string, text: string, data: string, date: Date, replyTo?: any }[] }[] = []
 
     let cachedUsers = []
 
@@ -39,7 +39,7 @@ export async function GetActivityRecapHandler(req: Request, res: Response, next:
     for(let projectIndex = 0; projectIndex < projects.length; projectIndex++) {
       const project = projects[projectIndex]
 
-      let comments = [] as { _id: string, author: any, type: string, data: string, date: Date, replyTo?: { _id: string, name: string } }[]
+      let comments = [] as { _id: string, author: any, type: string, text: string, data: string, date: Date, replyTo?: any }[]
 
       const coms = project.comments
       for(let commentIndex = 0; commentIndex < coms.length; commentIndex++) {
@@ -76,6 +76,7 @@ export async function GetActivityRecapHandler(req: Request, res: Response, next:
             date: comment.createdAt,
             replyTo: comment.reply_to ? coms.find(x => String(x._id) === String(comment.reply_to)) : undefined,
             _id: comment._id,
+            text: comment.text,
           })
         }
       }
