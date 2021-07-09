@@ -52,7 +52,6 @@ server.listen(port, () => {
 
   // Set up daily email summaries for 7PM (needs to come after mongo is connected)
   cron.schedule("0 19 * * *", EmailHandler)
-  EmailHandler();
 })
 
 server.timeout = 10000

@@ -53,6 +53,7 @@ const getUserUpdate = () => {
         newReading: {},
       },
       recentEmoji: [dateTime.getTime().toString()],
+      activityRecap: false,
     },
     media: {
       documents: [
