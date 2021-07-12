@@ -61,16 +61,14 @@ export async function GetActivityRecapHandler(req: Request, res: Response, next:
 
           let author = cachedUsers.find(x => String(x._id) === String(comment.user_id))
           if(!author) {
-            author = await User.findById(comment.user_id)
+            author = pick(await User.findById(comment.user_id), (value, key, object) => {
+              return publicProperties.indexOf(key) > -1
+            })
             cachedUsers.push(author)
           }
 
-          let publicAuthor = pick(author, (value, key, object) => {
-            return publicProperties.indexOf(key) > -1
-          })
-
           comments.push({
-            author: publicAuthor,
+            author,
             type: comment.reply_to ? 'reply' : 'comment',
             data: comment.data,
             date: comment.createdAt,
