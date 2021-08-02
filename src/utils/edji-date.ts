@@ -1,6 +1,11 @@
 // Available displayType: timeAgo, timeStamp
 // Available timeFormat for timeStamp: longDate, mediumDate, shortDate
-export default function transform(isoTime: string, displayType?: string, timeFormat?: string, triggerChange?: number): string {
+export default function transform(
+  isoTime: string,
+  displayType?: string,
+  timeFormat?: string,
+  triggerChange?: number,
+): string {
   let time = new Date(isoTime)
   var months = [
     'January',
