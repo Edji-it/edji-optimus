@@ -11,8 +11,8 @@ export class EmailService {
     vars_object,
   }: EmailOptions): rp.RequestPromise {
     const options: rp.OptionsWithUri = {
-      uri: [process.env.EDJI_BLUESTREAK_DOMAIN, 'api', 'v1', 'emails', 'sendmail', email_template].join('/'),
-      headers: { Authorization: process.env.EDJI_BLUESTREAK_TOKEN },
+      uri: [process.env.EDJI_FLAK_URL, 'email'].join('/'),
+      qs: { auth_token: process.env.EDJI_FLAK_TOKEN },
       body: {
         from: from,
         subject: subject,
@@ -23,6 +23,7 @@ export class EmailService {
             vars: vars_object,
           },
         ],
+        template: email_template,
       },
       json: true,
     }
