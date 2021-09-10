@@ -96,7 +96,7 @@ export const validateToken = function(unhashedToken, tokenObj) {
  */
 export const isValidTokenProperty = function(propertyName) {
   // array of all the properties which should be treated as one time use jwt's
-  let validProperties = ['reset_email', 'reset_password']
+  let validProperties = ['reset_email', 'reset_password', 'reset_confirmed']
   return validProperties.indexOf(propertyName) > -1
 }
 
