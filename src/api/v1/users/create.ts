@@ -53,9 +53,7 @@ const createController: RequestHandler = async function(req, res, next) {
         from: 'Edji <support@edji.it>',
         vars_object: varsObj,
       })
-    } catch (err) {
-      return next(err)
-    }
+    } catch (err) {}
 
     return res.status(201).send(generateLoginObjectForUser(user))
   } catch (error) {
