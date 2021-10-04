@@ -45,11 +45,25 @@ export default function recentActivityPipeline(userId: string | ObjectId) {
     {
       $match: {
         $expr: {
-          $gt: [
+          $eq: [{ $type: '$comments.data' }, 'string'],
+        },
+      },
+    },
+    {
+      $match: {
+        $expr: {
+          $or: [
             {
-              $strLenCP: '$comments.data',
+              $gt: [
+                {
+                  $strLenCP: '$comments.data',
+                },
+                0,
+              ],
             },
-            0,
+            {
+              $eq: ['$comments.type', 'audio'],
+            },
           ],
         },
       },
@@ -85,7 +99,6 @@ export default function recentActivityPipeline(userId: string | ObjectId) {
         'author',
         'comments.start',
         'comments.end',
-        'comments.dataArray',
         'comments.replies',
         'comments.updatedAt',
         'comments.user_id',

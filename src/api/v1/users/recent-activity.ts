@@ -46,7 +46,7 @@ export async function GetActivityRecapHandler(req: Request, res: Response, next:
     for (let i = 0; i < projects.length; i++) {
       const project = projects[i]
       project.comments.forEach(comment => {
-        comment.type = comment.reply_to ? 'reply' : 'comment'
+        comment.comment_type = comment.reply_to ? 'reply' : 'comment'
         if (comment.reply_to) {
           comment.replyTo = project.comments.find(x => String(x._id) === String(comment.reply_to))
           delete comment.reply_to
