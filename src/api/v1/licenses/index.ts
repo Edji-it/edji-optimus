@@ -7,6 +7,7 @@ const addRouteName = require('./../../../utils/edji-utils').addRouteName
 import { validateIdParameters } from './../../../middleware'
 
 import AcceptHandler from './accept'
+import RemoveHandler from './remove'
 
 const router = Router()
 router.put(
@@ -22,6 +23,13 @@ router.put(
   authRequired,
   validateIdParameters('license_id'),
   require('./invite'),
+)
+router.put(
+  '/:license_id/remove',
+  addRouteName('/:license_id/remove'),
+  authRequired,
+  validateIdParameters('license_id'),
+  RemoveHandler,
 )
 router.post('/', addRouteName('/'), authRequired, require('./create'))
 router.get('/', addRouteName('/'), authRequired, require('./retrieve'))
