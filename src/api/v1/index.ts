@@ -5,6 +5,7 @@ const router = require('express').Router()
 import StandardsRouter from './standards'
 import InstitutionsRouter from './institutions'
 import ProjectsRouter from './projects'
+import ModulesRouter from './modules'
 import AuthRouter from './auth'
 import StripeRouter from './stripe'
 import UsersRouter from './users'
@@ -18,6 +19,7 @@ import { LegacyAuth } from '../../middleware'
 // attach routes
 router.use('/readings', addRouteName('/readings'), LegacyAuth, ReadingsRouter)
 router.use('/projects', addRouteName('/projects'), ProjectsRouter)
+router.use('/modules', addRouteName('/modules'), ModulesRouter)
 router.use('/auth', addRouteName('/auth'), LegacyAuth, AuthRouter)
 router.use('/stripe', addRouteName('/stripe'), LegacyAuth, StripeRouter)
 router.use('/users', addRouteName('/users'), UsersRouter)
