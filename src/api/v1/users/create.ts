@@ -20,8 +20,6 @@ const createController: RequestHandler = async function(req, res, next) {
       user.stripe_customer_id = customer.id
     }
 
-    // Create email token and save
-    const unhashedToken: string = await user.setOneTimeToken('reset_confirmed', 24)
     await user.edjiSave()
 
     // update the referring user's Referral object to reflect their referral
@@ -38,22 +36,6 @@ const createController: RequestHandler = async function(req, res, next) {
         },
       )
     }
-
-    // Send email confirmation token in email
-    const varsObj: any = {
-      token_url: `https:${process.env.CLIENT_URL}/redeem-token/confirmed/${unhashedToken}?user_id=${user._id}`,
-    }
-
-    try {
-      await EmailService.sendEmail({
-        email_template: 'reset_confirmed',
-        name: user.email,
-        subject: 'Edji Email Confirmation',
-        email: user.email,
-        from: 'Edji <support@edji.it>',
-        vars_object: varsObj,
-      })
-    } catch (err) {}
 
     return res.status(201).send(generateLoginObjectForUser(user))
   } catch (error) {
