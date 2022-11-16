@@ -12,6 +12,7 @@ mongoose.connect(connStr, <any>{
   useNewUrlParser: true,
   retryWrites: false,
   useUnifiedTopology: true,
+  autoIndex: false,
 })
 
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'))
