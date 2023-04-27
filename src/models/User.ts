@@ -133,6 +133,7 @@ const schema = {
         firstDone: Date,
       },
     },
+    activityRecap: { type: Boolean, default: false, required: true },
   },
   media: {
     images: [

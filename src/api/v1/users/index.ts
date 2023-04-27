@@ -17,6 +17,7 @@ import ReferralsRouter from './referrals'
 import MessagesRouter from './messages'
 import { GetAcademiesHandler } from './academies'
 import { GetStateHandler, GetStatesHandler, PostStateHandler } from './state'
+import { GetActivityRecapHandler, PostActivityRecapHandler } from './recent-activity'
 import { LegacyAuth, addUserToRequest } from '../../../middleware'
 import RefreshHandler from './refresh'
 import RetrieveHandler from './retrieve'
@@ -40,6 +41,20 @@ router.get('/:user_id/_refresh', RefreshHandler)
 router.put('/@me/link', addRouteName('/@me/link'), LegacyAuth, authRequired, LinkController)
 router.put('/@me/unlink', addRouteName('/@me/unlink'), LegacyAuth, authRequired, UnlinkController)
 router.post('/@me/change_password', LegacyAuth, authRequired, ChangePasswordHandler)
+router.post(
+  '/@me/activity_recap',
+  addRouteName('/@me/activity_recap'),
+  LegacyAuth,
+  authRequired,
+  PostActivityRecapHandler,
+)
+router.get(
+  '/@me/activity_recap',
+  addRouteName('/@me/activity_recap'),
+  LegacyAuth,
+  authRequired,
+  GetActivityRecapHandler,
+)
 router.get('/@me/state', addRouteName('/@me/state'), LegacyAuth, authRequired, GetStatesHandler)
 router.get('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, GetStateHandler)
 router.post('/@me/state/:key', addRouteName('/@me/state/:key'), LegacyAuth, authRequired, PostStateHandler)

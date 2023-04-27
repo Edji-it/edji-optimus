@@ -55,11 +55,11 @@ describe('EmailService', () => {
         if (!options) {
           return done('no email options specified for request-promise')
         }
-        options.should.have.property('headers')
-        options.headers.should.have.property('Authorization')
+        options.should.have.property('qs')
+        options.qs.should.have.property('auth_token')
         options.uri
           .toString()
-          .indexOf(['api', 'v1', 'emails', 'sendmail', emailParams.email_template].join('/'))
+          .indexOf(['email'].join('/'))
           .should.be.greaterThan(-1)
         options.should.have.property('body')
         options.body.should.have.property('from')
