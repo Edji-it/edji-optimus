@@ -7,17 +7,21 @@ import Referral from './../../../models/Referral'
 import { generateLoginObjectForUser } from './../../../middleware/login-controller'
 import { cleanMongoValidationError } from './../../../error-handlers'
 import { retrieveOrCreateCustomer } from '../../../services/stripe'
+import { EmailService } from '../../../services/email'
 
 const createController: RequestHandler = async function(req, res, next) {
   let userData: any = req.body.user
   try {
     const user = new User(userData)
+    user.confirmed = false
     await user.validate()
     if (user.identities && user.identities.length > 0 && !user.identities.includes('student')) {
       const customer = await retrieveOrCreateCustomer(user)
       user.stripe_customer_id = customer.id
     }
+
     await user.edjiSave()
+
     // update the referring user's Referral object to reflect their referral
     if (user.referred_by) {
       await Referral.findOneAndUpdate(
@@ -32,6 +36,7 @@ const createController: RequestHandler = async function(req, res, next) {
         },
       )
     }
+
     return res.status(201).send(generateLoginObjectForUser(user))
   } catch (error) {
     // constructs object with list of model-defined errors to send to user

@@ -63,6 +63,32 @@ router.put('/', authRequired, async function(req, res, next) {
     user.stripe_customer_id = customer.id
   }
 
+  // If not a student, not confirmed and doesn't have a confirm token
+  if (
+    !(user.identities && user.identities.length > 0 && user.identities.includes('student')) &&
+    !user.reset_confirmed &&
+    !user.confirmed
+  ) {
+    // Create email token and save
+    const unhashedToken = await user.setOneTimeToken('reset_confirmed', 24)
+
+    // Send email confirmation token in email
+    const varsObj = {
+      token_url: `https:${process.env.CLIENT_URL}/redeem-token/confirmed/${unhashedToken}?user_id=${user._id}`,
+    }
+
+    try {
+      await EmailService.sendEmail({
+        email_template: 'reset_confirmed',
+        name: user.email,
+        subject: 'Edji Email Confirmation',
+        email: user.email,
+        from: 'Edji <support@edji.it>',
+        vars_object: varsObj,
+      })
+    } catch (err) {}
+  }
+
   /**
    * @deprecated 4/4/19
    */

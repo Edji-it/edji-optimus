@@ -99,6 +99,8 @@ const schema = {
   },
   reset_email: { type: OneTimeTokenObject, default: null },
   reset_password: { type: OneTimeTokenObject, default: null },
+  reset_confirmed: { type: OneTimeTokenObject, default: null },
+  confirmed: { type: Boolean, default: false },
   archive_readings_before: { type: Date },
   last_action_time: Date, // the time the user last hit the server with an Authorization token
   last_message_check_time: { type: Date, default: Date.now() },
@@ -229,6 +231,7 @@ const UserModel = <UserModel>ModelCreator('User', schema, function(schema: Schem
       'sales_can_contact',
       'archive_readings_before',
       'oauth',
+      'confirmed',
     ]
 
     // return all of the properties in the above array
@@ -376,6 +379,7 @@ export interface iUser {
   avatar?: string
   identities?: string[]
   oauth?: OAuthObject[]
+  confirmed?: boolean
   pending_oauth?: OAuthObject
   message_list_id?: ObjectId
   message_check_required?: boolean
